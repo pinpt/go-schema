@@ -645,14 +645,14 @@ func (t *ProcessingError) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateProcessingErrorTable will create the ProcessingError table
 func DBCreateProcessingErrorTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `processing_error` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`created_at`BIGINT(20) UNSIGNED NOT NULL,`type`TEXT NOT NULL,`message`MEDIUMTEXT NOT NULL,`fatal` TINYINT(1) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,INDEX processing_error_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `processing_error` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`created_at`BIGINT(20) UNSIGNED NOT NULL,`type`TEXT NOT NULL,`message`MEDIUMTEXT NOT NULL,`fatal` BOOL NOT NULL,`customer_id` VARCHAR(64) NOT NULL,INDEX processing_error_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateProcessingErrorTableTx will create the ProcessingError table using the provided transction
 func DBCreateProcessingErrorTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `processing_error` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`created_at`BIGINT(20) UNSIGNED NOT NULL,`type`TEXT NOT NULL,`message`MEDIUMTEXT NOT NULL,`fatal` TINYINT(1) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,INDEX processing_error_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `processing_error` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`created_at`BIGINT(20) UNSIGNED NOT NULL,`type`TEXT NOT NULL,`message`MEDIUMTEXT NOT NULL,`fatal` BOOL NOT NULL,`customer_id` VARCHAR(64) NOT NULL,INDEX processing_error_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

@@ -774,14 +774,14 @@ func (t *ACLResource) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateACLResourceTable will create the ACLResource table
 func DBCreateACLResourceTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `acl_resource` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`urn` VARCHAR(255) NOT NULL,`description`TEXT,`title`TEXT,`public` TINYINT(1) NOT NULL,`hidden` TINYINT(1) NOT NULL,`admin`TINYINT(1) NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,INDEX acl_resource_urn_index (`urn`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `acl_resource` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`urn` VARCHAR(255) NOT NULL,`description`TEXT,`title`TEXT,`public` BOOL NOT NULL,`hidden` BOOL NOT NULL,`admin`BOOL NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,INDEX acl_resource_urn_index (`urn`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateACLResourceTableTx will create the ACLResource table using the provided transction
 func DBCreateACLResourceTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `acl_resource` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`urn` VARCHAR(255) NOT NULL,`description`TEXT,`title`TEXT,`public` TINYINT(1) NOT NULL,`hidden` TINYINT(1) NOT NULL,`admin`TINYINT(1) NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,INDEX acl_resource_urn_index (`urn`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `acl_resource` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`urn` VARCHAR(255) NOT NULL,`description`TEXT,`title`TEXT,`public` BOOL NOT NULL,`hidden` BOOL NOT NULL,`admin`BOOL NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,INDEX acl_resource_urn_index (`urn`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

@@ -499,124 +499,142 @@ func (t *Signal) SetName(v string) {
 	t.Name = v
 }
 
-// FindSignalByName will find a Signal by Name
-func FindSignalByName(ctx context.Context, db *sql.DB, value string) (*Signal, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `id` = ?"
-	var _ID sql.NullString
-	var _Name sql.NullString
-	var _Value sql.NullFloat64
-	var _Timeunit sql.NullInt64
-	var _Date sql.NullString
-	var _Metadata sql.NullString
-	var _CustomerID sql.NullString
-	var _RefType sql.NullString
-	var _RefID sql.NullString
-	err := db.QueryRowContext(ctx, q, value).Scan(
-		&_ID,
-		&_Name,
-		&_Value,
-		&_Timeunit,
-		&_Date,
-		&_Metadata,
-		&_CustomerID,
-		&_RefType,
-		&_RefID,
-	)
+// FindSignalsByName will find all Signals by the Name value
+func FindSignalsByName(ctx context.Context, db *sql.DB, value string) ([]*Signal, error) {
+	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `name` = ? LIMIT 1"
+	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
-	t := &Signal{}
-	if _ID.Valid {
-		t.SetID(_ID.String)
+	defer rows.Close()
+	results := make([]*Signal, 0)
+	for rows.Next() {
+		var _ID sql.NullString
+		var _Name sql.NullString
+		var _Value sql.NullFloat64
+		var _Timeunit sql.NullInt64
+		var _Date sql.NullString
+		var _Metadata sql.NullString
+		var _CustomerID sql.NullString
+		var _RefType sql.NullString
+		var _RefID sql.NullString
+		err := rows.Scan(
+			&_ID,
+			&_Name,
+			&_Value,
+			&_Timeunit,
+			&_Date,
+			&_Metadata,
+			&_CustomerID,
+			&_RefType,
+			&_RefID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		t := &Signal{}
+		if _ID.Valid {
+			t.SetID(_ID.String)
+		}
+		if _Name.Valid {
+			t.SetName(_Name.String)
+		}
+		if _Value.Valid {
+			t.SetValue(_Value.Float64)
+		}
+		if _Timeunit.Valid {
+			t.SetTimeunit(int32(_Timeunit.Int64))
+		}
+		if _Date.Valid {
+			t.SetDate(_Date.String)
+		}
+		if _Metadata.Valid {
+			t.SetMetadata(_Metadata.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
+		if _RefType.Valid {
+			t.SetRefType(_RefType.String)
+		}
+		if _RefID.Valid {
+			t.SetRefID(_RefID.String)
+		}
+		results = append(results, t)
 	}
-	if _Name.Valid {
-		t.SetName(_Name.String)
-	}
-	if _Value.Valid {
-		t.SetValue(_Value.Float64)
-	}
-	if _Timeunit.Valid {
-		t.SetTimeunit(int32(_Timeunit.Int64))
-	}
-	if _Date.Valid {
-		t.SetDate(_Date.String)
-	}
-	if _Metadata.Valid {
-		t.SetMetadata(_Metadata.String)
-	}
-	if _CustomerID.Valid {
-		t.SetCustomerID(_CustomerID.String)
-	}
-	if _RefType.Valid {
-		t.SetRefType(_RefType.String)
-	}
-	if _RefID.Valid {
-		t.SetRefID(_RefID.String)
-	}
-	return t, nil
+	return results, nil
 }
 
-// FindSignalByNameTx will find a Signal by Name using the provided transaction
-func FindSignalByNameTx(ctx context.Context, tx *sql.Tx, value string) (*Signal, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `id` = ?"
-	var _ID sql.NullString
-	var _Name sql.NullString
-	var _Value sql.NullFloat64
-	var _Timeunit sql.NullInt64
-	var _Date sql.NullString
-	var _Metadata sql.NullString
-	var _CustomerID sql.NullString
-	var _RefType sql.NullString
-	var _RefID sql.NullString
-	err := tx.QueryRowContext(ctx, q, value).Scan(
-		&_ID,
-		&_Name,
-		&_Value,
-		&_Timeunit,
-		&_Date,
-		&_Metadata,
-		&_CustomerID,
-		&_RefType,
-		&_RefID,
-	)
+// FindSignalsByNameTx will find all Signals by the Name value using the provided transaction
+func FindSignalsByNameTx(ctx context.Context, tx *sql.Tx, value string) ([]*Signal, error) {
+	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `name` = ? LIMIT 1"
+	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
-	t := &Signal{}
-	if _ID.Valid {
-		t.SetID(_ID.String)
+	defer rows.Close()
+	results := make([]*Signal, 0)
+	for rows.Next() {
+		var _ID sql.NullString
+		var _Name sql.NullString
+		var _Value sql.NullFloat64
+		var _Timeunit sql.NullInt64
+		var _Date sql.NullString
+		var _Metadata sql.NullString
+		var _CustomerID sql.NullString
+		var _RefType sql.NullString
+		var _RefID sql.NullString
+		err := rows.Scan(
+			&_ID,
+			&_Name,
+			&_Value,
+			&_Timeunit,
+			&_Date,
+			&_Metadata,
+			&_CustomerID,
+			&_RefType,
+			&_RefID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		t := &Signal{}
+		if _ID.Valid {
+			t.SetID(_ID.String)
+		}
+		if _Name.Valid {
+			t.SetName(_Name.String)
+		}
+		if _Value.Valid {
+			t.SetValue(_Value.Float64)
+		}
+		if _Timeunit.Valid {
+			t.SetTimeunit(int32(_Timeunit.Int64))
+		}
+		if _Date.Valid {
+			t.SetDate(_Date.String)
+		}
+		if _Metadata.Valid {
+			t.SetMetadata(_Metadata.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
+		if _RefType.Valid {
+			t.SetRefType(_RefType.String)
+		}
+		if _RefID.Valid {
+			t.SetRefID(_RefID.String)
+		}
+		results = append(results, t)
 	}
-	if _Name.Valid {
-		t.SetName(_Name.String)
-	}
-	if _Value.Valid {
-		t.SetValue(_Value.Float64)
-	}
-	if _Timeunit.Valid {
-		t.SetTimeunit(int32(_Timeunit.Int64))
-	}
-	if _Date.Valid {
-		t.SetDate(_Date.String)
-	}
-	if _Metadata.Valid {
-		t.SetMetadata(_Metadata.String)
-	}
-	if _CustomerID.Valid {
-		t.SetCustomerID(_CustomerID.String)
-	}
-	if _RefType.Valid {
-		t.SetRefType(_RefType.String)
-	}
-	if _RefID.Valid {
-		t.SetRefID(_RefID.String)
-	}
-	return t, nil
+	return results, nil
 }
 
 // GetValue will return the Signal Value value
@@ -647,126 +665,6 @@ func (t *Signal) GetDate() string {
 // SetDate will set the Signal Date value
 func (t *Signal) SetDate(v string) {
 	t.Date = v
-}
-
-// FindSignalByDate will find a Signal by Date
-func FindSignalByDate(ctx context.Context, db *sql.DB, value string) (*Signal, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `id` = ?"
-	var _ID sql.NullString
-	var _Name sql.NullString
-	var _Value sql.NullFloat64
-	var _Timeunit sql.NullInt64
-	var _Date sql.NullString
-	var _Metadata sql.NullString
-	var _CustomerID sql.NullString
-	var _RefType sql.NullString
-	var _RefID sql.NullString
-	err := db.QueryRowContext(ctx, q, value).Scan(
-		&_ID,
-		&_Name,
-		&_Value,
-		&_Timeunit,
-		&_Date,
-		&_Metadata,
-		&_CustomerID,
-		&_RefType,
-		&_RefID,
-	)
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	t := &Signal{}
-	if _ID.Valid {
-		t.SetID(_ID.String)
-	}
-	if _Name.Valid {
-		t.SetName(_Name.String)
-	}
-	if _Value.Valid {
-		t.SetValue(_Value.Float64)
-	}
-	if _Timeunit.Valid {
-		t.SetTimeunit(int32(_Timeunit.Int64))
-	}
-	if _Date.Valid {
-		t.SetDate(_Date.String)
-	}
-	if _Metadata.Valid {
-		t.SetMetadata(_Metadata.String)
-	}
-	if _CustomerID.Valid {
-		t.SetCustomerID(_CustomerID.String)
-	}
-	if _RefType.Valid {
-		t.SetRefType(_RefType.String)
-	}
-	if _RefID.Valid {
-		t.SetRefID(_RefID.String)
-	}
-	return t, nil
-}
-
-// FindSignalByDateTx will find a Signal by Date using the provided transaction
-func FindSignalByDateTx(ctx context.Context, tx *sql.Tx, value string) (*Signal, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `id` = ?"
-	var _ID sql.NullString
-	var _Name sql.NullString
-	var _Value sql.NullFloat64
-	var _Timeunit sql.NullInt64
-	var _Date sql.NullString
-	var _Metadata sql.NullString
-	var _CustomerID sql.NullString
-	var _RefType sql.NullString
-	var _RefID sql.NullString
-	err := tx.QueryRowContext(ctx, q, value).Scan(
-		&_ID,
-		&_Name,
-		&_Value,
-		&_Timeunit,
-		&_Date,
-		&_Metadata,
-		&_CustomerID,
-		&_RefType,
-		&_RefID,
-	)
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	t := &Signal{}
-	if _ID.Valid {
-		t.SetID(_ID.String)
-	}
-	if _Name.Valid {
-		t.SetName(_Name.String)
-	}
-	if _Value.Valid {
-		t.SetValue(_Value.Float64)
-	}
-	if _Timeunit.Valid {
-		t.SetTimeunit(int32(_Timeunit.Int64))
-	}
-	if _Date.Valid {
-		t.SetDate(_Date.String)
-	}
-	if _Metadata.Valid {
-		t.SetMetadata(_Metadata.String)
-	}
-	if _CustomerID.Valid {
-		t.SetCustomerID(_CustomerID.String)
-	}
-	if _RefType.Valid {
-		t.SetRefType(_RefType.String)
-	}
-	if _RefID.Valid {
-		t.SetRefID(_RefID.String)
-	}
-	return t, nil
 }
 
 // GetMetadata will return the Signal Metadata value
@@ -1239,14 +1137,14 @@ func (t *Signal) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateSignalTable will create the Signal table
 func DBCreateSignalTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `signal` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`CHAR(60) NOT NULL PRIMARY KEY,`value` DOUBLE NOT NULL,`timeunit` INT(11) NOT NULL,`date`DATE NOT NULL PRIMARY KEY,`metadata` JSON,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20),`ref_id` VARCHAR(64),INDEX signal_customer_id_index (`customer_id`),INDEX signal_ref_type_index (`ref_type`),INDEX signal_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `signal` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`CHAR(60) NOT NULL,`value` DOUBLE NOT NULL,`timeunit` INT(11) NOT NULL,`date`DATE NOT NULL,`metadata` JSON,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20),`ref_id` VARCHAR(64),INDEX signal_name_index (`name`),INDEX signal_customer_id_index (`customer_id`),INDEX signal_ref_type_index (`ref_type`),INDEX signal_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateSignalTableTx will create the Signal table using the provided transction
 func DBCreateSignalTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `signal` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`CHAR(60) NOT NULL PRIMARY KEY,`value` DOUBLE NOT NULL,`timeunit` INT(11) NOT NULL,`date`DATE NOT NULL PRIMARY KEY,`metadata` JSON,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20),`ref_id` VARCHAR(64),INDEX signal_customer_id_index (`customer_id`),INDEX signal_ref_type_index (`ref_type`),INDEX signal_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `signal` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`CHAR(60) NOT NULL,`value` DOUBLE NOT NULL,`timeunit` INT(11) NOT NULL,`date`DATE NOT NULL,`metadata` JSON,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20),`ref_id` VARCHAR(64),INDEX signal_name_index (`name`),INDEX signal_customer_id_index (`customer_id`),INDEX signal_ref_type_index (`ref_type`),INDEX signal_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
@@ -1389,10 +1287,12 @@ func (t *Signal) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 
 // DBUpdate will update the Signal record in the database
 func (t *Signal) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
-	q := "UPDATE `signal` SET `value`=?,`timeunit`=?,`metadata`=?,`customer_id`=?,`ref_type`=?,`ref_id`=? WHERE `id`=?"
+	q := "UPDATE `signal` SET `name`=?,`value`=?,`timeunit`=?,`date`=?,`metadata`=?,`customer_id`=?,`ref_type`=?,`ref_id`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
+		orm.ToSQLString(t.Name),
 		orm.ToSQLFloat64(t.Value),
 		orm.ToSQLInt64(t.Timeunit),
+		orm.ToSQLString(t.Date),
 		orm.ToSQLString(t.Metadata),
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.RefType),
@@ -1403,10 +1303,12 @@ func (t *Signal) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 
 // DBUpdateTx will update the Signal record in the database using the provided transaction
 func (t *Signal) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
-	q := "UPDATE `signal` SET `value`=?,`timeunit`=?,`metadata`=?,`customer_id`=?,`ref_type`=?,`ref_id`=? WHERE `id`=?"
+	q := "UPDATE `signal` SET `name`=?,`value`=?,`timeunit`=?,`date`=?,`metadata`=?,`customer_id`=?,`ref_type`=?,`ref_id`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
+		orm.ToSQLString(t.Name),
 		orm.ToSQLFloat64(t.Value),
 		orm.ToSQLInt64(t.Timeunit),
+		orm.ToSQLString(t.Date),
 		orm.ToSQLString(t.Metadata),
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.RefType),
@@ -1424,7 +1326,7 @@ func (t *Signal) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interfa
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `signal` (`signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `value`=VALUES(`value`),`timeunit`=VALUES(`timeunit`),`metadata`=VALUES(`metadata`),`customer_id`=VALUES(`customer_id`),`ref_type`=VALUES(`ref_type`),`ref_id`=VALUES(`ref_id`)"
+		q = "INSERT INTO `signal` (`signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `name`=VALUES(`name`),`value`=VALUES(`value`),`timeunit`=VALUES(`timeunit`),`date`=VALUES(`date`),`metadata`=VALUES(`metadata`),`customer_id`=VALUES(`customer_id`),`ref_type`=VALUES(`ref_type`),`ref_id`=VALUES(`ref_id`)"
 	}
 	r, err := db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1453,7 +1355,7 @@ func (t *Signal) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...inter
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `signal` (`signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `value`=VALUES(`value`),`timeunit`=VALUES(`timeunit`),`metadata`=VALUES(`metadata`),`customer_id`=VALUES(`customer_id`),`ref_type`=VALUES(`ref_type`),`ref_id`=VALUES(`ref_id`)"
+		q = "INSERT INTO `signal` (`signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `name`=VALUES(`name`),`value`=VALUES(`value`),`timeunit`=VALUES(`timeunit`),`date`=VALUES(`date`),`metadata`=VALUES(`metadata`),`customer_id`=VALUES(`customer_id`),`ref_type`=VALUES(`ref_type`),`ref_id`=VALUES(`ref_id`)"
 	}
 	r, err := tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),

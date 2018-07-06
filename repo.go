@@ -1501,14 +1501,14 @@ func (t *Repo) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateRepoTable will create the Repo table
 func DBCreateRepoTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `repo` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(255) NOT NULL,`url` VARCHAR(255) NOT NULL,`active` TINYINT(1) NOT NULL,`fork` TINYINT(1) NOT NULL,`parent_id` VARCHAR(64),`description`TEXT,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,`ref_type`VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata`JSON,INDEX repo_name_index (`name`),INDEX repo_customer_id_index (`customer_id`),INDEX repo_ref_type_index (`ref_type`),INDEX repo_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `repo` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(255) NOT NULL,`url` VARCHAR(255) NOT NULL,`active` BOOL NOT NULL,`fork` BOOL NOT NULL,`parent_id` VARCHAR(64),`description`TEXT,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,`ref_type`VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata`JSON,INDEX repo_name_index (`name`),INDEX repo_customer_id_index (`customer_id`),INDEX repo_ref_type_index (`ref_type`),INDEX repo_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateRepoTableTx will create the Repo table using the provided transction
 func DBCreateRepoTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `repo` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(255) NOT NULL,`url` VARCHAR(255) NOT NULL,`active` TINYINT(1) NOT NULL,`fork` TINYINT(1) NOT NULL,`parent_id` VARCHAR(64),`description`TEXT,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,`ref_type`VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata`JSON,INDEX repo_name_index (`name`),INDEX repo_customer_id_index (`customer_id`),INDEX repo_ref_type_index (`ref_type`),INDEX repo_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `repo` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(255) NOT NULL,`url` VARCHAR(255) NOT NULL,`active` BOOL NOT NULL,`fork` BOOL NOT NULL,`parent_id` VARCHAR(64),`description`TEXT,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,`ref_type`VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata`JSON,INDEX repo_name_index (`name`),INDEX repo_customer_id_index (`customer_id`),INDEX repo_ref_type_index (`ref_type`),INDEX repo_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

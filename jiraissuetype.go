@@ -872,14 +872,14 @@ func (t *JiraIssueType) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateJiraIssueTypeTable will create the JiraIssueType table
 func DBCreateJiraIssueTypeTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `jira_issue_type` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`issue_type_id` VARCHAR(64) NOT NULL,`name` VARCHAR(255) NOT NULL,`description`TEXT,`icon_url`VARCHAR(255),`url` VARCHAR(255),`subtask` TINYINT(1) NOT NULL,`customer_id`VARCHAR(64) NOT NULL,INDEX jira_issue_type_name_index (`name`),INDEX jira_issue_type_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jira_issue_type` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`issue_type_id` VARCHAR(64) NOT NULL,`name` VARCHAR(255) NOT NULL,`description`TEXT,`icon_url`VARCHAR(255),`url` VARCHAR(255),`subtask` BOOL NOT NULL,`customer_id`VARCHAR(64) NOT NULL,INDEX jira_issue_type_name_index (`name`),INDEX jira_issue_type_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraIssueTypeTableTx will create the JiraIssueType table using the provided transction
 func DBCreateJiraIssueTypeTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `jira_issue_type` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`issue_type_id` VARCHAR(64) NOT NULL,`name` VARCHAR(255) NOT NULL,`description`TEXT,`icon_url`VARCHAR(255),`url` VARCHAR(255),`subtask` TINYINT(1) NOT NULL,`customer_id`VARCHAR(64) NOT NULL,INDEX jira_issue_type_name_index (`name`),INDEX jira_issue_type_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jira_issue_type` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`issue_type_id` VARCHAR(64) NOT NULL,`name` VARCHAR(255) NOT NULL,`description`TEXT,`icon_url`VARCHAR(255),`url` VARCHAR(255),`subtask` BOOL NOT NULL,`customer_id`VARCHAR(64) NOT NULL,INDEX jira_issue_type_name_index (`name`),INDEX jira_issue_type_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

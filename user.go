@@ -1552,14 +1552,14 @@ func (t *User) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateUserTable will create the User table
 func DBCreateUserTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `user` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`email` VARCHAR(255),`name` TEXT,`username` VARCHAR(100) NOT NULL,`active`TINYINT(1) NOT NULL,`autoenrolled`TINYINT(1) NOT NULL,`visible` TINYINT(1) NOT NULL,`avatar_url` VARCHAR(255) NOT NULL,`employee_id` TEXT,`location` TEXT,`region`TEXT,`department` TEXT,`reports_to_user_id` VARCHAR(64),`title` TEXT,`role` TEXT,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,`metadata` JSON,`ref_id`VARCHAR(64),`ref_type` VARCHAR(20),INDEX user_email_index (`email`),INDEX user_username_index (`username`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `user` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`email` VARCHAR(255),`name` TEXT,`username` VARCHAR(100) NOT NULL,`active`BOOL NOT NULL,`autoenrolled`BOOL NOT NULL,`visible` BOOL NOT NULL,`avatar_url` VARCHAR(255) NOT NULL,`employee_id` TEXT,`location` TEXT,`region`TEXT,`department` TEXT,`reports_to_user_id` VARCHAR(64),`title` TEXT,`role` TEXT,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,`metadata` JSON,`ref_id`VARCHAR(64),`ref_type` VARCHAR(20),INDEX user_email_index (`email`),INDEX user_username_index (`username`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateUserTableTx will create the User table using the provided transction
 func DBCreateUserTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `user` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`email` VARCHAR(255),`name` TEXT,`username` VARCHAR(100) NOT NULL,`active`TINYINT(1) NOT NULL,`autoenrolled`TINYINT(1) NOT NULL,`visible` TINYINT(1) NOT NULL,`avatar_url` VARCHAR(255) NOT NULL,`employee_id` TEXT,`location` TEXT,`region`TEXT,`department` TEXT,`reports_to_user_id` VARCHAR(64),`title` TEXT,`role` TEXT,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,`metadata` JSON,`ref_id`VARCHAR(64),`ref_type` VARCHAR(20),INDEX user_email_index (`email`),INDEX user_username_index (`username`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `user` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`email` VARCHAR(255),`name` TEXT,`username` VARCHAR(100) NOT NULL,`active`BOOL NOT NULL,`autoenrolled`BOOL NOT NULL,`visible` BOOL NOT NULL,`avatar_url` VARCHAR(255) NOT NULL,`employee_id` TEXT,`location` TEXT,`region`TEXT,`department` TEXT,`reports_to_user_id` VARCHAR(64),`title` TEXT,`role` TEXT,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,`metadata` JSON,`ref_id`VARCHAR(64),`ref_type` VARCHAR(20),INDEX user_email_index (`email`),INDEX user_username_index (`username`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

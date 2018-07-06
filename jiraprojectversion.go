@@ -1190,14 +1190,14 @@ func (t *JiraProjectVersion) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateJiraProjectVersionTable will create the JiraProjectVersion table
 func DBCreateJiraProjectVersionTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `jira_project_version` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`version_id` VARCHAR(255) NOT NULL,`project_id` VARCHAR(64) NOT NULL,`name` TEXT NOT NULL,`description` TEXT,`archived` TINYINT(1) NOT NULL,`released` TINYINT(1) NOT NULL,`release_date`BIGINT(20) UNSIGNED,`overdue` TINYINT(1) NOT NULL,`user_release_date` BIGINT(20) UNSIGNED,`customer_id` VARCHAR(64) NOT NULL,INDEX jira_project_version_version_id_index (`version_id`),INDEX jira_project_version_project_id_index (`project_id`),INDEX jira_project_version_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jira_project_version` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`version_id` VARCHAR(255) NOT NULL,`project_id` VARCHAR(64) NOT NULL,`name` TEXT NOT NULL,`description` TEXT,`archived` BOOL NOT NULL,`released` BOOL NOT NULL,`release_date`BIGINT(20) UNSIGNED,`overdue` BOOL NOT NULL,`user_release_date` BIGINT(20) UNSIGNED,`customer_id` VARCHAR(64) NOT NULL,INDEX jira_project_version_version_id_index (`version_id`),INDEX jira_project_version_project_id_index (`project_id`),INDEX jira_project_version_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraProjectVersionTableTx will create the JiraProjectVersion table using the provided transction
 func DBCreateJiraProjectVersionTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `jira_project_version` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`version_id` VARCHAR(255) NOT NULL,`project_id` VARCHAR(64) NOT NULL,`name` TEXT NOT NULL,`description` TEXT,`archived` TINYINT(1) NOT NULL,`released` TINYINT(1) NOT NULL,`release_date`BIGINT(20) UNSIGNED,`overdue` TINYINT(1) NOT NULL,`user_release_date` BIGINT(20) UNSIGNED,`customer_id` VARCHAR(64) NOT NULL,INDEX jira_project_version_version_id_index (`version_id`),INDEX jira_project_version_project_id_index (`project_id`),INDEX jira_project_version_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jira_project_version` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`version_id` VARCHAR(255) NOT NULL,`project_id` VARCHAR(64) NOT NULL,`name` TEXT NOT NULL,`description` TEXT,`archived` BOOL NOT NULL,`released` BOOL NOT NULL,`release_date`BIGINT(20) UNSIGNED,`overdue` BOOL NOT NULL,`user_release_date` BIGINT(20) UNSIGNED,`customer_id` VARCHAR(64) NOT NULL,INDEX jira_project_version_version_id_index (`version_id`),INDEX jira_project_version_project_id_index (`project_id`),INDEX jira_project_version_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
