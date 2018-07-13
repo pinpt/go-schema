@@ -47,6 +47,7 @@ func TestCreateJiraProjectSprintDelete(t *testing.T) {
 		ClosedIssueCount:    int32(32),
 		AddedIssueCount:     int32(32),
 		RemovedIssueCount:   int32(32),
+		InitialIssuesClosed: int32(32),
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -131,6 +132,8 @@ func TestCreateJiraProjectSprintDelete(t *testing.T) {
 
 	r.SetRemovedIssueCount(int32(320))
 
+	r.SetInitialIssuesClosed(int32(320))
+
 	a, b, err = r.DBUpsert(ctx, db)
 	if err != nil {
 		t.Fatal(err)
@@ -182,6 +185,7 @@ func TestCreateJiraProjectSprintDeleteTx(t *testing.T) {
 		ClosedIssueCount:    int32(32),
 		AddedIssueCount:     int32(32),
 		RemovedIssueCount:   int32(32),
+		InitialIssuesClosed: int32(32),
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -269,6 +273,8 @@ func TestCreateJiraProjectSprintDeleteTx(t *testing.T) {
 	r.SetAddedIssueCount(int32(320))
 
 	r.SetRemovedIssueCount(int32(320))
+
+	r.SetInitialIssuesClosed(int32(320))
 
 	a, b, err = r.DBUpsertTx(ctx, tx)
 	if err != nil {
