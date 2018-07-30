@@ -28,26 +28,27 @@ func TestCreateJiraProjectSprintTable(t *testing.T) {
 
 func TestCreateJiraProjectSprintDelete(t *testing.T) {
 	r := &JiraProjectSprint{
-		ID:                  "b4e2106af80bbc51",
-		Checksum:            nil,
-		ProjectID:           "1257165aa92f1df0",
-		SprintID:            "05601d7cb7f70818",
-		Name:                "c0e4be0c39931c1f",
-		CustomerID:          "702b480582b3792e",
-		CompleteDate:        nil,
-		EndDate:             nil,
-		StartDate:           nil,
-		State:               nil,
-		Goal:                nil,
-		InitialIssueIds:     nil,
-		FinalIssueIds:       nil,
-		FinalClosedIssueIds: nil,
-		InitialIssueCount:   int32(32),
-		FinalIssueCount:     int32(32),
-		ClosedIssueCount:    int32(32),
-		AddedIssueCount:     int32(32),
-		RemovedIssueCount:   int32(32),
-		InitialIssuesClosed: int32(32),
+		ID:                        "b4e2106af80bbc51",
+		Checksum:                  nil,
+		ProjectID:                 "1257165aa92f1df0",
+		SprintID:                  "05601d7cb7f70818",
+		Name:                      "c0e4be0c39931c1f",
+		CustomerID:                "702b480582b3792e",
+		CompleteDate:              nil,
+		EndDate:                   nil,
+		StartDate:                 nil,
+		State:                     nil,
+		Goal:                      nil,
+		InitialIssueIds:           nil,
+		FinalIssueIds:             nil,
+		FinalClosedIssueIds:       nil,
+		InitialIssueCount:         int32(32),
+		FinalIssueCount:           int32(32),
+		ClosedIssueCount:          int32(32),
+		AddedIssueCount:           int32(32),
+		RemovedIssueCount:         int32(32),
+		InitialIssuesClosed:       int32(32),
+		InitialIssuesInFinalCount: int32(32),
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -134,6 +135,8 @@ func TestCreateJiraProjectSprintDelete(t *testing.T) {
 
 	r.SetInitialIssuesClosed(int32(320))
 
+	r.SetInitialIssuesInFinalCount(int32(320))
+
 	a, b, err = r.DBUpsert(ctx, db)
 	if err != nil {
 		t.Fatal(err)
@@ -166,26 +169,27 @@ func TestCreateJiraProjectSprintDelete(t *testing.T) {
 
 func TestCreateJiraProjectSprintDeleteTx(t *testing.T) {
 	r := &JiraProjectSprint{
-		ID:                  "b4e2106af80bbc51",
-		Checksum:            nil,
-		ProjectID:           "1257165aa92f1df0",
-		SprintID:            "05601d7cb7f70818",
-		Name:                "c0e4be0c39931c1f",
-		CustomerID:          "702b480582b3792e",
-		CompleteDate:        nil,
-		EndDate:             nil,
-		StartDate:           nil,
-		State:               nil,
-		Goal:                nil,
-		InitialIssueIds:     nil,
-		FinalIssueIds:       nil,
-		FinalClosedIssueIds: nil,
-		InitialIssueCount:   int32(32),
-		FinalIssueCount:     int32(32),
-		ClosedIssueCount:    int32(32),
-		AddedIssueCount:     int32(32),
-		RemovedIssueCount:   int32(32),
-		InitialIssuesClosed: int32(32),
+		ID:                        "b4e2106af80bbc51",
+		Checksum:                  nil,
+		ProjectID:                 "1257165aa92f1df0",
+		SprintID:                  "05601d7cb7f70818",
+		Name:                      "c0e4be0c39931c1f",
+		CustomerID:                "702b480582b3792e",
+		CompleteDate:              nil,
+		EndDate:                   nil,
+		StartDate:                 nil,
+		State:                     nil,
+		Goal:                      nil,
+		InitialIssueIds:           nil,
+		FinalIssueIds:             nil,
+		FinalClosedIssueIds:       nil,
+		InitialIssueCount:         int32(32),
+		FinalIssueCount:           int32(32),
+		ClosedIssueCount:          int32(32),
+		AddedIssueCount:           int32(32),
+		RemovedIssueCount:         int32(32),
+		InitialIssuesClosed:       int32(32),
+		InitialIssuesInFinalCount: int32(32),
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -275,6 +279,8 @@ func TestCreateJiraProjectSprintDeleteTx(t *testing.T) {
 	r.SetRemovedIssueCount(int32(320))
 
 	r.SetInitialIssuesClosed(int32(320))
+
+	r.SetInitialIssuesInFinalCount(int32(320))
 
 	a, b, err = r.DBUpsertTx(ctx, tx)
 	if err != nil {

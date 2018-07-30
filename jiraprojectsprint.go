@@ -52,30 +52,32 @@ var JiraProjectSprintColumns = []string{
 	"added_issue_count",
 	"removed_issue_count",
 	"initial_issues_closed",
+	"initial_issues_in_final_count",
 }
 
 // JiraProjectSprint table
 type JiraProjectSprint struct {
-	AddedIssueCount     int32   `json:"added_issue_count"`
-	Checksum            *string `json:"checksum,omitempty"`
-	ClosedIssueCount    int32   `json:"closed_issue_count"`
-	CompleteDate        *int64  `json:"complete_date,omitempty"`
-	CustomerID          string  `json:"customer_id"`
-	EndDate             *int64  `json:"end_date,omitempty"`
-	FinalClosedIssueIds *string `json:"final_closed_issue_ids,omitempty"`
-	FinalIssueCount     int32   `json:"final_issue_count"`
-	FinalIssueIds       *string `json:"final_issue_ids,omitempty"`
-	Goal                *string `json:"goal,omitempty"`
-	ID                  string  `json:"id"`
-	InitialIssueCount   int32   `json:"initial_issue_count"`
-	InitialIssueIds     *string `json:"initial_issue_ids,omitempty"`
-	InitialIssuesClosed int32   `json:"initial_issues_closed"`
-	Name                string  `json:"name"`
-	ProjectID           string  `json:"project_id"`
-	RemovedIssueCount   int32   `json:"removed_issue_count"`
-	SprintID            string  `json:"sprint_id"`
-	StartDate           *int64  `json:"start_date,omitempty"`
-	State               *string `json:"state,omitempty"`
+	AddedIssueCount           int32   `json:"added_issue_count"`
+	Checksum                  *string `json:"checksum,omitempty"`
+	ClosedIssueCount          int32   `json:"closed_issue_count"`
+	CompleteDate              *int64  `json:"complete_date,omitempty"`
+	CustomerID                string  `json:"customer_id"`
+	EndDate                   *int64  `json:"end_date,omitempty"`
+	FinalClosedIssueIds       *string `json:"final_closed_issue_ids,omitempty"`
+	FinalIssueCount           int32   `json:"final_issue_count"`
+	FinalIssueIds             *string `json:"final_issue_ids,omitempty"`
+	Goal                      *string `json:"goal,omitempty"`
+	ID                        string  `json:"id"`
+	InitialIssueCount         int32   `json:"initial_issue_count"`
+	InitialIssueIds           *string `json:"initial_issue_ids,omitempty"`
+	InitialIssuesClosed       int32   `json:"initial_issues_closed"`
+	InitialIssuesInFinalCount int32   `json:"initial_issues_in_final_count"`
+	Name                      string  `json:"name"`
+	ProjectID                 string  `json:"project_id"`
+	RemovedIssueCount         int32   `json:"removed_issue_count"`
+	SprintID                  string  `json:"sprint_id"`
+	StartDate                 *int64  `json:"start_date,omitempty"`
+	State                     *string `json:"state,omitempty"`
 }
 
 // TableName returns the SQL table name for JiraProjectSprint and satifies the Model interface
@@ -106,6 +108,7 @@ func (t *JiraProjectSprint) ToCSV() []string {
 		toCSVString(t.AddedIssueCount),
 		toCSVString(t.RemovedIssueCount),
 		toCSVString(t.InitialIssuesClosed),
+		toCSVString(t.InitialIssuesInFinalCount),
 	}
 }
 
@@ -167,26 +170,27 @@ func NewCSVJiraProjectSprintReader(r io.Reader, ch chan<- JiraProjectSprint) err
 			return err
 		}
 		ch <- JiraProjectSprint{
-			ID:                  record[0],
-			Checksum:            fromStringPointer(record[1]),
-			ProjectID:           record[2],
-			SprintID:            record[3],
-			Name:                record[4],
-			CustomerID:          record[5],
-			CompleteDate:        fromCSVInt64Pointer(record[6]),
-			EndDate:             fromCSVInt64Pointer(record[7]),
-			StartDate:           fromCSVInt64Pointer(record[8]),
-			State:               fromStringPointer(record[9]),
-			Goal:                fromStringPointer(record[10]),
-			InitialIssueIds:     fromStringPointer(record[11]),
-			FinalIssueIds:       fromStringPointer(record[12]),
-			FinalClosedIssueIds: fromStringPointer(record[13]),
-			InitialIssueCount:   fromCSVInt32(record[14]),
-			FinalIssueCount:     fromCSVInt32(record[15]),
-			ClosedIssueCount:    fromCSVInt32(record[16]),
-			AddedIssueCount:     fromCSVInt32(record[17]),
-			RemovedIssueCount:   fromCSVInt32(record[18]),
-			InitialIssuesClosed: fromCSVInt32(record[19]),
+			ID:                        record[0],
+			Checksum:                  fromStringPointer(record[1]),
+			ProjectID:                 record[2],
+			SprintID:                  record[3],
+			Name:                      record[4],
+			CustomerID:                record[5],
+			CompleteDate:              fromCSVInt64Pointer(record[6]),
+			EndDate:                   fromCSVInt64Pointer(record[7]),
+			StartDate:                 fromCSVInt64Pointer(record[8]),
+			State:                     fromStringPointer(record[9]),
+			Goal:                      fromStringPointer(record[10]),
+			InitialIssueIds:           fromStringPointer(record[11]),
+			FinalIssueIds:             fromStringPointer(record[12]),
+			FinalClosedIssueIds:       fromStringPointer(record[13]),
+			InitialIssueCount:         fromCSVInt32(record[14]),
+			FinalIssueCount:           fromCSVInt32(record[15]),
+			ClosedIssueCount:          fromCSVInt32(record[16]),
+			AddedIssueCount:           fromCSVInt32(record[17]),
+			RemovedIssueCount:         fromCSVInt32(record[18]),
+			InitialIssuesClosed:       fromCSVInt32(record[19]),
+			InitialIssuesInFinalCount: fromCSVInt32(record[20]),
 		}
 	}
 	return nil
@@ -477,6 +481,12 @@ const JiraProjectSprintColumnInitialIssuesClosed = "initial_issues_closed"
 // JiraProjectSprintEscapedColumnInitialIssuesClosed is the escaped InitialIssuesClosed SQL column name for the JiraProjectSprint table
 const JiraProjectSprintEscapedColumnInitialIssuesClosed = "`initial_issues_closed`"
 
+// JiraProjectSprintColumnInitialIssuesInFinalCount is the InitialIssuesInFinalCount SQL column name for the JiraProjectSprint table
+const JiraProjectSprintColumnInitialIssuesInFinalCount = "initial_issues_in_final_count"
+
+// JiraProjectSprintEscapedColumnInitialIssuesInFinalCount is the escaped InitialIssuesInFinalCount SQL column name for the JiraProjectSprint table
+const JiraProjectSprintEscapedColumnInitialIssuesInFinalCount = "`initial_issues_in_final_count`"
+
 // GetID will return the JiraProjectSprint ID value
 func (t *JiraProjectSprint) GetID() string {
 	return t.ID
@@ -489,7 +499,7 @@ func (t *JiraProjectSprint) SetID(v string) {
 
 // FindJiraProjectSprintByID will find a JiraProjectSprint by ID
 func FindJiraProjectSprintByID(ctx context.Context, db *sql.DB, value string) (*JiraProjectSprint, error) {
-	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed` FROM `jira_project_sprint` WHERE `id` = ?"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _ProjectID sql.NullString
@@ -510,6 +520,7 @@ func FindJiraProjectSprintByID(ctx context.Context, db *sql.DB, value string) (*
 	var _AddedIssueCount sql.NullInt64
 	var _RemovedIssueCount sql.NullInt64
 	var _InitialIssuesClosed sql.NullInt64
+	var _InitialIssuesInFinalCount sql.NullInt64
 	err := db.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_Checksum,
@@ -531,6 +542,7 @@ func FindJiraProjectSprintByID(ctx context.Context, db *sql.DB, value string) (*
 		&_AddedIssueCount,
 		&_RemovedIssueCount,
 		&_InitialIssuesClosed,
+		&_InitialIssuesInFinalCount,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -599,12 +611,15 @@ func FindJiraProjectSprintByID(ctx context.Context, db *sql.DB, value string) (*
 	if _InitialIssuesClosed.Valid {
 		t.SetInitialIssuesClosed(int32(_InitialIssuesClosed.Int64))
 	}
+	if _InitialIssuesInFinalCount.Valid {
+		t.SetInitialIssuesInFinalCount(int32(_InitialIssuesInFinalCount.Int64))
+	}
 	return t, nil
 }
 
 // FindJiraProjectSprintByIDTx will find a JiraProjectSprint by ID using the provided transaction
 func FindJiraProjectSprintByIDTx(ctx context.Context, tx *sql.Tx, value string) (*JiraProjectSprint, error) {
-	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed` FROM `jira_project_sprint` WHERE `id` = ?"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _ProjectID sql.NullString
@@ -625,6 +640,7 @@ func FindJiraProjectSprintByIDTx(ctx context.Context, tx *sql.Tx, value string) 
 	var _AddedIssueCount sql.NullInt64
 	var _RemovedIssueCount sql.NullInt64
 	var _InitialIssuesClosed sql.NullInt64
+	var _InitialIssuesInFinalCount sql.NullInt64
 	err := tx.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_Checksum,
@@ -646,6 +662,7 @@ func FindJiraProjectSprintByIDTx(ctx context.Context, tx *sql.Tx, value string) 
 		&_AddedIssueCount,
 		&_RemovedIssueCount,
 		&_InitialIssuesClosed,
+		&_InitialIssuesInFinalCount,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -713,6 +730,9 @@ func FindJiraProjectSprintByIDTx(ctx context.Context, tx *sql.Tx, value string) 
 	}
 	if _InitialIssuesClosed.Valid {
 		t.SetInitialIssuesClosed(int32(_InitialIssuesClosed.Int64))
+	}
+	if _InitialIssuesInFinalCount.Valid {
+		t.SetInitialIssuesInFinalCount(int32(_InitialIssuesInFinalCount.Int64))
 	}
 	return t, nil
 }
@@ -742,7 +762,7 @@ func (t *JiraProjectSprint) SetProjectID(v string) {
 
 // FindJiraProjectSprintsByProjectID will find all JiraProjectSprints by the ProjectID value
 func FindJiraProjectSprintsByProjectID(ctx context.Context, db *sql.DB, value string) ([]*JiraProjectSprint, error) {
-	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed` FROM `jira_project_sprint` WHERE `project_id` = ? LIMIT 1"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `project_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -773,6 +793,7 @@ func FindJiraProjectSprintsByProjectID(ctx context.Context, db *sql.DB, value st
 		var _AddedIssueCount sql.NullInt64
 		var _RemovedIssueCount sql.NullInt64
 		var _InitialIssuesClosed sql.NullInt64
+		var _InitialIssuesInFinalCount sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -794,6 +815,7 @@ func FindJiraProjectSprintsByProjectID(ctx context.Context, db *sql.DB, value st
 			&_AddedIssueCount,
 			&_RemovedIssueCount,
 			&_InitialIssuesClosed,
+			&_InitialIssuesInFinalCount,
 		)
 		if err != nil {
 			return nil, err
@@ -859,6 +881,9 @@ func FindJiraProjectSprintsByProjectID(ctx context.Context, db *sql.DB, value st
 		if _InitialIssuesClosed.Valid {
 			t.SetInitialIssuesClosed(int32(_InitialIssuesClosed.Int64))
 		}
+		if _InitialIssuesInFinalCount.Valid {
+			t.SetInitialIssuesInFinalCount(int32(_InitialIssuesInFinalCount.Int64))
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -866,7 +891,7 @@ func FindJiraProjectSprintsByProjectID(ctx context.Context, db *sql.DB, value st
 
 // FindJiraProjectSprintsByProjectIDTx will find all JiraProjectSprints by the ProjectID value using the provided transaction
 func FindJiraProjectSprintsByProjectIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraProjectSprint, error) {
-	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed` FROM `jira_project_sprint` WHERE `project_id` = ? LIMIT 1"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `project_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -897,6 +922,7 @@ func FindJiraProjectSprintsByProjectIDTx(ctx context.Context, tx *sql.Tx, value 
 		var _AddedIssueCount sql.NullInt64
 		var _RemovedIssueCount sql.NullInt64
 		var _InitialIssuesClosed sql.NullInt64
+		var _InitialIssuesInFinalCount sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -918,6 +944,7 @@ func FindJiraProjectSprintsByProjectIDTx(ctx context.Context, tx *sql.Tx, value 
 			&_AddedIssueCount,
 			&_RemovedIssueCount,
 			&_InitialIssuesClosed,
+			&_InitialIssuesInFinalCount,
 		)
 		if err != nil {
 			return nil, err
@@ -982,6 +1009,9 @@ func FindJiraProjectSprintsByProjectIDTx(ctx context.Context, tx *sql.Tx, value 
 		}
 		if _InitialIssuesClosed.Valid {
 			t.SetInitialIssuesClosed(int32(_InitialIssuesClosed.Int64))
+		}
+		if _InitialIssuesInFinalCount.Valid {
+			t.SetInitialIssuesInFinalCount(int32(_InitialIssuesInFinalCount.Int64))
 		}
 		results = append(results, t)
 	}
@@ -1020,7 +1050,7 @@ func (t *JiraProjectSprint) SetCustomerID(v string) {
 
 // FindJiraProjectSprintsByCustomerID will find all JiraProjectSprints by the CustomerID value
 func FindJiraProjectSprintsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*JiraProjectSprint, error) {
-	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed` FROM `jira_project_sprint` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1051,6 +1081,7 @@ func FindJiraProjectSprintsByCustomerID(ctx context.Context, db *sql.DB, value s
 		var _AddedIssueCount sql.NullInt64
 		var _RemovedIssueCount sql.NullInt64
 		var _InitialIssuesClosed sql.NullInt64
+		var _InitialIssuesInFinalCount sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -1072,6 +1103,7 @@ func FindJiraProjectSprintsByCustomerID(ctx context.Context, db *sql.DB, value s
 			&_AddedIssueCount,
 			&_RemovedIssueCount,
 			&_InitialIssuesClosed,
+			&_InitialIssuesInFinalCount,
 		)
 		if err != nil {
 			return nil, err
@@ -1137,6 +1169,9 @@ func FindJiraProjectSprintsByCustomerID(ctx context.Context, db *sql.DB, value s
 		if _InitialIssuesClosed.Valid {
 			t.SetInitialIssuesClosed(int32(_InitialIssuesClosed.Int64))
 		}
+		if _InitialIssuesInFinalCount.Valid {
+			t.SetInitialIssuesInFinalCount(int32(_InitialIssuesInFinalCount.Int64))
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -1144,7 +1179,7 @@ func FindJiraProjectSprintsByCustomerID(ctx context.Context, db *sql.DB, value s
 
 // FindJiraProjectSprintsByCustomerIDTx will find all JiraProjectSprints by the CustomerID value using the provided transaction
 func FindJiraProjectSprintsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraProjectSprint, error) {
-	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed` FROM `jira_project_sprint` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1175,6 +1210,7 @@ func FindJiraProjectSprintsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value
 		var _AddedIssueCount sql.NullInt64
 		var _RemovedIssueCount sql.NullInt64
 		var _InitialIssuesClosed sql.NullInt64
+		var _InitialIssuesInFinalCount sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -1196,6 +1232,7 @@ func FindJiraProjectSprintsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value
 			&_AddedIssueCount,
 			&_RemovedIssueCount,
 			&_InitialIssuesClosed,
+			&_InitialIssuesInFinalCount,
 		)
 		if err != nil {
 			return nil, err
@@ -1260,6 +1297,9 @@ func FindJiraProjectSprintsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value
 		}
 		if _InitialIssuesClosed.Valid {
 			t.SetInitialIssuesClosed(int32(_InitialIssuesClosed.Int64))
+		}
+		if _InitialIssuesInFinalCount.Valid {
+			t.SetInitialIssuesInFinalCount(int32(_InitialIssuesInFinalCount.Int64))
 		}
 		results = append(results, t)
 	}
@@ -1430,6 +1470,16 @@ func (t *JiraProjectSprint) SetInitialIssuesClosed(v int32) {
 	t.InitialIssuesClosed = v
 }
 
+// GetInitialIssuesInFinalCount will return the JiraProjectSprint InitialIssuesInFinalCount value
+func (t *JiraProjectSprint) GetInitialIssuesInFinalCount() int32 {
+	return t.InitialIssuesInFinalCount
+}
+
+// SetInitialIssuesInFinalCount will set the JiraProjectSprint InitialIssuesInFinalCount value
+func (t *JiraProjectSprint) SetInitialIssuesInFinalCount(v int32) {
+	t.InitialIssuesInFinalCount = v
+}
+
 func (t *JiraProjectSprint) toTimestamp(value time.Time) *timestamp.Timestamp {
 	ts, _ := ptypes.TimestampProto(value)
 	return ts
@@ -1437,14 +1487,14 @@ func (t *JiraProjectSprint) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateJiraProjectSprintTable will create the JiraProjectSprint table
 func DBCreateJiraProjectSprintTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `jira_project_sprint` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`project_id`VARCHAR(64) NOT NULL,`sprint_id` TEXT NOT NULL,`name`TEXT NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`complete_date`BIGINT(20) UNSIGNED,`end_date` BIGINT(20) UNSIGNED,`start_date`BIGINT(20) UNSIGNED,`state` TEXT,`goal`TEXT,`initial_issue_ids` JSON,`final_issue_ids` JSON,`final_closed_issue_ids` JSON,`initial_issue_count`INT(11) NOT NULL,`final_issue_count` INT(11) NOT NULL,`closed_issue_count` INT(11) NOT NULL,`added_issue_count` INT(11) NOT NULL,`removed_issue_count`INT(11) NOT NULL,`initial_issues_closed` INT(11) NOT NULL,INDEX jira_project_sprint_project_id_index (`project_id`),INDEX jira_project_sprint_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jira_project_sprint` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`project_id`VARCHAR(64) NOT NULL,`sprint_id` TEXT NOT NULL,`name`TEXT NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`complete_date`BIGINT(20) UNSIGNED,`end_date` BIGINT(20) UNSIGNED,`start_date`BIGINT(20) UNSIGNED,`state` TEXT,`goal`TEXT,`initial_issue_ids` JSON,`final_issue_ids` JSON,`final_closed_issue_ids`JSON,`initial_issue_count`INT(11) NOT NULL,`final_issue_count` INT(11) NOT NULL,`closed_issue_count` INT(11) NOT NULL,`added_issue_count` INT(11) NOT NULL,`removed_issue_count`INT(11) NOT NULL,`initial_issues_closed` INT(11) NOT NULL,`initial_issues_in_final_count` INT(11) NOT NULL,INDEX jira_project_sprint_project_id_index (`project_id`),INDEX jira_project_sprint_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraProjectSprintTableTx will create the JiraProjectSprint table using the provided transction
 func DBCreateJiraProjectSprintTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `jira_project_sprint` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`project_id`VARCHAR(64) NOT NULL,`sprint_id` TEXT NOT NULL,`name`TEXT NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`complete_date`BIGINT(20) UNSIGNED,`end_date` BIGINT(20) UNSIGNED,`start_date`BIGINT(20) UNSIGNED,`state` TEXT,`goal`TEXT,`initial_issue_ids` JSON,`final_issue_ids` JSON,`final_closed_issue_ids` JSON,`initial_issue_count`INT(11) NOT NULL,`final_issue_count` INT(11) NOT NULL,`closed_issue_count` INT(11) NOT NULL,`added_issue_count` INT(11) NOT NULL,`removed_issue_count`INT(11) NOT NULL,`initial_issues_closed` INT(11) NOT NULL,INDEX jira_project_sprint_project_id_index (`project_id`),INDEX jira_project_sprint_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jira_project_sprint` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`project_id`VARCHAR(64) NOT NULL,`sprint_id` TEXT NOT NULL,`name`TEXT NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`complete_date`BIGINT(20) UNSIGNED,`end_date` BIGINT(20) UNSIGNED,`start_date`BIGINT(20) UNSIGNED,`state` TEXT,`goal`TEXT,`initial_issue_ids` JSON,`final_issue_ids` JSON,`final_closed_issue_ids`JSON,`initial_issue_count`INT(11) NOT NULL,`final_issue_count` INT(11) NOT NULL,`closed_issue_count` INT(11) NOT NULL,`added_issue_count` INT(11) NOT NULL,`removed_issue_count`INT(11) NOT NULL,`initial_issues_closed` INT(11) NOT NULL,`initial_issues_in_final_count` INT(11) NOT NULL,INDEX jira_project_sprint_project_id_index (`project_id`),INDEX jira_project_sprint_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
@@ -1485,12 +1535,13 @@ func (t *JiraProjectSprint) CalculateChecksum() string {
 		orm.ToString(t.AddedIssueCount),
 		orm.ToString(t.RemovedIssueCount),
 		orm.ToString(t.InitialIssuesClosed),
+		orm.ToString(t.InitialIssuesInFinalCount),
 	)
 }
 
 // DBCreate will create a new JiraProjectSprint record in the database
 func (t *JiraProjectSprint) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
-	q := "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1517,12 +1568,13 @@ func (t *JiraProjectSprint) DBCreate(ctx context.Context, db *sql.DB) (sql.Resul
 		orm.ToSQLInt64(t.AddedIssueCount),
 		orm.ToSQLInt64(t.RemovedIssueCount),
 		orm.ToSQLInt64(t.InitialIssuesClosed),
+		orm.ToSQLInt64(t.InitialIssuesInFinalCount),
 	)
 }
 
 // DBCreateTx will create a new JiraProjectSprint record in the database using the provided transaction
 func (t *JiraProjectSprint) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
-	q := "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1549,12 +1601,13 @@ func (t *JiraProjectSprint) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Res
 		orm.ToSQLInt64(t.AddedIssueCount),
 		orm.ToSQLInt64(t.RemovedIssueCount),
 		orm.ToSQLInt64(t.InitialIssuesClosed),
+		orm.ToSQLInt64(t.InitialIssuesInFinalCount),
 	)
 }
 
 // DBCreateIgnoreDuplicate will upsert the JiraProjectSprint record in the database
 func (t *JiraProjectSprint) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
-	q := "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1581,12 +1634,13 @@ func (t *JiraProjectSprint) DBCreateIgnoreDuplicate(ctx context.Context, db *sql
 		orm.ToSQLInt64(t.AddedIssueCount),
 		orm.ToSQLInt64(t.RemovedIssueCount),
 		orm.ToSQLInt64(t.InitialIssuesClosed),
+		orm.ToSQLInt64(t.InitialIssuesInFinalCount),
 	)
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the JiraProjectSprint record in the database using the provided transaction
 func (t *JiraProjectSprint) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
-	q := "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1613,6 +1667,7 @@ func (t *JiraProjectSprint) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *s
 		orm.ToSQLInt64(t.AddedIssueCount),
 		orm.ToSQLInt64(t.RemovedIssueCount),
 		orm.ToSQLInt64(t.InitialIssuesClosed),
+		orm.ToSQLInt64(t.InitialIssuesInFinalCount),
 	)
 }
 
@@ -1681,7 +1736,7 @@ func (t *JiraProjectSprint) DBUpdate(ctx context.Context, db *sql.DB) (sql.Resul
 		return nil, nil
 	}
 	t.Checksum = &checksum
-	q := "UPDATE `jira_project_sprint` SET `checksum`=?,`project_id`=?,`sprint_id`=?,`name`=?,`customer_id`=?,`complete_date`=?,`end_date`=?,`start_date`=?,`state`=?,`goal`=?,`initial_issue_ids`=?,`final_issue_ids`=?,`final_closed_issue_ids`=?,`initial_issue_count`=?,`final_issue_count`=?,`closed_issue_count`=?,`added_issue_count`=?,`removed_issue_count`=?,`initial_issues_closed`=? WHERE `id`=?"
+	q := "UPDATE `jira_project_sprint` SET `checksum`=?,`project_id`=?,`sprint_id`=?,`name`=?,`customer_id`=?,`complete_date`=?,`end_date`=?,`start_date`=?,`state`=?,`goal`=?,`initial_issue_ids`=?,`final_issue_ids`=?,`final_closed_issue_ids`=?,`initial_issue_count`=?,`final_issue_count`=?,`closed_issue_count`=?,`added_issue_count`=?,`removed_issue_count`=?,`initial_issues_closed`=?,`initial_issues_in_final_count`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.Checksum),
 		orm.ToSQLString(t.ProjectID),
@@ -1702,6 +1757,7 @@ func (t *JiraProjectSprint) DBUpdate(ctx context.Context, db *sql.DB) (sql.Resul
 		orm.ToSQLInt64(t.AddedIssueCount),
 		orm.ToSQLInt64(t.RemovedIssueCount),
 		orm.ToSQLInt64(t.InitialIssuesClosed),
+		orm.ToSQLInt64(t.InitialIssuesInFinalCount),
 		orm.ToSQLString(t.ID),
 	)
 }
@@ -1713,7 +1769,7 @@ func (t *JiraProjectSprint) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Res
 		return nil, nil
 	}
 	t.Checksum = &checksum
-	q := "UPDATE `jira_project_sprint` SET `checksum`=?,`project_id`=?,`sprint_id`=?,`name`=?,`customer_id`=?,`complete_date`=?,`end_date`=?,`start_date`=?,`state`=?,`goal`=?,`initial_issue_ids`=?,`final_issue_ids`=?,`final_closed_issue_ids`=?,`initial_issue_count`=?,`final_issue_count`=?,`closed_issue_count`=?,`added_issue_count`=?,`removed_issue_count`=?,`initial_issues_closed`=? WHERE `id`=?"
+	q := "UPDATE `jira_project_sprint` SET `checksum`=?,`project_id`=?,`sprint_id`=?,`name`=?,`customer_id`=?,`complete_date`=?,`end_date`=?,`start_date`=?,`state`=?,`goal`=?,`initial_issue_ids`=?,`final_issue_ids`=?,`final_closed_issue_ids`=?,`initial_issue_count`=?,`final_issue_count`=?,`closed_issue_count`=?,`added_issue_count`=?,`removed_issue_count`=?,`initial_issues_closed`=?,`initial_issues_in_final_count`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.Checksum),
 		orm.ToSQLString(t.ProjectID),
@@ -1734,6 +1790,7 @@ func (t *JiraProjectSprint) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Res
 		orm.ToSQLInt64(t.AddedIssueCount),
 		orm.ToSQLInt64(t.RemovedIssueCount),
 		orm.ToSQLInt64(t.InitialIssuesClosed),
+		orm.ToSQLInt64(t.InitialIssuesInFinalCount),
 		orm.ToSQLString(t.ID),
 	)
 }
@@ -1747,12 +1804,12 @@ func (t *JiraProjectSprint) DBUpsert(ctx context.Context, db *sql.DB, conditions
 	t.Checksum = &checksum
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `checksum`=VALUES(`checksum`),`project_id`=VALUES(`project_id`),`sprint_id`=VALUES(`sprint_id`),`name`=VALUES(`name`),`customer_id`=VALUES(`customer_id`),`complete_date`=VALUES(`complete_date`),`end_date`=VALUES(`end_date`),`start_date`=VALUES(`start_date`),`state`=VALUES(`state`),`goal`=VALUES(`goal`),`initial_issue_ids`=VALUES(`initial_issue_ids`),`final_issue_ids`=VALUES(`final_issue_ids`),`final_closed_issue_ids`=VALUES(`final_closed_issue_ids`),`initial_issue_count`=VALUES(`initial_issue_count`),`final_issue_count`=VALUES(`final_issue_count`),`closed_issue_count`=VALUES(`closed_issue_count`),`added_issue_count`=VALUES(`added_issue_count`),`removed_issue_count`=VALUES(`removed_issue_count`),`initial_issues_closed`=VALUES(`initial_issues_closed`)"
+		q = "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `checksum`=VALUES(`checksum`),`project_id`=VALUES(`project_id`),`sprint_id`=VALUES(`sprint_id`),`name`=VALUES(`name`),`customer_id`=VALUES(`customer_id`),`complete_date`=VALUES(`complete_date`),`end_date`=VALUES(`end_date`),`start_date`=VALUES(`start_date`),`state`=VALUES(`state`),`goal`=VALUES(`goal`),`initial_issue_ids`=VALUES(`initial_issue_ids`),`final_issue_ids`=VALUES(`final_issue_ids`),`final_closed_issue_ids`=VALUES(`final_closed_issue_ids`),`initial_issue_count`=VALUES(`initial_issue_count`),`final_issue_count`=VALUES(`final_issue_count`),`closed_issue_count`=VALUES(`closed_issue_count`),`added_issue_count`=VALUES(`added_issue_count`),`removed_issue_count`=VALUES(`removed_issue_count`),`initial_issues_closed`=VALUES(`initial_issues_closed`),`initial_issues_in_final_count`=VALUES(`initial_issues_in_final_count`)"
 	}
 	r, err := db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1775,6 +1832,7 @@ func (t *JiraProjectSprint) DBUpsert(ctx context.Context, db *sql.DB, conditions
 		orm.ToSQLInt64(t.AddedIssueCount),
 		orm.ToSQLInt64(t.RemovedIssueCount),
 		orm.ToSQLInt64(t.InitialIssuesClosed),
+		orm.ToSQLInt64(t.InitialIssuesInFinalCount),
 	)
 	if err != nil {
 		return false, false, err
@@ -1792,12 +1850,12 @@ func (t *JiraProjectSprint) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditio
 	t.Checksum = &checksum
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `checksum`=VALUES(`checksum`),`project_id`=VALUES(`project_id`),`sprint_id`=VALUES(`sprint_id`),`name`=VALUES(`name`),`customer_id`=VALUES(`customer_id`),`complete_date`=VALUES(`complete_date`),`end_date`=VALUES(`end_date`),`start_date`=VALUES(`start_date`),`state`=VALUES(`state`),`goal`=VALUES(`goal`),`initial_issue_ids`=VALUES(`initial_issue_ids`),`final_issue_ids`=VALUES(`final_issue_ids`),`final_closed_issue_ids`=VALUES(`final_closed_issue_ids`),`initial_issue_count`=VALUES(`initial_issue_count`),`final_issue_count`=VALUES(`final_issue_count`),`closed_issue_count`=VALUES(`closed_issue_count`),`added_issue_count`=VALUES(`added_issue_count`),`removed_issue_count`=VALUES(`removed_issue_count`),`initial_issues_closed`=VALUES(`initial_issues_closed`)"
+		q = "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `checksum`=VALUES(`checksum`),`project_id`=VALUES(`project_id`),`sprint_id`=VALUES(`sprint_id`),`name`=VALUES(`name`),`customer_id`=VALUES(`customer_id`),`complete_date`=VALUES(`complete_date`),`end_date`=VALUES(`end_date`),`start_date`=VALUES(`start_date`),`state`=VALUES(`state`),`goal`=VALUES(`goal`),`initial_issue_ids`=VALUES(`initial_issue_ids`),`final_issue_ids`=VALUES(`final_issue_ids`),`final_closed_issue_ids`=VALUES(`final_closed_issue_ids`),`initial_issue_count`=VALUES(`initial_issue_count`),`final_issue_count`=VALUES(`final_issue_count`),`closed_issue_count`=VALUES(`closed_issue_count`),`added_issue_count`=VALUES(`added_issue_count`),`removed_issue_count`=VALUES(`removed_issue_count`),`initial_issues_closed`=VALUES(`initial_issues_closed`),`initial_issues_in_final_count`=VALUES(`initial_issues_in_final_count`)"
 	}
 	r, err := tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1820,6 +1878,7 @@ func (t *JiraProjectSprint) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditio
 		orm.ToSQLInt64(t.AddedIssueCount),
 		orm.ToSQLInt64(t.RemovedIssueCount),
 		orm.ToSQLInt64(t.InitialIssuesClosed),
+		orm.ToSQLInt64(t.InitialIssuesInFinalCount),
 	)
 	if err != nil {
 		return false, false, err
@@ -1830,7 +1889,7 @@ func (t *JiraProjectSprint) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditio
 
 // DBFindOne will find a JiraProjectSprint record in the database with the primary key
 func (t *JiraProjectSprint) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
-	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed` FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1852,6 +1911,7 @@ func (t *JiraProjectSprint) DBFindOne(ctx context.Context, db *sql.DB, value str
 	var _AddedIssueCount sql.NullInt64
 	var _RemovedIssueCount sql.NullInt64
 	var _InitialIssuesClosed sql.NullInt64
+	var _InitialIssuesInFinalCount sql.NullInt64
 	err := row.Scan(
 		&_ID,
 		&_Checksum,
@@ -1873,6 +1933,7 @@ func (t *JiraProjectSprint) DBFindOne(ctx context.Context, db *sql.DB, value str
 		&_AddedIssueCount,
 		&_RemovedIssueCount,
 		&_InitialIssuesClosed,
+		&_InitialIssuesInFinalCount,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -1940,12 +2001,15 @@ func (t *JiraProjectSprint) DBFindOne(ctx context.Context, db *sql.DB, value str
 	if _InitialIssuesClosed.Valid {
 		t.SetInitialIssuesClosed(int32(_InitialIssuesClosed.Int64))
 	}
+	if _InitialIssuesInFinalCount.Valid {
+		t.SetInitialIssuesInFinalCount(int32(_InitialIssuesInFinalCount.Int64))
+	}
 	return true, nil
 }
 
 // DBFindOneTx will find a JiraProjectSprint record in the database with the primary key using the provided transaction
 func (t *JiraProjectSprint) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
-	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed` FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1967,6 +2031,7 @@ func (t *JiraProjectSprint) DBFindOneTx(ctx context.Context, tx *sql.Tx, value s
 	var _AddedIssueCount sql.NullInt64
 	var _RemovedIssueCount sql.NullInt64
 	var _InitialIssuesClosed sql.NullInt64
+	var _InitialIssuesInFinalCount sql.NullInt64
 	err := row.Scan(
 		&_ID,
 		&_Checksum,
@@ -1988,6 +2053,7 @@ func (t *JiraProjectSprint) DBFindOneTx(ctx context.Context, tx *sql.Tx, value s
 		&_AddedIssueCount,
 		&_RemovedIssueCount,
 		&_InitialIssuesClosed,
+		&_InitialIssuesInFinalCount,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -2054,6 +2120,9 @@ func (t *JiraProjectSprint) DBFindOneTx(ctx context.Context, tx *sql.Tx, value s
 	}
 	if _InitialIssuesClosed.Valid {
 		t.SetInitialIssuesClosed(int32(_InitialIssuesClosed.Int64))
+	}
+	if _InitialIssuesInFinalCount.Valid {
+		t.SetInitialIssuesInFinalCount(int32(_InitialIssuesInFinalCount.Int64))
 	}
 	return true, nil
 }
@@ -2081,6 +2150,7 @@ func FindJiraProjectSprints(ctx context.Context, db *sql.DB, _params ...interfac
 		orm.Column("added_issue_count"),
 		orm.Column("removed_issue_count"),
 		orm.Column("initial_issues_closed"),
+		orm.Column("initial_issues_in_final_count"),
 		orm.Table(JiraProjectSprintTableName),
 	}
 	if len(_params) > 0 {
@@ -2119,6 +2189,7 @@ func FindJiraProjectSprints(ctx context.Context, db *sql.DB, _params ...interfac
 		var _AddedIssueCount sql.NullInt64
 		var _RemovedIssueCount sql.NullInt64
 		var _InitialIssuesClosed sql.NullInt64
+		var _InitialIssuesInFinalCount sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -2140,6 +2211,7 @@ func FindJiraProjectSprints(ctx context.Context, db *sql.DB, _params ...interfac
 			&_AddedIssueCount,
 			&_RemovedIssueCount,
 			&_InitialIssuesClosed,
+			&_InitialIssuesInFinalCount,
 		)
 		if err != nil {
 			return nil, err
@@ -2205,6 +2277,9 @@ func FindJiraProjectSprints(ctx context.Context, db *sql.DB, _params ...interfac
 		if _InitialIssuesClosed.Valid {
 			t.SetInitialIssuesClosed(int32(_InitialIssuesClosed.Int64))
 		}
+		if _InitialIssuesInFinalCount.Valid {
+			t.SetInitialIssuesInFinalCount(int32(_InitialIssuesInFinalCount.Int64))
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -2233,6 +2308,7 @@ func FindJiraProjectSprintsTx(ctx context.Context, tx *sql.Tx, _params ...interf
 		orm.Column("added_issue_count"),
 		orm.Column("removed_issue_count"),
 		orm.Column("initial_issues_closed"),
+		orm.Column("initial_issues_in_final_count"),
 		orm.Table(JiraProjectSprintTableName),
 	}
 	if len(_params) > 0 {
@@ -2271,6 +2347,7 @@ func FindJiraProjectSprintsTx(ctx context.Context, tx *sql.Tx, _params ...interf
 		var _AddedIssueCount sql.NullInt64
 		var _RemovedIssueCount sql.NullInt64
 		var _InitialIssuesClosed sql.NullInt64
+		var _InitialIssuesInFinalCount sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -2292,6 +2369,7 @@ func FindJiraProjectSprintsTx(ctx context.Context, tx *sql.Tx, _params ...interf
 			&_AddedIssueCount,
 			&_RemovedIssueCount,
 			&_InitialIssuesClosed,
+			&_InitialIssuesInFinalCount,
 		)
 		if err != nil {
 			return nil, err
@@ -2357,6 +2435,9 @@ func FindJiraProjectSprintsTx(ctx context.Context, tx *sql.Tx, _params ...interf
 		if _InitialIssuesClosed.Valid {
 			t.SetInitialIssuesClosed(int32(_InitialIssuesClosed.Int64))
 		}
+		if _InitialIssuesInFinalCount.Valid {
+			t.SetInitialIssuesInFinalCount(int32(_InitialIssuesInFinalCount.Int64))
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -2385,6 +2466,7 @@ func (t *JiraProjectSprint) DBFind(ctx context.Context, db *sql.DB, _params ...i
 		orm.Column("added_issue_count"),
 		orm.Column("removed_issue_count"),
 		orm.Column("initial_issues_closed"),
+		orm.Column("initial_issues_in_final_count"),
 		orm.Table(JiraProjectSprintTableName),
 	}
 	if len(_params) > 0 {
@@ -2414,6 +2496,7 @@ func (t *JiraProjectSprint) DBFind(ctx context.Context, db *sql.DB, _params ...i
 	var _AddedIssueCount sql.NullInt64
 	var _RemovedIssueCount sql.NullInt64
 	var _InitialIssuesClosed sql.NullInt64
+	var _InitialIssuesInFinalCount sql.NullInt64
 	err := row.Scan(
 		&_ID,
 		&_Checksum,
@@ -2435,6 +2518,7 @@ func (t *JiraProjectSprint) DBFind(ctx context.Context, db *sql.DB, _params ...i
 		&_AddedIssueCount,
 		&_RemovedIssueCount,
 		&_InitialIssuesClosed,
+		&_InitialIssuesInFinalCount,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -2499,6 +2583,9 @@ func (t *JiraProjectSprint) DBFind(ctx context.Context, db *sql.DB, _params ...i
 	if _InitialIssuesClosed.Valid {
 		t.SetInitialIssuesClosed(int32(_InitialIssuesClosed.Int64))
 	}
+	if _InitialIssuesInFinalCount.Valid {
+		t.SetInitialIssuesInFinalCount(int32(_InitialIssuesInFinalCount.Int64))
+	}
 	return true, nil
 }
 
@@ -2525,6 +2612,7 @@ func (t *JiraProjectSprint) DBFindTx(ctx context.Context, tx *sql.Tx, _params ..
 		orm.Column("added_issue_count"),
 		orm.Column("removed_issue_count"),
 		orm.Column("initial_issues_closed"),
+		orm.Column("initial_issues_in_final_count"),
 		orm.Table(JiraProjectSprintTableName),
 	}
 	if len(_params) > 0 {
@@ -2554,6 +2642,7 @@ func (t *JiraProjectSprint) DBFindTx(ctx context.Context, tx *sql.Tx, _params ..
 	var _AddedIssueCount sql.NullInt64
 	var _RemovedIssueCount sql.NullInt64
 	var _InitialIssuesClosed sql.NullInt64
+	var _InitialIssuesInFinalCount sql.NullInt64
 	err := row.Scan(
 		&_ID,
 		&_Checksum,
@@ -2575,6 +2664,7 @@ func (t *JiraProjectSprint) DBFindTx(ctx context.Context, tx *sql.Tx, _params ..
 		&_AddedIssueCount,
 		&_RemovedIssueCount,
 		&_InitialIssuesClosed,
+		&_InitialIssuesInFinalCount,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -2638,6 +2728,9 @@ func (t *JiraProjectSprint) DBFindTx(ctx context.Context, tx *sql.Tx, _params ..
 	}
 	if _InitialIssuesClosed.Valid {
 		t.SetInitialIssuesClosed(int32(_InitialIssuesClosed.Int64))
+	}
+	if _InitialIssuesInFinalCount.Valid {
+		t.SetInitialIssuesInFinalCount(int32(_InitialIssuesInFinalCount.Int64))
 	}
 	return true, nil
 }

@@ -42,6 +42,7 @@ func TestCreateJiraIssueChangeLogDelete(t *testing.T) {
 		CustomerID: "e8a4eec32bf25c77",
 		IssueID:    "3fb980ac5bcdd5eb",
 		ProjectID:  "5fe6a3f6fe519ba3",
+		Ordinal:    int32(32),
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -134,6 +135,7 @@ func TestCreateJiraIssueChangeLogDeleteTx(t *testing.T) {
 		CustomerID: "e8a4eec32bf25c77",
 		IssueID:    "3fb980ac5bcdd5eb",
 		ProjectID:  "5fe6a3f6fe519ba3",
+		Ordinal:    int32(32),
 	}
 	ctx := context.Background()
 	db := GetDatabase()

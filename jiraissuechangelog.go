@@ -45,6 +45,7 @@ var JiraIssueChangeLogColumns = []string{
 	"customer_id",
 	"issue_id",
 	"project_id",
+	"ordinal",
 }
 
 // JiraIssueChangeLog table
@@ -58,6 +59,7 @@ type JiraIssueChangeLog struct {
 	FromString *string `json:"from_string,omitempty"`
 	ID         string  `json:"id"`
 	IssueID    string  `json:"issue_id"`
+	Ordinal    int32   `json:"ordinal"`
 	ProjectID  string  `json:"project_id"`
 	RefID      string  `json:"ref_id"`
 	To         *string `json:"to,omitempty"`
@@ -87,6 +89,7 @@ func (t *JiraIssueChangeLog) ToCSV() []string {
 		t.CustomerID,
 		t.IssueID,
 		t.ProjectID,
+		toCSVString(t.Ordinal),
 	}
 }
 
@@ -162,6 +165,7 @@ func NewCSVJiraIssueChangeLogReader(r io.Reader, ch chan<- JiraIssueChangeLog) e
 			CustomerID: record[11],
 			IssueID:    record[12],
 			ProjectID:  record[13],
+			Ordinal:    fromCSVInt32(record[14]),
 		}
 	}
 	return nil
@@ -409,6 +413,12 @@ const JiraIssueChangeLogColumnProjectID = "project_id"
 // JiraIssueChangeLogEscapedColumnProjectID is the escaped ProjectID SQL column name for the JiraIssueChangeLog table
 const JiraIssueChangeLogEscapedColumnProjectID = "`project_id`"
 
+// JiraIssueChangeLogColumnOrdinal is the Ordinal SQL column name for the JiraIssueChangeLog table
+const JiraIssueChangeLogColumnOrdinal = "ordinal"
+
+// JiraIssueChangeLogEscapedColumnOrdinal is the escaped Ordinal SQL column name for the JiraIssueChangeLog table
+const JiraIssueChangeLogEscapedColumnOrdinal = "`ordinal`"
+
 // GetID will return the JiraIssueChangeLog ID value
 func (t *JiraIssueChangeLog) GetID() string {
 	return t.ID
@@ -421,7 +431,7 @@ func (t *JiraIssueChangeLog) SetID(v string) {
 
 // FindJiraIssueChangeLogByID will find a JiraIssueChangeLog by ID
 func FindJiraIssueChangeLogByID(ctx context.Context, db *sql.DB, value string) (*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id` FROM `jira_issue_change_log` WHERE `id` = ?"
+	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _UserID sql.NullString
 	var _AssigneeID sql.NullString
@@ -436,6 +446,7 @@ func FindJiraIssueChangeLogByID(ctx context.Context, db *sql.DB, value string) (
 	var _CustomerID sql.NullString
 	var _IssueID sql.NullString
 	var _ProjectID sql.NullString
+	var _Ordinal sql.NullInt64
 	err := db.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_UserID,
@@ -451,6 +462,7 @@ func FindJiraIssueChangeLogByID(ctx context.Context, db *sql.DB, value string) (
 		&_CustomerID,
 		&_IssueID,
 		&_ProjectID,
+		&_Ordinal,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -501,12 +513,15 @@ func FindJiraIssueChangeLogByID(ctx context.Context, db *sql.DB, value string) (
 	if _ProjectID.Valid {
 		t.SetProjectID(_ProjectID.String)
 	}
+	if _Ordinal.Valid {
+		t.SetOrdinal(int32(_Ordinal.Int64))
+	}
 	return t, nil
 }
 
 // FindJiraIssueChangeLogByIDTx will find a JiraIssueChangeLog by ID using the provided transaction
 func FindJiraIssueChangeLogByIDTx(ctx context.Context, tx *sql.Tx, value string) (*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id` FROM `jira_issue_change_log` WHERE `id` = ?"
+	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _UserID sql.NullString
 	var _AssigneeID sql.NullString
@@ -521,6 +536,7 @@ func FindJiraIssueChangeLogByIDTx(ctx context.Context, tx *sql.Tx, value string)
 	var _CustomerID sql.NullString
 	var _IssueID sql.NullString
 	var _ProjectID sql.NullString
+	var _Ordinal sql.NullInt64
 	err := tx.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_UserID,
@@ -536,6 +552,7 @@ func FindJiraIssueChangeLogByIDTx(ctx context.Context, tx *sql.Tx, value string)
 		&_CustomerID,
 		&_IssueID,
 		&_ProjectID,
+		&_Ordinal,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -585,6 +602,9 @@ func FindJiraIssueChangeLogByIDTx(ctx context.Context, tx *sql.Tx, value string)
 	}
 	if _ProjectID.Valid {
 		t.SetProjectID(_ProjectID.String)
+	}
+	if _Ordinal.Valid {
+		t.SetOrdinal(int32(_Ordinal.Int64))
 	}
 	return t, nil
 }
@@ -640,7 +660,7 @@ func (t *JiraIssueChangeLog) SetField(v string) {
 
 // FindJiraIssueChangeLogsByField will find all JiraIssueChangeLogs by the Field value
 func FindJiraIssueChangeLogsByField(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id` FROM `jira_issue_change_log` WHERE `field` = ? LIMIT 1"
+	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `field` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -665,6 +685,7 @@ func FindJiraIssueChangeLogsByField(ctx context.Context, db *sql.DB, value strin
 		var _CustomerID sql.NullString
 		var _IssueID sql.NullString
 		var _ProjectID sql.NullString
+		var _Ordinal sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_UserID,
@@ -680,6 +701,7 @@ func FindJiraIssueChangeLogsByField(ctx context.Context, db *sql.DB, value strin
 			&_CustomerID,
 			&_IssueID,
 			&_ProjectID,
+			&_Ordinal,
 		)
 		if err != nil {
 			return nil, err
@@ -727,6 +749,9 @@ func FindJiraIssueChangeLogsByField(ctx context.Context, db *sql.DB, value strin
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Ordinal.Valid {
+			t.SetOrdinal(int32(_Ordinal.Int64))
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -734,7 +759,7 @@ func FindJiraIssueChangeLogsByField(ctx context.Context, db *sql.DB, value strin
 
 // FindJiraIssueChangeLogsByFieldTx will find all JiraIssueChangeLogs by the Field value using the provided transaction
 func FindJiraIssueChangeLogsByFieldTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id` FROM `jira_issue_change_log` WHERE `field` = ? LIMIT 1"
+	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `field` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -759,6 +784,7 @@ func FindJiraIssueChangeLogsByFieldTx(ctx context.Context, tx *sql.Tx, value str
 		var _CustomerID sql.NullString
 		var _IssueID sql.NullString
 		var _ProjectID sql.NullString
+		var _Ordinal sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_UserID,
@@ -774,6 +800,7 @@ func FindJiraIssueChangeLogsByFieldTx(ctx context.Context, tx *sql.Tx, value str
 			&_CustomerID,
 			&_IssueID,
 			&_ProjectID,
+			&_Ordinal,
 		)
 		if err != nil {
 			return nil, err
@@ -820,6 +847,9 @@ func FindJiraIssueChangeLogsByFieldTx(ctx context.Context, tx *sql.Tx, value str
 		}
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
+		}
+		if _Ordinal.Valid {
+			t.SetOrdinal(int32(_Ordinal.Int64))
 		}
 		results = append(results, t)
 	}
@@ -913,7 +943,7 @@ func (t *JiraIssueChangeLog) SetCustomerID(v string) {
 
 // FindJiraIssueChangeLogsByCustomerID will find all JiraIssueChangeLogs by the CustomerID value
 func FindJiraIssueChangeLogsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id` FROM `jira_issue_change_log` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -938,6 +968,7 @@ func FindJiraIssueChangeLogsByCustomerID(ctx context.Context, db *sql.DB, value 
 		var _CustomerID sql.NullString
 		var _IssueID sql.NullString
 		var _ProjectID sql.NullString
+		var _Ordinal sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_UserID,
@@ -953,6 +984,7 @@ func FindJiraIssueChangeLogsByCustomerID(ctx context.Context, db *sql.DB, value 
 			&_CustomerID,
 			&_IssueID,
 			&_ProjectID,
+			&_Ordinal,
 		)
 		if err != nil {
 			return nil, err
@@ -1000,6 +1032,9 @@ func FindJiraIssueChangeLogsByCustomerID(ctx context.Context, db *sql.DB, value 
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Ordinal.Valid {
+			t.SetOrdinal(int32(_Ordinal.Int64))
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -1007,7 +1042,7 @@ func FindJiraIssueChangeLogsByCustomerID(ctx context.Context, db *sql.DB, value 
 
 // FindJiraIssueChangeLogsByCustomerIDTx will find all JiraIssueChangeLogs by the CustomerID value using the provided transaction
 func FindJiraIssueChangeLogsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id` FROM `jira_issue_change_log` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1032,6 +1067,7 @@ func FindJiraIssueChangeLogsByCustomerIDTx(ctx context.Context, tx *sql.Tx, valu
 		var _CustomerID sql.NullString
 		var _IssueID sql.NullString
 		var _ProjectID sql.NullString
+		var _Ordinal sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_UserID,
@@ -1047,6 +1083,7 @@ func FindJiraIssueChangeLogsByCustomerIDTx(ctx context.Context, tx *sql.Tx, valu
 			&_CustomerID,
 			&_IssueID,
 			&_ProjectID,
+			&_Ordinal,
 		)
 		if err != nil {
 			return nil, err
@@ -1093,6 +1130,9 @@ func FindJiraIssueChangeLogsByCustomerIDTx(ctx context.Context, tx *sql.Tx, valu
 		}
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
+		}
+		if _Ordinal.Valid {
+			t.SetOrdinal(int32(_Ordinal.Int64))
 		}
 		results = append(results, t)
 	}
@@ -1111,7 +1151,7 @@ func (t *JiraIssueChangeLog) SetIssueID(v string) {
 
 // FindJiraIssueChangeLogsByIssueID will find all JiraIssueChangeLogs by the IssueID value
 func FindJiraIssueChangeLogsByIssueID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id` FROM `jira_issue_change_log` WHERE `issue_id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1136,6 +1176,7 @@ func FindJiraIssueChangeLogsByIssueID(ctx context.Context, db *sql.DB, value str
 		var _CustomerID sql.NullString
 		var _IssueID sql.NullString
 		var _ProjectID sql.NullString
+		var _Ordinal sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_UserID,
@@ -1151,6 +1192,7 @@ func FindJiraIssueChangeLogsByIssueID(ctx context.Context, db *sql.DB, value str
 			&_CustomerID,
 			&_IssueID,
 			&_ProjectID,
+			&_Ordinal,
 		)
 		if err != nil {
 			return nil, err
@@ -1198,6 +1240,9 @@ func FindJiraIssueChangeLogsByIssueID(ctx context.Context, db *sql.DB, value str
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Ordinal.Valid {
+			t.SetOrdinal(int32(_Ordinal.Int64))
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -1205,7 +1250,7 @@ func FindJiraIssueChangeLogsByIssueID(ctx context.Context, db *sql.DB, value str
 
 // FindJiraIssueChangeLogsByIssueIDTx will find all JiraIssueChangeLogs by the IssueID value using the provided transaction
 func FindJiraIssueChangeLogsByIssueIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id` FROM `jira_issue_change_log` WHERE `issue_id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1230,6 +1275,7 @@ func FindJiraIssueChangeLogsByIssueIDTx(ctx context.Context, tx *sql.Tx, value s
 		var _CustomerID sql.NullString
 		var _IssueID sql.NullString
 		var _ProjectID sql.NullString
+		var _Ordinal sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_UserID,
@@ -1245,6 +1291,7 @@ func FindJiraIssueChangeLogsByIssueIDTx(ctx context.Context, tx *sql.Tx, value s
 			&_CustomerID,
 			&_IssueID,
 			&_ProjectID,
+			&_Ordinal,
 		)
 		if err != nil {
 			return nil, err
@@ -1292,6 +1339,9 @@ func FindJiraIssueChangeLogsByIssueIDTx(ctx context.Context, tx *sql.Tx, value s
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Ordinal.Valid {
+			t.SetOrdinal(int32(_Ordinal.Int64))
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -1307,6 +1357,16 @@ func (t *JiraIssueChangeLog) SetProjectID(v string) {
 	t.ProjectID = v
 }
 
+// GetOrdinal will return the JiraIssueChangeLog Ordinal value
+func (t *JiraIssueChangeLog) GetOrdinal() int32 {
+	return t.Ordinal
+}
+
+// SetOrdinal will set the JiraIssueChangeLog Ordinal value
+func (t *JiraIssueChangeLog) SetOrdinal(v int32) {
+	t.Ordinal = v
+}
+
 func (t *JiraIssueChangeLog) toTimestamp(value time.Time) *timestamp.Timestamp {
 	ts, _ := ptypes.TimestampProto(value)
 	return ts
@@ -1314,14 +1374,14 @@ func (t *JiraIssueChangeLog) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateJiraIssueChangeLogTable will create the JiraIssueChangeLog table
 func DBCreateJiraIssueChangeLogTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `jira_issue_change_log` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`user_id`VARCHAR(64),`assignee_id` VARCHAR(64),`created_at`BIGINT(20) UNSIGNED,`field` VARCHAR(255) NOT NULL,`field_type`TEXT,`from`LONGTEXT,`from_string` LONGTEXT,`to` LONGTEXT,`to_string` LONGTEXT,`ref_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`issue_id` VARCHAR(64) NOT NULL,`project_id`VARCHAR(64) NOT NULL,INDEX jira_issue_change_log_field_index (`field`),INDEX jira_issue_change_log_customer_id_index (`customer_id`),INDEX jira_issue_change_log_issue_id_index (`issue_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jira_issue_change_log` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`user_id`VARCHAR(64),`assignee_id` VARCHAR(64),`created_at`BIGINT(20) UNSIGNED,`field` VARCHAR(255) NOT NULL,`field_type`TEXT,`from`LONGTEXT,`from_string` LONGTEXT,`to` LONGTEXT,`to_string` LONGTEXT,`ref_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`issue_id` VARCHAR(64) NOT NULL,`project_id`VARCHAR(64) NOT NULL,`ordinal`INT(11) NOT NULL,INDEX jira_issue_change_log_field_index (`field`),INDEX jira_issue_change_log_customer_id_index (`customer_id`),INDEX jira_issue_change_log_issue_id_index (`issue_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraIssueChangeLogTableTx will create the JiraIssueChangeLog table using the provided transction
 func DBCreateJiraIssueChangeLogTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `jira_issue_change_log` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`user_id`VARCHAR(64),`assignee_id` VARCHAR(64),`created_at`BIGINT(20) UNSIGNED,`field` VARCHAR(255) NOT NULL,`field_type`TEXT,`from`LONGTEXT,`from_string` LONGTEXT,`to` LONGTEXT,`to_string` LONGTEXT,`ref_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`issue_id` VARCHAR(64) NOT NULL,`project_id`VARCHAR(64) NOT NULL,INDEX jira_issue_change_log_field_index (`field`),INDEX jira_issue_change_log_customer_id_index (`customer_id`),INDEX jira_issue_change_log_issue_id_index (`issue_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jira_issue_change_log` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`user_id`VARCHAR(64),`assignee_id` VARCHAR(64),`created_at`BIGINT(20) UNSIGNED,`field` VARCHAR(255) NOT NULL,`field_type`TEXT,`from`LONGTEXT,`from_string` LONGTEXT,`to` LONGTEXT,`to_string` LONGTEXT,`ref_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`issue_id` VARCHAR(64) NOT NULL,`project_id`VARCHAR(64) NOT NULL,`ordinal`INT(11) NOT NULL,INDEX jira_issue_change_log_field_index (`field`),INDEX jira_issue_change_log_customer_id_index (`customer_id`),INDEX jira_issue_change_log_issue_id_index (`issue_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
@@ -1342,7 +1402,7 @@ func DBDropJiraIssueChangeLogTableTx(ctx context.Context, tx *sql.Tx) error {
 
 // DBCreate will create a new JiraIssueChangeLog record in the database
 func (t *JiraIssueChangeLog) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
-	q := "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.UserID),
@@ -1358,12 +1418,13 @@ func (t *JiraIssueChangeLog) DBCreate(ctx context.Context, db *sql.DB) (sql.Resu
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.IssueID),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLInt64(t.Ordinal),
 	)
 }
 
 // DBCreateTx will create a new JiraIssueChangeLog record in the database using the provided transaction
 func (t *JiraIssueChangeLog) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
-	q := "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.UserID),
@@ -1379,12 +1440,13 @@ func (t *JiraIssueChangeLog) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Re
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.IssueID),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLInt64(t.Ordinal),
 	)
 }
 
 // DBCreateIgnoreDuplicate will upsert the JiraIssueChangeLog record in the database
 func (t *JiraIssueChangeLog) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
-	q := "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.UserID),
@@ -1400,12 +1462,13 @@ func (t *JiraIssueChangeLog) DBCreateIgnoreDuplicate(ctx context.Context, db *sq
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.IssueID),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLInt64(t.Ordinal),
 	)
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the JiraIssueChangeLog record in the database using the provided transaction
 func (t *JiraIssueChangeLog) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
-	q := "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.UserID),
@@ -1421,6 +1484,7 @@ func (t *JiraIssueChangeLog) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.IssueID),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLInt64(t.Ordinal),
 	)
 }
 
@@ -1484,7 +1548,7 @@ func (t *JiraIssueChangeLog) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, 
 
 // DBUpdate will update the JiraIssueChangeLog record in the database
 func (t *JiraIssueChangeLog) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
-	q := "UPDATE `jira_issue_change_log` SET `user_id`=?,`assignee_id`=?,`created_at`=?,`field`=?,`field_type`=?,`from`=?,`from_string`=?,`to`=?,`to_string`=?,`ref_id`=?,`customer_id`=?,`issue_id`=?,`project_id`=? WHERE `id`=?"
+	q := "UPDATE `jira_issue_change_log` SET `user_id`=?,`assignee_id`=?,`created_at`=?,`field`=?,`field_type`=?,`from`=?,`from_string`=?,`to`=?,`to_string`=?,`ref_id`=?,`customer_id`=?,`issue_id`=?,`project_id`=?,`ordinal`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.UserID),
 		orm.ToSQLString(t.AssigneeID),
@@ -1499,13 +1563,14 @@ func (t *JiraIssueChangeLog) DBUpdate(ctx context.Context, db *sql.DB) (sql.Resu
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.IssueID),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLInt64(t.Ordinal),
 		orm.ToSQLString(t.ID),
 	)
 }
 
 // DBUpdateTx will update the JiraIssueChangeLog record in the database using the provided transaction
 func (t *JiraIssueChangeLog) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
-	q := "UPDATE `jira_issue_change_log` SET `user_id`=?,`assignee_id`=?,`created_at`=?,`field`=?,`field_type`=?,`from`=?,`from_string`=?,`to`=?,`to_string`=?,`ref_id`=?,`customer_id`=?,`issue_id`=?,`project_id`=? WHERE `id`=?"
+	q := "UPDATE `jira_issue_change_log` SET `user_id`=?,`assignee_id`=?,`created_at`=?,`field`=?,`field_type`=?,`from`=?,`from_string`=?,`to`=?,`to_string`=?,`ref_id`=?,`customer_id`=?,`issue_id`=?,`project_id`=?,`ordinal`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.UserID),
 		orm.ToSQLString(t.AssigneeID),
@@ -1520,6 +1585,7 @@ func (t *JiraIssueChangeLog) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Re
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.IssueID),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLInt64(t.Ordinal),
 		orm.ToSQLString(t.ID),
 	)
 }
@@ -1528,12 +1594,12 @@ func (t *JiraIssueChangeLog) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Re
 func (t *JiraIssueChangeLog) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `user_id`=VALUES(`user_id`),`assignee_id`=VALUES(`assignee_id`),`created_at`=VALUES(`created_at`),`field`=VALUES(`field`),`field_type`=VALUES(`field_type`),`from`=VALUES(`from`),`from_string`=VALUES(`from_string`),`to`=VALUES(`to`),`to_string`=VALUES(`to_string`),`ref_id`=VALUES(`ref_id`),`customer_id`=VALUES(`customer_id`),`issue_id`=VALUES(`issue_id`),`project_id`=VALUES(`project_id`)"
+		q = "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `user_id`=VALUES(`user_id`),`assignee_id`=VALUES(`assignee_id`),`created_at`=VALUES(`created_at`),`field`=VALUES(`field`),`field_type`=VALUES(`field_type`),`from`=VALUES(`from`),`from_string`=VALUES(`from_string`),`to`=VALUES(`to`),`to_string`=VALUES(`to_string`),`ref_id`=VALUES(`ref_id`),`customer_id`=VALUES(`customer_id`),`issue_id`=VALUES(`issue_id`),`project_id`=VALUES(`project_id`),`ordinal`=VALUES(`ordinal`)"
 	}
 	r, err := db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1550,6 +1616,7 @@ func (t *JiraIssueChangeLog) DBUpsert(ctx context.Context, db *sql.DB, condition
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.IssueID),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLInt64(t.Ordinal),
 	)
 	if err != nil {
 		return false, false, err
@@ -1562,12 +1629,12 @@ func (t *JiraIssueChangeLog) DBUpsert(ctx context.Context, db *sql.DB, condition
 func (t *JiraIssueChangeLog) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `user_id`=VALUES(`user_id`),`assignee_id`=VALUES(`assignee_id`),`created_at`=VALUES(`created_at`),`field`=VALUES(`field`),`field_type`=VALUES(`field_type`),`from`=VALUES(`from`),`from_string`=VALUES(`from_string`),`to`=VALUES(`to`),`to_string`=VALUES(`to_string`),`ref_id`=VALUES(`ref_id`),`customer_id`=VALUES(`customer_id`),`issue_id`=VALUES(`issue_id`),`project_id`=VALUES(`project_id`)"
+		q = "INSERT INTO `jira_issue_change_log` (`jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `user_id`=VALUES(`user_id`),`assignee_id`=VALUES(`assignee_id`),`created_at`=VALUES(`created_at`),`field`=VALUES(`field`),`field_type`=VALUES(`field_type`),`from`=VALUES(`from`),`from_string`=VALUES(`from_string`),`to`=VALUES(`to`),`to_string`=VALUES(`to_string`),`ref_id`=VALUES(`ref_id`),`customer_id`=VALUES(`customer_id`),`issue_id`=VALUES(`issue_id`),`project_id`=VALUES(`project_id`),`ordinal`=VALUES(`ordinal`)"
 	}
 	r, err := tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1584,6 +1651,7 @@ func (t *JiraIssueChangeLog) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditi
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.IssueID),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLInt64(t.Ordinal),
 	)
 	if err != nil {
 		return false, false, err
@@ -1594,7 +1662,7 @@ func (t *JiraIssueChangeLog) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditi
 
 // DBFindOne will find a JiraIssueChangeLog record in the database with the primary key
 func (t *JiraIssueChangeLog) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id` FROM `jira_issue_change_log` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _UserID sql.NullString
@@ -1610,6 +1678,7 @@ func (t *JiraIssueChangeLog) DBFindOne(ctx context.Context, db *sql.DB, value st
 	var _CustomerID sql.NullString
 	var _IssueID sql.NullString
 	var _ProjectID sql.NullString
+	var _Ordinal sql.NullInt64
 	err := row.Scan(
 		&_ID,
 		&_UserID,
@@ -1625,6 +1694,7 @@ func (t *JiraIssueChangeLog) DBFindOne(ctx context.Context, db *sql.DB, value st
 		&_CustomerID,
 		&_IssueID,
 		&_ProjectID,
+		&_Ordinal,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -1674,12 +1744,15 @@ func (t *JiraIssueChangeLog) DBFindOne(ctx context.Context, db *sql.DB, value st
 	if _ProjectID.Valid {
 		t.SetProjectID(_ProjectID.String)
 	}
+	if _Ordinal.Valid {
+		t.SetOrdinal(int32(_Ordinal.Int64))
+	}
 	return true, nil
 }
 
 // DBFindOneTx will find a JiraIssueChangeLog record in the database with the primary key using the provided transaction
 func (t *JiraIssueChangeLog) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id` FROM `jira_issue_change_log` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _UserID sql.NullString
@@ -1695,6 +1768,7 @@ func (t *JiraIssueChangeLog) DBFindOneTx(ctx context.Context, tx *sql.Tx, value 
 	var _CustomerID sql.NullString
 	var _IssueID sql.NullString
 	var _ProjectID sql.NullString
+	var _Ordinal sql.NullInt64
 	err := row.Scan(
 		&_ID,
 		&_UserID,
@@ -1710,6 +1784,7 @@ func (t *JiraIssueChangeLog) DBFindOneTx(ctx context.Context, tx *sql.Tx, value 
 		&_CustomerID,
 		&_IssueID,
 		&_ProjectID,
+		&_Ordinal,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -1758,6 +1833,9 @@ func (t *JiraIssueChangeLog) DBFindOneTx(ctx context.Context, tx *sql.Tx, value 
 	}
 	if _ProjectID.Valid {
 		t.SetProjectID(_ProjectID.String)
+	}
+	if _Ordinal.Valid {
+		t.SetOrdinal(int32(_Ordinal.Int64))
 	}
 	return true, nil
 }
@@ -1779,6 +1857,7 @@ func FindJiraIssueChangeLogs(ctx context.Context, db *sql.DB, _params ...interfa
 		orm.Column("customer_id"),
 		orm.Column("issue_id"),
 		orm.Column("project_id"),
+		orm.Column("ordinal"),
 		orm.Table(JiraIssueChangeLogTableName),
 	}
 	if len(_params) > 0 {
@@ -1811,6 +1890,7 @@ func FindJiraIssueChangeLogs(ctx context.Context, db *sql.DB, _params ...interfa
 		var _CustomerID sql.NullString
 		var _IssueID sql.NullString
 		var _ProjectID sql.NullString
+		var _Ordinal sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_UserID,
@@ -1826,6 +1906,7 @@ func FindJiraIssueChangeLogs(ctx context.Context, db *sql.DB, _params ...interfa
 			&_CustomerID,
 			&_IssueID,
 			&_ProjectID,
+			&_Ordinal,
 		)
 		if err != nil {
 			return nil, err
@@ -1873,6 +1954,9 @@ func FindJiraIssueChangeLogs(ctx context.Context, db *sql.DB, _params ...interfa
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Ordinal.Valid {
+			t.SetOrdinal(int32(_Ordinal.Int64))
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -1895,6 +1979,7 @@ func FindJiraIssueChangeLogsTx(ctx context.Context, tx *sql.Tx, _params ...inter
 		orm.Column("customer_id"),
 		orm.Column("issue_id"),
 		orm.Column("project_id"),
+		orm.Column("ordinal"),
 		orm.Table(JiraIssueChangeLogTableName),
 	}
 	if len(_params) > 0 {
@@ -1927,6 +2012,7 @@ func FindJiraIssueChangeLogsTx(ctx context.Context, tx *sql.Tx, _params ...inter
 		var _CustomerID sql.NullString
 		var _IssueID sql.NullString
 		var _ProjectID sql.NullString
+		var _Ordinal sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_UserID,
@@ -1942,6 +2028,7 @@ func FindJiraIssueChangeLogsTx(ctx context.Context, tx *sql.Tx, _params ...inter
 			&_CustomerID,
 			&_IssueID,
 			&_ProjectID,
+			&_Ordinal,
 		)
 		if err != nil {
 			return nil, err
@@ -1989,6 +2076,9 @@ func FindJiraIssueChangeLogsTx(ctx context.Context, tx *sql.Tx, _params ...inter
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Ordinal.Valid {
+			t.SetOrdinal(int32(_Ordinal.Int64))
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -2011,6 +2101,7 @@ func (t *JiraIssueChangeLog) DBFind(ctx context.Context, db *sql.DB, _params ...
 		orm.Column("customer_id"),
 		orm.Column("issue_id"),
 		orm.Column("project_id"),
+		orm.Column("ordinal"),
 		orm.Table(JiraIssueChangeLogTableName),
 	}
 	if len(_params) > 0 {
@@ -2034,6 +2125,7 @@ func (t *JiraIssueChangeLog) DBFind(ctx context.Context, db *sql.DB, _params ...
 	var _CustomerID sql.NullString
 	var _IssueID sql.NullString
 	var _ProjectID sql.NullString
+	var _Ordinal sql.NullInt64
 	err := row.Scan(
 		&_ID,
 		&_UserID,
@@ -2049,6 +2141,7 @@ func (t *JiraIssueChangeLog) DBFind(ctx context.Context, db *sql.DB, _params ...
 		&_CustomerID,
 		&_IssueID,
 		&_ProjectID,
+		&_Ordinal,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -2095,6 +2188,9 @@ func (t *JiraIssueChangeLog) DBFind(ctx context.Context, db *sql.DB, _params ...
 	if _ProjectID.Valid {
 		t.SetProjectID(_ProjectID.String)
 	}
+	if _Ordinal.Valid {
+		t.SetOrdinal(int32(_Ordinal.Int64))
+	}
 	return true, nil
 }
 
@@ -2115,6 +2211,7 @@ func (t *JiraIssueChangeLog) DBFindTx(ctx context.Context, tx *sql.Tx, _params .
 		orm.Column("customer_id"),
 		orm.Column("issue_id"),
 		orm.Column("project_id"),
+		orm.Column("ordinal"),
 		orm.Table(JiraIssueChangeLogTableName),
 	}
 	if len(_params) > 0 {
@@ -2138,6 +2235,7 @@ func (t *JiraIssueChangeLog) DBFindTx(ctx context.Context, tx *sql.Tx, _params .
 	var _CustomerID sql.NullString
 	var _IssueID sql.NullString
 	var _ProjectID sql.NullString
+	var _Ordinal sql.NullInt64
 	err := row.Scan(
 		&_ID,
 		&_UserID,
@@ -2153,6 +2251,7 @@ func (t *JiraIssueChangeLog) DBFindTx(ctx context.Context, tx *sql.Tx, _params .
 		&_CustomerID,
 		&_IssueID,
 		&_ProjectID,
+		&_Ordinal,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -2198,6 +2297,9 @@ func (t *JiraIssueChangeLog) DBFindTx(ctx context.Context, tx *sql.Tx, _params .
 	}
 	if _ProjectID.Valid {
 		t.SetProjectID(_ProjectID.String)
+	}
+	if _Ordinal.Valid {
+		t.SetOrdinal(int32(_Ordinal.Int64))
 	}
 	return true, nil
 }
