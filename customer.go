@@ -36,15 +36,17 @@ var CustomerColumns = []string{
 	"active",
 	"created_at",
 	"updated_at",
+	"metadata",
 }
 
 // Customer table
 type Customer struct {
-	Active    bool   `json:"active"`
-	CreatedAt int64  `json:"created_at"`
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	UpdatedAt *int64 `json:"updated_at,omitempty"`
+	Active    bool    `json:"active"`
+	CreatedAt int64   `json:"created_at"`
+	ID        string  `json:"id"`
+	Metadata  *string `json:"metadata,omitempty"`
+	Name      string  `json:"name"`
+	UpdatedAt *int64  `json:"updated_at,omitempty"`
 }
 
 // TableName returns the SQL table name for Customer and satifies the Model interface
@@ -60,6 +62,7 @@ func (t *Customer) ToCSV() []string {
 		toCSVBool(t.Active),
 		toCSVString(t.CreatedAt),
 		toCSVString(t.UpdatedAt),
+		toCSVString(t.Metadata),
 	}
 }
 
@@ -126,6 +129,7 @@ func NewCSVCustomerReader(r io.Reader, ch chan<- Customer) error {
 			Active:    fromCSVBool(record[2]),
 			CreatedAt: fromCSVInt64(record[3]),
 			UpdatedAt: fromCSVInt64Pointer(record[4]),
+			Metadata:  fromStringPointer(record[5]),
 		}
 	}
 	return nil
@@ -319,6 +323,12 @@ const CustomerColumnUpdatedAt = "updated_at"
 // CustomerEscapedColumnUpdatedAt is the escaped UpdatedAt SQL column name for the Customer table
 const CustomerEscapedColumnUpdatedAt = "`updated_at`"
 
+// CustomerColumnMetadata is the Metadata SQL column name for the Customer table
+const CustomerColumnMetadata = "metadata"
+
+// CustomerEscapedColumnMetadata is the escaped Metadata SQL column name for the Customer table
+const CustomerEscapedColumnMetadata = "`metadata`"
+
 // GetID will return the Customer ID value
 func (t *Customer) GetID() string {
 	return t.ID
@@ -331,18 +341,20 @@ func (t *Customer) SetID(v string) {
 
 // FindCustomerByID will find a Customer by ID
 func FindCustomerByID(ctx context.Context, db *sql.DB, value string) (*Customer, error) {
-	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at` FROM `customer` WHERE `id` = ?"
+	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata` FROM `customer` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Name sql.NullString
 	var _Active sql.NullBool
 	var _CreatedAt sql.NullInt64
 	var _UpdatedAt sql.NullInt64
+	var _Metadata sql.NullString
 	err := db.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_Name,
 		&_Active,
 		&_CreatedAt,
 		&_UpdatedAt,
+		&_Metadata,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -365,24 +377,29 @@ func FindCustomerByID(ctx context.Context, db *sql.DB, value string) (*Customer,
 	}
 	if _UpdatedAt.Valid {
 		t.SetUpdatedAt(_UpdatedAt.Int64)
+	}
+	if _Metadata.Valid {
+		t.SetMetadata(_Metadata.String)
 	}
 	return t, nil
 }
 
 // FindCustomerByIDTx will find a Customer by ID using the provided transaction
 func FindCustomerByIDTx(ctx context.Context, tx *sql.Tx, value string) (*Customer, error) {
-	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at` FROM `customer` WHERE `id` = ?"
+	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata` FROM `customer` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Name sql.NullString
 	var _Active sql.NullBool
 	var _CreatedAt sql.NullInt64
 	var _UpdatedAt sql.NullInt64
+	var _Metadata sql.NullString
 	err := tx.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_Name,
 		&_Active,
 		&_CreatedAt,
 		&_UpdatedAt,
+		&_Metadata,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -405,6 +422,9 @@ func FindCustomerByIDTx(ctx context.Context, tx *sql.Tx, value string) (*Custome
 	}
 	if _UpdatedAt.Valid {
 		t.SetUpdatedAt(_UpdatedAt.Int64)
+	}
+	if _Metadata.Valid {
+		t.SetMetadata(_Metadata.String)
 	}
 	return t, nil
 }
@@ -452,6 +472,19 @@ func (t *Customer) SetUpdatedAt(v int64) {
 	t.UpdatedAt = &v
 }
 
+// GetMetadata will return the Customer Metadata value
+func (t *Customer) GetMetadata() string {
+	if t.Metadata == nil {
+		return ""
+	}
+	return *t.Metadata
+}
+
+// SetMetadata will set the Customer Metadata value
+func (t *Customer) SetMetadata(v string) {
+	t.Metadata = &v
+}
+
 func (t *Customer) toTimestamp(value time.Time) *timestamp.Timestamp {
 	ts, _ := ptypes.TimestampProto(value)
 	return ts
@@ -459,14 +492,14 @@ func (t *Customer) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateCustomerTable will create the Customer table
 func DBCreateCustomerTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `customer` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name` TEXT NOT NULL,`active`BOOL NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `customer` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name` TEXT NOT NULL,`active`BOOL NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,`metadata` JSON) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateCustomerTableTx will create the Customer table using the provided transction
 func DBCreateCustomerTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `customer` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name` TEXT NOT NULL,`active`BOOL NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `customer` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name` TEXT NOT NULL,`active`BOOL NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,`metadata` JSON) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
@@ -487,49 +520,53 @@ func DBDropCustomerTableTx(ctx context.Context, tx *sql.Tx) error {
 
 // DBCreate will create a new Customer record in the database
 func (t *Customer) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
-	q := "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`) VALUES (?,?,?,?,?)"
+	q := "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata`) VALUES (?,?,?,?,?,?)"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.Name),
 		orm.ToSQLBool(t.Active),
 		orm.ToSQLInt64(t.CreatedAt),
 		orm.ToSQLInt64(t.UpdatedAt),
+		orm.ToSQLString(t.Metadata),
 	)
 }
 
 // DBCreateTx will create a new Customer record in the database using the provided transaction
 func (t *Customer) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
-	q := "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`) VALUES (?,?,?,?,?)"
+	q := "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata`) VALUES (?,?,?,?,?,?)"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.Name),
 		orm.ToSQLBool(t.Active),
 		orm.ToSQLInt64(t.CreatedAt),
 		orm.ToSQLInt64(t.UpdatedAt),
+		orm.ToSQLString(t.Metadata),
 	)
 }
 
 // DBCreateIgnoreDuplicate will upsert the Customer record in the database
 func (t *Customer) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
-	q := "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.Name),
 		orm.ToSQLBool(t.Active),
 		orm.ToSQLInt64(t.CreatedAt),
 		orm.ToSQLInt64(t.UpdatedAt),
+		orm.ToSQLString(t.Metadata),
 	)
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the Customer record in the database using the provided transaction
 func (t *Customer) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
-	q := "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.Name),
 		orm.ToSQLBool(t.Active),
 		orm.ToSQLInt64(t.CreatedAt),
 		orm.ToSQLInt64(t.UpdatedAt),
+		orm.ToSQLString(t.Metadata),
 	)
 }
 
@@ -593,24 +630,26 @@ func (t *Customer) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 
 // DBUpdate will update the Customer record in the database
 func (t *Customer) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
-	q := "UPDATE `customer` SET `name`=?,`active`=?,`created_at`=?,`updated_at`=? WHERE `id`=?"
+	q := "UPDATE `customer` SET `name`=?,`active`=?,`created_at`=?,`updated_at`=?,`metadata`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.Name),
 		orm.ToSQLBool(t.Active),
 		orm.ToSQLInt64(t.CreatedAt),
 		orm.ToSQLInt64(t.UpdatedAt),
+		orm.ToSQLString(t.Metadata),
 		orm.ToSQLString(t.ID),
 	)
 }
 
 // DBUpdateTx will update the Customer record in the database using the provided transaction
 func (t *Customer) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
-	q := "UPDATE `customer` SET `name`=?,`active`=?,`created_at`=?,`updated_at`=? WHERE `id`=?"
+	q := "UPDATE `customer` SET `name`=?,`active`=?,`created_at`=?,`updated_at`=?,`metadata`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.Name),
 		orm.ToSQLBool(t.Active),
 		orm.ToSQLInt64(t.CreatedAt),
 		orm.ToSQLInt64(t.UpdatedAt),
+		orm.ToSQLString(t.Metadata),
 		orm.ToSQLString(t.ID),
 	)
 }
@@ -619,12 +658,12 @@ func (t *Customer) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, erro
 func (t *Customer) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE `name`=VALUES(`name`),`active`=VALUES(`active`),`created_at`=VALUES(`created_at`),`updated_at`=VALUES(`updated_at`)"
+		q = "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `name`=VALUES(`name`),`active`=VALUES(`active`),`created_at`=VALUES(`created_at`),`updated_at`=VALUES(`updated_at`),`metadata`=VALUES(`metadata`)"
 	}
 	r, err := db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -632,6 +671,7 @@ func (t *Customer) DBUpsert(ctx context.Context, db *sql.DB, conditions ...inter
 		orm.ToSQLBool(t.Active),
 		orm.ToSQLInt64(t.CreatedAt),
 		orm.ToSQLInt64(t.UpdatedAt),
+		orm.ToSQLString(t.Metadata),
 	)
 	if err != nil {
 		return false, false, err
@@ -644,12 +684,12 @@ func (t *Customer) DBUpsert(ctx context.Context, db *sql.DB, conditions ...inter
 func (t *Customer) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE `name`=VALUES(`name`),`active`=VALUES(`active`),`created_at`=VALUES(`created_at`),`updated_at`=VALUES(`updated_at`)"
+		q = "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `name`=VALUES(`name`),`active`=VALUES(`active`),`created_at`=VALUES(`created_at`),`updated_at`=VALUES(`updated_at`),`metadata`=VALUES(`metadata`)"
 	}
 	r, err := tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -657,6 +697,7 @@ func (t *Customer) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...int
 		orm.ToSQLBool(t.Active),
 		orm.ToSQLInt64(t.CreatedAt),
 		orm.ToSQLInt64(t.UpdatedAt),
+		orm.ToSQLString(t.Metadata),
 	)
 	if err != nil {
 		return false, false, err
@@ -667,19 +708,21 @@ func (t *Customer) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...int
 
 // DBFindOne will find a Customer record in the database with the primary key
 func (t *Customer) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
-	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at` FROM `customer` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata` FROM `customer` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Name sql.NullString
 	var _Active sql.NullBool
 	var _CreatedAt sql.NullInt64
 	var _UpdatedAt sql.NullInt64
+	var _Metadata sql.NullString
 	err := row.Scan(
 		&_ID,
 		&_Name,
 		&_Active,
 		&_CreatedAt,
 		&_UpdatedAt,
+		&_Metadata,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -701,25 +744,30 @@ func (t *Customer) DBFindOne(ctx context.Context, db *sql.DB, value string) (boo
 	}
 	if _UpdatedAt.Valid {
 		t.SetUpdatedAt(_UpdatedAt.Int64)
+	}
+	if _Metadata.Valid {
+		t.SetMetadata(_Metadata.String)
 	}
 	return true, nil
 }
 
 // DBFindOneTx will find a Customer record in the database with the primary key using the provided transaction
 func (t *Customer) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
-	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at` FROM `customer` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata` FROM `customer` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Name sql.NullString
 	var _Active sql.NullBool
 	var _CreatedAt sql.NullInt64
 	var _UpdatedAt sql.NullInt64
+	var _Metadata sql.NullString
 	err := row.Scan(
 		&_ID,
 		&_Name,
 		&_Active,
 		&_CreatedAt,
 		&_UpdatedAt,
+		&_Metadata,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -741,6 +789,9 @@ func (t *Customer) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (b
 	}
 	if _UpdatedAt.Valid {
 		t.SetUpdatedAt(_UpdatedAt.Int64)
+	}
+	if _Metadata.Valid {
+		t.SetMetadata(_Metadata.String)
 	}
 	return true, nil
 }
@@ -753,6 +804,7 @@ func FindCustomers(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*
 		orm.Column("active"),
 		orm.Column("created_at"),
 		orm.Column("updated_at"),
+		orm.Column("metadata"),
 		orm.Table(CustomerTableName),
 	}
 	if len(_params) > 0 {
@@ -776,12 +828,14 @@ func FindCustomers(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*
 		var _Active sql.NullBool
 		var _CreatedAt sql.NullInt64
 		var _UpdatedAt sql.NullInt64
+		var _Metadata sql.NullString
 		err := rows.Scan(
 			&_ID,
 			&_Name,
 			&_Active,
 			&_CreatedAt,
 			&_UpdatedAt,
+			&_Metadata,
 		)
 		if err != nil {
 			return nil, err
@@ -802,6 +856,9 @@ func FindCustomers(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*
 		if _UpdatedAt.Valid {
 			t.SetUpdatedAt(_UpdatedAt.Int64)
 		}
+		if _Metadata.Valid {
+			t.SetMetadata(_Metadata.String)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -815,6 +872,7 @@ func FindCustomersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([
 		orm.Column("active"),
 		orm.Column("created_at"),
 		orm.Column("updated_at"),
+		orm.Column("metadata"),
 		orm.Table(CustomerTableName),
 	}
 	if len(_params) > 0 {
@@ -838,12 +896,14 @@ func FindCustomersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([
 		var _Active sql.NullBool
 		var _CreatedAt sql.NullInt64
 		var _UpdatedAt sql.NullInt64
+		var _Metadata sql.NullString
 		err := rows.Scan(
 			&_ID,
 			&_Name,
 			&_Active,
 			&_CreatedAt,
 			&_UpdatedAt,
+			&_Metadata,
 		)
 		if err != nil {
 			return nil, err
@@ -864,6 +924,9 @@ func FindCustomersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([
 		if _UpdatedAt.Valid {
 			t.SetUpdatedAt(_UpdatedAt.Int64)
 		}
+		if _Metadata.Valid {
+			t.SetMetadata(_Metadata.String)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -877,6 +940,7 @@ func (t *Customer) DBFind(ctx context.Context, db *sql.DB, _params ...interface{
 		orm.Column("active"),
 		orm.Column("created_at"),
 		orm.Column("updated_at"),
+		orm.Column("metadata"),
 		orm.Table(CustomerTableName),
 	}
 	if len(_params) > 0 {
@@ -891,12 +955,14 @@ func (t *Customer) DBFind(ctx context.Context, db *sql.DB, _params ...interface{
 	var _Active sql.NullBool
 	var _CreatedAt sql.NullInt64
 	var _UpdatedAt sql.NullInt64
+	var _Metadata sql.NullString
 	err := row.Scan(
 		&_ID,
 		&_Name,
 		&_Active,
 		&_CreatedAt,
 		&_UpdatedAt,
+		&_Metadata,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -916,6 +982,9 @@ func (t *Customer) DBFind(ctx context.Context, db *sql.DB, _params ...interface{
 	if _UpdatedAt.Valid {
 		t.SetUpdatedAt(_UpdatedAt.Int64)
 	}
+	if _Metadata.Valid {
+		t.SetMetadata(_Metadata.String)
+	}
 	return true, nil
 }
 
@@ -927,6 +996,7 @@ func (t *Customer) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interfac
 		orm.Column("active"),
 		orm.Column("created_at"),
 		orm.Column("updated_at"),
+		orm.Column("metadata"),
 		orm.Table(CustomerTableName),
 	}
 	if len(_params) > 0 {
@@ -941,12 +1011,14 @@ func (t *Customer) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interfac
 	var _Active sql.NullBool
 	var _CreatedAt sql.NullInt64
 	var _UpdatedAt sql.NullInt64
+	var _Metadata sql.NullString
 	err := row.Scan(
 		&_ID,
 		&_Name,
 		&_Active,
 		&_CreatedAt,
 		&_UpdatedAt,
+		&_Metadata,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -965,6 +1037,9 @@ func (t *Customer) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interfac
 	}
 	if _UpdatedAt.Valid {
 		t.SetUpdatedAt(_UpdatedAt.Int64)
+	}
+	if _Metadata.Valid {
+		t.SetMetadata(_Metadata.String)
 	}
 	return true, nil
 }

@@ -33,6 +33,7 @@ func TestCreateCustomerDelete(t *testing.T) {
 		Active:    true,
 		CreatedAt: int64(64),
 		UpdatedAt: nil,
+		Metadata:  nil,
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -116,6 +117,7 @@ func TestCreateCustomerDeleteTx(t *testing.T) {
 		Active:    true,
 		CreatedAt: int64(64),
 		UpdatedAt: nil,
+		Metadata:  nil,
 	}
 	ctx := context.Background()
 	db := GetDatabase()
