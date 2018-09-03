@@ -29,6 +29,7 @@ func TestCreateCommitSummaryTable(t *testing.T) {
 func TestCreateCommitSummaryDelete(t *testing.T) {
 	r := &CommitSummary{
 		ID:           "f2304e5529d9ba57",
+		CommitID:     "4dabb174f8964b77",
 		RepoID:       "d9d73c975aee36a9",
 		AuthorUserID: nil,
 		CustomerID:   "c9ad489ec64dacbe",
@@ -119,6 +120,7 @@ func TestCreateCommitSummaryDelete(t *testing.T) {
 func TestCreateCommitSummaryDeleteTx(t *testing.T) {
 	r := &CommitSummary{
 		ID:           "f2304e5529d9ba57",
+		CommitID:     "4dabb174f8964b77",
 		RepoID:       "d9d73c975aee36a9",
 		AuthorUserID: nil,
 		CustomerID:   "c9ad489ec64dacbe",
