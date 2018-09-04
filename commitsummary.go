@@ -49,7 +49,7 @@ var CommitSummaryColumns = []string{
 // CommitSummary table
 type CommitSummary struct {
 	Additions    int32   `json:"additions"`
-	AuthorUserID *string `json:"author_user_id,omitempty"`
+	AuthorUserID string  `json:"author_user_id"`
 	Branch       *string `json:"branch,omitempty"`
 	CommitID     string  `json:"commit_id"`
 	CustomerID   string  `json:"customer_id"`
@@ -74,7 +74,7 @@ func (t *CommitSummary) ToCSV() []string {
 		t.ID,
 		t.CommitID,
 		t.RepoID,
-		toCSVString(t.AuthorUserID),
+		t.AuthorUserID,
 		t.CustomerID,
 		t.RefType,
 		toCSVString(t.Additions),
@@ -148,7 +148,7 @@ func NewCSVCommitSummaryReader(r io.Reader, ch chan<- CommitSummary) error {
 			ID:           record[0],
 			CommitID:     record[1],
 			RepoID:       record[2],
-			AuthorUserID: fromStringPointer(record[3]),
+			AuthorUserID: record[3],
 			CustomerID:   record[4],
 			RefType:      record[5],
 			Additions:    fromCSVInt32(record[6]),
@@ -947,15 +947,12 @@ func FindCommitSummariesByRepoIDTx(ctx context.Context, tx *sql.Tx, value string
 
 // GetAuthorUserID will return the CommitSummary AuthorUserID value
 func (t *CommitSummary) GetAuthorUserID() string {
-	if t.AuthorUserID == nil {
-		return ""
-	}
-	return *t.AuthorUserID
+	return t.AuthorUserID
 }
 
 // SetAuthorUserID will set the CommitSummary AuthorUserID value
 func (t *CommitSummary) SetAuthorUserID(v string) {
-	t.AuthorUserID = &v
+	t.AuthorUserID = v
 }
 
 // FindCommitSummariesByAuthorUserID will find all CommitSummarys by the AuthorUserID value
@@ -1595,14 +1592,14 @@ func (t *CommitSummary) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateCommitSummaryTable will create the CommitSummary table
 func DBCreateCommitSummaryTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id`VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions`INT NOT NULL DEFAULT 0,`deletions`INT NOT NULL DEFAULT 0,`files_changed` INT NOT NULL DEFAULT 0,`branch`VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date` BIGINT UNSIGNED NOT NULL,`message` LONGTEXT,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id`VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions`INT NOT NULL DEFAULT 0,`deletions`INT NOT NULL DEFAULT 0,`files_changed` INT NOT NULL DEFAULT 0,`branch`VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date` BIGINT UNSIGNED NOT NULL,`message` LONGTEXT,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateCommitSummaryTableTx will create the CommitSummary table using the provided transction
 func DBCreateCommitSummaryTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id`VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions`INT NOT NULL DEFAULT 0,`deletions`INT NOT NULL DEFAULT 0,`files_changed` INT NOT NULL DEFAULT 0,`branch`VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date` BIGINT UNSIGNED NOT NULL,`message` LONGTEXT,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id`VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions`INT NOT NULL DEFAULT 0,`deletions`INT NOT NULL DEFAULT 0,`files_changed` INT NOT NULL DEFAULT 0,`branch`VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date` BIGINT UNSIGNED NOT NULL,`message` LONGTEXT,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
