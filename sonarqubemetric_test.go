@@ -31,8 +31,8 @@ func TestCreateSonarqubeMetricDelete(t *testing.T) {
 		ID:              "a325dd42de49f7d3",
 		Checksum:        nil,
 		CustomerID:      "369a7cbda736b1c8",
-		ProjectIdExtID:  "876906959188f073",
-		ProjectIdID:     "9b01cadf9d9c2809",
+		ProjectExtID:    "b2bcee1e7bc4c9de",
+		ProjectID:       "10b181e754d1227e",
 		ProjectKeyExtID: "c500a5c9c02b7ddc",
 		ExtID:           "f4fd463b29266bb9",
 		Date:            int64(64),
@@ -106,9 +106,9 @@ func TestCreateSonarqubeMetricDelete(t *testing.T) {
 	}
 	r.SetCustomerID("a7dea500cb298bcf")
 
-	r.SetProjectIdExtID("18ddd5fd2106eeda")
+	r.SetProjectExtID("c864752f56e247b7")
 
-	r.SetProjectIdID("f6990e2cc148077c")
+	r.SetProjectID("277d10e8054d2e9b")
 
 	r.SetProjectKeyExtID("3ec104ff7e4757bd")
 
@@ -155,8 +155,8 @@ func TestCreateSonarqubeMetricDeleteTx(t *testing.T) {
 		ID:              "a325dd42de49f7d3",
 		Checksum:        nil,
 		CustomerID:      "369a7cbda736b1c8",
-		ProjectIdExtID:  "876906959188f073",
-		ProjectIdID:     "9b01cadf9d9c2809",
+		ProjectExtID:    "b2bcee1e7bc4c9de",
+		ProjectID:       "10b181e754d1227e",
 		ProjectKeyExtID: "c500a5c9c02b7ddc",
 		ExtID:           "f4fd463b29266bb9",
 		Date:            int64(64),
@@ -234,9 +234,9 @@ func TestCreateSonarqubeMetricDeleteTx(t *testing.T) {
 	}
 	r.SetCustomerID("a7dea500cb298bcf")
 
-	r.SetProjectIdExtID("18ddd5fd2106eeda")
+	r.SetProjectExtID("c864752f56e247b7")
 
-	r.SetProjectIdID("f6990e2cc148077c")
+	r.SetProjectID("277d10e8054d2e9b")
 
 	r.SetProjectKeyExtID("3ec104ff7e4757bd")
 
