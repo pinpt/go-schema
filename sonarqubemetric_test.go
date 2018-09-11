@@ -28,16 +28,16 @@ func TestCreateSonarqubeMetricTable(t *testing.T) {
 
 func TestCreateSonarqubeMetricDelete(t *testing.T) {
 	r := &SonarqubeMetric{
-		ID:                "a325dd42de49f7d3",
-		Checksum:          nil,
-		CustomerID:        "369a7cbda736b1c8",
-		ComponentIdExtID:  "0367c5a6ab97dbd3",
-		ComponentIdID:     "356939cbb1e4d3af",
-		ComponentKeyExtID: "415da04fcf09c163",
-		ExtID:             "f4fd463b29266bb9",
-		Date:              int64(64),
-		Metric:            "616ab7ec65bb0e35",
-		Value:             "dfe5ab1b943ebdc3",
+		ID:              "a325dd42de49f7d3",
+		Checksum:        nil,
+		CustomerID:      "369a7cbda736b1c8",
+		ProjectIdExtID:  "876906959188f073",
+		ProjectIdID:     "9b01cadf9d9c2809",
+		ProjectKeyExtID: "c500a5c9c02b7ddc",
+		ExtID:           "f4fd463b29266bb9",
+		Date:            int64(64),
+		Metric:          "616ab7ec65bb0e35",
+		Value:           "dfe5ab1b943ebdc3",
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -106,11 +106,11 @@ func TestCreateSonarqubeMetricDelete(t *testing.T) {
 	}
 	r.SetCustomerID("a7dea500cb298bcf")
 
-	r.SetComponentIdExtID("467d30f5717404fd")
+	r.SetProjectIdExtID("18ddd5fd2106eeda")
 
-	r.SetComponentIdID("2331679fab6dcf46")
+	r.SetProjectIdID("f6990e2cc148077c")
 
-	r.SetComponentKeyExtID("a25b92a88c467439")
+	r.SetProjectKeyExtID("3ec104ff7e4757bd")
 
 	r.SetExtID("d4f5283cae8bbd39")
 
@@ -152,16 +152,16 @@ func TestCreateSonarqubeMetricDelete(t *testing.T) {
 
 func TestCreateSonarqubeMetricDeleteTx(t *testing.T) {
 	r := &SonarqubeMetric{
-		ID:                "a325dd42de49f7d3",
-		Checksum:          nil,
-		CustomerID:        "369a7cbda736b1c8",
-		ComponentIdExtID:  "0367c5a6ab97dbd3",
-		ComponentIdID:     "356939cbb1e4d3af",
-		ComponentKeyExtID: "415da04fcf09c163",
-		ExtID:             "f4fd463b29266bb9",
-		Date:              int64(64),
-		Metric:            "616ab7ec65bb0e35",
-		Value:             "dfe5ab1b943ebdc3",
+		ID:              "a325dd42de49f7d3",
+		Checksum:        nil,
+		CustomerID:      "369a7cbda736b1c8",
+		ProjectIdExtID:  "876906959188f073",
+		ProjectIdID:     "9b01cadf9d9c2809",
+		ProjectKeyExtID: "c500a5c9c02b7ddc",
+		ExtID:           "f4fd463b29266bb9",
+		Date:            int64(64),
+		Metric:          "616ab7ec65bb0e35",
+		Value:           "dfe5ab1b943ebdc3",
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -234,11 +234,11 @@ func TestCreateSonarqubeMetricDeleteTx(t *testing.T) {
 	}
 	r.SetCustomerID("a7dea500cb298bcf")
 
-	r.SetComponentIdExtID("467d30f5717404fd")
+	r.SetProjectIdExtID("18ddd5fd2106eeda")
 
-	r.SetComponentIdID("2331679fab6dcf46")
+	r.SetProjectIdID("f6990e2cc148077c")
 
-	r.SetComponentKeyExtID("a25b92a88c467439")
+	r.SetProjectKeyExtID("3ec104ff7e4757bd")
 
 	r.SetExtID("d4f5283cae8bbd39")
 
