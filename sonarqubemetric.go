@@ -35,9 +35,9 @@ var SonarqubeMetricColumns = []string{
 	"id",
 	"checksum",
 	"customer_id",
-	"component_id_ext_id",
-	"component_id_id",
-	"component_key_ext_id",
+	"project_ext_id",
+	"project_id",
+	"project_key_ext_id",
 	"ext_id",
 	"date",
 	"metric",
@@ -46,16 +46,16 @@ var SonarqubeMetricColumns = []string{
 
 // SonarqubeMetric table
 type SonarqubeMetric struct {
-	Checksum          *string `json:"checksum,omitempty"`
-	ComponentIdExtID  string  `json:"component_id_ext_id"`
-	ComponentIdID     string  `json:"component_id_id"`
-	ComponentKeyExtID string  `json:"component_key_ext_id"`
-	CustomerID        string  `json:"customer_id"`
-	Date              int64   `json:"date"`
-	ExtID             string  `json:"ext_id"`
-	ID                string  `json:"id"`
-	Metric            string  `json:"metric"`
-	Value             string  `json:"value"`
+	Checksum        *string `json:"checksum,omitempty"`
+	CustomerID      string  `json:"customer_id"`
+	Date            int64   `json:"date"`
+	ExtID           string  `json:"ext_id"`
+	ID              string  `json:"id"`
+	Metric          string  `json:"metric"`
+	ProjectExtID    string  `json:"project_ext_id"`
+	ProjectID       string  `json:"project_id"`
+	ProjectKeyExtID string  `json:"project_key_ext_id"`
+	Value           string  `json:"value"`
 }
 
 // TableName returns the SQL table name for SonarqubeMetric and satifies the Model interface
@@ -69,9 +69,9 @@ func (t *SonarqubeMetric) ToCSV() []string {
 		t.ID,
 		t.CalculateChecksum(),
 		t.CustomerID,
-		t.ComponentIdExtID,
-		t.ComponentIdID,
-		t.ComponentKeyExtID,
+		t.ProjectExtID,
+		t.ProjectID,
+		t.ProjectKeyExtID,
 		t.ExtID,
 		toCSVString(t.Date),
 		t.Metric,
@@ -137,16 +137,16 @@ func NewCSVSonarqubeMetricReader(r io.Reader, ch chan<- SonarqubeMetric) error {
 			return err
 		}
 		ch <- SonarqubeMetric{
-			ID:                record[0],
-			Checksum:          fromStringPointer(record[1]),
-			CustomerID:        record[2],
-			ComponentIdExtID:  record[3],
-			ComponentIdID:     record[4],
-			ComponentKeyExtID: record[5],
-			ExtID:             record[6],
-			Date:              fromCSVInt64(record[7]),
-			Metric:            record[8],
-			Value:             record[9],
+			ID:              record[0],
+			Checksum:        fromStringPointer(record[1]),
+			CustomerID:      record[2],
+			ProjectExtID:    record[3],
+			ProjectID:       record[4],
+			ProjectKeyExtID: record[5],
+			ExtID:           record[6],
+			Date:            fromCSVInt64(record[7]),
+			Metric:          record[8],
+			Value:           record[9],
 		}
 	}
 	return nil
@@ -335,23 +335,23 @@ const SonarqubeMetricColumnCustomerID = "customer_id"
 // SonarqubeMetricEscapedColumnCustomerID is the escaped CustomerID SQL column name for the SonarqubeMetric table
 const SonarqubeMetricEscapedColumnCustomerID = "`customer_id`"
 
-// SonarqubeMetricColumnComponentIdExtID is the ComponentIdExtID SQL column name for the SonarqubeMetric table
-const SonarqubeMetricColumnComponentIdExtID = "component_id_ext_id"
+// SonarqubeMetricColumnProjectExtID is the ProjectExtID SQL column name for the SonarqubeMetric table
+const SonarqubeMetricColumnProjectExtID = "project_ext_id"
 
-// SonarqubeMetricEscapedColumnComponentIdExtID is the escaped ComponentIdExtID SQL column name for the SonarqubeMetric table
-const SonarqubeMetricEscapedColumnComponentIdExtID = "`component_id_ext_id`"
+// SonarqubeMetricEscapedColumnProjectExtID is the escaped ProjectExtID SQL column name for the SonarqubeMetric table
+const SonarqubeMetricEscapedColumnProjectExtID = "`project_ext_id`"
 
-// SonarqubeMetricColumnComponentIdID is the ComponentIdID SQL column name for the SonarqubeMetric table
-const SonarqubeMetricColumnComponentIdID = "component_id_id"
+// SonarqubeMetricColumnProjectID is the ProjectID SQL column name for the SonarqubeMetric table
+const SonarqubeMetricColumnProjectID = "project_id"
 
-// SonarqubeMetricEscapedColumnComponentIdID is the escaped ComponentIdID SQL column name for the SonarqubeMetric table
-const SonarqubeMetricEscapedColumnComponentIdID = "`component_id_id`"
+// SonarqubeMetricEscapedColumnProjectID is the escaped ProjectID SQL column name for the SonarqubeMetric table
+const SonarqubeMetricEscapedColumnProjectID = "`project_id`"
 
-// SonarqubeMetricColumnComponentKeyExtID is the ComponentKeyExtID SQL column name for the SonarqubeMetric table
-const SonarqubeMetricColumnComponentKeyExtID = "component_key_ext_id"
+// SonarqubeMetricColumnProjectKeyExtID is the ProjectKeyExtID SQL column name for the SonarqubeMetric table
+const SonarqubeMetricColumnProjectKeyExtID = "project_key_ext_id"
 
-// SonarqubeMetricEscapedColumnComponentKeyExtID is the escaped ComponentKeyExtID SQL column name for the SonarqubeMetric table
-const SonarqubeMetricEscapedColumnComponentKeyExtID = "`component_key_ext_id`"
+// SonarqubeMetricEscapedColumnProjectKeyExtID is the escaped ProjectKeyExtID SQL column name for the SonarqubeMetric table
+const SonarqubeMetricEscapedColumnProjectKeyExtID = "`project_key_ext_id`"
 
 // SonarqubeMetricColumnExtID is the ExtID SQL column name for the SonarqubeMetric table
 const SonarqubeMetricColumnExtID = "ext_id"
@@ -389,13 +389,13 @@ func (t *SonarqubeMetric) SetID(v string) {
 
 // FindSonarqubeMetricByID will find a SonarqubeMetric by ID
 func FindSonarqubeMetricByID(ctx context.Context, db *sql.DB, value string) (*SonarqubeMetric, error) {
-	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `id` = ?"
+	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
-	var _ComponentIdExtID sql.NullString
-	var _ComponentIdID sql.NullString
-	var _ComponentKeyExtID sql.NullString
+	var _ProjectExtID sql.NullString
+	var _ProjectID sql.NullString
+	var _ProjectKeyExtID sql.NullString
 	var _ExtID sql.NullString
 	var _Date sql.NullInt64
 	var _Metric sql.NullString
@@ -404,9 +404,9 @@ func FindSonarqubeMetricByID(ctx context.Context, db *sql.DB, value string) (*So
 		&_ID,
 		&_Checksum,
 		&_CustomerID,
-		&_ComponentIdExtID,
-		&_ComponentIdID,
-		&_ComponentKeyExtID,
+		&_ProjectExtID,
+		&_ProjectID,
+		&_ProjectKeyExtID,
 		&_ExtID,
 		&_Date,
 		&_Metric,
@@ -428,14 +428,14 @@ func FindSonarqubeMetricByID(ctx context.Context, db *sql.DB, value string) (*So
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
 	}
-	if _ComponentIdExtID.Valid {
-		t.SetComponentIdExtID(_ComponentIdExtID.String)
+	if _ProjectExtID.Valid {
+		t.SetProjectExtID(_ProjectExtID.String)
 	}
-	if _ComponentIdID.Valid {
-		t.SetComponentIdID(_ComponentIdID.String)
+	if _ProjectID.Valid {
+		t.SetProjectID(_ProjectID.String)
 	}
-	if _ComponentKeyExtID.Valid {
-		t.SetComponentKeyExtID(_ComponentKeyExtID.String)
+	if _ProjectKeyExtID.Valid {
+		t.SetProjectKeyExtID(_ProjectKeyExtID.String)
 	}
 	if _ExtID.Valid {
 		t.SetExtID(_ExtID.String)
@@ -454,13 +454,13 @@ func FindSonarqubeMetricByID(ctx context.Context, db *sql.DB, value string) (*So
 
 // FindSonarqubeMetricByIDTx will find a SonarqubeMetric by ID using the provided transaction
 func FindSonarqubeMetricByIDTx(ctx context.Context, tx *sql.Tx, value string) (*SonarqubeMetric, error) {
-	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `id` = ?"
+	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
-	var _ComponentIdExtID sql.NullString
-	var _ComponentIdID sql.NullString
-	var _ComponentKeyExtID sql.NullString
+	var _ProjectExtID sql.NullString
+	var _ProjectID sql.NullString
+	var _ProjectKeyExtID sql.NullString
 	var _ExtID sql.NullString
 	var _Date sql.NullInt64
 	var _Metric sql.NullString
@@ -469,9 +469,9 @@ func FindSonarqubeMetricByIDTx(ctx context.Context, tx *sql.Tx, value string) (*
 		&_ID,
 		&_Checksum,
 		&_CustomerID,
-		&_ComponentIdExtID,
-		&_ComponentIdID,
-		&_ComponentKeyExtID,
+		&_ProjectExtID,
+		&_ProjectID,
+		&_ProjectKeyExtID,
 		&_ExtID,
 		&_Date,
 		&_Metric,
@@ -493,14 +493,14 @@ func FindSonarqubeMetricByIDTx(ctx context.Context, tx *sql.Tx, value string) (*
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
 	}
-	if _ComponentIdExtID.Valid {
-		t.SetComponentIdExtID(_ComponentIdExtID.String)
+	if _ProjectExtID.Valid {
+		t.SetProjectExtID(_ProjectExtID.String)
 	}
-	if _ComponentIdID.Valid {
-		t.SetComponentIdID(_ComponentIdID.String)
+	if _ProjectID.Valid {
+		t.SetProjectID(_ProjectID.String)
 	}
-	if _ComponentKeyExtID.Valid {
-		t.SetComponentKeyExtID(_ComponentKeyExtID.String)
+	if _ProjectKeyExtID.Valid {
+		t.SetProjectKeyExtID(_ProjectKeyExtID.String)
 	}
 	if _ExtID.Valid {
 		t.SetExtID(_ExtID.String)
@@ -542,7 +542,7 @@ func (t *SonarqubeMetric) SetCustomerID(v string) {
 
 // FindSonarqubeMetricsByCustomerID will find all SonarqubeMetrics by the CustomerID value
 func FindSonarqubeMetricsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*SonarqubeMetric, error) {
-	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -556,9 +556,9 @@ func FindSonarqubeMetricsByCustomerID(ctx context.Context, db *sql.DB, value str
 		var _ID sql.NullString
 		var _Checksum sql.NullString
 		var _CustomerID sql.NullString
-		var _ComponentIdExtID sql.NullString
-		var _ComponentIdID sql.NullString
-		var _ComponentKeyExtID sql.NullString
+		var _ProjectExtID sql.NullString
+		var _ProjectID sql.NullString
+		var _ProjectKeyExtID sql.NullString
 		var _ExtID sql.NullString
 		var _Date sql.NullInt64
 		var _Metric sql.NullString
@@ -567,9 +567,9 @@ func FindSonarqubeMetricsByCustomerID(ctx context.Context, db *sql.DB, value str
 			&_ID,
 			&_Checksum,
 			&_CustomerID,
-			&_ComponentIdExtID,
-			&_ComponentIdID,
-			&_ComponentKeyExtID,
+			&_ProjectExtID,
+			&_ProjectID,
+			&_ProjectKeyExtID,
 			&_ExtID,
 			&_Date,
 			&_Metric,
@@ -588,14 +588,14 @@ func FindSonarqubeMetricsByCustomerID(ctx context.Context, db *sql.DB, value str
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
 		}
-		if _ComponentIdExtID.Valid {
-			t.SetComponentIdExtID(_ComponentIdExtID.String)
+		if _ProjectExtID.Valid {
+			t.SetProjectExtID(_ProjectExtID.String)
 		}
-		if _ComponentIdID.Valid {
-			t.SetComponentIdID(_ComponentIdID.String)
+		if _ProjectID.Valid {
+			t.SetProjectID(_ProjectID.String)
 		}
-		if _ComponentKeyExtID.Valid {
-			t.SetComponentKeyExtID(_ComponentKeyExtID.String)
+		if _ProjectKeyExtID.Valid {
+			t.SetProjectKeyExtID(_ProjectKeyExtID.String)
 		}
 		if _ExtID.Valid {
 			t.SetExtID(_ExtID.String)
@@ -616,7 +616,7 @@ func FindSonarqubeMetricsByCustomerID(ctx context.Context, db *sql.DB, value str
 
 // FindSonarqubeMetricsByCustomerIDTx will find all SonarqubeMetrics by the CustomerID value using the provided transaction
 func FindSonarqubeMetricsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*SonarqubeMetric, error) {
-	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -630,9 +630,9 @@ func FindSonarqubeMetricsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value s
 		var _ID sql.NullString
 		var _Checksum sql.NullString
 		var _CustomerID sql.NullString
-		var _ComponentIdExtID sql.NullString
-		var _ComponentIdID sql.NullString
-		var _ComponentKeyExtID sql.NullString
+		var _ProjectExtID sql.NullString
+		var _ProjectID sql.NullString
+		var _ProjectKeyExtID sql.NullString
 		var _ExtID sql.NullString
 		var _Date sql.NullInt64
 		var _Metric sql.NullString
@@ -641,9 +641,9 @@ func FindSonarqubeMetricsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value s
 			&_ID,
 			&_Checksum,
 			&_CustomerID,
-			&_ComponentIdExtID,
-			&_ComponentIdID,
-			&_ComponentKeyExtID,
+			&_ProjectExtID,
+			&_ProjectID,
+			&_ProjectKeyExtID,
 			&_ExtID,
 			&_Date,
 			&_Metric,
@@ -662,14 +662,14 @@ func FindSonarqubeMetricsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value s
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
 		}
-		if _ComponentIdExtID.Valid {
-			t.SetComponentIdExtID(_ComponentIdExtID.String)
+		if _ProjectExtID.Valid {
+			t.SetProjectExtID(_ProjectExtID.String)
 		}
-		if _ComponentIdID.Valid {
-			t.SetComponentIdID(_ComponentIdID.String)
+		if _ProjectID.Valid {
+			t.SetProjectID(_ProjectID.String)
 		}
-		if _ComponentKeyExtID.Valid {
-			t.SetComponentKeyExtID(_ComponentKeyExtID.String)
+		if _ProjectKeyExtID.Valid {
+			t.SetProjectKeyExtID(_ProjectKeyExtID.String)
 		}
 		if _ExtID.Valid {
 			t.SetExtID(_ExtID.String)
@@ -688,29 +688,29 @@ func FindSonarqubeMetricsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value s
 	return results, nil
 }
 
-// GetComponentIdExtID will return the SonarqubeMetric ComponentIdExtID value
-func (t *SonarqubeMetric) GetComponentIdExtID() string {
-	return t.ComponentIdExtID
+// GetProjectExtID will return the SonarqubeMetric ProjectExtID value
+func (t *SonarqubeMetric) GetProjectExtID() string {
+	return t.ProjectExtID
 }
 
-// SetComponentIdExtID will set the SonarqubeMetric ComponentIdExtID value
-func (t *SonarqubeMetric) SetComponentIdExtID(v string) {
-	t.ComponentIdExtID = v
+// SetProjectExtID will set the SonarqubeMetric ProjectExtID value
+func (t *SonarqubeMetric) SetProjectExtID(v string) {
+	t.ProjectExtID = v
 }
 
-// GetComponentIdID will return the SonarqubeMetric ComponentIdID value
-func (t *SonarqubeMetric) GetComponentIdID() string {
-	return t.ComponentIdID
+// GetProjectID will return the SonarqubeMetric ProjectID value
+func (t *SonarqubeMetric) GetProjectID() string {
+	return t.ProjectID
 }
 
-// SetComponentIdID will set the SonarqubeMetric ComponentIdID value
-func (t *SonarqubeMetric) SetComponentIdID(v string) {
-	t.ComponentIdID = v
+// SetProjectID will set the SonarqubeMetric ProjectID value
+func (t *SonarqubeMetric) SetProjectID(v string) {
+	t.ProjectID = v
 }
 
-// FindSonarqubeMetricsByComponentIdID will find all SonarqubeMetrics by the ComponentIdID value
-func FindSonarqubeMetricsByComponentIdID(ctx context.Context, db *sql.DB, value string) ([]*SonarqubeMetric, error) {
-	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `component_id_id` = ? LIMIT 1"
+// FindSonarqubeMetricsByProjectID will find all SonarqubeMetrics by the ProjectID value
+func FindSonarqubeMetricsByProjectID(ctx context.Context, db *sql.DB, value string) ([]*SonarqubeMetric, error) {
+	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `project_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -724,9 +724,9 @@ func FindSonarqubeMetricsByComponentIdID(ctx context.Context, db *sql.DB, value 
 		var _ID sql.NullString
 		var _Checksum sql.NullString
 		var _CustomerID sql.NullString
-		var _ComponentIdExtID sql.NullString
-		var _ComponentIdID sql.NullString
-		var _ComponentKeyExtID sql.NullString
+		var _ProjectExtID sql.NullString
+		var _ProjectID sql.NullString
+		var _ProjectKeyExtID sql.NullString
 		var _ExtID sql.NullString
 		var _Date sql.NullInt64
 		var _Metric sql.NullString
@@ -735,9 +735,9 @@ func FindSonarqubeMetricsByComponentIdID(ctx context.Context, db *sql.DB, value 
 			&_ID,
 			&_Checksum,
 			&_CustomerID,
-			&_ComponentIdExtID,
-			&_ComponentIdID,
-			&_ComponentKeyExtID,
+			&_ProjectExtID,
+			&_ProjectID,
+			&_ProjectKeyExtID,
 			&_ExtID,
 			&_Date,
 			&_Metric,
@@ -756,14 +756,14 @@ func FindSonarqubeMetricsByComponentIdID(ctx context.Context, db *sql.DB, value 
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
 		}
-		if _ComponentIdExtID.Valid {
-			t.SetComponentIdExtID(_ComponentIdExtID.String)
+		if _ProjectExtID.Valid {
+			t.SetProjectExtID(_ProjectExtID.String)
 		}
-		if _ComponentIdID.Valid {
-			t.SetComponentIdID(_ComponentIdID.String)
+		if _ProjectID.Valid {
+			t.SetProjectID(_ProjectID.String)
 		}
-		if _ComponentKeyExtID.Valid {
-			t.SetComponentKeyExtID(_ComponentKeyExtID.String)
+		if _ProjectKeyExtID.Valid {
+			t.SetProjectKeyExtID(_ProjectKeyExtID.String)
 		}
 		if _ExtID.Valid {
 			t.SetExtID(_ExtID.String)
@@ -782,9 +782,9 @@ func FindSonarqubeMetricsByComponentIdID(ctx context.Context, db *sql.DB, value 
 	return results, nil
 }
 
-// FindSonarqubeMetricsByComponentIdIDTx will find all SonarqubeMetrics by the ComponentIdID value using the provided transaction
-func FindSonarqubeMetricsByComponentIdIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*SonarqubeMetric, error) {
-	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `component_id_id` = ? LIMIT 1"
+// FindSonarqubeMetricsByProjectIDTx will find all SonarqubeMetrics by the ProjectID value using the provided transaction
+func FindSonarqubeMetricsByProjectIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*SonarqubeMetric, error) {
+	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `project_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -798,9 +798,9 @@ func FindSonarqubeMetricsByComponentIdIDTx(ctx context.Context, tx *sql.Tx, valu
 		var _ID sql.NullString
 		var _Checksum sql.NullString
 		var _CustomerID sql.NullString
-		var _ComponentIdExtID sql.NullString
-		var _ComponentIdID sql.NullString
-		var _ComponentKeyExtID sql.NullString
+		var _ProjectExtID sql.NullString
+		var _ProjectID sql.NullString
+		var _ProjectKeyExtID sql.NullString
 		var _ExtID sql.NullString
 		var _Date sql.NullInt64
 		var _Metric sql.NullString
@@ -809,9 +809,9 @@ func FindSonarqubeMetricsByComponentIdIDTx(ctx context.Context, tx *sql.Tx, valu
 			&_ID,
 			&_Checksum,
 			&_CustomerID,
-			&_ComponentIdExtID,
-			&_ComponentIdID,
-			&_ComponentKeyExtID,
+			&_ProjectExtID,
+			&_ProjectID,
+			&_ProjectKeyExtID,
 			&_ExtID,
 			&_Date,
 			&_Metric,
@@ -830,14 +830,14 @@ func FindSonarqubeMetricsByComponentIdIDTx(ctx context.Context, tx *sql.Tx, valu
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
 		}
-		if _ComponentIdExtID.Valid {
-			t.SetComponentIdExtID(_ComponentIdExtID.String)
+		if _ProjectExtID.Valid {
+			t.SetProjectExtID(_ProjectExtID.String)
 		}
-		if _ComponentIdID.Valid {
-			t.SetComponentIdID(_ComponentIdID.String)
+		if _ProjectID.Valid {
+			t.SetProjectID(_ProjectID.String)
 		}
-		if _ComponentKeyExtID.Valid {
-			t.SetComponentKeyExtID(_ComponentKeyExtID.String)
+		if _ProjectKeyExtID.Valid {
+			t.SetProjectKeyExtID(_ProjectKeyExtID.String)
 		}
 		if _ExtID.Valid {
 			t.SetExtID(_ExtID.String)
@@ -856,14 +856,14 @@ func FindSonarqubeMetricsByComponentIdIDTx(ctx context.Context, tx *sql.Tx, valu
 	return results, nil
 }
 
-// GetComponentKeyExtID will return the SonarqubeMetric ComponentKeyExtID value
-func (t *SonarqubeMetric) GetComponentKeyExtID() string {
-	return t.ComponentKeyExtID
+// GetProjectKeyExtID will return the SonarqubeMetric ProjectKeyExtID value
+func (t *SonarqubeMetric) GetProjectKeyExtID() string {
+	return t.ProjectKeyExtID
 }
 
-// SetComponentKeyExtID will set the SonarqubeMetric ComponentKeyExtID value
-func (t *SonarqubeMetric) SetComponentKeyExtID(v string) {
-	t.ComponentKeyExtID = v
+// SetProjectKeyExtID will set the SonarqubeMetric ProjectKeyExtID value
+func (t *SonarqubeMetric) SetProjectKeyExtID(v string) {
+	t.ProjectKeyExtID = v
 }
 
 // GetExtID will return the SonarqubeMetric ExtID value
@@ -913,14 +913,14 @@ func (t *SonarqubeMetric) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateSonarqubeMetricTable will create the SonarqubeMetric table
 func DBCreateSonarqubeMetricTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `sonarqube_metric` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`customer_id`VARCHAR(64) NOT NULL,`component_id_ext_id` VARCHAR(255) NOT NULL,`component_id_id` VARCHAR(64) NOT NULL,`component_key_ext_id` VARCHAR(255) NOT NULL,`ext_id` VARCHAR(255) NOT NULL,`date` BIGINT NOT NULL,`metric` VARCHAR(64) NOT NULL,`value`VARCHAR(64) NOT NULL,INDEX sonarqube_metric_customer_id_index (`customer_id`),INDEX sonarqube_metric_component_id_id_index (`component_id_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `sonarqube_metric` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`project_ext_id` VARCHAR(255) NOT NULL,`project_id` VARCHAR(64) NOT NULL,`project_key_ext_id` VARCHAR(255) NOT NULL,`ext_id`VARCHAR(255) NOT NULL,`date` BIGINT NOT NULL,`metric`VARCHAR(64) NOT NULL,`value` VARCHAR(64) NOT NULL,INDEX sonarqube_metric_customer_id_index (`customer_id`),INDEX sonarqube_metric_project_id_index (`project_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateSonarqubeMetricTableTx will create the SonarqubeMetric table using the provided transction
 func DBCreateSonarqubeMetricTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `sonarqube_metric` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`customer_id`VARCHAR(64) NOT NULL,`component_id_ext_id` VARCHAR(255) NOT NULL,`component_id_id` VARCHAR(64) NOT NULL,`component_key_ext_id` VARCHAR(255) NOT NULL,`ext_id` VARCHAR(255) NOT NULL,`date` BIGINT NOT NULL,`metric` VARCHAR(64) NOT NULL,`value`VARCHAR(64) NOT NULL,INDEX sonarqube_metric_customer_id_index (`customer_id`),INDEX sonarqube_metric_component_id_id_index (`component_id_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `sonarqube_metric` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`project_ext_id` VARCHAR(255) NOT NULL,`project_id` VARCHAR(64) NOT NULL,`project_key_ext_id` VARCHAR(255) NOT NULL,`ext_id`VARCHAR(255) NOT NULL,`date` BIGINT NOT NULL,`metric`VARCHAR(64) NOT NULL,`value` VARCHAR(64) NOT NULL,INDEX sonarqube_metric_customer_id_index (`customer_id`),INDEX sonarqube_metric_project_id_index (`project_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
@@ -944,9 +944,9 @@ func (t *SonarqubeMetric) CalculateChecksum() string {
 	return orm.HashStrings(
 		orm.ToString(t.ID),
 		orm.ToString(t.CustomerID),
-		orm.ToString(t.ComponentIdExtID),
-		orm.ToString(t.ComponentIdID),
-		orm.ToString(t.ComponentKeyExtID),
+		orm.ToString(t.ProjectExtID),
+		orm.ToString(t.ProjectID),
+		orm.ToString(t.ProjectKeyExtID),
 		orm.ToString(t.ExtID),
 		orm.ToString(t.Date),
 		orm.ToString(t.Metric),
@@ -956,7 +956,7 @@ func (t *SonarqubeMetric) CalculateChecksum() string {
 
 // DBCreate will create a new SonarqubeMetric record in the database
 func (t *SonarqubeMetric) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
-	q := "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -966,9 +966,9 @@ func (t *SonarqubeMetric) DBCreate(ctx context.Context, db *sql.DB) (sql.Result,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.Checksum),
 		orm.ToSQLString(t.CustomerID),
-		orm.ToSQLString(t.ComponentIdExtID),
-		orm.ToSQLString(t.ComponentIdID),
-		orm.ToSQLString(t.ComponentKeyExtID),
+		orm.ToSQLString(t.ProjectExtID),
+		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.ProjectKeyExtID),
 		orm.ToSQLString(t.ExtID),
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Metric),
@@ -978,7 +978,7 @@ func (t *SonarqubeMetric) DBCreate(ctx context.Context, db *sql.DB) (sql.Result,
 
 // DBCreateTx will create a new SonarqubeMetric record in the database using the provided transaction
 func (t *SonarqubeMetric) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
-	q := "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -988,9 +988,9 @@ func (t *SonarqubeMetric) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Resul
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.Checksum),
 		orm.ToSQLString(t.CustomerID),
-		orm.ToSQLString(t.ComponentIdExtID),
-		orm.ToSQLString(t.ComponentIdID),
-		orm.ToSQLString(t.ComponentKeyExtID),
+		orm.ToSQLString(t.ProjectExtID),
+		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.ProjectKeyExtID),
 		orm.ToSQLString(t.ExtID),
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Metric),
@@ -1000,7 +1000,7 @@ func (t *SonarqubeMetric) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Resul
 
 // DBCreateIgnoreDuplicate will upsert the SonarqubeMetric record in the database
 func (t *SonarqubeMetric) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
-	q := "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1010,9 +1010,9 @@ func (t *SonarqubeMetric) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.D
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.Checksum),
 		orm.ToSQLString(t.CustomerID),
-		orm.ToSQLString(t.ComponentIdExtID),
-		orm.ToSQLString(t.ComponentIdID),
-		orm.ToSQLString(t.ComponentKeyExtID),
+		orm.ToSQLString(t.ProjectExtID),
+		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.ProjectKeyExtID),
 		orm.ToSQLString(t.ExtID),
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Metric),
@@ -1022,7 +1022,7 @@ func (t *SonarqubeMetric) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.D
 
 // DBCreateIgnoreDuplicateTx will upsert the SonarqubeMetric record in the database using the provided transaction
 func (t *SonarqubeMetric) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
-	q := "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1032,9 +1032,9 @@ func (t *SonarqubeMetric) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.Checksum),
 		orm.ToSQLString(t.CustomerID),
-		orm.ToSQLString(t.ComponentIdExtID),
-		orm.ToSQLString(t.ComponentIdID),
-		orm.ToSQLString(t.ComponentKeyExtID),
+		orm.ToSQLString(t.ProjectExtID),
+		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.ProjectKeyExtID),
 		orm.ToSQLString(t.ExtID),
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Metric),
@@ -1107,13 +1107,13 @@ func (t *SonarqubeMetric) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result,
 		return nil, nil
 	}
 	t.Checksum = &checksum
-	q := "UPDATE `sonarqube_metric` SET `checksum`=?,`customer_id`=?,`component_id_ext_id`=?,`component_id_id`=?,`component_key_ext_id`=?,`ext_id`=?,`date`=?,`metric`=?,`value`=? WHERE `id`=?"
+	q := "UPDATE `sonarqube_metric` SET `checksum`=?,`customer_id`=?,`project_ext_id`=?,`project_id`=?,`project_key_ext_id`=?,`ext_id`=?,`date`=?,`metric`=?,`value`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.Checksum),
 		orm.ToSQLString(t.CustomerID),
-		orm.ToSQLString(t.ComponentIdExtID),
-		orm.ToSQLString(t.ComponentIdID),
-		orm.ToSQLString(t.ComponentKeyExtID),
+		orm.ToSQLString(t.ProjectExtID),
+		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.ProjectKeyExtID),
 		orm.ToSQLString(t.ExtID),
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Metric),
@@ -1129,13 +1129,13 @@ func (t *SonarqubeMetric) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Resul
 		return nil, nil
 	}
 	t.Checksum = &checksum
-	q := "UPDATE `sonarqube_metric` SET `checksum`=?,`customer_id`=?,`component_id_ext_id`=?,`component_id_id`=?,`component_key_ext_id`=?,`ext_id`=?,`date`=?,`metric`=?,`value`=? WHERE `id`=?"
+	q := "UPDATE `sonarqube_metric` SET `checksum`=?,`customer_id`=?,`project_ext_id`=?,`project_id`=?,`project_key_ext_id`=?,`ext_id`=?,`date`=?,`metric`=?,`value`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.Checksum),
 		orm.ToSQLString(t.CustomerID),
-		orm.ToSQLString(t.ComponentIdExtID),
-		orm.ToSQLString(t.ComponentIdID),
-		orm.ToSQLString(t.ComponentKeyExtID),
+		orm.ToSQLString(t.ProjectExtID),
+		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.ProjectKeyExtID),
 		orm.ToSQLString(t.ExtID),
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Metric),
@@ -1153,20 +1153,20 @@ func (t *SonarqubeMetric) DBUpsert(ctx context.Context, db *sql.DB, conditions .
 	t.Checksum = &checksum
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `checksum`=VALUES(`checksum`),`customer_id`=VALUES(`customer_id`),`component_id_ext_id`=VALUES(`component_id_ext_id`),`component_id_id`=VALUES(`component_id_id`),`component_key_ext_id`=VALUES(`component_key_ext_id`),`ext_id`=VALUES(`ext_id`),`date`=VALUES(`date`),`metric`=VALUES(`metric`),`value`=VALUES(`value`)"
+		q = "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `checksum`=VALUES(`checksum`),`customer_id`=VALUES(`customer_id`),`project_ext_id`=VALUES(`project_ext_id`),`project_id`=VALUES(`project_id`),`project_key_ext_id`=VALUES(`project_key_ext_id`),`ext_id`=VALUES(`ext_id`),`date`=VALUES(`date`),`metric`=VALUES(`metric`),`value`=VALUES(`value`)"
 	}
 	r, err := db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.Checksum),
 		orm.ToSQLString(t.CustomerID),
-		orm.ToSQLString(t.ComponentIdExtID),
-		orm.ToSQLString(t.ComponentIdID),
-		orm.ToSQLString(t.ComponentKeyExtID),
+		orm.ToSQLString(t.ProjectExtID),
+		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.ProjectKeyExtID),
 		orm.ToSQLString(t.ExtID),
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Metric),
@@ -1188,20 +1188,20 @@ func (t *SonarqubeMetric) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions
 	t.Checksum = &checksum
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `checksum`=VALUES(`checksum`),`customer_id`=VALUES(`customer_id`),`component_id_ext_id`=VALUES(`component_id_ext_id`),`component_id_id`=VALUES(`component_id_id`),`component_key_ext_id`=VALUES(`component_key_ext_id`),`ext_id`=VALUES(`ext_id`),`date`=VALUES(`date`),`metric`=VALUES(`metric`),`value`=VALUES(`value`)"
+		q = "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `checksum`=VALUES(`checksum`),`customer_id`=VALUES(`customer_id`),`project_ext_id`=VALUES(`project_ext_id`),`project_id`=VALUES(`project_id`),`project_key_ext_id`=VALUES(`project_key_ext_id`),`ext_id`=VALUES(`ext_id`),`date`=VALUES(`date`),`metric`=VALUES(`metric`),`value`=VALUES(`value`)"
 	}
 	r, err := tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.Checksum),
 		orm.ToSQLString(t.CustomerID),
-		orm.ToSQLString(t.ComponentIdExtID),
-		orm.ToSQLString(t.ComponentIdID),
-		orm.ToSQLString(t.ComponentKeyExtID),
+		orm.ToSQLString(t.ProjectExtID),
+		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.ProjectKeyExtID),
 		orm.ToSQLString(t.ExtID),
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Metric),
@@ -1216,14 +1216,14 @@ func (t *SonarqubeMetric) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions
 
 // DBFindOne will find a SonarqubeMetric record in the database with the primary key
 func (t *SonarqubeMetric) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
-	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
-	var _ComponentIdExtID sql.NullString
-	var _ComponentIdID sql.NullString
-	var _ComponentKeyExtID sql.NullString
+	var _ProjectExtID sql.NullString
+	var _ProjectID sql.NullString
+	var _ProjectKeyExtID sql.NullString
 	var _ExtID sql.NullString
 	var _Date sql.NullInt64
 	var _Metric sql.NullString
@@ -1232,9 +1232,9 @@ func (t *SonarqubeMetric) DBFindOne(ctx context.Context, db *sql.DB, value strin
 		&_ID,
 		&_Checksum,
 		&_CustomerID,
-		&_ComponentIdExtID,
-		&_ComponentIdID,
-		&_ComponentKeyExtID,
+		&_ProjectExtID,
+		&_ProjectID,
+		&_ProjectKeyExtID,
 		&_ExtID,
 		&_Date,
 		&_Metric,
@@ -1255,14 +1255,14 @@ func (t *SonarqubeMetric) DBFindOne(ctx context.Context, db *sql.DB, value strin
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
 	}
-	if _ComponentIdExtID.Valid {
-		t.SetComponentIdExtID(_ComponentIdExtID.String)
+	if _ProjectExtID.Valid {
+		t.SetProjectExtID(_ProjectExtID.String)
 	}
-	if _ComponentIdID.Valid {
-		t.SetComponentIdID(_ComponentIdID.String)
+	if _ProjectID.Valid {
+		t.SetProjectID(_ProjectID.String)
 	}
-	if _ComponentKeyExtID.Valid {
-		t.SetComponentKeyExtID(_ComponentKeyExtID.String)
+	if _ProjectKeyExtID.Valid {
+		t.SetProjectKeyExtID(_ProjectKeyExtID.String)
 	}
 	if _ExtID.Valid {
 		t.SetExtID(_ExtID.String)
@@ -1281,14 +1281,14 @@ func (t *SonarqubeMetric) DBFindOne(ctx context.Context, db *sql.DB, value strin
 
 // DBFindOneTx will find a SonarqubeMetric record in the database with the primary key using the provided transaction
 func (t *SonarqubeMetric) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
-	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`component_id_ext_id`,`sonarqube_metric`.`component_id_id`,`sonarqube_metric`.`component_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
-	var _ComponentIdExtID sql.NullString
-	var _ComponentIdID sql.NullString
-	var _ComponentKeyExtID sql.NullString
+	var _ProjectExtID sql.NullString
+	var _ProjectID sql.NullString
+	var _ProjectKeyExtID sql.NullString
 	var _ExtID sql.NullString
 	var _Date sql.NullInt64
 	var _Metric sql.NullString
@@ -1297,9 +1297,9 @@ func (t *SonarqubeMetric) DBFindOneTx(ctx context.Context, tx *sql.Tx, value str
 		&_ID,
 		&_Checksum,
 		&_CustomerID,
-		&_ComponentIdExtID,
-		&_ComponentIdID,
-		&_ComponentKeyExtID,
+		&_ProjectExtID,
+		&_ProjectID,
+		&_ProjectKeyExtID,
 		&_ExtID,
 		&_Date,
 		&_Metric,
@@ -1320,14 +1320,14 @@ func (t *SonarqubeMetric) DBFindOneTx(ctx context.Context, tx *sql.Tx, value str
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
 	}
-	if _ComponentIdExtID.Valid {
-		t.SetComponentIdExtID(_ComponentIdExtID.String)
+	if _ProjectExtID.Valid {
+		t.SetProjectExtID(_ProjectExtID.String)
 	}
-	if _ComponentIdID.Valid {
-		t.SetComponentIdID(_ComponentIdID.String)
+	if _ProjectID.Valid {
+		t.SetProjectID(_ProjectID.String)
 	}
-	if _ComponentKeyExtID.Valid {
-		t.SetComponentKeyExtID(_ComponentKeyExtID.String)
+	if _ProjectKeyExtID.Valid {
+		t.SetProjectKeyExtID(_ProjectKeyExtID.String)
 	}
 	if _ExtID.Valid {
 		t.SetExtID(_ExtID.String)
@@ -1350,9 +1350,9 @@ func FindSonarqubeMetrics(ctx context.Context, db *sql.DB, _params ...interface{
 		orm.Column("id"),
 		orm.Column("checksum"),
 		orm.Column("customer_id"),
-		orm.Column("component_id_ext_id"),
-		orm.Column("component_id_id"),
-		orm.Column("component_key_ext_id"),
+		orm.Column("project_ext_id"),
+		orm.Column("project_id"),
+		orm.Column("project_key_ext_id"),
 		orm.Column("ext_id"),
 		orm.Column("date"),
 		orm.Column("metric"),
@@ -1378,9 +1378,9 @@ func FindSonarqubeMetrics(ctx context.Context, db *sql.DB, _params ...interface{
 		var _ID sql.NullString
 		var _Checksum sql.NullString
 		var _CustomerID sql.NullString
-		var _ComponentIdExtID sql.NullString
-		var _ComponentIdID sql.NullString
-		var _ComponentKeyExtID sql.NullString
+		var _ProjectExtID sql.NullString
+		var _ProjectID sql.NullString
+		var _ProjectKeyExtID sql.NullString
 		var _ExtID sql.NullString
 		var _Date sql.NullInt64
 		var _Metric sql.NullString
@@ -1389,9 +1389,9 @@ func FindSonarqubeMetrics(ctx context.Context, db *sql.DB, _params ...interface{
 			&_ID,
 			&_Checksum,
 			&_CustomerID,
-			&_ComponentIdExtID,
-			&_ComponentIdID,
-			&_ComponentKeyExtID,
+			&_ProjectExtID,
+			&_ProjectID,
+			&_ProjectKeyExtID,
 			&_ExtID,
 			&_Date,
 			&_Metric,
@@ -1410,14 +1410,14 @@ func FindSonarqubeMetrics(ctx context.Context, db *sql.DB, _params ...interface{
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
 		}
-		if _ComponentIdExtID.Valid {
-			t.SetComponentIdExtID(_ComponentIdExtID.String)
+		if _ProjectExtID.Valid {
+			t.SetProjectExtID(_ProjectExtID.String)
 		}
-		if _ComponentIdID.Valid {
-			t.SetComponentIdID(_ComponentIdID.String)
+		if _ProjectID.Valid {
+			t.SetProjectID(_ProjectID.String)
 		}
-		if _ComponentKeyExtID.Valid {
-			t.SetComponentKeyExtID(_ComponentKeyExtID.String)
+		if _ProjectKeyExtID.Valid {
+			t.SetProjectKeyExtID(_ProjectKeyExtID.String)
 		}
 		if _ExtID.Valid {
 			t.SetExtID(_ExtID.String)
@@ -1442,9 +1442,9 @@ func FindSonarqubeMetricsTx(ctx context.Context, tx *sql.Tx, _params ...interfac
 		orm.Column("id"),
 		orm.Column("checksum"),
 		orm.Column("customer_id"),
-		orm.Column("component_id_ext_id"),
-		orm.Column("component_id_id"),
-		orm.Column("component_key_ext_id"),
+		orm.Column("project_ext_id"),
+		orm.Column("project_id"),
+		orm.Column("project_key_ext_id"),
 		orm.Column("ext_id"),
 		orm.Column("date"),
 		orm.Column("metric"),
@@ -1470,9 +1470,9 @@ func FindSonarqubeMetricsTx(ctx context.Context, tx *sql.Tx, _params ...interfac
 		var _ID sql.NullString
 		var _Checksum sql.NullString
 		var _CustomerID sql.NullString
-		var _ComponentIdExtID sql.NullString
-		var _ComponentIdID sql.NullString
-		var _ComponentKeyExtID sql.NullString
+		var _ProjectExtID sql.NullString
+		var _ProjectID sql.NullString
+		var _ProjectKeyExtID sql.NullString
 		var _ExtID sql.NullString
 		var _Date sql.NullInt64
 		var _Metric sql.NullString
@@ -1481,9 +1481,9 @@ func FindSonarqubeMetricsTx(ctx context.Context, tx *sql.Tx, _params ...interfac
 			&_ID,
 			&_Checksum,
 			&_CustomerID,
-			&_ComponentIdExtID,
-			&_ComponentIdID,
-			&_ComponentKeyExtID,
+			&_ProjectExtID,
+			&_ProjectID,
+			&_ProjectKeyExtID,
 			&_ExtID,
 			&_Date,
 			&_Metric,
@@ -1502,14 +1502,14 @@ func FindSonarqubeMetricsTx(ctx context.Context, tx *sql.Tx, _params ...interfac
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
 		}
-		if _ComponentIdExtID.Valid {
-			t.SetComponentIdExtID(_ComponentIdExtID.String)
+		if _ProjectExtID.Valid {
+			t.SetProjectExtID(_ProjectExtID.String)
 		}
-		if _ComponentIdID.Valid {
-			t.SetComponentIdID(_ComponentIdID.String)
+		if _ProjectID.Valid {
+			t.SetProjectID(_ProjectID.String)
 		}
-		if _ComponentKeyExtID.Valid {
-			t.SetComponentKeyExtID(_ComponentKeyExtID.String)
+		if _ProjectKeyExtID.Valid {
+			t.SetProjectKeyExtID(_ProjectKeyExtID.String)
 		}
 		if _ExtID.Valid {
 			t.SetExtID(_ExtID.String)
@@ -1534,9 +1534,9 @@ func (t *SonarqubeMetric) DBFind(ctx context.Context, db *sql.DB, _params ...int
 		orm.Column("id"),
 		orm.Column("checksum"),
 		orm.Column("customer_id"),
-		orm.Column("component_id_ext_id"),
-		orm.Column("component_id_id"),
-		orm.Column("component_key_ext_id"),
+		orm.Column("project_ext_id"),
+		orm.Column("project_id"),
+		orm.Column("project_key_ext_id"),
 		orm.Column("ext_id"),
 		orm.Column("date"),
 		orm.Column("metric"),
@@ -1553,9 +1553,9 @@ func (t *SonarqubeMetric) DBFind(ctx context.Context, db *sql.DB, _params ...int
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
-	var _ComponentIdExtID sql.NullString
-	var _ComponentIdID sql.NullString
-	var _ComponentKeyExtID sql.NullString
+	var _ProjectExtID sql.NullString
+	var _ProjectID sql.NullString
+	var _ProjectKeyExtID sql.NullString
 	var _ExtID sql.NullString
 	var _Date sql.NullInt64
 	var _Metric sql.NullString
@@ -1564,9 +1564,9 @@ func (t *SonarqubeMetric) DBFind(ctx context.Context, db *sql.DB, _params ...int
 		&_ID,
 		&_Checksum,
 		&_CustomerID,
-		&_ComponentIdExtID,
-		&_ComponentIdID,
-		&_ComponentKeyExtID,
+		&_ProjectExtID,
+		&_ProjectID,
+		&_ProjectKeyExtID,
 		&_ExtID,
 		&_Date,
 		&_Metric,
@@ -1584,14 +1584,14 @@ func (t *SonarqubeMetric) DBFind(ctx context.Context, db *sql.DB, _params ...int
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
 	}
-	if _ComponentIdExtID.Valid {
-		t.SetComponentIdExtID(_ComponentIdExtID.String)
+	if _ProjectExtID.Valid {
+		t.SetProjectExtID(_ProjectExtID.String)
 	}
-	if _ComponentIdID.Valid {
-		t.SetComponentIdID(_ComponentIdID.String)
+	if _ProjectID.Valid {
+		t.SetProjectID(_ProjectID.String)
 	}
-	if _ComponentKeyExtID.Valid {
-		t.SetComponentKeyExtID(_ComponentKeyExtID.String)
+	if _ProjectKeyExtID.Valid {
+		t.SetProjectKeyExtID(_ProjectKeyExtID.String)
 	}
 	if _ExtID.Valid {
 		t.SetExtID(_ExtID.String)
@@ -1614,9 +1614,9 @@ func (t *SonarqubeMetric) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...i
 		orm.Column("id"),
 		orm.Column("checksum"),
 		orm.Column("customer_id"),
-		orm.Column("component_id_ext_id"),
-		orm.Column("component_id_id"),
-		orm.Column("component_key_ext_id"),
+		orm.Column("project_ext_id"),
+		orm.Column("project_id"),
+		orm.Column("project_key_ext_id"),
 		orm.Column("ext_id"),
 		orm.Column("date"),
 		orm.Column("metric"),
@@ -1633,9 +1633,9 @@ func (t *SonarqubeMetric) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...i
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
-	var _ComponentIdExtID sql.NullString
-	var _ComponentIdID sql.NullString
-	var _ComponentKeyExtID sql.NullString
+	var _ProjectExtID sql.NullString
+	var _ProjectID sql.NullString
+	var _ProjectKeyExtID sql.NullString
 	var _ExtID sql.NullString
 	var _Date sql.NullInt64
 	var _Metric sql.NullString
@@ -1644,9 +1644,9 @@ func (t *SonarqubeMetric) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...i
 		&_ID,
 		&_Checksum,
 		&_CustomerID,
-		&_ComponentIdExtID,
-		&_ComponentIdID,
-		&_ComponentKeyExtID,
+		&_ProjectExtID,
+		&_ProjectID,
+		&_ProjectKeyExtID,
 		&_ExtID,
 		&_Date,
 		&_Metric,
@@ -1664,14 +1664,14 @@ func (t *SonarqubeMetric) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...i
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
 	}
-	if _ComponentIdExtID.Valid {
-		t.SetComponentIdExtID(_ComponentIdExtID.String)
+	if _ProjectExtID.Valid {
+		t.SetProjectExtID(_ProjectExtID.String)
 	}
-	if _ComponentIdID.Valid {
-		t.SetComponentIdID(_ComponentIdID.String)
+	if _ProjectID.Valid {
+		t.SetProjectID(_ProjectID.String)
 	}
-	if _ComponentKeyExtID.Valid {
-		t.SetComponentKeyExtID(_ComponentKeyExtID.String)
+	if _ProjectKeyExtID.Valid {
+		t.SetProjectKeyExtID(_ProjectKeyExtID.String)
 	}
 	if _ExtID.Valid {
 		t.SetExtID(_ExtID.String)
