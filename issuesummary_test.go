@@ -37,31 +37,32 @@ func TestCreateIssueSummaryDelete(t *testing.T) {
 		Closed30Days:              int32(32),
 		EstimatedWorkMonths:       float64(6.4),
 		EstimatedWorkMonths30Days: float64(6.4),
-		Title:                     "00f4a631851d85fe",
-		URL:                       nil,
-		Priority:                  nil,
-		PriorityID:                nil,
-		Status:                    nil,
-		StatusID:                  nil,
-		IssueType:                 "c3ec5ef2557f6a5f",
-		IssueTypeID:               nil,
-		Resolution:                nil,
-		ResolutionID:              nil,
-		State:                     "20b2753657",
-		CustomFieldIds:            nil,
-		Teams:                     nil,
-		ParentIssueID:             nil,
-		ParentsIssueIds:           nil,
-		Metadata:                  nil,
-		ProjectID:                 "f4662184b65cb607",
-		Sprints:                   nil,
-		Labels:                    nil,
-		TopLevel:                  true,
-		IsLeaf:                    true,
-		CustomerID:                "7e0e01202491f425",
-		RefType:                   "13cf4b36049dfe2d",
-		RefID:                     "1d293261eb293454",
-		CustomFieldIdsVirtual:     nil,
+		Title:           "00f4a631851d85fe",
+		URL:             nil,
+		Priority:        nil,
+		PriorityID:      nil,
+		Status:          nil,
+		StatusID:        nil,
+		IssueType:       "c3ec5ef2557f6a5f",
+		IssueTypeID:     nil,
+		Resolution:      nil,
+		ResolutionID:    nil,
+		State:           "20b2753657",
+		CustomFieldIds:  nil,
+		Teams:           nil,
+		ParentIssueID:   nil,
+		ParentsIssueIds: nil,
+		Metadata:        nil,
+		ProjectID:       "f4662184b65cb607",
+		Sprints:         nil,
+		Labels:          nil,
+		TopLevel:        true,
+		IsLeaf:          true,
+		CustomerID:      "7e0e01202491f425",
+		RefType:         "13cf4b36049dfe2d",
+		RefID:           "1d293261eb293454",
+		CustomFieldIdsVirtual: nil,
+		ReleaseDuration:       int64(64),
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -160,6 +161,8 @@ func TestCreateIssueSummaryDelete(t *testing.T) {
 
 	r.SetRefID("d4433b91865f8626")
 
+	r.SetReleaseDuration(int64(640))
+
 	a, b, err = r.DBUpsert(ctx, db)
 	if err != nil {
 		t.Fatal(err)
@@ -201,31 +204,32 @@ func TestCreateIssueSummaryDeleteTx(t *testing.T) {
 		Closed30Days:              int32(32),
 		EstimatedWorkMonths:       float64(6.4),
 		EstimatedWorkMonths30Days: float64(6.4),
-		Title:                     "00f4a631851d85fe",
-		URL:                       nil,
-		Priority:                  nil,
-		PriorityID:                nil,
-		Status:                    nil,
-		StatusID:                  nil,
-		IssueType:                 "c3ec5ef2557f6a5f",
-		IssueTypeID:               nil,
-		Resolution:                nil,
-		ResolutionID:              nil,
-		State:                     "20b2753657",
-		CustomFieldIds:            nil,
-		Teams:                     nil,
-		ParentIssueID:             nil,
-		ParentsIssueIds:           nil,
-		Metadata:                  nil,
-		ProjectID:                 "f4662184b65cb607",
-		Sprints:                   nil,
-		Labels:                    nil,
-		TopLevel:                  true,
-		IsLeaf:                    true,
-		CustomerID:                "7e0e01202491f425",
-		RefType:                   "13cf4b36049dfe2d",
-		RefID:                     "1d293261eb293454",
-		CustomFieldIdsVirtual:     nil,
+		Title:           "00f4a631851d85fe",
+		URL:             nil,
+		Priority:        nil,
+		PriorityID:      nil,
+		Status:          nil,
+		StatusID:        nil,
+		IssueType:       "c3ec5ef2557f6a5f",
+		IssueTypeID:     nil,
+		Resolution:      nil,
+		ResolutionID:    nil,
+		State:           "20b2753657",
+		CustomFieldIds:  nil,
+		Teams:           nil,
+		ParentIssueID:   nil,
+		ParentsIssueIds: nil,
+		Metadata:        nil,
+		ProjectID:       "f4662184b65cb607",
+		Sprints:         nil,
+		Labels:          nil,
+		TopLevel:        true,
+		IsLeaf:          true,
+		CustomerID:      "7e0e01202491f425",
+		RefType:         "13cf4b36049dfe2d",
+		RefID:           "1d293261eb293454",
+		CustomFieldIdsVirtual: nil,
+		ReleaseDuration:       int64(64),
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -327,6 +331,8 @@ func TestCreateIssueSummaryDeleteTx(t *testing.T) {
 	r.SetRefType("2edf32c7c3242e46")
 
 	r.SetRefID("d4433b91865f8626")
+
+	r.SetReleaseDuration(int64(640))
 
 	a, b, err = r.DBUpsertTx(ctx, tx)
 	if err != nil {
