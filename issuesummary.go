@@ -58,12 +58,16 @@ var IssueSummaryColumns = []string{
 	"parents_issue_ids",
 	"metadata",
 	"project_id",
+	"sprints",
+	"labels",
 	"top_level",
 	"is_leaf",
+	"path",
 	"customer_id",
 	"ref_type",
 	"ref_id",
 	"custom_field_ids_virtual",
+	"release_duration",
 }
 
 // IssueSummary table
@@ -80,17 +84,21 @@ type IssueSummary struct {
 	IssueID                   string  `json:"issue_id"`
 	IssueType                 string  `json:"issue_type"`
 	IssueTypeID               *string `json:"issue_type_id,omitempty"`
+	Labels                    *string `json:"labels,omitempty"`
 	Metadata                  *string `json:"metadata,omitempty"`
 	New30Days                 int32   `json:"new30_days"`
 	ParentIssueID             *string `json:"parent_issue_id,omitempty"`
 	ParentsIssueIds           *string `json:"parents_issue_ids,omitempty"`
+	Path                      string  `json:"path"`
 	Priority                  *string `json:"priority,omitempty"`
 	PriorityID                *string `json:"priority_id,omitempty"`
 	ProjectID                 string  `json:"project_id"`
 	RefID                     string  `json:"ref_id"`
 	RefType                   string  `json:"ref_type"`
+	ReleaseDuration           int64   `json:"release_duration"`
 	Resolution                *string `json:"resolution,omitempty"`
 	ResolutionID              *string `json:"resolution_id,omitempty"`
+	Sprints                   *string `json:"sprints,omitempty"`
 	State                     string  `json:"state"`
 	Status                    *string `json:"status,omitempty"`
 	StatusID                  *string `json:"status_id,omitempty"`
@@ -136,12 +144,16 @@ func (t *IssueSummary) ToCSV() []string {
 		toCSVString(t.ParentsIssueIds),
 		toCSVString(t.Metadata),
 		t.ProjectID,
+		toCSVString(t.Sprints),
+		toCSVString(t.Labels),
 		toCSVBool(t.TopLevel),
 		toCSVBool(t.IsLeaf),
+		t.Path,
 		t.CustomerID,
 		t.RefType,
 		t.RefID,
 		toCSVString(t.CustomFieldIdsVirtual),
+		toCSVString(t.ReleaseDuration),
 	}
 }
 
@@ -212,29 +224,33 @@ func NewCSVIssueSummaryReader(r io.Reader, ch chan<- IssueSummary) error {
 			Closed30Days:              fromCSVInt32(record[6]),
 			EstimatedWorkMonths:       fromCSVFloat64(record[7]),
 			EstimatedWorkMonths30Days: fromCSVFloat64(record[8]),
-			Title:           record[9],
-			URL:             fromStringPointer(record[10]),
-			Priority:        fromStringPointer(record[11]),
-			PriorityID:      fromStringPointer(record[12]),
-			Status:          fromStringPointer(record[13]),
-			StatusID:        fromStringPointer(record[14]),
-			IssueType:       record[15],
-			IssueTypeID:     fromStringPointer(record[16]),
-			Resolution:      fromStringPointer(record[17]),
-			ResolutionID:    fromStringPointer(record[18]),
-			State:           record[19],
-			CustomFieldIds:  fromStringPointer(record[20]),
-			Teams:           fromStringPointer(record[21]),
-			ParentIssueID:   fromStringPointer(record[22]),
-			ParentsIssueIds: fromStringPointer(record[23]),
-			Metadata:        fromStringPointer(record[24]),
-			ProjectID:       record[25],
-			TopLevel:        fromCSVBool(record[26]),
-			IsLeaf:          fromCSVBool(record[27]),
-			CustomerID:      record[28],
-			RefType:         record[29],
-			RefID:           record[30],
-			CustomFieldIdsVirtual: fromStringPointer(record[31]),
+			Title:                     record[9],
+			URL:                       fromStringPointer(record[10]),
+			Priority:                  fromStringPointer(record[11]),
+			PriorityID:                fromStringPointer(record[12]),
+			Status:                    fromStringPointer(record[13]),
+			StatusID:                  fromStringPointer(record[14]),
+			IssueType:                 record[15],
+			IssueTypeID:               fromStringPointer(record[16]),
+			Resolution:                fromStringPointer(record[17]),
+			ResolutionID:              fromStringPointer(record[18]),
+			State:                     record[19],
+			CustomFieldIds:            fromStringPointer(record[20]),
+			Teams:                     fromStringPointer(record[21]),
+			ParentIssueID:             fromStringPointer(record[22]),
+			ParentsIssueIds:           fromStringPointer(record[23]),
+			Metadata:                  fromStringPointer(record[24]),
+			ProjectID:                 record[25],
+			Sprints:                   fromStringPointer(record[26]),
+			Labels:                    fromStringPointer(record[27]),
+			TopLevel:                  fromCSVBool(record[28]),
+			IsLeaf:                    fromCSVBool(record[29]),
+			Path:                      record[30],
+			CustomerID:                record[31],
+			RefType:                   record[32],
+			RefID:                     record[33],
+			CustomFieldIdsVirtual:     fromStringPointer(record[34]),
+			ReleaseDuration:           fromCSVInt64(record[35]),
 		}
 	}
 	return nil
@@ -561,6 +577,18 @@ const IssueSummaryColumnProjectID = "project_id"
 // IssueSummaryEscapedColumnProjectID is the escaped ProjectID SQL column name for the IssueSummary table
 const IssueSummaryEscapedColumnProjectID = "`project_id`"
 
+// IssueSummaryColumnSprints is the Sprints SQL column name for the IssueSummary table
+const IssueSummaryColumnSprints = "sprints"
+
+// IssueSummaryEscapedColumnSprints is the escaped Sprints SQL column name for the IssueSummary table
+const IssueSummaryEscapedColumnSprints = "`sprints`"
+
+// IssueSummaryColumnLabels is the Labels SQL column name for the IssueSummary table
+const IssueSummaryColumnLabels = "labels"
+
+// IssueSummaryEscapedColumnLabels is the escaped Labels SQL column name for the IssueSummary table
+const IssueSummaryEscapedColumnLabels = "`labels`"
+
 // IssueSummaryColumnTopLevel is the TopLevel SQL column name for the IssueSummary table
 const IssueSummaryColumnTopLevel = "top_level"
 
@@ -572,6 +600,12 @@ const IssueSummaryColumnIsLeaf = "is_leaf"
 
 // IssueSummaryEscapedColumnIsLeaf is the escaped IsLeaf SQL column name for the IssueSummary table
 const IssueSummaryEscapedColumnIsLeaf = "`is_leaf`"
+
+// IssueSummaryColumnPath is the Path SQL column name for the IssueSummary table
+const IssueSummaryColumnPath = "path"
+
+// IssueSummaryEscapedColumnPath is the escaped Path SQL column name for the IssueSummary table
+const IssueSummaryEscapedColumnPath = "`path`"
 
 // IssueSummaryColumnCustomerID is the CustomerID SQL column name for the IssueSummary table
 const IssueSummaryColumnCustomerID = "customer_id"
@@ -597,6 +631,12 @@ const IssueSummaryColumnCustomFieldIdsVirtual = "custom_field_ids_virtual"
 // IssueSummaryEscapedColumnCustomFieldIdsVirtual is the escaped CustomFieldIdsVirtual SQL column name for the IssueSummary table
 const IssueSummaryEscapedColumnCustomFieldIdsVirtual = "`custom_field_ids_virtual`"
 
+// IssueSummaryColumnReleaseDuration is the ReleaseDuration SQL column name for the IssueSummary table
+const IssueSummaryColumnReleaseDuration = "release_duration"
+
+// IssueSummaryEscapedColumnReleaseDuration is the escaped ReleaseDuration SQL column name for the IssueSummary table
+const IssueSummaryEscapedColumnReleaseDuration = "`release_duration`"
+
 // GetID will return the IssueSummary ID value
 func (t *IssueSummary) GetID() string {
 	return t.ID
@@ -609,7 +649,7 @@ func (t *IssueSummary) SetID(v string) {
 
 // FindIssueSummaryByID will find a IssueSummary by ID
 func FindIssueSummaryByID(ctx context.Context, db *sql.DB, value string) (*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `id` = ?"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _IssueID sql.NullString
@@ -636,12 +676,16 @@ func FindIssueSummaryByID(ctx context.Context, db *sql.DB, value string) (*Issue
 	var _ParentsIssueIds sql.NullString
 	var _Metadata sql.NullString
 	var _ProjectID sql.NullString
+	var _Sprints sql.NullString
+	var _Labels sql.NullString
 	var _TopLevel sql.NullBool
 	var _IsLeaf sql.NullBool
+	var _Path sql.NullString
 	var _CustomerID sql.NullString
 	var _RefType sql.NullString
 	var _RefID sql.NullString
 	var _CustomFieldIdsVirtual sql.NullString
+	var _ReleaseDuration sql.NullInt64
 	err := db.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_Checksum,
@@ -669,12 +713,16 @@ func FindIssueSummaryByID(ctx context.Context, db *sql.DB, value string) (*Issue
 		&_ParentsIssueIds,
 		&_Metadata,
 		&_ProjectID,
+		&_Sprints,
+		&_Labels,
 		&_TopLevel,
 		&_IsLeaf,
+		&_Path,
 		&_CustomerID,
 		&_RefType,
 		&_RefID,
 		&_CustomFieldIdsVirtual,
+		&_ReleaseDuration,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -761,11 +809,20 @@ func FindIssueSummaryByID(ctx context.Context, db *sql.DB, value string) (*Issue
 	if _ProjectID.Valid {
 		t.SetProjectID(_ProjectID.String)
 	}
+	if _Sprints.Valid {
+		t.SetSprints(_Sprints.String)
+	}
+	if _Labels.Valid {
+		t.SetLabels(_Labels.String)
+	}
 	if _TopLevel.Valid {
 		t.SetTopLevel(_TopLevel.Bool)
 	}
 	if _IsLeaf.Valid {
 		t.SetIsLeaf(_IsLeaf.Bool)
+	}
+	if _Path.Valid {
+		t.SetPath(_Path.String)
 	}
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
@@ -779,12 +836,15 @@ func FindIssueSummaryByID(ctx context.Context, db *sql.DB, value string) (*Issue
 	if _CustomFieldIdsVirtual.Valid {
 		t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
 	}
+	if _ReleaseDuration.Valid {
+		t.SetReleaseDuration(_ReleaseDuration.Int64)
+	}
 	return t, nil
 }
 
 // FindIssueSummaryByIDTx will find a IssueSummary by ID using the provided transaction
 func FindIssueSummaryByIDTx(ctx context.Context, tx *sql.Tx, value string) (*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `id` = ?"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _IssueID sql.NullString
@@ -811,12 +871,16 @@ func FindIssueSummaryByIDTx(ctx context.Context, tx *sql.Tx, value string) (*Iss
 	var _ParentsIssueIds sql.NullString
 	var _Metadata sql.NullString
 	var _ProjectID sql.NullString
+	var _Sprints sql.NullString
+	var _Labels sql.NullString
 	var _TopLevel sql.NullBool
 	var _IsLeaf sql.NullBool
+	var _Path sql.NullString
 	var _CustomerID sql.NullString
 	var _RefType sql.NullString
 	var _RefID sql.NullString
 	var _CustomFieldIdsVirtual sql.NullString
+	var _ReleaseDuration sql.NullInt64
 	err := tx.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_Checksum,
@@ -844,12 +908,16 @@ func FindIssueSummaryByIDTx(ctx context.Context, tx *sql.Tx, value string) (*Iss
 		&_ParentsIssueIds,
 		&_Metadata,
 		&_ProjectID,
+		&_Sprints,
+		&_Labels,
 		&_TopLevel,
 		&_IsLeaf,
+		&_Path,
 		&_CustomerID,
 		&_RefType,
 		&_RefID,
 		&_CustomFieldIdsVirtual,
+		&_ReleaseDuration,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -936,11 +1004,20 @@ func FindIssueSummaryByIDTx(ctx context.Context, tx *sql.Tx, value string) (*Iss
 	if _ProjectID.Valid {
 		t.SetProjectID(_ProjectID.String)
 	}
+	if _Sprints.Valid {
+		t.SetSprints(_Sprints.String)
+	}
+	if _Labels.Valid {
+		t.SetLabels(_Labels.String)
+	}
 	if _TopLevel.Valid {
 		t.SetTopLevel(_TopLevel.Bool)
 	}
 	if _IsLeaf.Valid {
 		t.SetIsLeaf(_IsLeaf.Bool)
+	}
+	if _Path.Valid {
+		t.SetPath(_Path.String)
 	}
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
@@ -953,6 +1030,9 @@ func FindIssueSummaryByIDTx(ctx context.Context, tx *sql.Tx, value string) (*Iss
 	}
 	if _CustomFieldIdsVirtual.Valid {
 		t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
+	}
+	if _ReleaseDuration.Valid {
+		t.SetReleaseDuration(_ReleaseDuration.Int64)
 	}
 	return t, nil
 }
@@ -982,7 +1062,7 @@ func (t *IssueSummary) SetIssueID(v string) {
 
 // FindIssueSummariesByIssueID will find all IssueSummarys by the IssueID value
 func FindIssueSummariesByIssueID(ctx context.Context, db *sql.DB, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `issue_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1019,12 +1099,16 @@ func FindIssueSummariesByIssueID(ctx context.Context, db *sql.DB, value string) 
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -1052,12 +1136,16 @@ func FindIssueSummariesByIssueID(ctx context.Context, db *sql.DB, value string) 
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -1141,11 +1229,20 @@ func FindIssueSummariesByIssueID(ctx context.Context, db *sql.DB, value string) 
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -1159,6 +1256,9 @@ func FindIssueSummariesByIssueID(ctx context.Context, db *sql.DB, value string) 
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
 		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -1166,7 +1266,7 @@ func FindIssueSummariesByIssueID(ctx context.Context, db *sql.DB, value string) 
 
 // FindIssueSummariesByIssueIDTx will find all IssueSummarys by the IssueID value using the provided transaction
 func FindIssueSummariesByIssueIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `issue_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1203,12 +1303,16 @@ func FindIssueSummariesByIssueIDTx(ctx context.Context, tx *sql.Tx, value string
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -1236,12 +1340,16 @@ func FindIssueSummariesByIssueIDTx(ctx context.Context, tx *sql.Tx, value string
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -1325,11 +1433,20 @@ func FindIssueSummariesByIssueIDTx(ctx context.Context, tx *sql.Tx, value string
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -1342,6 +1459,9 @@ func FindIssueSummariesByIssueIDTx(ctx context.Context, tx *sql.Tx, value string
 		}
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
+		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
 		}
 		results = append(results, t)
 	}
@@ -1459,7 +1579,7 @@ func (t *IssueSummary) SetPriorityID(v string) {
 
 // FindIssueSummariesByPriorityID will find all IssueSummarys by the PriorityID value
 func FindIssueSummariesByPriorityID(ctx context.Context, db *sql.DB, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `priority_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `priority_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1496,12 +1616,16 @@ func FindIssueSummariesByPriorityID(ctx context.Context, db *sql.DB, value strin
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -1529,12 +1653,16 @@ func FindIssueSummariesByPriorityID(ctx context.Context, db *sql.DB, value strin
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -1618,11 +1746,20 @@ func FindIssueSummariesByPriorityID(ctx context.Context, db *sql.DB, value strin
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -1636,6 +1773,9 @@ func FindIssueSummariesByPriorityID(ctx context.Context, db *sql.DB, value strin
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
 		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -1643,7 +1783,7 @@ func FindIssueSummariesByPriorityID(ctx context.Context, db *sql.DB, value strin
 
 // FindIssueSummariesByPriorityIDTx will find all IssueSummarys by the PriorityID value using the provided transaction
 func FindIssueSummariesByPriorityIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `priority_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `priority_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1680,12 +1820,16 @@ func FindIssueSummariesByPriorityIDTx(ctx context.Context, tx *sql.Tx, value str
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -1713,12 +1857,16 @@ func FindIssueSummariesByPriorityIDTx(ctx context.Context, tx *sql.Tx, value str
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -1802,11 +1950,20 @@ func FindIssueSummariesByPriorityIDTx(ctx context.Context, tx *sql.Tx, value str
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -1819,6 +1976,9 @@ func FindIssueSummariesByPriorityIDTx(ctx context.Context, tx *sql.Tx, value str
 		}
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
+		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
 		}
 		results = append(results, t)
 	}
@@ -1876,7 +2036,7 @@ func (t *IssueSummary) SetIssueTypeID(v string) {
 
 // FindIssueSummariesByIssueTypeID will find all IssueSummarys by the IssueTypeID value
 func FindIssueSummariesByIssueTypeID(ctx context.Context, db *sql.DB, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `issue_type_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `issue_type_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1913,12 +2073,16 @@ func FindIssueSummariesByIssueTypeID(ctx context.Context, db *sql.DB, value stri
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -1946,12 +2110,16 @@ func FindIssueSummariesByIssueTypeID(ctx context.Context, db *sql.DB, value stri
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -2035,11 +2203,20 @@ func FindIssueSummariesByIssueTypeID(ctx context.Context, db *sql.DB, value stri
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -2053,6 +2230,9 @@ func FindIssueSummariesByIssueTypeID(ctx context.Context, db *sql.DB, value stri
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
 		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -2060,7 +2240,7 @@ func FindIssueSummariesByIssueTypeID(ctx context.Context, db *sql.DB, value stri
 
 // FindIssueSummariesByIssueTypeIDTx will find all IssueSummarys by the IssueTypeID value using the provided transaction
 func FindIssueSummariesByIssueTypeIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `issue_type_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `issue_type_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2097,12 +2277,16 @@ func FindIssueSummariesByIssueTypeIDTx(ctx context.Context, tx *sql.Tx, value st
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -2130,12 +2314,16 @@ func FindIssueSummariesByIssueTypeIDTx(ctx context.Context, tx *sql.Tx, value st
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -2219,11 +2407,20 @@ func FindIssueSummariesByIssueTypeIDTx(ctx context.Context, tx *sql.Tx, value st
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -2236,6 +2433,9 @@ func FindIssueSummariesByIssueTypeIDTx(ctx context.Context, tx *sql.Tx, value st
 		}
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
+		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
 		}
 		results = append(results, t)
 	}
@@ -2270,7 +2470,7 @@ func (t *IssueSummary) SetResolutionID(v string) {
 
 // FindIssueSummariesByResolutionID will find all IssueSummarys by the ResolutionID value
 func FindIssueSummariesByResolutionID(ctx context.Context, db *sql.DB, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `resolution_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `resolution_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2307,12 +2507,16 @@ func FindIssueSummariesByResolutionID(ctx context.Context, db *sql.DB, value str
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -2340,12 +2544,16 @@ func FindIssueSummariesByResolutionID(ctx context.Context, db *sql.DB, value str
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -2429,11 +2637,20 @@ func FindIssueSummariesByResolutionID(ctx context.Context, db *sql.DB, value str
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -2447,6 +2664,9 @@ func FindIssueSummariesByResolutionID(ctx context.Context, db *sql.DB, value str
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
 		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -2454,7 +2674,7 @@ func FindIssueSummariesByResolutionID(ctx context.Context, db *sql.DB, value str
 
 // FindIssueSummariesByResolutionIDTx will find all IssueSummarys by the ResolutionID value using the provided transaction
 func FindIssueSummariesByResolutionIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `resolution_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `resolution_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2491,12 +2711,16 @@ func FindIssueSummariesByResolutionIDTx(ctx context.Context, tx *sql.Tx, value s
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -2524,12 +2748,16 @@ func FindIssueSummariesByResolutionIDTx(ctx context.Context, tx *sql.Tx, value s
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -2613,11 +2841,20 @@ func FindIssueSummariesByResolutionIDTx(ctx context.Context, tx *sql.Tx, value s
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -2630,6 +2867,9 @@ func FindIssueSummariesByResolutionIDTx(ctx context.Context, tx *sql.Tx, value s
 		}
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
+		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
 		}
 		results = append(results, t)
 	}
@@ -2687,7 +2927,7 @@ func (t *IssueSummary) SetParentIssueID(v string) {
 
 // FindIssueSummariesByParentIssueID will find all IssueSummarys by the ParentIssueID value
 func FindIssueSummariesByParentIssueID(ctx context.Context, db *sql.DB, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `parent_issue_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `parent_issue_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2724,12 +2964,16 @@ func FindIssueSummariesByParentIssueID(ctx context.Context, db *sql.DB, value st
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -2757,12 +3001,16 @@ func FindIssueSummariesByParentIssueID(ctx context.Context, db *sql.DB, value st
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -2846,11 +3094,20 @@ func FindIssueSummariesByParentIssueID(ctx context.Context, db *sql.DB, value st
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -2864,6 +3121,9 @@ func FindIssueSummariesByParentIssueID(ctx context.Context, db *sql.DB, value st
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
 		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -2871,7 +3131,7 @@ func FindIssueSummariesByParentIssueID(ctx context.Context, db *sql.DB, value st
 
 // FindIssueSummariesByParentIssueIDTx will find all IssueSummarys by the ParentIssueID value using the provided transaction
 func FindIssueSummariesByParentIssueIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `parent_issue_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `parent_issue_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2908,12 +3168,16 @@ func FindIssueSummariesByParentIssueIDTx(ctx context.Context, tx *sql.Tx, value 
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -2941,12 +3205,16 @@ func FindIssueSummariesByParentIssueIDTx(ctx context.Context, tx *sql.Tx, value 
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -3030,11 +3298,20 @@ func FindIssueSummariesByParentIssueIDTx(ctx context.Context, tx *sql.Tx, value 
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -3047,6 +3324,9 @@ func FindIssueSummariesByParentIssueIDTx(ctx context.Context, tx *sql.Tx, value 
 		}
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
+		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
 		}
 		results = append(results, t)
 	}
@@ -3091,7 +3371,7 @@ func (t *IssueSummary) SetProjectID(v string) {
 
 // FindIssueSummariesByProjectID will find all IssueSummarys by the ProjectID value
 func FindIssueSummariesByProjectID(ctx context.Context, db *sql.DB, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `project_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `project_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -3128,12 +3408,16 @@ func FindIssueSummariesByProjectID(ctx context.Context, db *sql.DB, value string
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -3161,12 +3445,16 @@ func FindIssueSummariesByProjectID(ctx context.Context, db *sql.DB, value string
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -3250,11 +3538,20 @@ func FindIssueSummariesByProjectID(ctx context.Context, db *sql.DB, value string
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -3268,6 +3565,9 @@ func FindIssueSummariesByProjectID(ctx context.Context, db *sql.DB, value string
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
 		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -3275,7 +3575,7 @@ func FindIssueSummariesByProjectID(ctx context.Context, db *sql.DB, value string
 
 // FindIssueSummariesByProjectIDTx will find all IssueSummarys by the ProjectID value using the provided transaction
 func FindIssueSummariesByProjectIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `project_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `project_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -3312,12 +3612,16 @@ func FindIssueSummariesByProjectIDTx(ctx context.Context, tx *sql.Tx, value stri
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -3345,12 +3649,16 @@ func FindIssueSummariesByProjectIDTx(ctx context.Context, tx *sql.Tx, value stri
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -3434,11 +3742,20 @@ func FindIssueSummariesByProjectIDTx(ctx context.Context, tx *sql.Tx, value stri
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -3452,9 +3769,38 @@ func FindIssueSummariesByProjectIDTx(ctx context.Context, tx *sql.Tx, value stri
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
 		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
+}
+
+// GetSprints will return the IssueSummary Sprints value
+func (t *IssueSummary) GetSprints() string {
+	if t.Sprints == nil {
+		return ""
+	}
+	return *t.Sprints
+}
+
+// SetSprints will set the IssueSummary Sprints value
+func (t *IssueSummary) SetSprints(v string) {
+	t.Sprints = &v
+}
+
+// GetLabels will return the IssueSummary Labels value
+func (t *IssueSummary) GetLabels() string {
+	if t.Labels == nil {
+		return ""
+	}
+	return *t.Labels
+}
+
+// SetLabels will set the IssueSummary Labels value
+func (t *IssueSummary) SetLabels(v string) {
+	t.Labels = &v
 }
 
 // GetTopLevel will return the IssueSummary TopLevel value
@@ -3469,7 +3815,7 @@ func (t *IssueSummary) SetTopLevel(v bool) {
 
 // FindIssueSummariesByTopLevel will find all IssueSummarys by the TopLevel value
 func FindIssueSummariesByTopLevel(ctx context.Context, db *sql.DB, value bool) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `top_level` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `top_level` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -3506,12 +3852,16 @@ func FindIssueSummariesByTopLevel(ctx context.Context, db *sql.DB, value bool) (
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -3539,12 +3889,16 @@ func FindIssueSummariesByTopLevel(ctx context.Context, db *sql.DB, value bool) (
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -3628,11 +3982,20 @@ func FindIssueSummariesByTopLevel(ctx context.Context, db *sql.DB, value bool) (
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -3646,6 +4009,9 @@ func FindIssueSummariesByTopLevel(ctx context.Context, db *sql.DB, value bool) (
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
 		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -3653,7 +4019,7 @@ func FindIssueSummariesByTopLevel(ctx context.Context, db *sql.DB, value bool) (
 
 // FindIssueSummariesByTopLevelTx will find all IssueSummarys by the TopLevel value using the provided transaction
 func FindIssueSummariesByTopLevelTx(ctx context.Context, tx *sql.Tx, value bool) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `top_level` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `top_level` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -3690,12 +4056,16 @@ func FindIssueSummariesByTopLevelTx(ctx context.Context, tx *sql.Tx, value bool)
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -3723,12 +4093,16 @@ func FindIssueSummariesByTopLevelTx(ctx context.Context, tx *sql.Tx, value bool)
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -3812,11 +4186,20 @@ func FindIssueSummariesByTopLevelTx(ctx context.Context, tx *sql.Tx, value bool)
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -3829,6 +4212,9 @@ func FindIssueSummariesByTopLevelTx(ctx context.Context, tx *sql.Tx, value bool)
 		}
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
+		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
 		}
 		results = append(results, t)
 	}
@@ -3845,6 +4231,16 @@ func (t *IssueSummary) SetIsLeaf(v bool) {
 	t.IsLeaf = v
 }
 
+// GetPath will return the IssueSummary Path value
+func (t *IssueSummary) GetPath() string {
+	return t.Path
+}
+
+// SetPath will set the IssueSummary Path value
+func (t *IssueSummary) SetPath(v string) {
+	t.Path = v
+}
+
 // GetCustomerID will return the IssueSummary CustomerID value
 func (t *IssueSummary) GetCustomerID() string {
 	return t.CustomerID
@@ -3857,7 +4253,7 @@ func (t *IssueSummary) SetCustomerID(v string) {
 
 // FindIssueSummariesByCustomerID will find all IssueSummarys by the CustomerID value
 func FindIssueSummariesByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -3894,12 +4290,16 @@ func FindIssueSummariesByCustomerID(ctx context.Context, db *sql.DB, value strin
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -3927,12 +4327,16 @@ func FindIssueSummariesByCustomerID(ctx context.Context, db *sql.DB, value strin
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -4016,11 +4420,20 @@ func FindIssueSummariesByCustomerID(ctx context.Context, db *sql.DB, value strin
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -4034,6 +4447,9 @@ func FindIssueSummariesByCustomerID(ctx context.Context, db *sql.DB, value strin
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
 		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -4041,7 +4457,7 @@ func FindIssueSummariesByCustomerID(ctx context.Context, db *sql.DB, value strin
 
 // FindIssueSummariesByCustomerIDTx will find all IssueSummarys by the CustomerID value using the provided transaction
 func FindIssueSummariesByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -4078,12 +4494,16 @@ func FindIssueSummariesByCustomerIDTx(ctx context.Context, tx *sql.Tx, value str
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -4111,12 +4531,16 @@ func FindIssueSummariesByCustomerIDTx(ctx context.Context, tx *sql.Tx, value str
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -4200,11 +4624,20 @@ func FindIssueSummariesByCustomerIDTx(ctx context.Context, tx *sql.Tx, value str
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -4217,6 +4650,9 @@ func FindIssueSummariesByCustomerIDTx(ctx context.Context, tx *sql.Tx, value str
 		}
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
+		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
 		}
 		results = append(results, t)
 	}
@@ -4245,7 +4681,7 @@ func (t *IssueSummary) SetRefID(v string) {
 
 // FindIssueSummariesByRefID will find all IssueSummarys by the RefID value
 func FindIssueSummariesByRefID(ctx context.Context, db *sql.DB, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -4282,12 +4718,16 @@ func FindIssueSummariesByRefID(ctx context.Context, db *sql.DB, value string) ([
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -4315,12 +4755,16 @@ func FindIssueSummariesByRefID(ctx context.Context, db *sql.DB, value string) ([
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -4404,11 +4848,20 @@ func FindIssueSummariesByRefID(ctx context.Context, db *sql.DB, value string) ([
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -4422,6 +4875,9 @@ func FindIssueSummariesByRefID(ctx context.Context, db *sql.DB, value string) ([
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
 		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -4429,7 +4885,7 @@ func FindIssueSummariesByRefID(ctx context.Context, db *sql.DB, value string) ([
 
 // FindIssueSummariesByRefIDTx will find all IssueSummarys by the RefID value using the provided transaction
 func FindIssueSummariesByRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -4466,12 +4922,16 @@ func FindIssueSummariesByRefIDTx(ctx context.Context, tx *sql.Tx, value string) 
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -4499,12 +4959,16 @@ func FindIssueSummariesByRefIDTx(ctx context.Context, tx *sql.Tx, value string) 
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -4588,11 +5052,20 @@ func FindIssueSummariesByRefIDTx(ctx context.Context, tx *sql.Tx, value string) 
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -4605,6 +5078,9 @@ func FindIssueSummariesByRefIDTx(ctx context.Context, tx *sql.Tx, value string) 
 		}
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
+		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
 		}
 		results = append(results, t)
 	}
@@ -4624,372 +5100,14 @@ func (t *IssueSummary) SetCustomFieldIdsVirtual(v string) {
 	t.CustomFieldIdsVirtual = &v
 }
 
-// FindIssueSummariesByCustomFieldIdsVirtual will find all IssueSummarys by the CustomFieldIdsVirtual value
-func FindIssueSummariesByCustomFieldIdsVirtual(ctx context.Context, db *sql.DB, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `custom_field_ids_virtual` = ? LIMIT 1"
-	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	results := make([]*IssueSummary, 0)
-	for rows.Next() {
-		var _ID sql.NullString
-		var _Checksum sql.NullString
-		var _IssueID sql.NullString
-		var _TotalIssues sql.NullInt64
-		var _New30Days sql.NullInt64
-		var _TotalClosed sql.NullInt64
-		var _Closed30Days sql.NullInt64
-		var _EstimatedWorkMonths sql.NullFloat64
-		var _EstimatedWorkMonths30Days sql.NullFloat64
-		var _Title sql.NullString
-		var _URL sql.NullString
-		var _Priority sql.NullString
-		var _PriorityID sql.NullString
-		var _Status sql.NullString
-		var _StatusID sql.NullString
-		var _IssueType sql.NullString
-		var _IssueTypeID sql.NullString
-		var _Resolution sql.NullString
-		var _ResolutionID sql.NullString
-		var _State sql.NullString
-		var _CustomFieldIds sql.NullString
-		var _Teams sql.NullString
-		var _ParentIssueID sql.NullString
-		var _ParentsIssueIds sql.NullString
-		var _Metadata sql.NullString
-		var _ProjectID sql.NullString
-		var _TopLevel sql.NullBool
-		var _IsLeaf sql.NullBool
-		var _CustomerID sql.NullString
-		var _RefType sql.NullString
-		var _RefID sql.NullString
-		var _CustomFieldIdsVirtual sql.NullString
-		err := rows.Scan(
-			&_ID,
-			&_Checksum,
-			&_IssueID,
-			&_TotalIssues,
-			&_New30Days,
-			&_TotalClosed,
-			&_Closed30Days,
-			&_EstimatedWorkMonths,
-			&_EstimatedWorkMonths30Days,
-			&_Title,
-			&_URL,
-			&_Priority,
-			&_PriorityID,
-			&_Status,
-			&_StatusID,
-			&_IssueType,
-			&_IssueTypeID,
-			&_Resolution,
-			&_ResolutionID,
-			&_State,
-			&_CustomFieldIds,
-			&_Teams,
-			&_ParentIssueID,
-			&_ParentsIssueIds,
-			&_Metadata,
-			&_ProjectID,
-			&_TopLevel,
-			&_IsLeaf,
-			&_CustomerID,
-			&_RefType,
-			&_RefID,
-			&_CustomFieldIdsVirtual,
-		)
-		if err != nil {
-			return nil, err
-		}
-		t := &IssueSummary{}
-		if _ID.Valid {
-			t.SetID(_ID.String)
-		}
-		if _Checksum.Valid {
-			t.SetChecksum(_Checksum.String)
-		}
-		if _IssueID.Valid {
-			t.SetIssueID(_IssueID.String)
-		}
-		if _TotalIssues.Valid {
-			t.SetTotalIssues(int32(_TotalIssues.Int64))
-		}
-		if _New30Days.Valid {
-			t.SetNew30Days(int32(_New30Days.Int64))
-		}
-		if _TotalClosed.Valid {
-			t.SetTotalClosed(int32(_TotalClosed.Int64))
-		}
-		if _Closed30Days.Valid {
-			t.SetClosed30Days(int32(_Closed30Days.Int64))
-		}
-		if _EstimatedWorkMonths.Valid {
-			t.SetEstimatedWorkMonths(_EstimatedWorkMonths.Float64)
-		}
-		if _EstimatedWorkMonths30Days.Valid {
-			t.SetEstimatedWorkMonths30Days(_EstimatedWorkMonths30Days.Float64)
-		}
-		if _Title.Valid {
-			t.SetTitle(_Title.String)
-		}
-		if _URL.Valid {
-			t.SetURL(_URL.String)
-		}
-		if _Priority.Valid {
-			t.SetPriority(_Priority.String)
-		}
-		if _PriorityID.Valid {
-			t.SetPriorityID(_PriorityID.String)
-		}
-		if _Status.Valid {
-			t.SetStatus(_Status.String)
-		}
-		if _StatusID.Valid {
-			t.SetStatusID(_StatusID.String)
-		}
-		if _IssueType.Valid {
-			t.SetIssueType(_IssueType.String)
-		}
-		if _IssueTypeID.Valid {
-			t.SetIssueTypeID(_IssueTypeID.String)
-		}
-		if _Resolution.Valid {
-			t.SetResolution(_Resolution.String)
-		}
-		if _ResolutionID.Valid {
-			t.SetResolutionID(_ResolutionID.String)
-		}
-		if _State.Valid {
-			t.SetState(_State.String)
-		}
-		if _CustomFieldIds.Valid {
-			t.SetCustomFieldIds(_CustomFieldIds.String)
-		}
-		if _Teams.Valid {
-			t.SetTeams(_Teams.String)
-		}
-		if _ParentIssueID.Valid {
-			t.SetParentIssueID(_ParentIssueID.String)
-		}
-		if _ParentsIssueIds.Valid {
-			t.SetParentsIssueIds(_ParentsIssueIds.String)
-		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
-		}
-		if _ProjectID.Valid {
-			t.SetProjectID(_ProjectID.String)
-		}
-		if _TopLevel.Valid {
-			t.SetTopLevel(_TopLevel.Bool)
-		}
-		if _IsLeaf.Valid {
-			t.SetIsLeaf(_IsLeaf.Bool)
-		}
-		if _CustomerID.Valid {
-			t.SetCustomerID(_CustomerID.String)
-		}
-		if _RefType.Valid {
-			t.SetRefType(_RefType.String)
-		}
-		if _RefID.Valid {
-			t.SetRefID(_RefID.String)
-		}
-		if _CustomFieldIdsVirtual.Valid {
-			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
-		}
-		results = append(results, t)
-	}
-	return results, nil
+// GetReleaseDuration will return the IssueSummary ReleaseDuration value
+func (t *IssueSummary) GetReleaseDuration() int64 {
+	return t.ReleaseDuration
 }
 
-// FindIssueSummariesByCustomFieldIdsVirtualTx will find all IssueSummarys by the CustomFieldIdsVirtual value using the provided transaction
-func FindIssueSummariesByCustomFieldIdsVirtualTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueSummary, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `custom_field_ids_virtual` = ? LIMIT 1"
-	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	results := make([]*IssueSummary, 0)
-	for rows.Next() {
-		var _ID sql.NullString
-		var _Checksum sql.NullString
-		var _IssueID sql.NullString
-		var _TotalIssues sql.NullInt64
-		var _New30Days sql.NullInt64
-		var _TotalClosed sql.NullInt64
-		var _Closed30Days sql.NullInt64
-		var _EstimatedWorkMonths sql.NullFloat64
-		var _EstimatedWorkMonths30Days sql.NullFloat64
-		var _Title sql.NullString
-		var _URL sql.NullString
-		var _Priority sql.NullString
-		var _PriorityID sql.NullString
-		var _Status sql.NullString
-		var _StatusID sql.NullString
-		var _IssueType sql.NullString
-		var _IssueTypeID sql.NullString
-		var _Resolution sql.NullString
-		var _ResolutionID sql.NullString
-		var _State sql.NullString
-		var _CustomFieldIds sql.NullString
-		var _Teams sql.NullString
-		var _ParentIssueID sql.NullString
-		var _ParentsIssueIds sql.NullString
-		var _Metadata sql.NullString
-		var _ProjectID sql.NullString
-		var _TopLevel sql.NullBool
-		var _IsLeaf sql.NullBool
-		var _CustomerID sql.NullString
-		var _RefType sql.NullString
-		var _RefID sql.NullString
-		var _CustomFieldIdsVirtual sql.NullString
-		err := rows.Scan(
-			&_ID,
-			&_Checksum,
-			&_IssueID,
-			&_TotalIssues,
-			&_New30Days,
-			&_TotalClosed,
-			&_Closed30Days,
-			&_EstimatedWorkMonths,
-			&_EstimatedWorkMonths30Days,
-			&_Title,
-			&_URL,
-			&_Priority,
-			&_PriorityID,
-			&_Status,
-			&_StatusID,
-			&_IssueType,
-			&_IssueTypeID,
-			&_Resolution,
-			&_ResolutionID,
-			&_State,
-			&_CustomFieldIds,
-			&_Teams,
-			&_ParentIssueID,
-			&_ParentsIssueIds,
-			&_Metadata,
-			&_ProjectID,
-			&_TopLevel,
-			&_IsLeaf,
-			&_CustomerID,
-			&_RefType,
-			&_RefID,
-			&_CustomFieldIdsVirtual,
-		)
-		if err != nil {
-			return nil, err
-		}
-		t := &IssueSummary{}
-		if _ID.Valid {
-			t.SetID(_ID.String)
-		}
-		if _Checksum.Valid {
-			t.SetChecksum(_Checksum.String)
-		}
-		if _IssueID.Valid {
-			t.SetIssueID(_IssueID.String)
-		}
-		if _TotalIssues.Valid {
-			t.SetTotalIssues(int32(_TotalIssues.Int64))
-		}
-		if _New30Days.Valid {
-			t.SetNew30Days(int32(_New30Days.Int64))
-		}
-		if _TotalClosed.Valid {
-			t.SetTotalClosed(int32(_TotalClosed.Int64))
-		}
-		if _Closed30Days.Valid {
-			t.SetClosed30Days(int32(_Closed30Days.Int64))
-		}
-		if _EstimatedWorkMonths.Valid {
-			t.SetEstimatedWorkMonths(_EstimatedWorkMonths.Float64)
-		}
-		if _EstimatedWorkMonths30Days.Valid {
-			t.SetEstimatedWorkMonths30Days(_EstimatedWorkMonths30Days.Float64)
-		}
-		if _Title.Valid {
-			t.SetTitle(_Title.String)
-		}
-		if _URL.Valid {
-			t.SetURL(_URL.String)
-		}
-		if _Priority.Valid {
-			t.SetPriority(_Priority.String)
-		}
-		if _PriorityID.Valid {
-			t.SetPriorityID(_PriorityID.String)
-		}
-		if _Status.Valid {
-			t.SetStatus(_Status.String)
-		}
-		if _StatusID.Valid {
-			t.SetStatusID(_StatusID.String)
-		}
-		if _IssueType.Valid {
-			t.SetIssueType(_IssueType.String)
-		}
-		if _IssueTypeID.Valid {
-			t.SetIssueTypeID(_IssueTypeID.String)
-		}
-		if _Resolution.Valid {
-			t.SetResolution(_Resolution.String)
-		}
-		if _ResolutionID.Valid {
-			t.SetResolutionID(_ResolutionID.String)
-		}
-		if _State.Valid {
-			t.SetState(_State.String)
-		}
-		if _CustomFieldIds.Valid {
-			t.SetCustomFieldIds(_CustomFieldIds.String)
-		}
-		if _Teams.Valid {
-			t.SetTeams(_Teams.String)
-		}
-		if _ParentIssueID.Valid {
-			t.SetParentIssueID(_ParentIssueID.String)
-		}
-		if _ParentsIssueIds.Valid {
-			t.SetParentsIssueIds(_ParentsIssueIds.String)
-		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
-		}
-		if _ProjectID.Valid {
-			t.SetProjectID(_ProjectID.String)
-		}
-		if _TopLevel.Valid {
-			t.SetTopLevel(_TopLevel.Bool)
-		}
-		if _IsLeaf.Valid {
-			t.SetIsLeaf(_IsLeaf.Bool)
-		}
-		if _CustomerID.Valid {
-			t.SetCustomerID(_CustomerID.String)
-		}
-		if _RefType.Valid {
-			t.SetRefType(_RefType.String)
-		}
-		if _RefID.Valid {
-			t.SetRefID(_RefID.String)
-		}
-		if _CustomFieldIdsVirtual.Valid {
-			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
-		}
-		results = append(results, t)
-	}
-	return results, nil
+// SetReleaseDuration will set the IssueSummary ReleaseDuration value
+func (t *IssueSummary) SetReleaseDuration(v int64) {
+	t.ReleaseDuration = v
 }
 
 func (t *IssueSummary) toTimestamp(value time.Time) *timestamp.Timestamp {
@@ -4999,14 +5117,14 @@ func (t *IssueSummary) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateIssueSummaryTable will create the IssueSummary table
 func DBCreateIssueSummaryTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `issue_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`issue_id` VARCHAR(64) NOT NULL,`total_issues` INT(10) UNSIGNED NOT NULL,`new30_days`INT(10) UNSIGNED NOT NULL,`total_closed` INT(10) UNSIGNED NOT NULL,`closed30_days`INT(10) UNSIGNED NOT NULL,`estimated_work_months` FLOAT NOT NULL,`estimated_work_months30_days` FLOAT NOT NULL,`title` TEXT NOT NULL,`url` TEXT,`priority` VARCHAR(100),`priority_id` VARCHAR(64),`status` VARCHAR(100),`status_id` VARCHAR(64),`issue_type`VARCHAR(100) NOT NULL,`issue_type_id`VARCHAR(64),`resolution`VARCHAR(100),`resolution_id`VARCHAR(64),`state` VARCHAR(10) NOT NULL,`custom_field_ids`JSON,`teams` JSON,`parent_issue_id` VARCHAR(64),`parents_issue_ids` JSON,`metadata` JSON,`project_id`VARCHAR(64) NOT NULL,`top_level` TINYINT(3) UNSIGNED NOT NULL,`is_leaf`TINYINT(3) UNSIGNED NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`custom_field_ids_virtual` TEXT,INDEX issue_summary_issue_id_index (`issue_id`),INDEX issue_summary_priority_id_index (`priority_id`),INDEX issue_summary_issue_type_id_index (`issue_type_id`),INDEX issue_summary_resolution_id_index (`resolution_id`),INDEX issue_summary_parent_issue_id_index (`parent_issue_id`),INDEX issue_summary_project_id_index (`project_id`),INDEX issue_summary_top_level_index (`top_level`),INDEX issue_summary_customer_id_index (`customer_id`),INDEX issue_summary_ref_id_index (`ref_id`),FULLTEXT issue_summary_custom_field_ids_virtual_index (`custom_field_ids_virtual`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `issue_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`issue_id` VARCHAR(64) NOT NULL,`total_issues` INT UNSIGNED NOT NULL,`new30_days`INT UNSIGNED NOT NULL,`total_closed` INT UNSIGNED NOT NULL,`closed30_days`INT UNSIGNED NOT NULL,`estimated_work_months` FLOAT NOT NULL,`estimated_work_months30_days` FLOAT NOT NULL,`title` TEXT NOT NULL,`url` TEXT,`priority` VARCHAR(100),`priority_id` VARCHAR(64),`status` VARCHAR(100),`status_id` VARCHAR(64),`issue_type`VARCHAR(100) NOT NULL,`issue_type_id`VARCHAR(64),`resolution`VARCHAR(100),`resolution_id`VARCHAR(64),`state` VARCHAR(10) NOT NULL,`custom_field_ids`JSON,`teams` JSON,`parent_issue_id` VARCHAR(64),`parents_issue_ids` JSON,`metadata` JSON,`project_id`VARCHAR(64) NOT NULL,`sprints`JSON,`labels` JSON,`top_level` TINYINT UNSIGNED NOT NULL,`is_leaf`TINYINT UNSIGNED NOT NULL,`path`VARCHAR(1024) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`custom_field_ids_virtual` TEXT,`release_duration`BIGINT NOT NULL,INDEX issue_summary_issue_id_index (`issue_id`),INDEX issue_summary_priority_id_index (`priority_id`),INDEX issue_summary_issue_type_id_index (`issue_type_id`),INDEX issue_summary_resolution_id_index (`resolution_id`),INDEX issue_summary_parent_issue_id_index (`parent_issue_id`),INDEX issue_summary_project_id_index (`project_id`),INDEX issue_summary_top_level_index (`top_level`),INDEX issue_summary_customer_id_index (`customer_id`),INDEX issue_summary_ref_id_index (`ref_id`),INDEX issue_summary_customer_id_parent_issue_id_index (`customer_id`,`parent_issue_id`),INDEX issue_summary_customer_id_top_level_index (`customer_id`,`top_level`),INDEX issue_summary_customer_id_top_level_issue_type_id_index (`customer_id`,`top_level`,`issue_type_id`),INDEX issue_summary_customer_id_top_level_issue_type_id_priority_id_in (`customer_id`,`top_level`,`issue_type_id`,`priority_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateIssueSummaryTableTx will create the IssueSummary table using the provided transction
 func DBCreateIssueSummaryTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `issue_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`issue_id` VARCHAR(64) NOT NULL,`total_issues` INT(10) UNSIGNED NOT NULL,`new30_days`INT(10) UNSIGNED NOT NULL,`total_closed` INT(10) UNSIGNED NOT NULL,`closed30_days`INT(10) UNSIGNED NOT NULL,`estimated_work_months` FLOAT NOT NULL,`estimated_work_months30_days` FLOAT NOT NULL,`title` TEXT NOT NULL,`url` TEXT,`priority` VARCHAR(100),`priority_id` VARCHAR(64),`status` VARCHAR(100),`status_id` VARCHAR(64),`issue_type`VARCHAR(100) NOT NULL,`issue_type_id`VARCHAR(64),`resolution`VARCHAR(100),`resolution_id`VARCHAR(64),`state` VARCHAR(10) NOT NULL,`custom_field_ids`JSON,`teams` JSON,`parent_issue_id` VARCHAR(64),`parents_issue_ids` JSON,`metadata` JSON,`project_id`VARCHAR(64) NOT NULL,`top_level` TINYINT(3) UNSIGNED NOT NULL,`is_leaf`TINYINT(3) UNSIGNED NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`custom_field_ids_virtual` TEXT,INDEX issue_summary_issue_id_index (`issue_id`),INDEX issue_summary_priority_id_index (`priority_id`),INDEX issue_summary_issue_type_id_index (`issue_type_id`),INDEX issue_summary_resolution_id_index (`resolution_id`),INDEX issue_summary_parent_issue_id_index (`parent_issue_id`),INDEX issue_summary_project_id_index (`project_id`),INDEX issue_summary_top_level_index (`top_level`),INDEX issue_summary_customer_id_index (`customer_id`),INDEX issue_summary_ref_id_index (`ref_id`),FULLTEXT issue_summary_custom_field_ids_virtual_index (`custom_field_ids_virtual`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `issue_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`issue_id` VARCHAR(64) NOT NULL,`total_issues` INT UNSIGNED NOT NULL,`new30_days`INT UNSIGNED NOT NULL,`total_closed` INT UNSIGNED NOT NULL,`closed30_days`INT UNSIGNED NOT NULL,`estimated_work_months` FLOAT NOT NULL,`estimated_work_months30_days` FLOAT NOT NULL,`title` TEXT NOT NULL,`url` TEXT,`priority` VARCHAR(100),`priority_id` VARCHAR(64),`status` VARCHAR(100),`status_id` VARCHAR(64),`issue_type`VARCHAR(100) NOT NULL,`issue_type_id`VARCHAR(64),`resolution`VARCHAR(100),`resolution_id`VARCHAR(64),`state` VARCHAR(10) NOT NULL,`custom_field_ids`JSON,`teams` JSON,`parent_issue_id` VARCHAR(64),`parents_issue_ids` JSON,`metadata` JSON,`project_id`VARCHAR(64) NOT NULL,`sprints`JSON,`labels` JSON,`top_level` TINYINT UNSIGNED NOT NULL,`is_leaf`TINYINT UNSIGNED NOT NULL,`path`VARCHAR(1024) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`custom_field_ids_virtual` TEXT,`release_duration`BIGINT NOT NULL,INDEX issue_summary_issue_id_index (`issue_id`),INDEX issue_summary_priority_id_index (`priority_id`),INDEX issue_summary_issue_type_id_index (`issue_type_id`),INDEX issue_summary_resolution_id_index (`resolution_id`),INDEX issue_summary_parent_issue_id_index (`parent_issue_id`),INDEX issue_summary_project_id_index (`project_id`),INDEX issue_summary_top_level_index (`top_level`),INDEX issue_summary_customer_id_index (`customer_id`),INDEX issue_summary_ref_id_index (`ref_id`),INDEX issue_summary_customer_id_parent_issue_id_index (`customer_id`,`parent_issue_id`),INDEX issue_summary_customer_id_top_level_index (`customer_id`,`top_level`),INDEX issue_summary_customer_id_top_level_issue_type_id_index (`customer_id`,`top_level`,`issue_type_id`),INDEX issue_summary_customer_id_top_level_issue_type_id_priority_id_in (`customer_id`,`top_level`,`issue_type_id`,`priority_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
@@ -5053,18 +5171,22 @@ func (t *IssueSummary) CalculateChecksum() string {
 		orm.ToString(t.ParentsIssueIds),
 		orm.ToString(t.Metadata),
 		orm.ToString(t.ProjectID),
+		orm.ToString(t.Sprints),
+		orm.ToString(t.Labels),
 		orm.ToString(t.TopLevel),
 		orm.ToString(t.IsLeaf),
+		orm.ToString(t.Path),
 		orm.ToString(t.CustomerID),
 		orm.ToString(t.RefType),
 		orm.ToString(t.RefID),
 		orm.ToString(t.CustomFieldIdsVirtual),
+		orm.ToString(t.ReleaseDuration),
 	)
 }
 
 // DBCreate will create a new IssueSummary record in the database
 func (t *IssueSummary) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
-	q := "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -5097,18 +5219,22 @@ func (t *IssueSummary) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, er
 		orm.ToSQLString(t.ParentsIssueIds),
 		orm.ToSQLString(t.Metadata),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.Sprints),
+		orm.ToSQLString(t.Labels),
 		orm.ToSQLBool(t.TopLevel),
 		orm.ToSQLBool(t.IsLeaf),
+		orm.ToSQLString(t.Path),
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLString(t.RefID),
 		orm.ToSQLString(t.CustomFieldIdsVirtual),
+		orm.ToSQLInt64(t.ReleaseDuration),
 	)
 }
 
 // DBCreateTx will create a new IssueSummary record in the database using the provided transaction
 func (t *IssueSummary) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
-	q := "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -5141,18 +5267,22 @@ func (t *IssueSummary) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, 
 		orm.ToSQLString(t.ParentsIssueIds),
 		orm.ToSQLString(t.Metadata),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.Sprints),
+		orm.ToSQLString(t.Labels),
 		orm.ToSQLBool(t.TopLevel),
 		orm.ToSQLBool(t.IsLeaf),
+		orm.ToSQLString(t.Path),
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLString(t.RefID),
 		orm.ToSQLString(t.CustomFieldIdsVirtual),
+		orm.ToSQLInt64(t.ReleaseDuration),
 	)
 }
 
 // DBCreateIgnoreDuplicate will upsert the IssueSummary record in the database
 func (t *IssueSummary) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
-	q := "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -5185,18 +5315,22 @@ func (t *IssueSummary) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) 
 		orm.ToSQLString(t.ParentsIssueIds),
 		orm.ToSQLString(t.Metadata),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.Sprints),
+		orm.ToSQLString(t.Labels),
 		orm.ToSQLBool(t.TopLevel),
 		orm.ToSQLBool(t.IsLeaf),
+		orm.ToSQLString(t.Path),
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLString(t.RefID),
 		orm.ToSQLString(t.CustomFieldIdsVirtual),
+		orm.ToSQLInt64(t.ReleaseDuration),
 	)
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the IssueSummary record in the database using the provided transaction
 func (t *IssueSummary) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
-	q := "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -5229,12 +5363,16 @@ func (t *IssueSummary) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx
 		orm.ToSQLString(t.ParentsIssueIds),
 		orm.ToSQLString(t.Metadata),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.Sprints),
+		orm.ToSQLString(t.Labels),
 		orm.ToSQLBool(t.TopLevel),
 		orm.ToSQLBool(t.IsLeaf),
+		orm.ToSQLString(t.Path),
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLString(t.RefID),
 		orm.ToSQLString(t.CustomFieldIdsVirtual),
+		orm.ToSQLInt64(t.ReleaseDuration),
 	)
 }
 
@@ -5303,7 +5441,7 @@ func (t *IssueSummary) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, er
 		return nil, nil
 	}
 	t.Checksum = &checksum
-	q := "UPDATE `issue_summary` SET `checksum`=?,`issue_id`=?,`total_issues`=?,`new30_days`=?,`total_closed`=?,`closed30_days`=?,`estimated_work_months`=?,`estimated_work_months30_days`=?,`title`=?,`url`=?,`priority`=?,`priority_id`=?,`status`=?,`status_id`=?,`issue_type`=?,`issue_type_id`=?,`resolution`=?,`resolution_id`=?,`state`=?,`custom_field_ids`=?,`teams`=?,`parent_issue_id`=?,`parents_issue_ids`=?,`metadata`=?,`project_id`=?,`top_level`=?,`is_leaf`=?,`customer_id`=?,`ref_type`=?,`ref_id`=?,`custom_field_ids_virtual`=? WHERE `id`=?"
+	q := "UPDATE `issue_summary` SET `checksum`=?,`issue_id`=?,`total_issues`=?,`new30_days`=?,`total_closed`=?,`closed30_days`=?,`estimated_work_months`=?,`estimated_work_months30_days`=?,`title`=?,`url`=?,`priority`=?,`priority_id`=?,`status`=?,`status_id`=?,`issue_type`=?,`issue_type_id`=?,`resolution`=?,`resolution_id`=?,`state`=?,`custom_field_ids`=?,`teams`=?,`parent_issue_id`=?,`parents_issue_ids`=?,`metadata`=?,`project_id`=?,`sprints`=?,`labels`=?,`top_level`=?,`is_leaf`=?,`path`=?,`customer_id`=?,`ref_type`=?,`ref_id`=?,`custom_field_ids_virtual`=?,`release_duration`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.Checksum),
 		orm.ToSQLString(t.IssueID),
@@ -5330,12 +5468,16 @@ func (t *IssueSummary) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, er
 		orm.ToSQLString(t.ParentsIssueIds),
 		orm.ToSQLString(t.Metadata),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.Sprints),
+		orm.ToSQLString(t.Labels),
 		orm.ToSQLBool(t.TopLevel),
 		orm.ToSQLBool(t.IsLeaf),
+		orm.ToSQLString(t.Path),
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLString(t.RefID),
 		orm.ToSQLString(t.CustomFieldIdsVirtual),
+		orm.ToSQLInt64(t.ReleaseDuration),
 		orm.ToSQLString(t.ID),
 	)
 }
@@ -5347,7 +5489,7 @@ func (t *IssueSummary) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, 
 		return nil, nil
 	}
 	t.Checksum = &checksum
-	q := "UPDATE `issue_summary` SET `checksum`=?,`issue_id`=?,`total_issues`=?,`new30_days`=?,`total_closed`=?,`closed30_days`=?,`estimated_work_months`=?,`estimated_work_months30_days`=?,`title`=?,`url`=?,`priority`=?,`priority_id`=?,`status`=?,`status_id`=?,`issue_type`=?,`issue_type_id`=?,`resolution`=?,`resolution_id`=?,`state`=?,`custom_field_ids`=?,`teams`=?,`parent_issue_id`=?,`parents_issue_ids`=?,`metadata`=?,`project_id`=?,`top_level`=?,`is_leaf`=?,`customer_id`=?,`ref_type`=?,`ref_id`=?,`custom_field_ids_virtual`=? WHERE `id`=?"
+	q := "UPDATE `issue_summary` SET `checksum`=?,`issue_id`=?,`total_issues`=?,`new30_days`=?,`total_closed`=?,`closed30_days`=?,`estimated_work_months`=?,`estimated_work_months30_days`=?,`title`=?,`url`=?,`priority`=?,`priority_id`=?,`status`=?,`status_id`=?,`issue_type`=?,`issue_type_id`=?,`resolution`=?,`resolution_id`=?,`state`=?,`custom_field_ids`=?,`teams`=?,`parent_issue_id`=?,`parents_issue_ids`=?,`metadata`=?,`project_id`=?,`sprints`=?,`labels`=?,`top_level`=?,`is_leaf`=?,`path`=?,`customer_id`=?,`ref_type`=?,`ref_id`=?,`custom_field_ids_virtual`=?,`release_duration`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.Checksum),
 		orm.ToSQLString(t.IssueID),
@@ -5374,12 +5516,16 @@ func (t *IssueSummary) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, 
 		orm.ToSQLString(t.ParentsIssueIds),
 		orm.ToSQLString(t.Metadata),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.Sprints),
+		orm.ToSQLString(t.Labels),
 		orm.ToSQLBool(t.TopLevel),
 		orm.ToSQLBool(t.IsLeaf),
+		orm.ToSQLString(t.Path),
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLString(t.RefID),
 		orm.ToSQLString(t.CustomFieldIdsVirtual),
+		orm.ToSQLInt64(t.ReleaseDuration),
 		orm.ToSQLString(t.ID),
 	)
 }
@@ -5393,12 +5539,12 @@ func (t *IssueSummary) DBUpsert(ctx context.Context, db *sql.DB, conditions ...i
 	t.Checksum = &checksum
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `checksum`=VALUES(`checksum`),`issue_id`=VALUES(`issue_id`),`total_issues`=VALUES(`total_issues`),`new30_days`=VALUES(`new30_days`),`total_closed`=VALUES(`total_closed`),`closed30_days`=VALUES(`closed30_days`),`estimated_work_months`=VALUES(`estimated_work_months`),`estimated_work_months30_days`=VALUES(`estimated_work_months30_days`),`title`=VALUES(`title`),`url`=VALUES(`url`),`priority`=VALUES(`priority`),`priority_id`=VALUES(`priority_id`),`status`=VALUES(`status`),`status_id`=VALUES(`status_id`),`issue_type`=VALUES(`issue_type`),`issue_type_id`=VALUES(`issue_type_id`),`resolution`=VALUES(`resolution`),`resolution_id`=VALUES(`resolution_id`),`state`=VALUES(`state`),`custom_field_ids`=VALUES(`custom_field_ids`),`teams`=VALUES(`teams`),`parent_issue_id`=VALUES(`parent_issue_id`),`parents_issue_ids`=VALUES(`parents_issue_ids`),`metadata`=VALUES(`metadata`),`project_id`=VALUES(`project_id`),`top_level`=VALUES(`top_level`),`is_leaf`=VALUES(`is_leaf`),`customer_id`=VALUES(`customer_id`),`ref_type`=VALUES(`ref_type`),`ref_id`=VALUES(`ref_id`),`custom_field_ids_virtual`=VALUES(`custom_field_ids_virtual`)"
+		q = "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `checksum`=VALUES(`checksum`),`issue_id`=VALUES(`issue_id`),`total_issues`=VALUES(`total_issues`),`new30_days`=VALUES(`new30_days`),`total_closed`=VALUES(`total_closed`),`closed30_days`=VALUES(`closed30_days`),`estimated_work_months`=VALUES(`estimated_work_months`),`estimated_work_months30_days`=VALUES(`estimated_work_months30_days`),`title`=VALUES(`title`),`url`=VALUES(`url`),`priority`=VALUES(`priority`),`priority_id`=VALUES(`priority_id`),`status`=VALUES(`status`),`status_id`=VALUES(`status_id`),`issue_type`=VALUES(`issue_type`),`issue_type_id`=VALUES(`issue_type_id`),`resolution`=VALUES(`resolution`),`resolution_id`=VALUES(`resolution_id`),`state`=VALUES(`state`),`custom_field_ids`=VALUES(`custom_field_ids`),`teams`=VALUES(`teams`),`parent_issue_id`=VALUES(`parent_issue_id`),`parents_issue_ids`=VALUES(`parents_issue_ids`),`metadata`=VALUES(`metadata`),`project_id`=VALUES(`project_id`),`sprints`=VALUES(`sprints`),`labels`=VALUES(`labels`),`top_level`=VALUES(`top_level`),`is_leaf`=VALUES(`is_leaf`),`path`=VALUES(`path`),`customer_id`=VALUES(`customer_id`),`ref_type`=VALUES(`ref_type`),`ref_id`=VALUES(`ref_id`),`custom_field_ids_virtual`=VALUES(`custom_field_ids_virtual`),`release_duration`=VALUES(`release_duration`)"
 	}
 	r, err := db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -5427,12 +5573,16 @@ func (t *IssueSummary) DBUpsert(ctx context.Context, db *sql.DB, conditions ...i
 		orm.ToSQLString(t.ParentsIssueIds),
 		orm.ToSQLString(t.Metadata),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.Sprints),
+		orm.ToSQLString(t.Labels),
 		orm.ToSQLBool(t.TopLevel),
 		orm.ToSQLBool(t.IsLeaf),
+		orm.ToSQLString(t.Path),
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLString(t.RefID),
 		orm.ToSQLString(t.CustomFieldIdsVirtual),
+		orm.ToSQLInt64(t.ReleaseDuration),
 	)
 	if err != nil {
 		return false, false, err
@@ -5450,12 +5600,12 @@ func (t *IssueSummary) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ..
 	t.Checksum = &checksum
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `checksum`=VALUES(`checksum`),`issue_id`=VALUES(`issue_id`),`total_issues`=VALUES(`total_issues`),`new30_days`=VALUES(`new30_days`),`total_closed`=VALUES(`total_closed`),`closed30_days`=VALUES(`closed30_days`),`estimated_work_months`=VALUES(`estimated_work_months`),`estimated_work_months30_days`=VALUES(`estimated_work_months30_days`),`title`=VALUES(`title`),`url`=VALUES(`url`),`priority`=VALUES(`priority`),`priority_id`=VALUES(`priority_id`),`status`=VALUES(`status`),`status_id`=VALUES(`status_id`),`issue_type`=VALUES(`issue_type`),`issue_type_id`=VALUES(`issue_type_id`),`resolution`=VALUES(`resolution`),`resolution_id`=VALUES(`resolution_id`),`state`=VALUES(`state`),`custom_field_ids`=VALUES(`custom_field_ids`),`teams`=VALUES(`teams`),`parent_issue_id`=VALUES(`parent_issue_id`),`parents_issue_ids`=VALUES(`parents_issue_ids`),`metadata`=VALUES(`metadata`),`project_id`=VALUES(`project_id`),`top_level`=VALUES(`top_level`),`is_leaf`=VALUES(`is_leaf`),`customer_id`=VALUES(`customer_id`),`ref_type`=VALUES(`ref_type`),`ref_id`=VALUES(`ref_id`),`custom_field_ids_virtual`=VALUES(`custom_field_ids_virtual`)"
+		q = "INSERT INTO `issue_summary` (`issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `checksum`=VALUES(`checksum`),`issue_id`=VALUES(`issue_id`),`total_issues`=VALUES(`total_issues`),`new30_days`=VALUES(`new30_days`),`total_closed`=VALUES(`total_closed`),`closed30_days`=VALUES(`closed30_days`),`estimated_work_months`=VALUES(`estimated_work_months`),`estimated_work_months30_days`=VALUES(`estimated_work_months30_days`),`title`=VALUES(`title`),`url`=VALUES(`url`),`priority`=VALUES(`priority`),`priority_id`=VALUES(`priority_id`),`status`=VALUES(`status`),`status_id`=VALUES(`status_id`),`issue_type`=VALUES(`issue_type`),`issue_type_id`=VALUES(`issue_type_id`),`resolution`=VALUES(`resolution`),`resolution_id`=VALUES(`resolution_id`),`state`=VALUES(`state`),`custom_field_ids`=VALUES(`custom_field_ids`),`teams`=VALUES(`teams`),`parent_issue_id`=VALUES(`parent_issue_id`),`parents_issue_ids`=VALUES(`parents_issue_ids`),`metadata`=VALUES(`metadata`),`project_id`=VALUES(`project_id`),`sprints`=VALUES(`sprints`),`labels`=VALUES(`labels`),`top_level`=VALUES(`top_level`),`is_leaf`=VALUES(`is_leaf`),`path`=VALUES(`path`),`customer_id`=VALUES(`customer_id`),`ref_type`=VALUES(`ref_type`),`ref_id`=VALUES(`ref_id`),`custom_field_ids_virtual`=VALUES(`custom_field_ids_virtual`),`release_duration`=VALUES(`release_duration`)"
 	}
 	r, err := tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -5484,12 +5634,16 @@ func (t *IssueSummary) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ..
 		orm.ToSQLString(t.ParentsIssueIds),
 		orm.ToSQLString(t.Metadata),
 		orm.ToSQLString(t.ProjectID),
+		orm.ToSQLString(t.Sprints),
+		orm.ToSQLString(t.Labels),
 		orm.ToSQLBool(t.TopLevel),
 		orm.ToSQLBool(t.IsLeaf),
+		orm.ToSQLString(t.Path),
 		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLString(t.RefID),
 		orm.ToSQLString(t.CustomFieldIdsVirtual),
+		orm.ToSQLInt64(t.ReleaseDuration),
 	)
 	if err != nil {
 		return false, false, err
@@ -5500,7 +5654,7 @@ func (t *IssueSummary) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ..
 
 // DBFindOne will find a IssueSummary record in the database with the primary key
 func (t *IssueSummary) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -5528,12 +5682,16 @@ func (t *IssueSummary) DBFindOne(ctx context.Context, db *sql.DB, value string) 
 	var _ParentsIssueIds sql.NullString
 	var _Metadata sql.NullString
 	var _ProjectID sql.NullString
+	var _Sprints sql.NullString
+	var _Labels sql.NullString
 	var _TopLevel sql.NullBool
 	var _IsLeaf sql.NullBool
+	var _Path sql.NullString
 	var _CustomerID sql.NullString
 	var _RefType sql.NullString
 	var _RefID sql.NullString
 	var _CustomFieldIdsVirtual sql.NullString
+	var _ReleaseDuration sql.NullInt64
 	err := row.Scan(
 		&_ID,
 		&_Checksum,
@@ -5561,12 +5719,16 @@ func (t *IssueSummary) DBFindOne(ctx context.Context, db *sql.DB, value string) 
 		&_ParentsIssueIds,
 		&_Metadata,
 		&_ProjectID,
+		&_Sprints,
+		&_Labels,
 		&_TopLevel,
 		&_IsLeaf,
+		&_Path,
 		&_CustomerID,
 		&_RefType,
 		&_RefID,
 		&_CustomFieldIdsVirtual,
+		&_ReleaseDuration,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -5652,11 +5814,20 @@ func (t *IssueSummary) DBFindOne(ctx context.Context, db *sql.DB, value string) 
 	if _ProjectID.Valid {
 		t.SetProjectID(_ProjectID.String)
 	}
+	if _Sprints.Valid {
+		t.SetSprints(_Sprints.String)
+	}
+	if _Labels.Valid {
+		t.SetLabels(_Labels.String)
+	}
 	if _TopLevel.Valid {
 		t.SetTopLevel(_TopLevel.Bool)
 	}
 	if _IsLeaf.Valid {
 		t.SetIsLeaf(_IsLeaf.Bool)
+	}
+	if _Path.Valid {
+		t.SetPath(_Path.String)
 	}
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
@@ -5670,12 +5841,15 @@ func (t *IssueSummary) DBFindOne(ctx context.Context, db *sql.DB, value string) 
 	if _CustomFieldIdsVirtual.Valid {
 		t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
 	}
+	if _ReleaseDuration.Valid {
+		t.SetReleaseDuration(_ReleaseDuration.Int64)
+	}
 	return true, nil
 }
 
 // DBFindOneTx will find a IssueSummary record in the database with the primary key using the provided transaction
 func (t *IssueSummary) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
-	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual` FROM `issue_summary` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `issue_summary`.`id`,`issue_summary`.`checksum`,`issue_summary`.`issue_id`,`issue_summary`.`total_issues`,`issue_summary`.`new30_days`,`issue_summary`.`total_closed`,`issue_summary`.`closed30_days`,`issue_summary`.`estimated_work_months`,`issue_summary`.`estimated_work_months30_days`,`issue_summary`.`title`,`issue_summary`.`url`,`issue_summary`.`priority`,`issue_summary`.`priority_id`,`issue_summary`.`status`,`issue_summary`.`status_id`,`issue_summary`.`issue_type`,`issue_summary`.`issue_type_id`,`issue_summary`.`resolution`,`issue_summary`.`resolution_id`,`issue_summary`.`state`,`issue_summary`.`custom_field_ids`,`issue_summary`.`teams`,`issue_summary`.`parent_issue_id`,`issue_summary`.`parents_issue_ids`,`issue_summary`.`metadata`,`issue_summary`.`project_id`,`issue_summary`.`sprints`,`issue_summary`.`labels`,`issue_summary`.`top_level`,`issue_summary`.`is_leaf`,`issue_summary`.`path`,`issue_summary`.`customer_id`,`issue_summary`.`ref_type`,`issue_summary`.`ref_id`,`issue_summary`.`custom_field_ids_virtual`,`issue_summary`.`release_duration` FROM `issue_summary` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -5703,12 +5877,16 @@ func (t *IssueSummary) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string
 	var _ParentsIssueIds sql.NullString
 	var _Metadata sql.NullString
 	var _ProjectID sql.NullString
+	var _Sprints sql.NullString
+	var _Labels sql.NullString
 	var _TopLevel sql.NullBool
 	var _IsLeaf sql.NullBool
+	var _Path sql.NullString
 	var _CustomerID sql.NullString
 	var _RefType sql.NullString
 	var _RefID sql.NullString
 	var _CustomFieldIdsVirtual sql.NullString
+	var _ReleaseDuration sql.NullInt64
 	err := row.Scan(
 		&_ID,
 		&_Checksum,
@@ -5736,12 +5914,16 @@ func (t *IssueSummary) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string
 		&_ParentsIssueIds,
 		&_Metadata,
 		&_ProjectID,
+		&_Sprints,
+		&_Labels,
 		&_TopLevel,
 		&_IsLeaf,
+		&_Path,
 		&_CustomerID,
 		&_RefType,
 		&_RefID,
 		&_CustomFieldIdsVirtual,
+		&_ReleaseDuration,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -5827,11 +6009,20 @@ func (t *IssueSummary) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string
 	if _ProjectID.Valid {
 		t.SetProjectID(_ProjectID.String)
 	}
+	if _Sprints.Valid {
+		t.SetSprints(_Sprints.String)
+	}
+	if _Labels.Valid {
+		t.SetLabels(_Labels.String)
+	}
 	if _TopLevel.Valid {
 		t.SetTopLevel(_TopLevel.Bool)
 	}
 	if _IsLeaf.Valid {
 		t.SetIsLeaf(_IsLeaf.Bool)
+	}
+	if _Path.Valid {
+		t.SetPath(_Path.String)
 	}
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
@@ -5844,6 +6035,9 @@ func (t *IssueSummary) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string
 	}
 	if _CustomFieldIdsVirtual.Valid {
 		t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
+	}
+	if _ReleaseDuration.Valid {
+		t.SetReleaseDuration(_ReleaseDuration.Int64)
 	}
 	return true, nil
 }
@@ -5877,12 +6071,16 @@ func FindIssueSummaries(ctx context.Context, db *sql.DB, _params ...interface{})
 		orm.Column("parents_issue_ids"),
 		orm.Column("metadata"),
 		orm.Column("project_id"),
+		orm.Column("sprints"),
+		orm.Column("labels"),
 		orm.Column("top_level"),
 		orm.Column("is_leaf"),
+		orm.Column("path"),
 		orm.Column("customer_id"),
 		orm.Column("ref_type"),
 		orm.Column("ref_id"),
 		orm.Column("custom_field_ids_virtual"),
+		orm.Column("release_duration"),
 		orm.Table(IssueSummaryTableName),
 	}
 	if len(_params) > 0 {
@@ -5927,12 +6125,16 @@ func FindIssueSummaries(ctx context.Context, db *sql.DB, _params ...interface{})
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -5960,12 +6162,16 @@ func FindIssueSummaries(ctx context.Context, db *sql.DB, _params ...interface{})
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -6049,11 +6255,20 @@ func FindIssueSummaries(ctx context.Context, db *sql.DB, _params ...interface{})
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -6066,6 +6281,9 @@ func FindIssueSummaries(ctx context.Context, db *sql.DB, _params ...interface{})
 		}
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
+		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
 		}
 		results = append(results, t)
 	}
@@ -6101,12 +6319,16 @@ func FindIssueSummariesTx(ctx context.Context, tx *sql.Tx, _params ...interface{
 		orm.Column("parents_issue_ids"),
 		orm.Column("metadata"),
 		orm.Column("project_id"),
+		orm.Column("sprints"),
+		orm.Column("labels"),
 		orm.Column("top_level"),
 		orm.Column("is_leaf"),
+		orm.Column("path"),
 		orm.Column("customer_id"),
 		orm.Column("ref_type"),
 		orm.Column("ref_id"),
 		orm.Column("custom_field_ids_virtual"),
+		orm.Column("release_duration"),
 		orm.Table(IssueSummaryTableName),
 	}
 	if len(_params) > 0 {
@@ -6151,12 +6373,16 @@ func FindIssueSummariesTx(ctx context.Context, tx *sql.Tx, _params ...interface{
 		var _ParentsIssueIds sql.NullString
 		var _Metadata sql.NullString
 		var _ProjectID sql.NullString
+		var _Sprints sql.NullString
+		var _Labels sql.NullString
 		var _TopLevel sql.NullBool
 		var _IsLeaf sql.NullBool
+		var _Path sql.NullString
 		var _CustomerID sql.NullString
 		var _RefType sql.NullString
 		var _RefID sql.NullString
 		var _CustomFieldIdsVirtual sql.NullString
+		var _ReleaseDuration sql.NullInt64
 		err := rows.Scan(
 			&_ID,
 			&_Checksum,
@@ -6184,12 +6410,16 @@ func FindIssueSummariesTx(ctx context.Context, tx *sql.Tx, _params ...interface{
 			&_ParentsIssueIds,
 			&_Metadata,
 			&_ProjectID,
+			&_Sprints,
+			&_Labels,
 			&_TopLevel,
 			&_IsLeaf,
+			&_Path,
 			&_CustomerID,
 			&_RefType,
 			&_RefID,
 			&_CustomFieldIdsVirtual,
+			&_ReleaseDuration,
 		)
 		if err != nil {
 			return nil, err
@@ -6273,11 +6503,20 @@ func FindIssueSummariesTx(ctx context.Context, tx *sql.Tx, _params ...interface{
 		if _ProjectID.Valid {
 			t.SetProjectID(_ProjectID.String)
 		}
+		if _Sprints.Valid {
+			t.SetSprints(_Sprints.String)
+		}
+		if _Labels.Valid {
+			t.SetLabels(_Labels.String)
+		}
 		if _TopLevel.Valid {
 			t.SetTopLevel(_TopLevel.Bool)
 		}
 		if _IsLeaf.Valid {
 			t.SetIsLeaf(_IsLeaf.Bool)
+		}
+		if _Path.Valid {
+			t.SetPath(_Path.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
@@ -6290,6 +6529,9 @@ func FindIssueSummariesTx(ctx context.Context, tx *sql.Tx, _params ...interface{
 		}
 		if _CustomFieldIdsVirtual.Valid {
 			t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
+		}
+		if _ReleaseDuration.Valid {
+			t.SetReleaseDuration(_ReleaseDuration.Int64)
 		}
 		results = append(results, t)
 	}
@@ -6325,12 +6567,16 @@ func (t *IssueSummary) DBFind(ctx context.Context, db *sql.DB, _params ...interf
 		orm.Column("parents_issue_ids"),
 		orm.Column("metadata"),
 		orm.Column("project_id"),
+		orm.Column("sprints"),
+		orm.Column("labels"),
 		orm.Column("top_level"),
 		orm.Column("is_leaf"),
+		orm.Column("path"),
 		orm.Column("customer_id"),
 		orm.Column("ref_type"),
 		orm.Column("ref_id"),
 		orm.Column("custom_field_ids_virtual"),
+		orm.Column("release_duration"),
 		orm.Table(IssueSummaryTableName),
 	}
 	if len(_params) > 0 {
@@ -6366,12 +6612,16 @@ func (t *IssueSummary) DBFind(ctx context.Context, db *sql.DB, _params ...interf
 	var _ParentsIssueIds sql.NullString
 	var _Metadata sql.NullString
 	var _ProjectID sql.NullString
+	var _Sprints sql.NullString
+	var _Labels sql.NullString
 	var _TopLevel sql.NullBool
 	var _IsLeaf sql.NullBool
+	var _Path sql.NullString
 	var _CustomerID sql.NullString
 	var _RefType sql.NullString
 	var _RefID sql.NullString
 	var _CustomFieldIdsVirtual sql.NullString
+	var _ReleaseDuration sql.NullInt64
 	err := row.Scan(
 		&_ID,
 		&_Checksum,
@@ -6399,12 +6649,16 @@ func (t *IssueSummary) DBFind(ctx context.Context, db *sql.DB, _params ...interf
 		&_ParentsIssueIds,
 		&_Metadata,
 		&_ProjectID,
+		&_Sprints,
+		&_Labels,
 		&_TopLevel,
 		&_IsLeaf,
+		&_Path,
 		&_CustomerID,
 		&_RefType,
 		&_RefID,
 		&_CustomFieldIdsVirtual,
+		&_ReleaseDuration,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -6487,11 +6741,20 @@ func (t *IssueSummary) DBFind(ctx context.Context, db *sql.DB, _params ...interf
 	if _ProjectID.Valid {
 		t.SetProjectID(_ProjectID.String)
 	}
+	if _Sprints.Valid {
+		t.SetSprints(_Sprints.String)
+	}
+	if _Labels.Valid {
+		t.SetLabels(_Labels.String)
+	}
 	if _TopLevel.Valid {
 		t.SetTopLevel(_TopLevel.Bool)
 	}
 	if _IsLeaf.Valid {
 		t.SetIsLeaf(_IsLeaf.Bool)
+	}
+	if _Path.Valid {
+		t.SetPath(_Path.String)
 	}
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
@@ -6504,6 +6767,9 @@ func (t *IssueSummary) DBFind(ctx context.Context, db *sql.DB, _params ...interf
 	}
 	if _CustomFieldIdsVirtual.Valid {
 		t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
+	}
+	if _ReleaseDuration.Valid {
+		t.SetReleaseDuration(_ReleaseDuration.Int64)
 	}
 	return true, nil
 }
@@ -6537,12 +6803,16 @@ func (t *IssueSummary) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...inte
 		orm.Column("parents_issue_ids"),
 		orm.Column("metadata"),
 		orm.Column("project_id"),
+		orm.Column("sprints"),
+		orm.Column("labels"),
 		orm.Column("top_level"),
 		orm.Column("is_leaf"),
+		orm.Column("path"),
 		orm.Column("customer_id"),
 		orm.Column("ref_type"),
 		orm.Column("ref_id"),
 		orm.Column("custom_field_ids_virtual"),
+		orm.Column("release_duration"),
 		orm.Table(IssueSummaryTableName),
 	}
 	if len(_params) > 0 {
@@ -6578,12 +6848,16 @@ func (t *IssueSummary) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...inte
 	var _ParentsIssueIds sql.NullString
 	var _Metadata sql.NullString
 	var _ProjectID sql.NullString
+	var _Sprints sql.NullString
+	var _Labels sql.NullString
 	var _TopLevel sql.NullBool
 	var _IsLeaf sql.NullBool
+	var _Path sql.NullString
 	var _CustomerID sql.NullString
 	var _RefType sql.NullString
 	var _RefID sql.NullString
 	var _CustomFieldIdsVirtual sql.NullString
+	var _ReleaseDuration sql.NullInt64
 	err := row.Scan(
 		&_ID,
 		&_Checksum,
@@ -6611,12 +6885,16 @@ func (t *IssueSummary) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...inte
 		&_ParentsIssueIds,
 		&_Metadata,
 		&_ProjectID,
+		&_Sprints,
+		&_Labels,
 		&_TopLevel,
 		&_IsLeaf,
+		&_Path,
 		&_CustomerID,
 		&_RefType,
 		&_RefID,
 		&_CustomFieldIdsVirtual,
+		&_ReleaseDuration,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -6699,11 +6977,20 @@ func (t *IssueSummary) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...inte
 	if _ProjectID.Valid {
 		t.SetProjectID(_ProjectID.String)
 	}
+	if _Sprints.Valid {
+		t.SetSprints(_Sprints.String)
+	}
+	if _Labels.Valid {
+		t.SetLabels(_Labels.String)
+	}
 	if _TopLevel.Valid {
 		t.SetTopLevel(_TopLevel.Bool)
 	}
 	if _IsLeaf.Valid {
 		t.SetIsLeaf(_IsLeaf.Bool)
+	}
+	if _Path.Valid {
+		t.SetPath(_Path.String)
 	}
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
@@ -6716,6 +7003,9 @@ func (t *IssueSummary) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...inte
 	}
 	if _CustomFieldIdsVirtual.Valid {
 		t.SetCustomFieldIdsVirtual(_CustomFieldIdsVirtual.String)
+	}
+	if _ReleaseDuration.Valid {
+		t.SetReleaseDuration(_ReleaseDuration.Int64)
 	}
 	return true, nil
 }
