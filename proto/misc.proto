@@ -1,0 +1,22 @@
+// GooseDBVersion is used by the goose migration framework
+message GooseDbVersion {
+	int32 id = 1 [(proto.column).primarykey=true];
+	int32 version_id = 2 [(proto.column).notnull=true];
+	bool is_applied = 3 [(proto.column).notnull=true];
+	proto.DateTime tstamp = 4 [(proto.column).notnull=true];
+	option (proto.table).nogenerate=true;
+}
+
+// Processing Error is used to track errors during processing
+message ProcessingError {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+
+	int64 created_at = 10 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	string type = 11 [(proto.column).notnull=true];
+	string message = 12 [(proto.column).notnull=true,(proto.column).type="MEDIUMTEXT"];
+	bool fatal = 13 [(proto.column).notnull=true];
+
+	// reference to the customer_id
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+}

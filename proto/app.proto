@@ -1,0 +1,35 @@
+// App is a higher level abstraction around a logical unit of code and systems
+message App {
+	proto.ID id = 1;
+	proto.Checksum checksum = 2;
+
+	string name = 3 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)",(proto.column).index=true];
+	string description = 4;
+	bool active = 5 [(proto.column).notnull=true];
+
+	string repo_ids = 10 [(proto.column).type="JSON"];
+
+	// when this record was created
+	int64 created_at = 50 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	// when this record was updated
+	int64 updated_at = 51 [(proto.column).type="BIGINT UNSIGNED"];
+
+	// customer reference
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+}
+
+// System is a mapping table which maps third-party integration to one or more repositories
+message System {
+	proto.ID id = 1;
+	proto.Checksum checksum = 2;
+	
+	// common repo.id that this system references
+	proto.UID repo_id = 10 [(proto.column).notnull=true,(proto.column).index=true];
+	// common ref_id that this system references
+	proto.UID ref_id = 11 [(proto.column).notnull=true];
+	// common ref type such as jira, github, etc.
+	proto.UID ref_type = 12 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)"];
+
+	// customer reference
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+}

@@ -1,0 +1,73 @@
+
+// ACLRole is a role specific table defined by an admin
+message ACLRole {
+	proto.ID id = 1;
+	proto.Checksum checksum = 2;
+
+	string name = 4 [(proto.column).notnull=true,(proto.column).index=true,(proto.column).type="VARCHAR(100)"];
+	string description = 5;
+	proto.UID admin_user_id = 6 [(proto.column).notnull=false];
+	proto.UID customer_id = 7 [(proto.column).notnull=false,(proto.column).index=true];
+
+	// when this record was created
+	int64 created_at = 50 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	// when this record was updated
+	int64 updated_at = 51 [(proto.column).type="BIGINT UNSIGNED"];
+}
+
+// ACLResource is a defined resource in the system
+message ACLResource {
+	proto.ID id = 1;
+	proto.Checksum checksum = 2;
+
+	string urn = 5 [(proto.column).notnull=true,(proto.column).index=true,(proto.column).type="VARCHAR(255)"];
+	string description = 6;
+	string title = 7;
+	bool public = 8 [(proto.column).notnull=true,(proto.column).type="TINYINT(1)"];
+	bool hidden = 9 [(proto.column).notnull=true,(proto.column).type="TINYINT(1)"];
+	bool admin = 10 [(proto.column).notnull=true,(proto.column).type="TINYINT(1)"];
+
+	// when this record was created
+	int64 created_at = 50 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	// when this record was updated
+	int64 updated_at = 51 [(proto.column).type="BIGINT UNSIGNED"];
+}
+
+// ACLGrant is a mapping of resource to roles which provide a permission for a resource to a role
+message ACLGrant {
+	proto.ID id = 1;
+	proto.Checksum checksum = 2;
+
+	proto.UID resource_id = 5 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID role_id = 6 [(proto.column).notnull=true,(proto.column).index=true];
+
+	enum ACLGrantPermission {
+		READ = 0;
+		READWRITE = 1;
+		ADMIN = 2;
+	}
+	ACLGrantPermission permission = 7 [(proto.column).notnull=true];
+	proto.UID admin_user_id = 8 [(proto.column).notnull=true];
+	proto.UID customer_id = 9 [(proto.column).notnull=true,(proto.column).index=true];
+
+	// when this record was created
+	int64 created_at = 50 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	// when this record was updated
+	int64 updated_at = 51 [(proto.column).type="BIGINT UNSIGNED"];
+}
+
+// ACLUserRole maps users to roles
+message ACLUserRole {
+	proto.ID id = 1;
+	proto.Checksum checksum = 2;
+
+	proto.UID user_id = 5 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID role_id = 6 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID customer_id = 7 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID admin_user_id = 8 [(proto.column).notnull=true];
+	
+	// when this record was created
+	int64 created_at = 50 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	// when this record was updated
+	int64 updated_at = 51 [(proto.column).type="BIGINT UNSIGNED"];
+}

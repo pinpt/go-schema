@@ -1,0 +1,47 @@
+
+
+message SonarqubeProject {
+    // Primary key (normally a hash of third party id)
+    proto.ID id = 1;
+    proto.Checksum checksum = 2;
+    // Reference to the customer who owns this object
+    proto.UID customer_id = 3 [(proto.column).notnull=true,(proto.column).index=true];
+    // Project ID provided by Sonarqube
+    string ext_id = 4 [(proto.column).notnull=true];
+    // Project's key
+    string key = 5 [(proto.column).notnull=true];
+    // Project's name
+    string name = 6 [(proto.column).notnull=true];
+
+    
+    option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+    
+}
+
+
+
+message SonarqubeMetric {
+    // Primary key (normally a hash of third party id)
+    proto.ID id = 1;
+    proto.Checksum checksum = 2;
+    // Reference to the customer who owns this object
+    proto.UID customer_id = 3 [(proto.column).notnull=true,(proto.column).index=true];
+    // Reference to project using source ID
+    string project_ext_id = 4 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+    // Reference to project using our generated ID
+    proto.UID project_id = 5 [(proto.column).index=true,(proto.column).notnull=true];
+    // Reference to project using source ID
+    string projectKey_ext_id = 6 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+    string ext_id = 7 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+    // Metric's date
+    int64 date = 8 [(proto.column).notnull=true];
+    // Sonarqube's metric
+    string metric = 9 [(proto.column).notnull=true,(proto.column).type="VARCHAR(64)"];
+    // string
+    string value = 10 [(proto.column).notnull=true,(proto.column).type="VARCHAR(64)"];
+
+    
+    option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+    
+}
+

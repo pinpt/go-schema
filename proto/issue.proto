@@ -1,0 +1,163 @@
+// Issue is a generic table for a project which contains issues
+message IssueProject {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+
+	// name of the project
+	string name = 10 [(proto.column).notnull=true];
+	// url to the project
+	string url = 11 [(proto.column).notnull=true];
+
+	// when this record was created
+	int64 created_at = 50 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+
+	// customer which owns this commit issue
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	// ref_type is the name type of the specialized commit issue type (such as github, gitlab, etc)
+	string ref_type = 101 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)",(proto.column).index=true];
+	// ref_id is the specialized primary key for this commit issue
+	proto.UID ref_id = 102 [(proto.column).notnull=true,(proto.column).index=true];
+
+	// metadata contains any additional information about the row which are integration specific. each integration can add additional attributes where the key of the object is the integration short name and any values are an object of that key
+	string metadata = 150 [(proto.column).type="JSON"];
+}
+
+// Issue is a generic table for an issue
+message Issue {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+
+	proto.UID user_id = 3;
+	proto.UID project_id = 4 [(proto.column).notnull=true];
+	string title = 5 [(proto.column).notnull=true];
+	string body = 6 [(proto.column).type="LONGTEXT"];
+	enum IssueState {
+		OPEN = 0;
+		CLOSED = 1;
+	}
+	IssueState state = 7 [(proto.column).notnull=true];
+	enum IssueType {
+		BUG = 0;
+		FEATURE = 1;
+		ENHANCEMENT = 2;
+		OTHER = 4;
+	}
+	IssueType type = 8 [(proto.column).notnull=true];
+	enum IssueResolution {
+		NONE = 0;
+		RESOLVED = 1;
+		UNRESOLVED = 2;
+	}
+	IssueResolution resolution = 14 [(proto.column).notnull=true];
+	int64 created_at = 9 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	int64 updated_at = 10 [(proto.column).type="BIGINT UNSIGNED"];
+	int64 closed_at = 11 [(proto.column).type="BIGINT UNSIGNED"];
+	proto.UID closedby_user_id = 12;
+	string url = 13 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+
+	// customer which owns this commit issue
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	// ref_type is the name type of the specialized commit issue type (such as github, gitlab, etc)
+	string ref_type = 101 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)",(proto.column).index=true];
+	// ref_id is the specialized primary key for this commit issue
+	proto.UID ref_id = 102 [(proto.column).notnull=true,(proto.column).index=true];
+
+	// metadata contains any additional information about the row which are integration specific. each integration can add additional attributes where the key of the object is the integration short name and any values are an object of that key
+	string metadata = 150 [(proto.column).type="JSON"];
+
+	option (proto.table).index={fields:"customer_id, user_id, project_id"};
+	option (proto.table).index2={fields:"state, created_at, customer_id"};
+	option (proto.table).index3={fields:"type, customer_id, project_id"};
+	option (proto.table).index4={fields:"ref_type, state, project_id, customer_id"};
+	option (proto.table).index5={fields:"ref_type, state, closed_at, project_id, customer_id"};
+	option (proto.table).index6={fields:"ref_type, state, created_at, project_id, customer_id"};
+	option (proto.table).index7={fields:"state, customer_id, project_id"};
+	option (proto.table).index8={fields:"state, ref_id, closed_at"};
+	option (proto.table).index9={fields:"state,customer_id,closed_at,ref_id,type"};
+	option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+	option (proto.table).has_one2={table:"issue_project",pk:"project_id",fk:"id",name:"project"};
+	option (proto.table).has_one3={table:"user",pk:"user_id",fk:"id",name:"user"};
+	option (proto.table).has_one4={table:"user",pk:"closedby_user_id",fk:"id",name:"closedby"};
+	option (proto.table).has_many={table:"issue_comment",pk:"id",fk:"issue_id",name:"comments"};
+	option (proto.table).has_many2={table:"issue_label",pk:"id",fk:"issue_id",name:"labels"};
+	option (proto.table).gql_union={name:"ref",id:"ref_id",type:"ref_type",tables:"github:github_issue,jira:jira_issue"};
+}
+
+// Issue Comment is a generic table which describes a comment for a issue
+message IssueComment {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+
+	proto.UID issue_id = 3 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID user_id = 4 [(proto.column).index=true];
+	proto.UID project_id = 5 [(proto.column).notnull=true];
+	string body = 6 [(proto.column).type="LONGTEXT",(proto.column).notnull=true];
+	bool deleted = 7 [(proto.column).default="false",(proto.column).notnull=true];
+	proto.UID deleted_user_id = 8;
+	int64 created_at = 9 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	int64 updated_at = 10 [(proto.column).type="BIGINT UNSIGNED"];
+	int64 deleted_at = 11 [(proto.column).type="BIGINT UNSIGNED"];
+	string url = 12 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+
+	// customer which owns this issue comment
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	// ref_type is the name type of the specialized issue comment type (such as github, gitlab, etc)
+	string ref_type = 101 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)",(proto.column).index=true];
+	// ref_id is the specialized primary key for this issue comment
+	proto.UID ref_id = 102 [(proto.column).notnull=true,(proto.column).index=true];
+
+	// metadata contains any additional information about the row which are integration specific. each integration can add additional attributes where the key of the object is the integration short name and any values are an object of that key
+	string metadata = 150 [(proto.column).type="JSON"];
+
+	option (proto.table).index={fields:"customer_id, user_id, project_id"};
+}
+
+// IssueSummary is a summarization table with issue level summary data
+message IssueSummary {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;	
+
+	proto.UID issue_id = 3 [(proto.column).notnull=true,(proto.column).index=true];
+	int32 total_issues = 4 [(proto.column).notnull=true,(proto.column).type="INT UNSIGNED"];
+	int32 new_30_days = 5 [(proto.column).notnull=true,(proto.column).type="INT UNSIGNED"];
+	int32 total_closed = 6 [(proto.column).notnull=true,(proto.column).type="INT UNSIGNED"];
+	int32 closed_30_days = 7 [(proto.column).notnull=true,(proto.column).type="INT UNSIGNED"];
+	float estimated_work_months = 8 [(proto.column).notnull=true,(proto.column).type="FLOAT"];
+	float estimated_work_months_30_days = 9 [(proto.column).notnull=true,(proto.column).type="FLOAT"];
+	string title = 10 [(proto.column).notnull=true];
+	string url = 11;
+	string priority = 12 [(proto.column).type="VARCHAR(100)"];
+	proto.UID priority_id = 13 [(proto.column).index=true];
+	string status = 14 [(proto.column).type="VARCHAR(100)"];
+	proto.UID status_id = 15;
+	string issue_type = 16 [(proto.column).notnull=true,(proto.column).type="VARCHAR(100)"];
+	proto.UID issue_type_id = 17 [(proto.column).index=true];
+	string resolution = 18 [(proto.column).type="VARCHAR(100)"];
+	proto.UID resolution_id = 19 [(proto.column).index=true];
+	string state = 20 [(proto.column).notnull=true, (proto.column).type="VARCHAR(10)"];
+	string custom_field_ids = 21 [(proto.column).type="JSON"];
+	string teams = 22 [(proto.column).type="JSON"];
+	proto.UID parent_issue_id = 23 [(proto.column).index=true];
+	string parents_issue_ids = 24 [(proto.column).type="JSON"];
+	string metadata = 25 [(proto.column).type="JSON"];
+	proto.UID project_id = 26 [(proto.column).notnull=true,(proto.column).index=true];
+	string sprints = 27 [(proto.column).type="JSON"];
+	string labels = 28 [(proto.column).type="JSON"];
+	bool top_level = 29 [(proto.column).notnull=true,(proto.column).type="TINYINT UNSIGNED",(proto.column).index=true];
+	bool is_leaf = 30 [(proto.column).notnull=true,(proto.column).type="TINYINT UNSIGNED"];
+	string path = 31 [(proto.column).notnull=true,(proto.column).type="VARCHAR(1024)"];
+
+	// customer which owns this issue
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	// ref_type is the name type of the specialized issue type (such as github, gitlab, etc)
+	string ref_type = 101 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)"];
+	// ref_id is the specialized primary key for this issue
+	proto.UID ref_id = 102 [(proto.column).notnull=true,(proto.column).index=true];
+	string custom_field_ids_virtual = 110 [(proto.column).notnull=false];
+	int64 release_duration = 63 [(proto.column).notnull=true];
+	
+	option (proto.table).index={fields:"customer_id, parent_issue_id"};
+	option (proto.table).index2={fields:"customer_id, top_level"};
+	option (proto.table).index3={fields:"customer_id, top_level, issue_type_id"};
+	option (proto.table).index4={fields:"customer_id, top_level, issue_type_id, priority_id"};
+}

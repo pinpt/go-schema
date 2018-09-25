@@ -1,0 +1,39 @@
+
+
+message MockapiApplication {
+    // Primary key (normally a hash of third party id)
+    proto.ID id = 1;
+    proto.Checksum checksum = 2;
+    // Reference to the customer who owns this object
+    proto.UID customer_id = 3 [(proto.column).notnull=true,(proto.column).index=true];
+    // Application ID
+    int64 ext_id = 4 [(proto.column).notnull=true];
+    // Name
+    string name = 5 [(proto.column).notnull=true];
+
+    
+    option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+    
+}
+
+
+
+message MockapiDeployment {
+    // Primary key (normally a hash of third party id)
+    proto.ID id = 1;
+    proto.Checksum checksum = 2;
+    // Reference to the customer who owns this object
+    proto.UID customer_id = 3 [(proto.column).notnull=true,(proto.column).index=true];
+    // Reference to application using source ID
+    int64 application_ext_id_ext_id = 4 [(proto.column).notnull=true,(proto.column).index=true];
+    // Reference to application using our generated ID
+    proto.UID application_ext_id_id = 5 [(proto.column).index=true,(proto.column).notnull=true];
+    // Deployment ID
+    int64 ext_id = 6 [(proto.column).notnull=true];
+    string name = 7 [(proto.column).notnull=true];
+
+    
+    option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+    
+}
+
