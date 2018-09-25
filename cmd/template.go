@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/pinpt/go-schema/schema/acl"
+	"github.com/pinpt/go-schema/acl"
 )
 
 // SQLTemplate ...

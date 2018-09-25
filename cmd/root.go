@@ -19,12 +19,13 @@ import (
 	"github.com/pinpt/go-common/datetime"
 	"github.com/pinpt/go-common/fileutil"
 	"github.com/pinpt/go-common/hash"
-	"github.com/pinpt/go-schema/schema/acl"
+	"github.com/pinpt/go-schema/acl"
 	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
-	Use: "pinpoint-schema",
+	Use:   "pinpoint-schema",
+	Short: "generates all the schema files",
 	Run: func(cmd *cobra.Command, args []string) {
 		dir, _ := cmd.Flags().GetString("webroot")
 		if dir == "" {
@@ -32,6 +33,11 @@ var rootCmd = &cobra.Command{
 		}
 		if !fileutil.FileExists(dir) {
 			panic("cannot find " + dir)
+		}
+		cleanAll()
+
+		if err := runGenSchemaCmd(); err != nil {
+			panic(err)
 		}
 
 		routes := []*acl.Route{}
@@ -45,7 +51,6 @@ var rootCmd = &cobra.Command{
 		if err := runBindata(); err != nil {
 			panic(err)
 		}
-
 	},
 }
 
@@ -60,7 +65,7 @@ func generateRoutesGo(routes []*acl.Route, dir string) error {
 	}
 
 	cwd, _ := os.Getwd()
-	fn := filepath.Join(cwd, "schema", "acl", "routes.go")
+	fn := filepath.Join(cwd, "acl", "routes.go")
 	f, err := os.Create(fn)
 	if err != nil {
 		return err
@@ -126,7 +131,7 @@ func generateRoutesGo(routes []*acl.Route, dir string) error {
 
 func generateSQL(routes []*acl.Route) error {
 	cwd, _ := os.Getwd()
-	migration := filepath.Join(cwd, "schema", "migrations")
+	migration := filepath.Join(cwd, "migrations")
 	os.MkdirAll(migration, 0755)
 	migration = filepath.Join(migration, "20171108110099_rbac.sql")
 	mf, err := os.Create(migration)
@@ -162,11 +167,11 @@ func generateSQL(routes []*acl.Route) error {
 func runBindata() error {
 
 	cArgs := []string{
-		"-o", "./schema/migrate/bindata.go",
+		"-o", "./migrate/bindata.go",
 		"-pkg", "migrate",
 		"-ignore=\\\\.go",
 		"-ignore=\\\\.DS_Store",
-		"./schema/migrations",
+		"./migrations",
 	}
 	fmt.Println(fmt.Sprintf("Running: go-bindata %v", cArgs))
 	c := exec.CommandContext(context.Background(), "go-bindata", cArgs...)
