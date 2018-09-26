@@ -1,0 +1,176 @@
+
+// Repo is a generic table which describes a code repository
+message Repo {
+	proto.ID id = 1;
+	proto.Checksum checksum = 2;
+
+	// the name of the repo
+	string name = 3 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)",(proto.column).index=true];
+	// the url to the repo
+	string url = 4 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+	// if the repo is active (visible to the integration)
+	bool active = 5 [(proto.column).notnull=true,(proto.column).default="true"];
+	// if this repo is a fork
+	bool fork = 6 [(proto.column).notnull=true,(proto.column).default="false"];
+	// if a fork, this points to the parent repo_id
+	proto.UID parent_id = 7;
+	// the description of the repo
+	string description = 8;
+
+	// when this record was created
+	int64 created_at = 50 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	// when this record was updated
+	int64 updated_at = 51 [(proto.column).type="BIGINT UNSIGNED"];
+
+	// customer which owns this repo
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	// ref_type is the name type of the specialized repo type (such as github, gitlab, etc)
+	string ref_type = 101 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)",(proto.column).index=true];
+	// ref_id is the specialized primary key for this repo
+	proto.UID ref_id = 102 [(proto.column).notnull=true,(proto.column).index=true];
+
+	// metadata contains any additional information about the row which are integration specific. each integration can add additional attributes where the key of the object is the integration short name and any values are an object of that key
+	string metadata = 150 [(proto.column).type="JSON"];
+}
+
+// Commit is a generic table which describes a single code commit
+message Commit {
+	proto.ID id = 1;
+	proto.Checksum checksum = 2;
+
+	proto.UID repo_id = 3 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID sha = 4 [(proto.column).notnull=true,(proto.column).index=true];
+	string branch = 5 [(proto.column).type="VARCHAR(255)",(proto.column).default="master"];
+	string message = 6 [(proto.column).type="LONGTEXT"];
+	bool mergecommit = 7 [(proto.column).default="false"];
+	bool excluded = 8 [(proto.column).default="false"];
+	proto.UID parent = 9;
+	proto.UID parent_id = 10;
+	int64 date = 11 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	proto.UID author_user_id = 12 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID committer_user_id = 13 [(proto.column).notnull=true,(proto.column).index=true];
+	// the order in the commit history since the timestamp likely won't always be sufficient/accurate enough
+	int32 ordinal = 14;
+
+	// customer which owns this repo
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	// ref_type is the name type of the specialized repo type (such as github, gitlab, etc)
+	string ref_type = 101 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)",(proto.column).index=true];
+	// ref_id is the specialized primary key for this repo
+	proto.UID ref_id = 102 [(proto.column).notnull=true,(proto.column).index=true];
+
+	// metadata contains any additional information about the row which are integration specific. each integration can add additional attributes where the key of the object is the integration short name and any values are an object of that key
+	string metadata = 150 [(proto.column).type="JSON"];
+}
+
+// Commit File is a generic table which describes a single file in a specific commit
+message CommitFile {
+	proto.ID id = 1;
+	proto.Checksum checksum = 2;
+
+	proto.UID commit_id = 4 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID repo_id = 5 [(proto.column).notnull=true];
+	proto.UID author_user_id = 7 [(proto.column).notnull=true];
+	proto.UID committer_user_id = 8 [(proto.column).notnull=true];
+
+	string filename = 10 [(proto.column).notnull=true,(proto.column).type="VARCHAR(1024)"];
+	string language = 11 [(proto.column).type="VARCHAR(100)",(proto.column).default="unknown",(proto.column).notnull=true];
+	int32 additions = 12 [(proto.column).default="0",(proto.column).notnull=true];
+	int32 deletions = 13 [(proto.column).default="0",(proto.column).notnull=true];
+	int32 size = 14 [(proto.column).default="0",(proto.column).notnull=true];
+	bool abinary = 15 [(proto.column).default="false",(proto.column).notnull=true];
+	int64 date = 16 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	string branch = 17 [(proto.column).notnull=true,(proto.column).default="master",(proto.column).type="VARCHAR(255)"];
+	bool mergecommit = 18 [(proto.column).default="false",(proto.column).notnull=true];
+	bool excluded = 19 [(proto.column).default="false",(proto.column).notnull=true];
+	int32 loc = 20 [(proto.column).default="0",(proto.column).notnull=true];
+	int32 sloc = 21 [(proto.column).default="0",(proto.column).notnull=true];
+	int32 comments = 22 [(proto.column).default="0",(proto.column).notnull=true];
+	int32 blanks = 23 [(proto.column).default="0",(proto.column).notnull=true];
+	int32 variance = 24 [(proto.column).default="0",(proto.column).notnull=true];
+	
+	enum CommitFileStatus {
+		ADDED = 0;
+		MODIFIED = 1;
+		DELETED = 2;
+	}
+	CommitFileStatus status = 25 [(proto.column).notnull=true];
+	bool renamed = 26 [(proto.column).default="false",(proto.column).notnull=true];
+	string renamed_from = 27;
+	string renamed_to = 28;
+	
+	// customer which owns this commit file
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	// ref_type is the name type of the specialized commit file type (such as github, gitlab, etc)
+	string ref_type = 101 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)",(proto.column).index=true];
+	// ref_id is the specialized primary key for this commit file
+	proto.UID ref_id = 102 [(proto.column).notnull=true,(proto.column).index=true];
+
+	// metadata contains any additional information about the row which are integration specific. each integration can add additional attributes where the key of the object is the integration short name and any values are an object of that key
+	string metadata = 150 [(proto.column).type="JSON"];
+}
+
+// Commit Issue is a generic table which links one or more issues to a Commit
+message CommitIssue {
+	proto.ID id = 1;
+	proto.Checksum checksum = 2;
+
+	proto.UID commit_id = 3 [(proto.column).notnull=true,(proto.column).index=true];
+	string branch = 4 [(proto.column).notnull=true,(proto.column).default="master",(proto.column).type="VARCHAR(255)"];
+	proto.UID user_id = 5 [(proto.column).notnull=true];
+	proto.UID repo_id = 6 [(proto.column).notnull=true];
+	proto.UID issue_id = 7 [(proto.column).notnull=true];
+	int64 date = 8 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+
+	// customer which owns this commit issue
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	// ref_type is the name type of the specialized type (such as github, gitlab, etc)
+	string ref_type = 101 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)",(proto.column).index=true];
+	// ref_commit_id is the specialized primary key for this commit
+	proto.UID ref_commit_id = 102 [(proto.column).notnull=true,(proto.column).index=true];
+	// ref_repo_id is the specialized primary key for this repo
+	proto.UID ref_repo_id = 103 [(proto.column).notnull=true,(proto.column).index=true];
+	// ref_type is the name type of the specialized type (such as github, gitlab, etc)
+	string ref_issue_type = 104 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)",(proto.column).index=true];
+	// ref_issue_id is the specialized primary key for this issue
+	proto.UID ref_issue_id = 105 [(proto.column).notnull=true,(proto.column).index=true];
+
+	// metadata contains any additional information about the row which are integration specific. each integration can add additional attributes where the key of the object is the integration short name and any values are an object of that key
+	string metadata = 150 [(proto.column).type="JSON"];
+}
+
+// Commit Activity is a generic table which links users to loc by commit for a date
+message CommitActivity {
+	proto.ID id = 1;
+	int64 date = 2 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	proto.UID sha = 4 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID user_id = 5 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID repo_id = 6 [(proto.column).notnull=true,(proto.column).index=true];
+	string filename = 7 [(proto.column).notnull=true,(proto.column).type="VARCHAR(700)",(proto.column).index=true];
+	int64 ordinal = 8 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	int32 loc = 11 [(proto.column).default="0",(proto.column).notnull=true];
+	int32 sloc = 12 [(proto.column).default="0",(proto.column).notnull=true];
+	int32 blanks = 13 [(proto.column).default="0",(proto.column).notnull=true];
+	int32 comments = 14 [(proto.column).default="0",(proto.column).notnull=true];
+	option (proto.table).index={fields:"filename, repo_id, date, ordinal"};
+}
+
+message CommitSummary {
+	proto.ID id = 1;
+	proto.UID commit_id = 2[(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID repo_id = 3[(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID author_user_id = 4[(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID customer_id = 5[(proto.column).notnull=true,(proto.column).index=true];
+	// ref_type is the name type of the specialized type (such as github, gitlab, etc)
+	string ref_type = 6 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)",(proto.column).index=true];
+	int32 additions = 7[(proto.column).default="0",(proto.column).notnull=true];
+	int32 deletions = 8[(proto.column).default="0",(proto.column).notnull=true];
+	// files changed in the commit
+	int32 files_changed = 9[(proto.column).default="0",(proto.column).notnull=true];
+	string branch = 10[(proto.column).type="VARCHAR(255)",(proto.column).default="master"];
+	//programming languages in the commit
+	string language = 11[(proto.column).type="VARCHAR(500)",(proto.column).default="unknown",(proto.column).notnull=true];
+	//date of the commit
+	int64 date = 12 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	string message = 13[(proto.column).type="LONGTEXT"];
+}

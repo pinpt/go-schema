@@ -1,0 +1,317 @@
+// JIRA user is a specific user
+message JiraUser {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+	// the ID field in JIRA
+	proto.UID user_id = 3 [(proto.column).index=true,(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+
+	string username = 10 [(proto.column).notnull=true];
+	string name = 11 [(proto.column).notnull=true];
+	string email = 12 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+	string avatar_url = 13 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+	string url = 14 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+	
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	// reference to the generic user id
+	proto.UID ref_id = 101 [(proto.column).notnull=true,(proto.column).index=true];
+
+	option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+	option (proto.table).has_one2={table:"user",pk:"ref_id",fk:"id",name:"user"};
+}
+
+message JiraProjectSprint {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+	proto.UID project_id = 10 [(proto.column).notnull=true,(proto.column).index=true];
+	string sprint_id = 11 [(proto.column).notnull=true];
+	string name = 12 [(proto.column).notnull=true];
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	int64 completeDate = 13 [(proto.column).type="BIGINT UNSIGNED"];
+	int64 endDate = 14 [(proto.column).type="BIGINT UNSIGNED"];
+	int64 startDate = 15 [(proto.column).type="BIGINT UNSIGNED"];
+	string state = 16;
+	string goal = 17;
+
+	// stats -- right now these are on the sprint but if we have more we'll want to separate them out to their own table
+	string initial_issue_ids = 50 [(proto.column).type="JSON"];
+	string final_issue_ids = 51 [(proto.column).type="JSON"];
+	string final_closed_issue_ids = 52 [(proto.column).type="JSON"];
+	int32 initial_issue_count = 53 [(proto.column).notnull=true];
+	int32 final_issue_count = 54 [(proto.column).notnull=true];
+	int32 closed_issue_count = 55 [(proto.column).notnull=true];
+	int32 added_issue_count = 56 [(proto.column).notnull=true];
+	int32 removed_issue_count = 57 [(proto.column).notnull=true];
+	int32 initial_issues_closed = 58 [(proto.column).notnull=true];
+	int32 initial_issues_in_final_count = 59 [(proto.column).notnull=true];
+
+	option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+	option (proto.table).has_one2={table:"jira_project",pk:"project_id",fk:"id",name:"project"};
+}
+
+// JIRA project
+message JiraProject {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+	// the ID field in JIRA
+	proto.UID project_id = 3 [(proto.column).index=true,(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+
+	string key = 11 [(proto.column).notnull=true,(proto.column).type="VARCHAR(100)"];
+	string avatar_url = 12 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+
+	proto.UID category_id = 20;
+
+	// reference to the customer_id who owns this project
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	// reference to the generic issue project id
+	proto.UID ref_id = 101 [(proto.column).notnull=true,(proto.column).index=true];
+
+	option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+	option (proto.table).has_one2={table:"jira_project_category",pk:"category_id",fk:"id",name:"category"};
+	option (proto.table).has_one3={table:"issue_project",pk:"ref_id",fk:"id",name:"project"};
+}
+
+message JiraProjectStatus {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+	// the ID field in JIRA
+	proto.UID status_id = 3 [(proto.column).notnull=true];
+
+	proto.UID project_id = 10 [(proto.column).notnull=true,(proto.column).index=true];
+	string name = 11 [(proto.column).notnull=true,(proto.column).index=true,(proto.column).type="VARCHAR(255)"];
+	string description = 12;
+	string icon_url = 13;
+	string category = 14;
+	string category_key = 15;
+	string category_color = 16;
+	proto.UID category_id = 17;
+	proto.UID issue_type_id = 18 [(proto.column).notnull=true];
+
+	// reference to the customer_id who owns this project
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+
+	option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+	option (proto.table).has_one2={table:"jira_issue_type",pk:"issue_type_id",fk:"id",name:"issueType"};
+	option (proto.table).belongs_to={table:"jira_project",pk:"project_id",fk:"id",name:"project"};
+}
+
+message JiraProjectResolution {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+	// the ID field in JIRA
+	proto.UID resolution_id = 3 [(proto.column).notnull=true];
+
+	proto.UID project_id = 10 [(proto.column).notnull=true,(proto.column).index=true];
+	string name = 11 [(proto.column).notnull=true,(proto.column).index=true,(proto.column).type="VARCHAR(255)"];
+	string description = 12;
+
+	// reference to the customer_id who owns this project
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+
+	option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+	option (proto.table).belongs_to={table:"jira_project",pk:"project_id",fk:"id",name:"project"};
+}
+
+message JiraIssueType {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+	// the ID field in JIRA
+	proto.UID issue_type_id = 3 [(proto.column).notnull=true];
+
+	string name = 10 [(proto.column).notnull=true,(proto.column).index=true,(proto.column).type="VARCHAR(255)"];
+	string description = 11;
+	string icon_url = 12 [(proto.column).type="VARCHAR(255)"];
+	string url = 13 [(proto.column).type="VARCHAR(255)"];
+	bool subtask = 14 [(proto.column).notnull=true];
+
+	// reference to the customer_id who owns this issue type
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+
+	option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+}
+
+message JiraIssueChangeLog {
+	proto.ID id = 1;
+	proto.UID user_id = 2;
+	proto.UID assignee_id = 3;
+	int64 created_at = 4 [(proto.column).type="BIGINT UNSIGNED"];
+	string field = 5 [(proto.column).notnull=true,(proto.column).index=true,(proto.column).type="VARCHAR(255)"];
+	string field_type = 6;
+	string from = 7 [(proto.column).type="LONGTEXT"];
+	string from_string = 8 [(proto.column).type="LONGTEXT"];
+	string to = 9 [(proto.column).type="LONGTEXT"];
+	string to_string = 10 [(proto.column).type="LONGTEXT"];
+	proto.UID ref_id = 11 [(proto.column).notnull=true];
+	proto.UID customer_id = 12 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID issue_id = 13 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID project_id = 14 [(proto.column).notnull=true];
+	int32 ordinal = 15 [(proto.column).notnull=true];
+
+	option (proto.table).has_one={table:"jira_issue",pk:"issue_id",fk:"id",name:"issue"};
+	option (proto.table).has_one2={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+}
+
+// JIRA issue is a specialized version of a Issue for JIRA
+message JiraIssue {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+	// the ID field in JIRA
+	string issue_id = 10 [(proto.column).index=true,(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+	proto.UID project_id = 11 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID issue_type_id = 12 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID user_id = 13;
+	proto.UID assignee_id = 14;
+	proto.UID priority_id = 15;
+	proto.UID status_id = 16 [(proto.column).notnull=true];
+	proto.UID resolution_id = 17;
+	string fix_version_ids = 18 [(proto.column).type="JSON"];
+	string version_ids = 19 [(proto.column).type="JSON"];
+	string environment = 20;
+	string component_ids = 21 [(proto.column).type="JSON"];
+	string label_ids = 22 [(proto.column).type="JSON"];
+	int64 duedate_at = 23 [(proto.column).type="BIGINT UNSIGNED"];
+	int64 planned_start_at = 24 [(proto.column).type="BIGINT UNSIGNED"];
+	int64 planned_end_at = 25 [(proto.column).type="BIGINT UNSIGNED"];
+	string key = 26 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)",(proto.column).index=true];
+	string custom_field_ids = 27 [(proto.column).type="JSON"];
+
+	// if this issue is part of a sprint
+	string sprint_id = 51 [(proto.column).type="JSON"];
+	// if this issue is part of an epic
+	proto.UID epic_id = 52 [(proto.column).index=true];
+	// if this issue has a parent
+	proto.UID parent_id = 53 [(proto.column).index=true];
+	// if this issue has a parent which is part of a top level strategic iniative using JIRA Portfolio
+	proto.UID strategic_parent_id = 54 [(proto.column).index=true];
+
+	// stats -- right now these are on the issue but if we have more we'll want to separate them out to their own table
+	int32 in_progress_count = 60 [(proto.column).notnull=true];
+	int32 reopen_count = 61 [(proto.column).notnull=true];
+	int64 in_progress_duration = 62 [(proto.column).notnull=true];
+	int64 verification_duration = 63 [(proto.column).notnull=true];
+	int64 in_progress_start_at = 64;
+
+	// reference to the customer_id who owns this issue
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	// reference to the generic issue id
+	proto.UID ref_id = 101 [(proto.column).notnull=true,(proto.column).index=true];
+	// reference to the generic user id
+	proto.UID user_ref_id = 102 [(proto.column).notnull=true,(proto.column).index=true];
+
+	float cost = 6 [(proto.column).notnull=true,(proto.column).default="0",(proto.column).type="REAL"];
+
+	option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+	option (proto.table).has_one2={table:"jira_user",pk:"user_id",fk:"id",name:"user"};
+	option (proto.table).has_one3={table:"jira_user",pk:"assignee_id",fk:"id",name:"assignee"};
+	option (proto.table).has_one4={table:"jira_project",pk:"project_id",fk:"id",name:"project"};
+	option (proto.table).has_one5={table:"jira_issue_type",pk:"issue_type_id",fk:"id",name:"issuetype"};
+	option (proto.table).has_one6={table:"jira_issue_priority",pk:"priority_id",fk:"id",name:"priority"};
+	option (proto.table).has_one7={table:"jira_project_status",pk:"status_id",fk:"id",name:"status"};
+	option (proto.table).has_one8={table:"issue",pk:"ref_id",fk:"id",name:"issue"};
+	// FIXME: Needs to be updated since its an array now (composite key)
+	// option (proto.table).has_one9={table:"jira_project_sprint",pk:"sprint_id",fk:"id",name:"sprint"};
+	option (proto.table).has_one10={table:"jira_issue",pk:"epic_id",fk:"id",name:"epic"};
+}
+
+// JIRA Issue Label is a unique label for a given project
+message JiraIssueLabel {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+
+	string name = 10 [(proto.column).notnull=true,(proto.column).index=true,(proto.column).type="VARCHAR(255)"];
+
+	// reference to the customer_id who owns this issue label
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+
+	option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+	option (proto.table).has_one2={table:"jira_project",pk:"project_id",fk:"id",name:"project"};
+}
+
+// JIRA Issue Priority is the priority table
+message JiraIssuePriority {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+	// the ID field in JIRA
+	proto.UID issue_priority_id = 3 [(proto.column).index=true,(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+
+	string name = 10 [(proto.column).notnull=true];
+	string icon_url = 11 [(proto.column).notnull=true];
+
+	// reference to the customer_id who owns this issue label
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+
+	option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+}
+
+// JIRA Issue Progress tracks the progress for a given issue by user
+message JiraIssueProgress {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+
+	proto.UID user_id = 3 [(proto.column).index=true];
+	proto.UID issue_id = 4 [(proto.column).notnull=true,(proto.column).index=true];
+	int64 startDate = 5 [(proto.column).type="BIGINT UNSIGNED"];
+	int64 endDate = 6 [(proto.column).type="BIGINT UNSIGNED"];
+	int64 duration = 7 [(proto.column).type="BIGINT UNSIGNED"];
+
+	// reference to the customer_id who owns this issue label
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	// reference to the generic issue id
+	proto.UID ref_id = 101 [(proto.column).notnull=true,(proto.column).index=true];
+}
+
+// JiraCustomField is a table which contains the unique custom fields found across all jira projects
+message JiraCustomField {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+	// the ID field in JIRA
+	proto.UID field_id = 3 [(proto.column).notnull=true];
+
+	string name = 10 [(proto.column).notnull=true,(proto.column).index=true,(proto.column).type="VARCHAR(255)"];
+	string schema_type = 11 [(proto.column).type="VARCHAR(100)",(proto.column).notnull=true];
+	string schema_custom = 12 [(proto.column).type="VARCHAR(255)",(proto.column).notnull=true];
+	int64 schema_custom_id = 13 [(proto.column).type="BIGINT UNSIGNED"];
+
+	// reference to the customer_id who owns this project
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+
+	option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+}
+
+// JiraCustomFieldValue is a table which contains the unique custom field values found across all jira projects
+message JiraCustomFieldValue {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+
+	string schema_type = 10 [(proto.column).notnull=true,(proto.column).type="VARCHAR(100)"];
+	string value = 11 [(proto.column).notnull=true,(proto.column).type="LONGTEXT"];
+	proto.UID custom_field_id = 12 [(proto.column).notnull=true,(proto.column).index=true];
+
+	// reference to the customer_id who owns this project
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+
+	option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+}
+
+// JIRA Issue Comment is a specialized version of a Issue Comment for JIRA issue comments
+message JiraIssueComment {
+	proto.ID id = 1 [(proto.column).primarykey=true];
+	proto.Checksum Checksum = 2;
+
+	// the ID field in JIRA 
+	proto.UID comment_id = 10 [(proto.column).index=true,(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+	proto.UID issue_id = 11 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID project_id = 12 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID user_id = 13 [(proto.column).index=true];
+
+	int64 updated_at = 50 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+
+	// reference to the customer_id who owns this issue comment
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	// reference to the generic issue comment id
+	proto.UID ref_id = 101 [(proto.column).notnull=true,(proto.column).index=true];
+
+	option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
+	option (proto.table).has_one2={table:"user",pk:"user_id",fk:"id",name:"user"};
+	option (proto.table).has_one3={table:"jira_project",pk:"project_id",fk:"id",name:"project"};
+	option (proto.table).belongs_to={table:"jira_issue",pk:"issue_id",fk:"id",name:"issue"};
+}

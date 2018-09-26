@@ -1,0 +1,22 @@
+
+// Signal table is a generic set of signals that are calculated behind the scenes
+message Signal {
+	proto.ID id = 1;
+
+	string name = 5 [(proto.column).notnull=true,(proto.column).index=true,(proto.column).type="CHAR(60)"];
+	float value = 6 [(proto.column).notnull=true,(proto.column).default="0",(proto.column).type="REAL"];
+
+	int32 timeunit = 7 [(proto.column).notnull=true];
+	string date = 8 [(proto.column).notnull=true,(proto.column).type="DATE"];
+	string metadata = 9 [(proto.column).type="JSON"];
+
+	// customer which owns this metric
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+	// ref_type is the name type of the specialized metric type (such as github, gitlab, etc)
+	string ref_type = 101 [(proto.column).type="VARCHAR(20)",(proto.column).index=true];
+	// ref_id is the specialized primary key for this metric
+	proto.UID ref_id = 102 [(proto.column).index=true];
+
+	option (proto.table).index={fields:"name, timeunit, customer_id"};
+	option (proto.table).index2={fields:"name, timeunit, customer_id, date"};
+}

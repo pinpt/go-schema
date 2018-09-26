@@ -1,0 +1,181 @@
+
+// Customer is a generic table for holding customer specific details
+message Customer {
+	proto.ID id = 1;
+	string name = 2 [(proto.column).notnull=true];
+	bool active = 3 [(proto.column).notnull=true,(proto.column).default="false"];
+	int64 created_at = 4 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	int64 updated_at = 5 [(proto.column).type="BIGINT UNSIGNED"];
+	// metadata contains any additional information about the customer
+	string metadata = 50 [(proto.column).type="JSON"];
+}
+
+// User is a generic table which maps a user into a specific customer organization
+message User {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+
+	proto.UID customer_id = 3 [(proto.column).notnull=true];
+	string email = 4 [(proto.column).index=true,(proto.column).type="VARCHAR(255)"];
+	string name = 5;
+	string username = 6 [(proto.column).notnull=true,(proto.column).type="VARCHAR(100)"];
+	// if the user is still active in the system
+	bool active = 7 [(proto.column).notnull=true];
+	// if this user was automatically provisioned
+	bool autoenrolled = 8 [(proto.column).notnull=true];
+	// if this user is visible or not. set to false if this is a system account or something that you don't want to show up in reports etc
+	bool visible = 9 [(proto.column).notnull=true];
+	// the avatar for the user
+	string avatar_url = 10 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+	// the optional external employee id
+	string employee_id = 11;
+	// the optional textual location for the user
+	string location = 12;
+	// the optional region of the location such as United States or Europe. The location would be something like San Jose
+	string region = 13;
+	// the optional external department
+	string department = 14;
+	// the optional reports to user_id
+	proto.UID reports_to_user_id = 15;
+	// the optional title of the user such as Senior Software Developer II
+	string title = 16;
+	// the optional role which is customer specific but groups users into functional roles. For example, Product Development vs. Quality Engineer. These are meant to group titles into more generic roles
+	string role = 17;
+
+	int64 created_at = 20 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	int64 updated_at = 21 [(proto.column).type="BIGINT UNSIGNED"];
+
+	// metadata contains any additional information about the user which are integration specific. each integration can add additional attributes where the key of the object is the integration short name and any values are an object of that key
+	string metadata = 50 [(proto.column).type="JSON"];
+	// common ref_id that this system references
+	proto.UID ref_id = 51;
+	// common ref type such as jira, github, etc.
+	proto.UID ref_type = 52 [(proto.column).type="VARCHAR(20)"];
+
+	option (proto.table).index={fields:"username, customer_id"};
+	option (proto.table).index2={fields:"email, customer_id"};
+}
+
+// User Login is a generic table for tracking user logins
+message UserLogin {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+
+	proto.UID customer_id = 3 [(proto.column).notnull=true];
+	proto.UID user_id = 4 [(proto.column).notnull=true];
+	string browser = 5;
+	int64 date = 6 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+}
+
+// User Cost Center is a specific record for a users cost details
+message UserCostCenter {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+
+	proto.UID customer_id = 3 [(proto.column).notnull=true];
+	proto.UID user_id = 4 [(proto.column).notnull=true];
+	proto.UID cost_center_id = 5;
+	float unit_cost = 6;
+	enum UserUnitCostType {
+		SALARY = 0;
+		HOURLY = 1;
+		CONTRACTOR = 2;
+		CASUAL = 3;
+		OTHER = 4;
+	}
+	UserUnitCostType unit_type = 7;
+	// ISO 4217 currency code
+	string unit_currency = 8 [(proto.column).type="CHAR(3)"];
+	float allocation = 9;
+
+	int64 created_at = 20 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	int64 updated_at = 21 [(proto.column).type="BIGINT UNSIGNED"];
+
+}
+
+// Cost Center is a type of cost detail container that can be re-used for multiple users
+message CostCenter {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+
+	proto.UID customer_id = 3 [(proto.column).notnull=true];
+	string name = 4 [(proto.column).notnull=true];
+	string description = 5;
+	// this is the optional external id value for the customer
+	string identifier = 6;
+	float unit_cost = 7 [(proto.column).notnull=true];
+	// if absolute, use as a dollar value. if percentage, calculate additional cost by taking the
+	// value of the employees cost and multiple by the percentage to generate the additional
+	// charge for that employee
+	enum CostCenterValueType {
+		ABSOLUTE = 0;
+		PERCENTAGE = 1;
+	}
+	CostCenterValueType value_type = 8 [(proto.column).notnull=true];
+	enum CostCenterUnitCostType {
+		SALARY = 0;
+		HOURLY = 1;
+		CONTRACTOR = 2;
+		CASUAL = 3;
+		OTHER = 4;
+	}
+	CostCenterUnitCostType unit_type = 9 [(proto.column).notnull=true];
+	// ISO 4217 currency code
+	string unit_currency = 10 [(proto.column).notnull=true,(proto.column).type="CHAR(3)"];
+	float allocation = 11 [(proto.column).notnull=true];
+
+	int64 created_at = 20 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	int64 updated_at = 21 [(proto.column).type="BIGINT UNSIGNED"];
+}
+
+// Data Group is a way to organize how the UI groups and filters data
+message DataGroup {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+
+	proto.UID customer_id = 3 [(proto.column).notnull=true];
+	string name = 4 [(proto.column).notnull=true];
+	string description = 5;
+	proto.UID parent_id = 6;
+
+	string issue_project_ids = 10 [(proto.column).type="JSON"];
+	string user_ids = 11 [(proto.column).type="JSON"];
+	string repo_ids = 12 [(proto.column).type="JSON"];
+
+	int64 created_at = 20 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	int64 updated_at = 21 [(proto.column).type="BIGINT UNSIGNED"];
+}
+
+
+message UserMapping {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+
+	proto.UID customer_id = 3 [(proto.column).notnull=true];
+	proto.UID user_id = 4 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID ref_id = 5 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID ref_type = 6 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)"];
+}
+
+message RepoMapping {
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;
+
+	proto.UID customer_id = 3 [(proto.column).notnull=true];
+	proto.UID repo_id = 4 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID ref_id = 5 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID ref_type = 6 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)"];
+}
+
+// ExclusionMapping is a table which has all the excluded ref_id
+message ExclusionMapping {
+	proto.ID id = 1;
+	// ref_id is the specialized primary key which can be issue_id etc
+	proto.UID ref_id = 2 [(proto.column).notnull=true,(proto.column).index=true];
+	// ref_type is the name ref_id's type (such as issue etc)
+	string ref_type = 3 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)",(proto.column).index=true];
+	proto.UID user_id = 4;
+	int64 date = 5 [(proto.column).type="BIGINT UNSIGNED"];
+	// customer which owns the ref_id
+	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
+}
