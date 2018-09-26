@@ -1190,14 +1190,14 @@ func (t *JenkinsBuild) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateJenkinsBuildTable will create the JenkinsBuild table
 func DBCreateJenkinsBuildTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `jenkins_build` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`jenkins_build_number` BIGINT(20) NOT NULL,`job_id`VARCHAR(64) NOT NULL,`result`ENUM('result_unknown','success','failure','aborted') NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`finished_at` BIGINT(20) UNSIGNED,`sha`VARCHAR(255),`branch`VARCHAR(255),`url`VARCHAR(255) NOT NULL,INDEX jenkins_build_customer_id_index (`customer_id`),INDEX jenkins_build_jenkins_build_number_index (`jenkins_build_number`),INDEX jenkins_build_job_id_index (`job_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jenkins_build` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`jenkins_build_number` BIGINT NOT NULL,`job_id`VARCHAR(64) NOT NULL,`result`ENUM('result_unknown','success','failure','aborted') NOT NULL,`created_at` BIGINT UNSIGNED NOT NULL,`finished_at` BIGINT UNSIGNED,`sha`VARCHAR(255),`branch`VARCHAR(255),`url`VARCHAR(255) NOT NULL,INDEX jenkins_build_customer_id_index (`customer_id`),INDEX jenkins_build_jenkins_build_number_index (`jenkins_build_number`),INDEX jenkins_build_job_id_index (`job_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJenkinsBuildTableTx will create the JenkinsBuild table using the provided transction
 func DBCreateJenkinsBuildTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `jenkins_build` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`jenkins_build_number` BIGINT(20) NOT NULL,`job_id`VARCHAR(64) NOT NULL,`result`ENUM('result_unknown','success','failure','aborted') NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`finished_at` BIGINT(20) UNSIGNED,`sha`VARCHAR(255),`branch`VARCHAR(255),`url`VARCHAR(255) NOT NULL,INDEX jenkins_build_customer_id_index (`customer_id`),INDEX jenkins_build_jenkins_build_number_index (`jenkins_build_number`),INDEX jenkins_build_job_id_index (`job_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jenkins_build` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`jenkins_build_number` BIGINT NOT NULL,`job_id`VARCHAR(64) NOT NULL,`result`ENUM('result_unknown','success','failure','aborted') NOT NULL,`created_at` BIGINT UNSIGNED NOT NULL,`finished_at` BIGINT UNSIGNED,`sha`VARCHAR(255),`branch`VARCHAR(255),`url`VARCHAR(255) NOT NULL,INDEX jenkins_build_customer_id_index (`customer_id`),INDEX jenkins_build_jenkins_build_number_index (`jenkins_build_number`),INDEX jenkins_build_job_id_index (`job_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

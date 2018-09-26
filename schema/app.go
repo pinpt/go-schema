@@ -872,14 +872,14 @@ func (t *App) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateAppTable will create the App table
 func DBCreateAppTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `app` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(255) NOT NULL,`description`TEXT,`active` BOOL NOT NULL,`repo_ids`JSON,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,INDEX app_name_index (`name`),INDEX app_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `app` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(255) NOT NULL,`description`TEXT,`active` BOOL NOT NULL,`repo_ids`JSON,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,INDEX app_name_index (`name`),INDEX app_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateAppTableTx will create the App table using the provided transction
 func DBCreateAppTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `app` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(255) NOT NULL,`description`TEXT,`active` BOOL NOT NULL,`repo_ids`JSON,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,INDEX app_name_index (`name`),INDEX app_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `app` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(255) NOT NULL,`description`TEXT,`active` BOOL NOT NULL,`repo_ids`JSON,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,INDEX app_name_index (`name`),INDEX app_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

@@ -1130,14 +1130,14 @@ func (t *NewrelicAlertsIncident) toTimestamp(value time.Time) *timestamp.Timesta
 
 // DBCreateNewrelicAlertsIncidentTable will create the NewrelicAlertsIncident table
 func DBCreateNewrelicAlertsIncidentTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `newrelic_alerts_incident` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id`BIGINT(20) NOT NULL,`opened_at`BIGINT(20) NOT NULL,`closed_at`BIGINT(20),`incident_preference` TEXT NOT NULL,`violation_ext_ids` JSON NOT NULL,`violation_ids` JSON NOT NULL,`policy_ext_id` BIGINT(20),`policy_id`VARCHAR(64),INDEX newrelic_alerts_incident_customer_id_index (`customer_id`),INDEX newrelic_alerts_incident_policy_ext_id_index (`policy_ext_id`),INDEX newrelic_alerts_incident_policy_id_index (`policy_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `newrelic_alerts_incident` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id`BIGINT NOT NULL,`opened_at`BIGINT NOT NULL,`closed_at`BIGINT,`incident_preference` TEXT NOT NULL,`violation_ext_ids` JSON NOT NULL,`violation_ids` JSON NOT NULL,`policy_ext_id` BIGINT,`policy_id`VARCHAR(64),INDEX newrelic_alerts_incident_customer_id_index (`customer_id`),INDEX newrelic_alerts_incident_policy_ext_id_index (`policy_ext_id`),INDEX newrelic_alerts_incident_policy_id_index (`policy_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateNewrelicAlertsIncidentTableTx will create the NewrelicAlertsIncident table using the provided transction
 func DBCreateNewrelicAlertsIncidentTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `newrelic_alerts_incident` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id`BIGINT(20) NOT NULL,`opened_at`BIGINT(20) NOT NULL,`closed_at`BIGINT(20),`incident_preference` TEXT NOT NULL,`violation_ext_ids` JSON NOT NULL,`violation_ids` JSON NOT NULL,`policy_ext_id` BIGINT(20),`policy_id`VARCHAR(64),INDEX newrelic_alerts_incident_customer_id_index (`customer_id`),INDEX newrelic_alerts_incident_policy_ext_id_index (`policy_ext_id`),INDEX newrelic_alerts_incident_policy_id_index (`policy_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `newrelic_alerts_incident` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id`BIGINT NOT NULL,`opened_at`BIGINT NOT NULL,`closed_at`BIGINT,`incident_preference` TEXT NOT NULL,`violation_ext_ids` JSON NOT NULL,`violation_ids` JSON NOT NULL,`policy_ext_id` BIGINT,`policy_id`VARCHAR(64),INDEX newrelic_alerts_incident_customer_id_index (`customer_id`),INDEX newrelic_alerts_incident_policy_ext_id_index (`policy_ext_id`),INDEX newrelic_alerts_incident_policy_id_index (`policy_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

@@ -1127,14 +1127,14 @@ func (t *NewrelicDeployment) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateNewrelicDeploymentTable will create the NewrelicDeployment table
 func DBCreateNewrelicDeploymentTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `newrelic_deployment` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`application_ext_id` BIGINT(20) NOT NULL,`application_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT(20) NOT NULL,`revision` TEXT NOT NULL,`changelog` TEXT,`description` TEXT,`user`TEXT NOT NULL,`timestamp` BIGINT(20) NOT NULL,INDEX newrelic_deployment_customer_id_index (`customer_id`),INDEX newrelic_deployment_application_ext_id_index (`application_ext_id`),INDEX newrelic_deployment_application_id_index (`application_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `newrelic_deployment` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`application_ext_id` BIGINT NOT NULL,`application_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT NOT NULL,`revision` TEXT NOT NULL,`changelog` TEXT,`description` TEXT,`user`TEXT NOT NULL,`timestamp` BIGINT NOT NULL,INDEX newrelic_deployment_customer_id_index (`customer_id`),INDEX newrelic_deployment_application_ext_id_index (`application_ext_id`),INDEX newrelic_deployment_application_id_index (`application_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateNewrelicDeploymentTableTx will create the NewrelicDeployment table using the provided transction
 func DBCreateNewrelicDeploymentTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `newrelic_deployment` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`application_ext_id` BIGINT(20) NOT NULL,`application_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT(20) NOT NULL,`revision` TEXT NOT NULL,`changelog` TEXT,`description` TEXT,`user`TEXT NOT NULL,`timestamp` BIGINT(20) NOT NULL,INDEX newrelic_deployment_customer_id_index (`customer_id`),INDEX newrelic_deployment_application_ext_id_index (`application_ext_id`),INDEX newrelic_deployment_application_id_index (`application_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `newrelic_deployment` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`application_ext_id` BIGINT NOT NULL,`application_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT NOT NULL,`revision` TEXT NOT NULL,`changelog` TEXT,`description` TEXT,`user`TEXT NOT NULL,`timestamp` BIGINT NOT NULL,INDEX newrelic_deployment_customer_id_index (`customer_id`),INDEX newrelic_deployment_application_ext_id_index (`application_ext_id`),INDEX newrelic_deployment_application_id_index (`application_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

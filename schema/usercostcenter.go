@@ -45,53 +45,53 @@ var UserCostCenterColumns = []string{
 	"updated_at",
 }
 
-type UserCostCenter_UserCostCenterUnitType string
+type UserCostCenter_UserUnitCostType string
 
 const (
-	UserCostCenterUnitType_SALARY     UserCostCenter_UserCostCenterUnitType = "salary"
-	UserCostCenterUnitType_HOURLY     UserCostCenter_UserCostCenterUnitType = "hourly"
-	UserCostCenterUnitType_CONTRACTOR UserCostCenter_UserCostCenterUnitType = "contractor"
-	UserCostCenterUnitType_CASUAL     UserCostCenter_UserCostCenterUnitType = "casual"
-	UserCostCenterUnitType_OTHER      UserCostCenter_UserCostCenterUnitType = "other"
+	UserUnitCostType_SALARY     UserCostCenter_UserUnitCostType = "salary"
+	UserUnitCostType_HOURLY     UserCostCenter_UserUnitCostType = "hourly"
+	UserUnitCostType_CONTRACTOR UserCostCenter_UserUnitCostType = "contractor"
+	UserUnitCostType_CASUAL     UserCostCenter_UserUnitCostType = "casual"
+	UserUnitCostType_OTHER      UserCostCenter_UserUnitCostType = "other"
 )
 
-func (x UserCostCenter_UserCostCenterUnitType) String() string {
+func (x UserCostCenter_UserUnitCostType) String() string {
 	return string(x)
 }
 
-func enumUserCostCenterUnitTypeToString(v *UserCostCenter_UserCostCenterUnitType) string {
+func enumUserUnitCostTypeToString(v *UserCostCenter_UserUnitCostType) string {
 	if v == nil {
 		return ""
 	}
 	return v.String()
 }
 
-func toUserCostCenterUnitType(v string) *UserCostCenter_UserCostCenterUnitType {
-	var ev *UserCostCenter_UserCostCenterUnitType
+func toUserUnitCostType(v string) *UserCostCenter_UserUnitCostType {
+	var ev *UserCostCenter_UserUnitCostType
 	switch v {
 	case "SALARY", "salary":
 		{
-			v := UserCostCenterUnitType_SALARY
+			v := UserUnitCostType_SALARY
 			ev = &v
 		}
 	case "HOURLY", "hourly":
 		{
-			v := UserCostCenterUnitType_HOURLY
+			v := UserUnitCostType_HOURLY
 			ev = &v
 		}
 	case "CONTRACTOR", "contractor":
 		{
-			v := UserCostCenterUnitType_CONTRACTOR
+			v := UserUnitCostType_CONTRACTOR
 			ev = &v
 		}
 	case "CASUAL", "casual":
 		{
-			v := UserCostCenterUnitType_CASUAL
+			v := UserUnitCostType_CASUAL
 			ev = &v
 		}
 	case "OTHER", "other":
 		{
-			v := UserCostCenterUnitType_OTHER
+			v := UserUnitCostType_OTHER
 			ev = &v
 		}
 	}
@@ -100,17 +100,17 @@ func toUserCostCenterUnitType(v string) *UserCostCenter_UserCostCenterUnitType {
 
 // UserCostCenter table
 type UserCostCenter struct {
-	Allocation   *float64                               `json:"allocation,omitempty"`
-	Checksum     *string                                `json:"checksum,omitempty"`
-	CostCenterID *string                                `json:"cost_center_id,omitempty"`
-	CreatedAt    int64                                  `json:"created_at"`
-	CustomerID   string                                 `json:"customer_id"`
-	ID           string                                 `json:"id"`
-	UnitCost     *float64                               `json:"unit_cost,omitempty"`
-	UnitCurrency *string                                `json:"unit_currency,omitempty"`
-	UnitType     *UserCostCenter_UserCostCenterUnitType `json:"unit_type,omitempty"`
-	UpdatedAt    *int64                                 `json:"updated_at,omitempty"`
-	UserID       string                                 `json:"user_id"`
+	Allocation   *float64                         `json:"allocation,omitempty"`
+	Checksum     *string                          `json:"checksum,omitempty"`
+	CostCenterID *string                          `json:"cost_center_id,omitempty"`
+	CreatedAt    int64                            `json:"created_at"`
+	CustomerID   string                           `json:"customer_id"`
+	ID           string                           `json:"id"`
+	UnitCost     *float64                         `json:"unit_cost,omitempty"`
+	UnitCurrency *string                          `json:"unit_currency,omitempty"`
+	UnitType     *UserCostCenter_UserUnitCostType `json:"unit_type,omitempty"`
+	UpdatedAt    *int64                           `json:"updated_at,omitempty"`
+	UserID       string                           `json:"user_id"`
 }
 
 // TableName returns the SQL table name for UserCostCenter and satifies the Model interface
@@ -199,7 +199,7 @@ func NewCSVUserCostCenterReader(r io.Reader, ch chan<- UserCostCenter) error {
 			UserID:       record[3],
 			CostCenterID: fromStringPointer(record[4]),
 			UnitCost:     fromCSVFloat64Pointer(record[5]),
-			UnitType:     toUserCostCenterUnitType(record[6]),
+			UnitType:     toUserUnitCostType(record[6]),
 			UnitCurrency: fromStringPointer(record[7]),
 			Allocation:   fromCSVFloat64Pointer(record[8]),
 			CreatedAt:    fromCSVInt64(record[9]),
@@ -650,15 +650,15 @@ func (t *UserCostCenter) SetUnitCost(v float64) {
 }
 
 // GetUnitType will return the UserCostCenter UnitType value
-func (t *UserCostCenter) GetUnitType() UserCostCenter_UserCostCenterUnitType {
+func (t *UserCostCenter) GetUnitType() UserCostCenter_UserUnitCostType {
 	if t.UnitType == nil {
-		return UserCostCenterUnitType_SALARY
+		return UserUnitCostType_SALARY
 	}
 	return *t.UnitType
 }
 
 // SetUnitType will set the UserCostCenter UnitType value
-func (t *UserCostCenter) SetUnitType(v UserCostCenter_UserCostCenterUnitType) {
+func (t *UserCostCenter) SetUnitType(v UserCostCenter_UserUnitCostType) {
 	t.UnitType = &v
 }
 
@@ -672,7 +672,7 @@ func (t *UserCostCenter) GetUnitTypeString() string {
 
 // SetUnitTypeString will set the UserCostCenter UnitType value from a string
 func (t *UserCostCenter) SetUnitTypeString(v string) {
-	t.UnitType = toUserCostCenterUnitType(v)
+	t.UnitType = toUserUnitCostType(v)
 }
 
 // GetUnitCurrency will return the UserCostCenter UnitCurrency value
@@ -731,14 +731,14 @@ func (t *UserCostCenter) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateUserCostCenterTable will create the UserCostCenter table
 func DBCreateUserCostCenterTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `user_cost_center` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`cost_center_id` VARCHAR(64),`unit_cost`FLOAT,`unit_type`ENUM('salary','hourly','contractor','casual','other'),`unit_currency` CHAR(3),`allocation` FLOAT,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `user_cost_center` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`cost_center_id` VARCHAR(64),`unit_cost`FLOAT,`unit_type`ENUM('salary','hourly','contractor','casual','other'),`unit_currency` CHAR(3),`allocation` FLOAT,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateUserCostCenterTableTx will create the UserCostCenter table using the provided transction
 func DBCreateUserCostCenterTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `user_cost_center` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`cost_center_id` VARCHAR(64),`unit_cost`FLOAT,`unit_type`ENUM('salary','hourly','contractor','casual','other'),`unit_currency` CHAR(3),`allocation` FLOAT,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `user_cost_center` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`cost_center_id` VARCHAR(64),`unit_cost`FLOAT,`unit_type`ENUM('salary','hourly','contractor','casual','other'),`unit_currency` CHAR(3),`allocation` FLOAT,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
@@ -765,7 +765,7 @@ func (t *UserCostCenter) CalculateChecksum() string {
 		orm.ToString(t.UserID),
 		orm.ToString(t.CostCenterID),
 		orm.ToString(t.UnitCost),
-		enumUserCostCenterUnitTypeToString(t.UnitType),
+		enumUserUnitCostTypeToString(t.UnitType),
 		orm.ToString(t.UnitCurrency),
 		orm.ToString(t.Allocation),
 		orm.ToString(t.CreatedAt),
@@ -788,7 +788,7 @@ func (t *UserCostCenter) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, 
 		orm.ToSQLString(t.UserID),
 		orm.ToSQLString(t.CostCenterID),
 		orm.ToSQLFloat64(t.UnitCost),
-		orm.ToSQLString(enumUserCostCenterUnitTypeToString(t.UnitType)),
+		orm.ToSQLString(enumUserUnitCostTypeToString(t.UnitType)),
 		orm.ToSQLString(t.UnitCurrency),
 		orm.ToSQLFloat64(t.Allocation),
 		orm.ToSQLInt64(t.CreatedAt),
@@ -811,7 +811,7 @@ func (t *UserCostCenter) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result
 		orm.ToSQLString(t.UserID),
 		orm.ToSQLString(t.CostCenterID),
 		orm.ToSQLFloat64(t.UnitCost),
-		orm.ToSQLString(enumUserCostCenterUnitTypeToString(t.UnitType)),
+		orm.ToSQLString(enumUserUnitCostTypeToString(t.UnitType)),
 		orm.ToSQLString(t.UnitCurrency),
 		orm.ToSQLFloat64(t.Allocation),
 		orm.ToSQLInt64(t.CreatedAt),
@@ -834,7 +834,7 @@ func (t *UserCostCenter) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB
 		orm.ToSQLString(t.UserID),
 		orm.ToSQLString(t.CostCenterID),
 		orm.ToSQLFloat64(t.UnitCost),
-		orm.ToSQLString(enumUserCostCenterUnitTypeToString(t.UnitType)),
+		orm.ToSQLString(enumUserUnitCostTypeToString(t.UnitType)),
 		orm.ToSQLString(t.UnitCurrency),
 		orm.ToSQLFloat64(t.Allocation),
 		orm.ToSQLInt64(t.CreatedAt),
@@ -857,7 +857,7 @@ func (t *UserCostCenter) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.
 		orm.ToSQLString(t.UserID),
 		orm.ToSQLString(t.CostCenterID),
 		orm.ToSQLFloat64(t.UnitCost),
-		orm.ToSQLString(enumUserCostCenterUnitTypeToString(t.UnitType)),
+		orm.ToSQLString(enumUserUnitCostTypeToString(t.UnitType)),
 		orm.ToSQLString(t.UnitCurrency),
 		orm.ToSQLFloat64(t.Allocation),
 		orm.ToSQLInt64(t.CreatedAt),
@@ -937,7 +937,7 @@ func (t *UserCostCenter) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, 
 		orm.ToSQLString(t.UserID),
 		orm.ToSQLString(t.CostCenterID),
 		orm.ToSQLFloat64(t.UnitCost),
-		orm.ToSQLString(enumUserCostCenterUnitTypeToString(t.UnitType)),
+		orm.ToSQLString(enumUserUnitCostTypeToString(t.UnitType)),
 		orm.ToSQLString(t.UnitCurrency),
 		orm.ToSQLFloat64(t.Allocation),
 		orm.ToSQLInt64(t.CreatedAt),
@@ -960,7 +960,7 @@ func (t *UserCostCenter) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result
 		orm.ToSQLString(t.UserID),
 		orm.ToSQLString(t.CostCenterID),
 		orm.ToSQLFloat64(t.UnitCost),
-		orm.ToSQLString(enumUserCostCenterUnitTypeToString(t.UnitType)),
+		orm.ToSQLString(enumUserUnitCostTypeToString(t.UnitType)),
 		orm.ToSQLString(t.UnitCurrency),
 		orm.ToSQLFloat64(t.Allocation),
 		orm.ToSQLInt64(t.CreatedAt),
@@ -992,7 +992,7 @@ func (t *UserCostCenter) DBUpsert(ctx context.Context, db *sql.DB, conditions ..
 		orm.ToSQLString(t.UserID),
 		orm.ToSQLString(t.CostCenterID),
 		orm.ToSQLFloat64(t.UnitCost),
-		orm.ToSQLString(enumUserCostCenterUnitTypeToString(t.UnitType)),
+		orm.ToSQLString(enumUserUnitCostTypeToString(t.UnitType)),
 		orm.ToSQLString(t.UnitCurrency),
 		orm.ToSQLFloat64(t.Allocation),
 		orm.ToSQLInt64(t.CreatedAt),
@@ -1028,7 +1028,7 @@ func (t *UserCostCenter) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions 
 		orm.ToSQLString(t.UserID),
 		orm.ToSQLString(t.CostCenterID),
 		orm.ToSQLFloat64(t.UnitCost),
-		orm.ToSQLString(enumUserCostCenterUnitTypeToString(t.UnitType)),
+		orm.ToSQLString(enumUserUnitCostTypeToString(t.UnitType)),
 		orm.ToSQLString(t.UnitCurrency),
 		orm.ToSQLFloat64(t.Allocation),
 		orm.ToSQLInt64(t.CreatedAt),

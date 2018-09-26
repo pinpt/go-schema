@@ -1151,14 +1151,14 @@ func (t *JiraIssueProgress) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateJiraIssueProgressTable will create the JiraIssueProgress table
 func DBCreateJiraIssueProgressTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `jira_issue_progress` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`user_id`VARCHAR(64),`issue_id` VARCHAR(64) NOT NULL,`start_date`BIGINT(20) UNSIGNED,`end_date` BIGINT(20) UNSIGNED,`duration` BIGINT(20) UNSIGNED,`customer_id` VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,INDEX jira_issue_progress_user_id_index (`user_id`),INDEX jira_issue_progress_issue_id_index (`issue_id`),INDEX jira_issue_progress_customer_id_index (`customer_id`),INDEX jira_issue_progress_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jira_issue_progress` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`user_id`VARCHAR(64),`issue_id` VARCHAR(64) NOT NULL,`start_date`BIGINT UNSIGNED,`end_date` BIGINT UNSIGNED,`duration` BIGINT UNSIGNED,`customer_id` VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,INDEX jira_issue_progress_user_id_index (`user_id`),INDEX jira_issue_progress_issue_id_index (`issue_id`),INDEX jira_issue_progress_customer_id_index (`customer_id`),INDEX jira_issue_progress_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraIssueProgressTableTx will create the JiraIssueProgress table using the provided transction
 func DBCreateJiraIssueProgressTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `jira_issue_progress` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`user_id`VARCHAR(64),`issue_id` VARCHAR(64) NOT NULL,`start_date`BIGINT(20) UNSIGNED,`end_date` BIGINT(20) UNSIGNED,`duration` BIGINT(20) UNSIGNED,`customer_id` VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,INDEX jira_issue_progress_user_id_index (`user_id`),INDEX jira_issue_progress_issue_id_index (`issue_id`),INDEX jira_issue_progress_customer_id_index (`customer_id`),INDEX jira_issue_progress_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jira_issue_progress` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`user_id`VARCHAR(64),`issue_id` VARCHAR(64) NOT NULL,`start_date`BIGINT UNSIGNED,`end_date` BIGINT UNSIGNED,`duration` BIGINT UNSIGNED,`customer_id` VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,INDEX jira_issue_progress_user_id_index (`user_id`),INDEX jira_issue_progress_issue_id_index (`issue_id`),INDEX jira_issue_progress_customer_id_index (`customer_id`),INDEX jira_issue_progress_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

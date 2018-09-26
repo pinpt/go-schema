@@ -1137,14 +1137,14 @@ func (t *Signal) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateSignalTable will create the Signal table
 func DBCreateSignalTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `signal` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`CHAR(60) NOT NULL,`value` DOUBLE NOT NULL,`timeunit` INT(11) NOT NULL,`date`DATE NOT NULL,`metadata` JSON,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20),`ref_id` VARCHAR(64),INDEX signal_name_index (`name`),INDEX signal_customer_id_index (`customer_id`),INDEX signal_ref_type_index (`ref_type`),INDEX signal_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `signal` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`CHAR(60) NOT NULL,`value` REAL NOT NULL DEFAULT 0,`timeunit` INT NOT NULL,`date`DATE NOT NULL,`metadata` JSON,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20),`ref_id` VARCHAR(64),INDEX signal_name_index (`name`),INDEX signal_customer_id_index (`customer_id`),INDEX signal_ref_type_index (`ref_type`),INDEX signal_ref_id_index (`ref_id`),INDEX signal_name_timeunit_customer_id_index (`name`,`timeunit`,`customer_id`),INDEX signal_name_timeunit_customer_id_date_index (`name`,`timeunit`,`customer_id`,`date`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateSignalTableTx will create the Signal table using the provided transction
 func DBCreateSignalTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `signal` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`CHAR(60) NOT NULL,`value` DOUBLE NOT NULL,`timeunit` INT(11) NOT NULL,`date`DATE NOT NULL,`metadata` JSON,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20),`ref_id` VARCHAR(64),INDEX signal_name_index (`name`),INDEX signal_customer_id_index (`customer_id`),INDEX signal_ref_type_index (`ref_type`),INDEX signal_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `signal` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`CHAR(60) NOT NULL,`value` REAL NOT NULL DEFAULT 0,`timeunit` INT NOT NULL,`date`DATE NOT NULL,`metadata` JSON,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20),`ref_id` VARCHAR(64),INDEX signal_name_index (`name`),INDEX signal_customer_id_index (`customer_id`),INDEX signal_ref_type_index (`ref_type`),INDEX signal_ref_id_index (`ref_id`),INDEX signal_name_timeunit_customer_id_index (`name`,`timeunit`,`customer_id`),INDEX signal_name_timeunit_customer_id_date_index (`name`,`timeunit`,`customer_id`,`date`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

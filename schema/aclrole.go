@@ -825,14 +825,14 @@ func (t *ACLRole) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateACLRoleTable will create the ACLRole table
 func DBCreateACLRoleTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `acl_role` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(100) NOT NULL,`description`TEXT,`admin_user_id` VARCHAR(64),`customer_id`VARCHAR(64),`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,INDEX acl_role_name_index (`name`),INDEX acl_role_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `acl_role` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(100) NOT NULL,`description`TEXT,`admin_user_id` VARCHAR(64),`customer_id`VARCHAR(64),`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,INDEX acl_role_name_index (`name`),INDEX acl_role_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateACLRoleTableTx will create the ACLRole table using the provided transction
 func DBCreateACLRoleTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `acl_role` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(100) NOT NULL,`description`TEXT,`admin_user_id` VARCHAR(64),`customer_id`VARCHAR(64),`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,INDEX acl_role_name_index (`name`),INDEX acl_role_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `acl_role` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(100) NOT NULL,`description`TEXT,`admin_user_id` VARCHAR(64),`customer_id`VARCHAR(64),`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,INDEX acl_role_name_index (`name`),INDEX acl_role_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

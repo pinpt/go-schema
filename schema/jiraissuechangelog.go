@@ -1374,14 +1374,14 @@ func (t *JiraIssueChangeLog) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateJiraIssueChangeLogTable will create the JiraIssueChangeLog table
 func DBCreateJiraIssueChangeLogTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `jira_issue_change_log` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`user_id`VARCHAR(64),`assignee_id` VARCHAR(64),`created_at`BIGINT(20) UNSIGNED,`field` VARCHAR(255) NOT NULL,`field_type`TEXT,`from`LONGTEXT,`from_string` LONGTEXT,`to` LONGTEXT,`to_string` LONGTEXT,`ref_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`issue_id` VARCHAR(64) NOT NULL,`project_id`VARCHAR(64) NOT NULL,`ordinal`INT(11) NOT NULL,INDEX jira_issue_change_log_field_index (`field`),INDEX jira_issue_change_log_customer_id_index (`customer_id`),INDEX jira_issue_change_log_issue_id_index (`issue_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jira_issue_change_log` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`user_id`VARCHAR(64),`assignee_id` VARCHAR(64),`created_at`BIGINT UNSIGNED,`field` VARCHAR(255) NOT NULL,`field_type`TEXT,`from`LONGTEXT,`from_string` LONGTEXT,`to` LONGTEXT,`to_string` LONGTEXT,`ref_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`issue_id` VARCHAR(64) NOT NULL,`project_id`VARCHAR(64) NOT NULL,`ordinal`INT NOT NULL,INDEX jira_issue_change_log_field_index (`field`),INDEX jira_issue_change_log_customer_id_index (`customer_id`),INDEX jira_issue_change_log_issue_id_index (`issue_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraIssueChangeLogTableTx will create the JiraIssueChangeLog table using the provided transction
 func DBCreateJiraIssueChangeLogTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `jira_issue_change_log` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`user_id`VARCHAR(64),`assignee_id` VARCHAR(64),`created_at`BIGINT(20) UNSIGNED,`field` VARCHAR(255) NOT NULL,`field_type`TEXT,`from`LONGTEXT,`from_string` LONGTEXT,`to` LONGTEXT,`to_string` LONGTEXT,`ref_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`issue_id` VARCHAR(64) NOT NULL,`project_id`VARCHAR(64) NOT NULL,`ordinal`INT(11) NOT NULL,INDEX jira_issue_change_log_field_index (`field`),INDEX jira_issue_change_log_customer_id_index (`customer_id`),INDEX jira_issue_change_log_issue_id_index (`issue_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jira_issue_change_log` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`user_id`VARCHAR(64),`assignee_id` VARCHAR(64),`created_at`BIGINT UNSIGNED,`field` VARCHAR(255) NOT NULL,`field_type`TEXT,`from`LONGTEXT,`from_string` LONGTEXT,`to` LONGTEXT,`to_string` LONGTEXT,`ref_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`issue_id` VARCHAR(64) NOT NULL,`project_id`VARCHAR(64) NOT NULL,`ordinal`INT NOT NULL,INDEX jira_issue_change_log_field_index (`field`),INDEX jira_issue_change_log_customer_id_index (`customer_id`),INDEX jira_issue_change_log_issue_id_index (`issue_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

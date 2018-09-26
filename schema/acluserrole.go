@@ -944,14 +944,14 @@ func (t *ACLUserRole) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateACLUserRoleTable will create the ACLUserRole table
 func DBCreateACLUserRoleTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `acl_user_role` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`user_id` VARCHAR(64) NOT NULL,`role_id` VARCHAR(64) NOT NULL,`customer_id`VARCHAR(64) NOT NULL,`admin_user_id` VARCHAR(64) NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,INDEX acl_user_role_user_id_index (`user_id`),INDEX acl_user_role_role_id_index (`role_id`),INDEX acl_user_role_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `acl_user_role` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`user_id` VARCHAR(64) NOT NULL,`role_id` VARCHAR(64) NOT NULL,`customer_id`VARCHAR(64) NOT NULL,`admin_user_id` VARCHAR(64) NOT NULL,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,INDEX acl_user_role_user_id_index (`user_id`),INDEX acl_user_role_role_id_index (`role_id`),INDEX acl_user_role_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateACLUserRoleTableTx will create the ACLUserRole table using the provided transction
 func DBCreateACLUserRoleTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `acl_user_role` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`user_id` VARCHAR(64) NOT NULL,`role_id` VARCHAR(64) NOT NULL,`customer_id`VARCHAR(64) NOT NULL,`admin_user_id` VARCHAR(64) NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,INDEX acl_user_role_user_id_index (`user_id`),INDEX acl_user_role_role_id_index (`role_id`),INDEX acl_user_role_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `acl_user_role` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`user_id` VARCHAR(64) NOT NULL,`role_id` VARCHAR(64) NOT NULL,`customer_id`VARCHAR(64) NOT NULL,`admin_user_id` VARCHAR(64) NOT NULL,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,INDEX acl_user_role_user_id_index (`user_id`),INDEX acl_user_role_role_id_index (`role_id`),INDEX acl_user_role_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

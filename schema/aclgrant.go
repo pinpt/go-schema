@@ -1058,14 +1058,14 @@ func (t *ACLGrant) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateACLGrantTable will create the ACLGrant table
 func DBCreateACLGrantTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `acl_grant` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`resource_id`VARCHAR(64) NOT NULL,`role_id` VARCHAR(64) NOT NULL,`permission` ENUM('read','readwrite','admin') NOT NULL,`admin_user_id` VARCHAR(64) NOT NULL,`customer_id`VARCHAR(64) NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,INDEX acl_grant_resource_id_index (`resource_id`),INDEX acl_grant_role_id_index (`role_id`),INDEX acl_grant_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `acl_grant` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`resource_id`VARCHAR(64) NOT NULL,`role_id` VARCHAR(64) NOT NULL,`permission` ENUM('read','readwrite','admin') NOT NULL,`admin_user_id` VARCHAR(64) NOT NULL,`customer_id`VARCHAR(64) NOT NULL,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,INDEX acl_grant_resource_id_index (`resource_id`),INDEX acl_grant_role_id_index (`role_id`),INDEX acl_grant_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateACLGrantTableTx will create the ACLGrant table using the provided transction
 func DBCreateACLGrantTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `acl_grant` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`resource_id`VARCHAR(64) NOT NULL,`role_id` VARCHAR(64) NOT NULL,`permission` ENUM('read','readwrite','admin') NOT NULL,`admin_user_id` VARCHAR(64) NOT NULL,`customer_id`VARCHAR(64) NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,INDEX acl_grant_resource_id_index (`resource_id`),INDEX acl_grant_role_id_index (`role_id`),INDEX acl_grant_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `acl_grant` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`resource_id`VARCHAR(64) NOT NULL,`role_id` VARCHAR(64) NOT NULL,`permission` ENUM('read','readwrite','admin') NOT NULL,`admin_user_id` VARCHAR(64) NOT NULL,`customer_id`VARCHAR(64) NOT NULL,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,INDEX acl_grant_resource_id_index (`resource_id`),INDEX acl_grant_role_id_index (`role_id`),INDEX acl_grant_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

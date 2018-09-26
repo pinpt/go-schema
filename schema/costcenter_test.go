@@ -36,7 +36,7 @@ func TestCreateCostCenterDelete(t *testing.T) {
 		Identifier:   nil,
 		UnitCost:     float64(6.4),
 		ValueType:    CostCenterValueType_ABSOLUTE,
-		UnitType:     CostCenterUnitType_SALARY,
+		UnitType:     CostCenterUnitCostType_SALARY,
 		UnitCurrency: "212",
 		Allocation:   float64(6.4),
 		CreatedAt:    int64(64),
@@ -115,7 +115,7 @@ func TestCreateCostCenterDelete(t *testing.T) {
 
 	r.SetValueType(CostCenterValueType_ABSOLUTE)
 
-	r.SetUnitType(CostCenterUnitType_SALARY)
+	r.SetUnitType(CostCenterUnitCostType_SALARY)
 
 	r.SetUnitCurrency("801")
 
@@ -163,7 +163,7 @@ func TestCreateCostCenterDeleteTx(t *testing.T) {
 		Identifier:   nil,
 		UnitCost:     float64(6.4),
 		ValueType:    CostCenterValueType_ABSOLUTE,
-		UnitType:     CostCenterUnitType_SALARY,
+		UnitType:     CostCenterUnitCostType_SALARY,
 		UnitCurrency: "212",
 		Allocation:   float64(6.4),
 		CreatedAt:    int64(64),
@@ -246,7 +246,7 @@ func TestCreateCostCenterDeleteTx(t *testing.T) {
 
 	r.SetValueType(CostCenterValueType_ABSOLUTE)
 
-	r.SetUnitType(CostCenterUnitType_SALARY)
+	r.SetUnitType(CostCenterUnitCostType_SALARY)
 
 	r.SetUnitCurrency("801")
 

@@ -1004,14 +1004,14 @@ func (t *IssueProject) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateIssueProjectTable will create the IssueProject table
 func DBCreateIssueProjectTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `issue_project` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`name`TEXT NOT NULL,`url` TEXT NOT NULL,`created_at`BIGINT(20) UNSIGNED NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata` JSON,INDEX issue_project_customer_id_index (`customer_id`),INDEX issue_project_ref_type_index (`ref_type`),INDEX issue_project_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `issue_project` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`name`TEXT NOT NULL,`url` TEXT NOT NULL,`created_at`BIGINT UNSIGNED NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata` JSON,INDEX issue_project_customer_id_index (`customer_id`),INDEX issue_project_ref_type_index (`ref_type`),INDEX issue_project_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateIssueProjectTableTx will create the IssueProject table using the provided transction
 func DBCreateIssueProjectTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `issue_project` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`name`TEXT NOT NULL,`url` TEXT NOT NULL,`created_at`BIGINT(20) UNSIGNED NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata` JSON,INDEX issue_project_customer_id_index (`customer_id`),INDEX issue_project_ref_type_index (`ref_type`),INDEX issue_project_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `issue_project` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`name`TEXT NOT NULL,`url` TEXT NOT NULL,`created_at`BIGINT UNSIGNED NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata` JSON,INDEX issue_project_customer_id_index (`customer_id`),INDEX issue_project_ref_type_index (`ref_type`),INDEX issue_project_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

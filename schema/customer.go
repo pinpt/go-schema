@@ -492,14 +492,14 @@ func (t *Customer) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateCustomerTable will create the Customer table
 func DBCreateCustomerTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `customer` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name` TEXT NOT NULL,`active`BOOL NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,`metadata` JSON) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `customer` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name` TEXT NOT NULL,`active`BOOL NOT NULL DEFAULT false,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,`metadata` JSON) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateCustomerTableTx will create the Customer table using the provided transction
 func DBCreateCustomerTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `customer` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name` TEXT NOT NULL,`active`BOOL NOT NULL,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED,`metadata` JSON) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `customer` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name` TEXT NOT NULL,`active`BOOL NOT NULL DEFAULT false,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,`metadata` JSON) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

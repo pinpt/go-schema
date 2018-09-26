@@ -9,12 +9,12 @@ import (
 	"github.com/jhaynie/go-gator/orm"
 )
 
-func TestCreateSonarqubeMeasureHistoryTable(t *testing.T) {
+func TestCreateGooseDbVersionTable(t *testing.T) {
 	tx, err := GetDatabase().Begin()
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DBCreateSonarqubeMeasureHistoryTableTx(context.Background(), tx)
+	err = DBCreateGooseDbVersionTableTx(context.Background(), tx)
 	if err != nil {
 		tx.Rollback()
 		t.Fatal(err)
@@ -26,20 +26,16 @@ func TestCreateSonarqubeMeasureHistoryTable(t *testing.T) {
 	}
 }
 
-func TestCreateSonarqubeMeasureHistoryDelete(t *testing.T) {
-	r := &SonarqubeMeasureHistory{
-		ID:                "7d2d7cc617704933",
-		Checksum:          nil,
-		CustomerID:        "2c63dfd410a42308",
-		ComponentIDExtID:  "f2f18e146cbfbf48",
-		ComponentIDID:     "3626eb9d5daf4b05",
-		ComponentKeyExtID: "0e66b0465c93855a",
-		ExtID:             "abc534b45ac15e91",
-		History:           "{}",
+func TestCreateGooseDbVersionDelete(t *testing.T) {
+	r := &GooseDbVersion{
+		ID:        int32(32),
+		VersionID: int32(32),
+		IsApplied: true,
+		Tstamp:    ToTimestampNow(),
 	}
 	ctx := context.Background()
 	db := GetDatabase()
-	DeleteAllSonarqubeMeasureHistories(ctx, db)
+	DeleteAllGooseDbVersions(ctx, db)
 	result, err := r.DBCreate(ctx, db)
 	if err != nil {
 		t.Fatal(err)
@@ -61,7 +57,7 @@ func TestCreateSonarqubeMeasureHistoryDelete(t *testing.T) {
 	if !exists {
 		t.Fatal("exists should have been true but was false")
 	}
-	found, err := FindSonarqubeMeasureHistoryByID(ctx, db, r.ID)
+	found, err := FindGooseDbVersionByID(ctx, db, r.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +70,7 @@ func TestCreateSonarqubeMeasureHistoryDelete(t *testing.T) {
 	if orm.Stringify(r) != orm.Stringify(found) {
 		t.Fatalf("expected r to be found but was different")
 	}
-	results, err := FindSonarqubeMeasureHistories(ctx, db)
+	results, err := FindGooseDbVersions(ctx, db)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,38 +87,6 @@ func TestCreateSonarqubeMeasureHistoryDelete(t *testing.T) {
 	}
 	if f == false {
 		t.Fatal("expected found to be a true but was false")
-	}
-	a, b, err := r.DBUpsert(ctx, db)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if a {
-		t.Fatal("expected a to be false but was true")
-	}
-	if b {
-		t.Fatal("expected b to be false but was true")
-	}
-	r.SetCustomerID("2ba2705257a09168")
-
-	r.SetComponentIDExtID("d9411ac6fdb03f0b")
-
-	r.SetComponentIDID("8f345b8a3fbaddde")
-
-	r.SetComponentKeyExtID("6f21aacc32a3f826")
-
-	r.SetExtID("ef8df79c34b47bb8")
-
-	r.SetHistory("{}")
-
-	a, b, err = r.DBUpsert(ctx, db)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !a {
-		t.Fatal("expected a to be true but was false")
-	}
-	if b {
-		t.Fatal("expected b to be false but was true")
 	}
 	_, err = r.DBDelete(ctx, db)
 	if err != nil {
@@ -144,20 +108,16 @@ func TestCreateSonarqubeMeasureHistoryDelete(t *testing.T) {
 	}
 }
 
-func TestCreateSonarqubeMeasureHistoryDeleteTx(t *testing.T) {
-	r := &SonarqubeMeasureHistory{
-		ID:                "7d2d7cc617704933",
-		Checksum:          nil,
-		CustomerID:        "2c63dfd410a42308",
-		ComponentIDExtID:  "f2f18e146cbfbf48",
-		ComponentIDID:     "3626eb9d5daf4b05",
-		ComponentKeyExtID: "0e66b0465c93855a",
-		ExtID:             "abc534b45ac15e91",
-		History:           "{}",
+func TestCreateGooseDbVersionDeleteTx(t *testing.T) {
+	r := &GooseDbVersion{
+		ID:        int32(32),
+		VersionID: int32(32),
+		IsApplied: true,
+		Tstamp:    ToTimestampNow(),
 	}
 	ctx := context.Background()
 	db := GetDatabase()
-	DeleteAllSonarqubeMeasureHistories(ctx, db)
+	DeleteAllGooseDbVersions(ctx, db)
 	tx, err := db.Begin()
 	if err != nil {
 		t.Fatal(err)
@@ -183,7 +143,7 @@ func TestCreateSonarqubeMeasureHistoryDeleteTx(t *testing.T) {
 	if !exists {
 		t.Fatal("exists should have been true but was false")
 	}
-	found, err := FindSonarqubeMeasureHistoryByIDTx(ctx, tx, r.ID)
+	found, err := FindGooseDbVersionByIDTx(ctx, tx, r.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -196,7 +156,7 @@ func TestCreateSonarqubeMeasureHistoryDeleteTx(t *testing.T) {
 	if orm.Stringify(r) != orm.Stringify(found) {
 		t.Fatalf("expected r to be found but was different")
 	}
-	results, err := FindSonarqubeMeasureHistoriesTx(ctx, tx)
+	results, err := FindGooseDbVersionsTx(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -213,38 +173,6 @@ func TestCreateSonarqubeMeasureHistoryDeleteTx(t *testing.T) {
 	}
 	if f == false {
 		t.Fatal("expected found to be a true but was false")
-	}
-	a, b, err := r.DBUpsertTx(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if a {
-		t.Fatal("expected a to be false but was true")
-	}
-	if b {
-		t.Fatal("expected b to be false but was true")
-	}
-	r.SetCustomerID("2ba2705257a09168")
-
-	r.SetComponentIDExtID("d9411ac6fdb03f0b")
-
-	r.SetComponentIDID("8f345b8a3fbaddde")
-
-	r.SetComponentKeyExtID("6f21aacc32a3f826")
-
-	r.SetExtID("ef8df79c34b47bb8")
-
-	r.SetHistory("{}")
-
-	a, b, err = r.DBUpsertTx(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !a {
-		t.Fatal("expected a to be true but was false")
-	}
-	if b {
-		t.Fatal("expected b to be false but was true")
 	}
 	_, err = r.DBDeleteTx(ctx, tx)
 	if err != nil {

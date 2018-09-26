@@ -1268,14 +1268,14 @@ func (t *CommitActivity) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateCommitActivityTable will create the CommitActivity table
 func DBCreateCommitActivityTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `commit_activity` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`date` BIGINT(20) UNSIGNED NOT NULL,`sha` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`filename`VARCHAR(700) NOT NULL,`ordinal` BIGINT(20) UNSIGNED NOT NULL,`loc` INT(11) NOT NULL,`sloc` INT(11) NOT NULL,`blanks` INT(11) NOT NULL,`comments`INT(11) NOT NULL,INDEX commit_activity_sha_index (`sha`),INDEX commit_activity_user_id_index (`user_id`),INDEX commit_activity_repo_id_index (`repo_id`),INDEX commit_activity_filename_index (`filename`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `commit_activity` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`date` BIGINT UNSIGNED NOT NULL,`sha` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`filename`VARCHAR(700) NOT NULL,`ordinal` BIGINT UNSIGNED NOT NULL,`loc` INT NOT NULL DEFAULT 0,`sloc` INT NOT NULL DEFAULT 0,`blanks` INT NOT NULL DEFAULT 0,`comments`INT NOT NULL DEFAULT 0,INDEX commit_activity_sha_index (`sha`),INDEX commit_activity_user_id_index (`user_id`),INDEX commit_activity_repo_id_index (`repo_id`),INDEX commit_activity_filename_index (`filename`),INDEX commit_activity_filename_repo_id_date_ordinal_index (`filename`,`repo_id`,`date`,`ordinal`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateCommitActivityTableTx will create the CommitActivity table using the provided transction
 func DBCreateCommitActivityTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `commit_activity` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`date` BIGINT(20) UNSIGNED NOT NULL,`sha` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`filename`VARCHAR(700) NOT NULL,`ordinal` BIGINT(20) UNSIGNED NOT NULL,`loc` INT(11) NOT NULL,`sloc` INT(11) NOT NULL,`blanks` INT(11) NOT NULL,`comments`INT(11) NOT NULL,INDEX commit_activity_sha_index (`sha`),INDEX commit_activity_user_id_index (`user_id`),INDEX commit_activity_repo_id_index (`repo_id`),INDEX commit_activity_filename_index (`filename`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `commit_activity` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`date` BIGINT UNSIGNED NOT NULL,`sha` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`filename`VARCHAR(700) NOT NULL,`ordinal` BIGINT UNSIGNED NOT NULL,`loc` INT NOT NULL DEFAULT 0,`sloc` INT NOT NULL DEFAULT 0,`blanks` INT NOT NULL DEFAULT 0,`comments`INT NOT NULL DEFAULT 0,INDEX commit_activity_sha_index (`sha`),INDEX commit_activity_user_id_index (`user_id`),INDEX commit_activity_repo_id_index (`repo_id`),INDEX commit_activity_filename_index (`filename`),INDEX commit_activity_filename_repo_id_date_ordinal_index (`filename`,`repo_id`,`date`,`ordinal`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
