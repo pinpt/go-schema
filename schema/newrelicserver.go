@@ -1112,14 +1112,14 @@ func (t *NewrelicServer) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateNewrelicServerTable will create the NewrelicServer table
 func DBCreateNewrelicServerTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `newrelic_server` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT(20) NOT NULL,`account_id`BIGINT(20) NOT NULL,`name`TEXT NOT NULL,`host`TEXT NOT NULL,`health_status`TEXT,`reporting` BOOL NOT NULL,`last_reported_at`BIGINT(20) NOT NULL,`summary_cpu` DOUBLE,`summary_cpu_stolen` DOUBLE,`summary_disk_io` DOUBLE,`summary_memory` DOUBLE,`summary_memory_used`BIGINT(20),`summary_memory_total` BIGINT(20),`summary_fullest_disk` DOUBLE,`summary_fullest_disk_free` BIGINT(20),INDEX newrelic_server_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `newrelic_server` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT NOT NULL,`account_id`BIGINT NOT NULL,`name`TEXT NOT NULL,`host`TEXT NOT NULL,`health_status`TEXT,`reporting` BOOL NOT NULL,`last_reported_at`BIGINT NOT NULL,`summary_cpu` DOUBLE,`summary_cpu_stolen` DOUBLE,`summary_disk_io` DOUBLE,`summary_memory` DOUBLE,`summary_memory_used`BIGINT,`summary_memory_total` BIGINT,`summary_fullest_disk` DOUBLE,`summary_fullest_disk_free` BIGINT,INDEX newrelic_server_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateNewrelicServerTableTx will create the NewrelicServer table using the provided transction
 func DBCreateNewrelicServerTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `newrelic_server` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT(20) NOT NULL,`account_id`BIGINT(20) NOT NULL,`name`TEXT NOT NULL,`host`TEXT NOT NULL,`health_status`TEXT,`reporting` BOOL NOT NULL,`last_reported_at`BIGINT(20) NOT NULL,`summary_cpu` DOUBLE,`summary_cpu_stolen` DOUBLE,`summary_disk_io` DOUBLE,`summary_memory` DOUBLE,`summary_memory_used`BIGINT(20),`summary_memory_total` BIGINT(20),`summary_fullest_disk` DOUBLE,`summary_fullest_disk_free` BIGINT(20),INDEX newrelic_server_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `newrelic_server` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT NOT NULL,`account_id`BIGINT NOT NULL,`name`TEXT NOT NULL,`host`TEXT NOT NULL,`health_status`TEXT,`reporting` BOOL NOT NULL,`last_reported_at`BIGINT NOT NULL,`summary_cpu` DOUBLE,`summary_cpu_stolen` DOUBLE,`summary_disk_io` DOUBLE,`summary_memory` DOUBLE,`summary_memory_used`BIGINT,`summary_memory_total` BIGINT,`summary_fullest_disk` DOUBLE,`summary_fullest_disk_free` BIGINT,INDEX newrelic_server_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

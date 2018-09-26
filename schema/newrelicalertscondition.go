@@ -1121,14 +1121,14 @@ func (t *NewrelicAlertsCondition) toTimestamp(value time.Time) *timestamp.Timest
 
 // DBCreateNewrelicAlertsConditionTable will create the NewrelicAlertsCondition table
 func DBCreateNewrelicAlertsConditionTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `newrelic_alerts_condition` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`customer_id`VARCHAR(64) NOT NULL,`policy_ext_id` BIGINT(20) NOT NULL,`policy_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT(20) NOT NULL,`type` TEXT NOT NULL,`name` TEXT NOT NULL,`enabled` BOOL NOT NULL,`metric` TEXT NOT NULL,`terms`JSON NOT NULL,INDEX newrelic_alerts_condition_customer_id_index (`customer_id`),INDEX newrelic_alerts_condition_policy_ext_id_index (`policy_ext_id`),INDEX newrelic_alerts_condition_policy_id_index (`policy_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `newrelic_alerts_condition` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`customer_id`VARCHAR(64) NOT NULL,`policy_ext_id` BIGINT NOT NULL,`policy_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT NOT NULL,`type` TEXT NOT NULL,`name` TEXT NOT NULL,`enabled` BOOL NOT NULL,`metric` TEXT NOT NULL,`terms`JSON NOT NULL,INDEX newrelic_alerts_condition_customer_id_index (`customer_id`),INDEX newrelic_alerts_condition_policy_ext_id_index (`policy_ext_id`),INDEX newrelic_alerts_condition_policy_id_index (`policy_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateNewrelicAlertsConditionTableTx will create the NewrelicAlertsCondition table using the provided transction
 func DBCreateNewrelicAlertsConditionTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `newrelic_alerts_condition` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`customer_id`VARCHAR(64) NOT NULL,`policy_ext_id` BIGINT(20) NOT NULL,`policy_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT(20) NOT NULL,`type` TEXT NOT NULL,`name` TEXT NOT NULL,`enabled` BOOL NOT NULL,`metric` TEXT NOT NULL,`terms`JSON NOT NULL,INDEX newrelic_alerts_condition_customer_id_index (`customer_id`),INDEX newrelic_alerts_condition_policy_ext_id_index (`policy_ext_id`),INDEX newrelic_alerts_condition_policy_id_index (`policy_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `newrelic_alerts_condition` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`customer_id`VARCHAR(64) NOT NULL,`policy_ext_id` BIGINT NOT NULL,`policy_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT NOT NULL,`type` TEXT NOT NULL,`name` TEXT NOT NULL,`enabled` BOOL NOT NULL,`metric` TEXT NOT NULL,`terms`JSON NOT NULL,INDEX newrelic_alerts_condition_customer_id_index (`customer_id`),INDEX newrelic_alerts_condition_policy_ext_id_index (`policy_ext_id`),INDEX newrelic_alerts_condition_policy_id_index (`policy_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

@@ -816,14 +816,14 @@ func (t *JiraCustomField) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateJiraCustomFieldTable will create the JiraCustomField table
 func DBCreateJiraCustomFieldTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `jira_custom_field` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`field_id`VARCHAR(64) NOT NULL,`name` VARCHAR(255) NOT NULL,`schema_type`VARCHAR(100) NOT NULL,`schema_custom` VARCHAR(255) NOT NULL,`schema_custom_id` BIGINT(20) UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,INDEX jira_custom_field_name_index (`name`),INDEX jira_custom_field_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jira_custom_field` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`field_id`VARCHAR(64) NOT NULL,`name` VARCHAR(255) NOT NULL,`schema_type`VARCHAR(100) NOT NULL,`schema_custom` VARCHAR(255) NOT NULL,`schema_custom_id` BIGINT UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,INDEX jira_custom_field_name_index (`name`),INDEX jira_custom_field_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraCustomFieldTableTx will create the JiraCustomField table using the provided transction
 func DBCreateJiraCustomFieldTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `jira_custom_field` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`field_id`VARCHAR(64) NOT NULL,`name` VARCHAR(255) NOT NULL,`schema_type`VARCHAR(100) NOT NULL,`schema_custom` VARCHAR(255) NOT NULL,`schema_custom_id` BIGINT(20) UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,INDEX jira_custom_field_name_index (`name`),INDEX jira_custom_field_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `jira_custom_field` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`field_id`VARCHAR(64) NOT NULL,`name` VARCHAR(255) NOT NULL,`schema_type`VARCHAR(100) NOT NULL,`schema_custom` VARCHAR(255) NOT NULL,`schema_custom_id` BIGINT UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,INDEX jira_custom_field_name_index (`name`),INDEX jira_custom_field_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

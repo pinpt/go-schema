@@ -565,14 +565,14 @@ func (t *MockapiApplication) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateMockapiApplicationTable will create the MockapiApplication table
 func DBCreateMockapiApplicationTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `mockapi_application` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT(20) NOT NULL,`name`TEXT NOT NULL,INDEX mockapi_application_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `mockapi_application` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT NOT NULL,`name`TEXT NOT NULL,INDEX mockapi_application_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateMockapiApplicationTableTx will create the MockapiApplication table using the provided transction
 func DBCreateMockapiApplicationTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `mockapi_application` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT(20) NOT NULL,`name`TEXT NOT NULL,INDEX mockapi_application_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `mockapi_application` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT NOT NULL,`name`TEXT NOT NULL,INDEX mockapi_application_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

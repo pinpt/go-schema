@@ -881,14 +881,14 @@ func (t *MockapiDeployment) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateMockapiDeploymentTable will create the MockapiDeployment table
 func DBCreateMockapiDeploymentTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `mockapi_deployment` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`application_ext_id_ext_id` BIGINT(20) NOT NULL,`application_ext_id_id`VARCHAR(64) NOT NULL,`ext_id`BIGINT(20) NOT NULL,`name` TEXT NOT NULL,INDEX mockapi_deployment_customer_id_index (`customer_id`),INDEX mockapi_deployment_application_ext_id_ext_id_index (`application_ext_id_ext_id`),INDEX mockapi_deployment_application_ext_id_id_index (`application_ext_id_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `mockapi_deployment` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`application_ext_id_ext_id` BIGINT NOT NULL,`application_ext_id_id`VARCHAR(64) NOT NULL,`ext_id`BIGINT NOT NULL,`name` TEXT NOT NULL,INDEX mockapi_deployment_customer_id_index (`customer_id`),INDEX mockapi_deployment_application_ext_id_ext_id_index (`application_ext_id_ext_id`),INDEX mockapi_deployment_application_ext_id_id_index (`application_ext_id_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateMockapiDeploymentTableTx will create the MockapiDeployment table using the provided transction
 func DBCreateMockapiDeploymentTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `mockapi_deployment` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`application_ext_id_ext_id` BIGINT(20) NOT NULL,`application_ext_id_id`VARCHAR(64) NOT NULL,`ext_id`BIGINT(20) NOT NULL,`name` TEXT NOT NULL,INDEX mockapi_deployment_customer_id_index (`customer_id`),INDEX mockapi_deployment_application_ext_id_ext_id_index (`application_ext_id_ext_id`),INDEX mockapi_deployment_application_ext_id_id_index (`application_ext_id_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `mockapi_deployment` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`application_ext_id_ext_id` BIGINT NOT NULL,`application_ext_id_id`VARCHAR(64) NOT NULL,`ext_id`BIGINT NOT NULL,`name` TEXT NOT NULL,INDEX mockapi_deployment_customer_id_index (`customer_id`),INDEX mockapi_deployment_application_ext_id_ext_id_index (`application_ext_id_ext_id`),INDEX mockapi_deployment_application_ext_id_id_index (`application_ext_id_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

@@ -665,14 +665,14 @@ func (t *DataGroup) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateDataGroupTable will create the DataGroup table
 func DBCreateDataGroupTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `data_group` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`name` TEXT NOT NULL,`description` TEXT,`parent_id`VARCHAR(64),`issue_project_ids` JSON,`user_ids` JSON,`repo_ids` JSON,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `data_group` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`name` TEXT NOT NULL,`description` TEXT,`parent_id`VARCHAR(64),`issue_project_ids` JSON,`user_ids` JSON,`repo_ids` JSON,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateDataGroupTableTx will create the DataGroup table using the provided transction
 func DBCreateDataGroupTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `data_group` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`name` TEXT NOT NULL,`description` TEXT,`parent_id`VARCHAR(64),`issue_project_ids` JSON,`user_ids` JSON,`repo_ids` JSON,`created_at` BIGINT(20) UNSIGNED NOT NULL,`updated_at` BIGINT(20) UNSIGNED) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `data_group` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`name` TEXT NOT NULL,`description` TEXT,`parent_id`VARCHAR(64),`issue_project_ids` JSON,`user_ids` JSON,`repo_ids` JSON,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

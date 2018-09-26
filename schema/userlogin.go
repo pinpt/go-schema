@@ -500,14 +500,14 @@ func (t *UserLogin) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateUserLoginTable will create the UserLogin table
 func DBCreateUserLoginTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `user_login` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`user_id`VARCHAR(64) NOT NULL,`browser`TEXT,`date`BIGINT(20) UNSIGNED NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `user_login` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`user_id`VARCHAR(64) NOT NULL,`browser`TEXT,`date`BIGINT UNSIGNED NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateUserLoginTableTx will create the UserLogin table using the provided transction
 func DBCreateUserLoginTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `user_login` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`user_id`VARCHAR(64) NOT NULL,`browser`TEXT,`date`BIGINT(20) UNSIGNED NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `user_login` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`user_id`VARCHAR(64) NOT NULL,`browser`TEXT,`date`BIGINT UNSIGNED NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

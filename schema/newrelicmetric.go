@@ -1061,14 +1061,14 @@ func (t *NewrelicMetric) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateNewrelicMetricTable will create the NewrelicMetric table
 func DBCreateNewrelicMetricTable(ctx context.Context, db *sql.DB) error {
-	q := "CREATE TABLE `newrelic_metric` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`application_ext_id` BIGINT(20) NOT NULL,`application_id` VARCHAR(64) NOT NULL,`name`TEXT NOT NULL,`value_name`TEXT NOT NULL,`start` BIGINT(20) NOT NULL,`duration_sec` BIGINT(20) NOT NULL,`value` DOUBLE NOT NULL,INDEX newrelic_metric_customer_id_index (`customer_id`),INDEX newrelic_metric_application_ext_id_index (`application_ext_id`),INDEX newrelic_metric_application_id_index (`application_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `newrelic_metric` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`application_ext_id` BIGINT NOT NULL,`application_id` VARCHAR(64) NOT NULL,`name`TEXT NOT NULL,`value_name`TEXT NOT NULL,`start` BIGINT NOT NULL,`duration_sec` BIGINT NOT NULL,`value` DOUBLE NOT NULL,INDEX newrelic_metric_customer_id_index (`customer_id`),INDEX newrelic_metric_application_ext_id_index (`application_ext_id`),INDEX newrelic_metric_application_id_index (`application_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateNewrelicMetricTableTx will create the NewrelicMetric table using the provided transction
 func DBCreateNewrelicMetricTableTx(ctx context.Context, tx *sql.Tx) error {
-	q := "CREATE TABLE `newrelic_metric` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`application_ext_id` BIGINT(20) NOT NULL,`application_id` VARCHAR(64) NOT NULL,`name`TEXT NOT NULL,`value_name`TEXT NOT NULL,`start` BIGINT(20) NOT NULL,`duration_sec` BIGINT(20) NOT NULL,`value` DOUBLE NOT NULL,INDEX newrelic_metric_customer_id_index (`customer_id`),INDEX newrelic_metric_application_ext_id_index (`application_ext_id`),INDEX newrelic_metric_application_id_index (`application_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `newrelic_metric` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`application_ext_id` BIGINT NOT NULL,`application_id` VARCHAR(64) NOT NULL,`name`TEXT NOT NULL,`value_name`TEXT NOT NULL,`start` BIGINT NOT NULL,`duration_sec` BIGINT NOT NULL,`value` DOUBLE NOT NULL,INDEX newrelic_metric_customer_id_index (`customer_id`),INDEX newrelic_metric_application_ext_id_index (`application_ext_id`),INDEX newrelic_metric_application_id_index (`application_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
