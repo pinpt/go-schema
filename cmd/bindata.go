@@ -14,7 +14,8 @@ import (
 )
 
 var bindataCmd = &cobra.Command{
-	Use: "bindata",
+	Use:   "bindata",
+	Short: "Generate static data into go source files",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := runBindataCmd(); err != nil {
 			fmt.Println(err)

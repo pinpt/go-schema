@@ -12,7 +12,7 @@ import (
 
 var cleanCmd = &cobra.Command{
 	Use:   "clean",
-	Short: "Removes all the unnecessary files",
+	Short: "Removes all the generated files",
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		cleanAll()

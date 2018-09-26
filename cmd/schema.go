@@ -13,17 +13,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var genSchemaCmd = &cobra.Command{
-	Use:   "genschema",
-	Short: "Generates all the schema.go files",
+var schemaCmd = &cobra.Command{
+	Use:   "schema",
+	Short: "Generate database schema files from protobuf model definitions",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := runGenSchemaCmd(); err != nil {
+		if err := runSchemaCmd(); err != nil {
 			panic(err)
+		}
+		if err := runBindataCmd(); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
 		}
 	},
 }
 
-func runGenSchemaCmd() error {
+func runSchemaCmd() error {
 	rootDir, _ := os.Getwd()
 	protoDir := filepath.Join(rootDir, "proto")
 	tempDir := filepath.Join(rootDir, "tmp")
@@ -132,5 +136,5 @@ func moveGooseDb(rootDir string, tempDir string) error {
 }
 
 func init() {
-	rootCmd.AddCommand(genSchemaCmd)
+	rootCmd.AddCommand(schemaCmd)
 }

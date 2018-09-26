@@ -8,17 +8,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Code Generation Targets:
+//
+// generate: Generate all code gen related files.
+// schema:   Generate database schema files from protobuf model definitions.
+// bindata:  Generate static data into go source files.
+
 var allCmd = &cobra.Command{
 	Use:   "all",
-	Short: "Runs clean, genschema, genroutes, and bindata",
+	Short: "Runs clean, schema, generate, and bindata",
 	Run: func(cmd *cobra.Command, args []string) {
 		cleanAll()
 		dir, _ := cmd.Flags().GetString("webroot")
-		if err := runGenSchemaCmd(); err != nil {
+		if err := runSchemaCmd(); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		if err := runGenroutesCmd(dir); err != nil {
+		if err := runGenerateCmd(dir); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}

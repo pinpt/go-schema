@@ -18,19 +18,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var genroutesCmd = &cobra.Command{
-	Use:   "genroutes",
-	Short: "Generates routes.go and 20171108110099_rbac.sql",
+var generateCmd = &cobra.Command{
+	Use:   "generate",
+	Short: "Generate all code gen related files",
 	Run: func(cmd *cobra.Command, args []string) {
 		dir, _ := cmd.Flags().GetString("webroot")
-		if err := runGenroutesCmd(dir); err != nil {
+		if err := runGenerateCmd(dir); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		if err := runBindataCmd(); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 	},
 }
 
-func runGenroutesCmd(dir string) error {
+func runGenerateCmd(dir string) error {
 	if dir == "" {
 		return fmt.Errorf("environment variable PP_WEBROOT, or flag --webroot, is not defined")
 	}
@@ -185,6 +189,6 @@ func (r role) SQLID() template.HTML {
 }
 
 func init() {
-	rootCmd.AddCommand(genroutesCmd)
-	genroutesCmd.Flags().String("webroot", os.Getenv("PP_WEBROOT"), "path to webapp repo")
+	rootCmd.AddCommand(generateCmd)
+	generateCmd.Flags().String("webroot", os.Getenv("PP_WEBROOT"), "path to webapp repo")
 }
