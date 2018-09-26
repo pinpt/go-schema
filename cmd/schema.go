@@ -39,9 +39,7 @@ func runSchemaCmd() error {
 	if err := runProtoc(protoDir, tempDir, tempProto); err != nil {
 		return err
 	}
-	if err := deleteAllGoFiles(rootDir); err != nil {
-		return err
-	}
+	deleteAllGoFiles(rootDir)
 	if err := moveAllGoFiles(rootDir); err != nil {
 		return err
 	}
@@ -71,7 +69,6 @@ func generateTempProtoFile(rootDir string, protoDir string, tempDir string, temp
 	for _, f := range files {
 		n := f.Name()
 		if strings.HasSuffix(n, ".proto") {
-			fmt.Println(f.Name())
 			content, err := ioutil.ReadFile(filepath.Join(protoDir, n))
 			if err != nil {
 				return err
@@ -117,7 +114,7 @@ func moveAllGoFiles(rootDir string) error {
 		if strings.HasSuffix(n, ".go") {
 			oldPath := filepath.Join(old, n)
 			newPath := filepath.Join(new, n)
-			fmt.Println(fmt.Sprintf("moving: %v ----> %v", strings.Replace(oldPath, rootDir[1:], "", -1), strings.Replace(newPath, rootDir[1:], "", -1)))
+			fmt.Println(fmt.Sprintf("moving: %v ----> %v", strings.Replace(oldPath, rootDir, "", -1)[1:], strings.Replace(newPath, rootDir, "", -1)[1:]))
 			os.Rename(oldPath, newPath)
 		}
 	}

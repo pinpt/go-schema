@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/pinpt/go-common/fileutil"
 	"github.com/spf13/cobra"
@@ -29,25 +28,14 @@ func runBindataCmd() error {
 	rootDir, _ := os.Getwd()
 	migrationsDir := filepath.Join(rootDir, "migrations")
 	if !fileutil.FileExists(migrationsDir) {
-		return fmt.Errorf("`./migrations` directory not found, run `go run main.go all`")
+		return fmt.Errorf("`./migrations` directory not found")
 	}
 	files, err := ioutil.ReadDir(migrationsDir)
 	if err != nil {
 		return err
 	}
 	if len(files) == 0 {
-		return fmt.Errorf("`./migrations` directory is empty, run: `go run main.go all`")
-	}
-
-	found1 := false
-	for _, f := range files {
-		if strings.HasSuffix(f.Name(), ".sql") {
-			found1 = true
-			break
-		}
-	}
-	if !found1 {
-		return fmt.Errorf("`./migrations` directory doesn't have any *.sql files, run `go run main.go all`")
+		return fmt.Errorf("`./migrations` directory is empty")
 	}
 	cArgs := []string{
 		"-o", "./migrate/bindata.go",

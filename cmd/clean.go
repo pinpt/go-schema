@@ -21,7 +21,7 @@ var cleanCmd = &cobra.Command{
 
 func cleanAll() {
 	rootDir, _ := os.Getwd()
-	deleteMigrationsDir(rootDir)
+	cleanMigrationsDir(rootDir)
 	deleteRoutesGoFile(rootDir)
 	deleteMigrateDir(rootDir)
 	deleteTempDir(rootDir)
@@ -33,9 +33,20 @@ func deleteRoutesGoFile(rootDir string) {
 	os.Remove(routesGo)
 }
 
-func deleteMigrationsDir(rootDir string) {
-	migration := filepath.Join(rootDir, "migrations")
-	os.RemoveAll(migration)
+func cleanMigrationsDir(rootDir string) {
+
+	src := filepath.Join(rootDir, "migrations")
+	files, err := ioutil.ReadDir(src)
+	if err != nil {
+		panic(err)
+	}
+	for _, f := range files {
+		n := f.Name()
+		if !strings.HasSuffix(n, "_indexes.sql") {
+			fmt.Println(fmt.Sprintf("deleting %v", n))
+			os.Remove(filepath.Join(src, n))
+		}
+	}
 }
 
 func deleteMigrateDir(rootDir string) {
@@ -48,11 +59,11 @@ func deleteTempDir(rootDir string) {
 	os.RemoveAll(tempDir)
 }
 
-func deleteAllGoFiles(rootDir string) error {
+func deleteAllGoFiles(rootDir string) {
 	src := filepath.Join(rootDir, "schema")
 	files, err := ioutil.ReadDir(src)
 	if err != nil {
-		return err
+		panic(err)
 	}
 	for _, f := range files {
 		n := f.Name()
@@ -61,7 +72,6 @@ func deleteAllGoFiles(rootDir string) error {
 			os.Remove(filepath.Join(src, n))
 		}
 	}
-	return nil
 }
 
 func init() {
