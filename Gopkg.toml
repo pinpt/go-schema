@@ -26,12 +26,24 @@
 
 
 [[constraint]]
+  name = "github.com/fatih/color"
+  version = "1.7.0"
+
+[[constraint]]
   name = "github.com/golang/protobuf"
-  version = "1.1.0"
+  version = "1.2.0"
 
 [[constraint]]
   name = "github.com/jhaynie/go-gator"
   version = "2.1.0"
+
+[[constraint]]
+  name = "github.com/pinpt/go-common"
+  version = "2.1.7"
+
+[[constraint]]
+  name = "github.com/spf13/cobra"
+  version = "0.0.3"
 
 [prune]
   go-tests = true
