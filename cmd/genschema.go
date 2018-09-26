@@ -14,7 +14,8 @@ import (
 )
 
 var genSchemaCmd = &cobra.Command{
-	Use: "genschema",
+	Use:   "genschema",
+	Short: "Generates all the schema.go files",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := runGenSchemaCmd(); err != nil {
 			panic(err)
@@ -43,22 +44,19 @@ func runGenSchemaCmd() error {
 	if err := moveGooseDb(rootDir, tempDir); err != nil {
 		return err
 	}
-	os.RemoveAll(tempDir)
+	// cleanup
+	deleteTempDir(rootDir)
+	// Why is this created? No idea
 	os.RemoveAll(filepath.Join(rootDir, "schema", "golang"))
-
 	return nil
 }
 
 func generateTempProtoFile(rootDir string, protoDir string, tempDir string, tempProto string) error {
 	tmpProtocFile := []string{}
-	tmpProtocFile = append(tmpProtocFile, "")
-	tmpProtocFile = append(tmpProtocFile, "syntax = \"proto3\";")
-	tmpProtocFile = append(tmpProtocFile, "")
-	tmpProtocFile = append(tmpProtocFile, "package schema;")
-	tmpProtocFile = append(tmpProtocFile, "")
+	tmpProtocFile = append(tmpProtocFile, "syntax = \"proto3\";", "")
+	tmpProtocFile = append(tmpProtocFile, "package schema;", "")
 	tmpProtocFile = append(tmpProtocFile, "import \"proto/annotations.proto\";")
-	tmpProtocFile = append(tmpProtocFile, "import \"proto/types.proto\";")
-	tmpProtocFile = append(tmpProtocFile, "")
+	tmpProtocFile = append(tmpProtocFile, "import \"proto/types.proto\";", "")
 	tmpProtocFile = append(tmpProtocFile, "option (proto.file).lowercaseEnums=true;")
 
 	files, err := ioutil.ReadDir(protoDir)
@@ -77,10 +75,8 @@ func generateTempProtoFile(rootDir string, protoDir string, tempDir string, temp
 			tmpProtocFile = append(tmpProtocFile, string(content))
 		}
 	}
-	os.RemoveAll(tempDir)
+	deleteTempDir(rootDir)
 	os.MkdirAll(tempDir, 0755)
-	os.Remove(tempProto)
-
 	return ioutil.WriteFile(tempProto, []byte(strings.Join(tmpProtocFile, "\n")), 0644)
 }
 
@@ -94,29 +90,12 @@ func runProtoc(protoDir string, tempDir string, tempProto string) error {
 	cArgs = append(cArgs, fmt.Sprintf("--gator_out=goose,golang:%v", tempDir))
 	cArgs = append(cArgs, tempProto)
 
-	fmt.Println(fmt.Sprintf("Running: %v", cArgs))
+	fmt.Println(fmt.Sprintf("Running: \"protoc %v\"", cArgs))
 	c := exec.CommandContext(context.Background(), "protoc", cArgs...)
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 
 	return c.Run()
-}
-
-func deleteAllGoFiles(rootDir string) error {
-
-	src := filepath.Join(rootDir, "schema")
-	files, err := ioutil.ReadDir(src)
-	if err != nil {
-		return err
-	}
-	for _, f := range files {
-		n := f.Name()
-		if strings.HasSuffix(n, ".go") {
-			fmt.Println(fmt.Sprintf("deleting %v", n))
-			os.Remove(filepath.Join(src, n))
-		}
-	}
-	return nil
 }
 
 func moveAllGoFiles(rootDir string) error {
@@ -151,7 +130,7 @@ func moveGooseDb(rootDir string, tempDir string) error {
 	newFile = filepath.Join(newFile, "20170523183416_init.sql")
 	return os.Rename(oldFile, newFile)
 }
+
 func init() {
 	rootCmd.AddCommand(genSchemaCmd)
-
 }
