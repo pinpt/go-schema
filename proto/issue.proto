@@ -74,6 +74,8 @@ message Issue {
 	option (proto.table).index7={fields:"state, customer_id, project_id"};
 	option (proto.table).index8={fields:"state, ref_id, closed_at"};
 	option (proto.table).index9={fields:"state,customer_id,closed_at,ref_id,type"};
+	option (proto.table).index10={fields:"customer_id, project_id, created_at"};
+
 	option (proto.table).has_one={table:"customer",pk:"customer_id",fk:"id",name:"customer"};
 	option (proto.table).has_one2={table:"issue_project",pk:"project_id",fk:"id",name:"project"};
 	option (proto.table).has_one3={table:"user",pk:"user_id",fk:"id",name:"user"};
