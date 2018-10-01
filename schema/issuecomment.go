@@ -309,10 +309,10 @@ func NewIssueCommentCSVWriterFile(fn string, dedupers ...IssueCommentCSVDeduper)
 	return ch, sdone, nil
 }
 
-type IssueCommentDBAction func(ctx context.Context, db *sql.DB, record IssueComment) error
+type IssueCommentDBAction func(ctx context.Context, db DB, record IssueComment) error
 
 // NewIssueCommentDBWriterSize creates a DB writer that will write each issue into the DB
-func NewIssueCommentDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...IssueCommentDBAction) (chan IssueComment, chan bool, error) {
+func NewIssueCommentDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...IssueCommentDBAction) (chan IssueComment, chan bool, error) {
 	ch := make(chan IssueComment, size)
 	done := make(chan bool)
 	var action IssueCommentDBAction
@@ -337,7 +337,7 @@ func NewIssueCommentDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- 
 }
 
 // NewIssueCommentDBWriter creates a DB writer that will write each issue into the DB
-func NewIssueCommentDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...IssueCommentDBAction) (chan IssueComment, chan bool, error) {
+func NewIssueCommentDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...IssueCommentDBAction) (chan IssueComment, chan bool, error) {
 	return NewIssueCommentDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -448,7 +448,7 @@ func (t *IssueComment) SetID(v string) {
 }
 
 // FindIssueCommentByID will find a IssueComment by ID
-func FindIssueCommentByID(ctx context.Context, db *sql.DB, value string) (*IssueComment, error) {
+func FindIssueCommentByID(ctx context.Context, db DB, value string) (*IssueComment, error) {
 	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -543,7 +543,7 @@ func FindIssueCommentByID(ctx context.Context, db *sql.DB, value string) (*Issue
 }
 
 // FindIssueCommentByIDTx will find a IssueComment by ID using the provided transaction
-func FindIssueCommentByIDTx(ctx context.Context, tx *sql.Tx, value string) (*IssueComment, error) {
+func FindIssueCommentByIDTx(ctx context.Context, tx Tx, value string) (*IssueComment, error) {
 	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -661,7 +661,7 @@ func (t *IssueComment) SetIssueID(v string) {
 }
 
 // FindIssueCommentsByIssueID will find all IssueComments by the IssueID value
-func FindIssueCommentsByIssueID(ctx context.Context, db *sql.DB, value string) ([]*IssueComment, error) {
+func FindIssueCommentsByIssueID(ctx context.Context, db DB, value string) ([]*IssueComment, error) {
 	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -765,7 +765,7 @@ func FindIssueCommentsByIssueID(ctx context.Context, db *sql.DB, value string) (
 }
 
 // FindIssueCommentsByIssueIDTx will find all IssueComments by the IssueID value using the provided transaction
-func FindIssueCommentsByIssueIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueComment, error) {
+func FindIssueCommentsByIssueIDTx(ctx context.Context, tx Tx, value string) ([]*IssueComment, error) {
 	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -882,7 +882,7 @@ func (t *IssueComment) SetUserID(v string) {
 }
 
 // FindIssueCommentsByUserID will find all IssueComments by the UserID value
-func FindIssueCommentsByUserID(ctx context.Context, db *sql.DB, value string) ([]*IssueComment, error) {
+func FindIssueCommentsByUserID(ctx context.Context, db DB, value string) ([]*IssueComment, error) {
 	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -986,7 +986,7 @@ func FindIssueCommentsByUserID(ctx context.Context, db *sql.DB, value string) ([
 }
 
 // FindIssueCommentsByUserIDTx will find all IssueComments by the UserID value using the provided transaction
-func FindIssueCommentsByUserIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueComment, error) {
+func FindIssueCommentsByUserIDTx(ctx context.Context, tx Tx, value string) ([]*IssueComment, error) {
 	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1189,7 +1189,7 @@ func (t *IssueComment) SetCustomerID(v string) {
 }
 
 // FindIssueCommentsByCustomerID will find all IssueComments by the CustomerID value
-func FindIssueCommentsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*IssueComment, error) {
+func FindIssueCommentsByCustomerID(ctx context.Context, db DB, value string) ([]*IssueComment, error) {
 	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1293,7 +1293,7 @@ func FindIssueCommentsByCustomerID(ctx context.Context, db *sql.DB, value string
 }
 
 // FindIssueCommentsByCustomerIDTx will find all IssueComments by the CustomerID value using the provided transaction
-func FindIssueCommentsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueComment, error) {
+func FindIssueCommentsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*IssueComment, error) {
 	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1407,7 +1407,7 @@ func (t *IssueComment) SetRefType(v string) {
 }
 
 // FindIssueCommentsByRefType will find all IssueComments by the RefType value
-func FindIssueCommentsByRefType(ctx context.Context, db *sql.DB, value string) ([]*IssueComment, error) {
+func FindIssueCommentsByRefType(ctx context.Context, db DB, value string) ([]*IssueComment, error) {
 	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1511,7 +1511,7 @@ func FindIssueCommentsByRefType(ctx context.Context, db *sql.DB, value string) (
 }
 
 // FindIssueCommentsByRefTypeTx will find all IssueComments by the RefType value using the provided transaction
-func FindIssueCommentsByRefTypeTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueComment, error) {
+func FindIssueCommentsByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*IssueComment, error) {
 	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1625,7 +1625,7 @@ func (t *IssueComment) SetRefID(v string) {
 }
 
 // FindIssueCommentsByRefID will find all IssueComments by the RefID value
-func FindIssueCommentsByRefID(ctx context.Context, db *sql.DB, value string) ([]*IssueComment, error) {
+func FindIssueCommentsByRefID(ctx context.Context, db DB, value string) ([]*IssueComment, error) {
 	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1729,7 +1729,7 @@ func FindIssueCommentsByRefID(ctx context.Context, db *sql.DB, value string) ([]
 }
 
 // FindIssueCommentsByRefIDTx will find all IssueComments by the RefID value using the provided transaction
-func FindIssueCommentsByRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueComment, error) {
+func FindIssueCommentsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*IssueComment, error) {
 	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1851,28 +1851,28 @@ func (t *IssueComment) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateIssueCommentTable will create the IssueComment table
-func DBCreateIssueCommentTable(ctx context.Context, db *sql.DB) error {
+func DBCreateIssueCommentTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `issue_comment` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`issue_id` VARCHAR(64) NOT NULL,`user_id`VARCHAR(64),`project_id`VARCHAR(64) NOT NULL,`body`LONGTEXT NOT NULL,`deleted`BOOL NOT NULL DEFAULT false,`deleted_user_id` VARCHAR(64),`created_at`BIGINT UNSIGNED NOT NULL,`updated_at`BIGINT UNSIGNED,`deleted_at`BIGINT UNSIGNED,`url` VARCHAR(255) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata` JSON,INDEX issue_comment_issue_id_index (`issue_id`),INDEX issue_comment_user_id_index (`user_id`),INDEX issue_comment_customer_id_index (`customer_id`),INDEX issue_comment_ref_type_index (`ref_type`),INDEX issue_comment_ref_id_index (`ref_id`),INDEX issue_comment_customer_id_user_id_project_id_index (`customer_id`,`user_id`,`project_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateIssueCommentTableTx will create the IssueComment table using the provided transction
-func DBCreateIssueCommentTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateIssueCommentTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `issue_comment` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`issue_id` VARCHAR(64) NOT NULL,`user_id`VARCHAR(64),`project_id`VARCHAR(64) NOT NULL,`body`LONGTEXT NOT NULL,`deleted`BOOL NOT NULL DEFAULT false,`deleted_user_id` VARCHAR(64),`created_at`BIGINT UNSIGNED NOT NULL,`updated_at`BIGINT UNSIGNED,`deleted_at`BIGINT UNSIGNED,`url` VARCHAR(255) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata` JSON,INDEX issue_comment_issue_id_index (`issue_id`),INDEX issue_comment_user_id_index (`user_id`),INDEX issue_comment_customer_id_index (`customer_id`),INDEX issue_comment_ref_type_index (`ref_type`),INDEX issue_comment_ref_id_index (`ref_id`),INDEX issue_comment_customer_id_user_id_project_id_index (`customer_id`,`user_id`,`project_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropIssueCommentTable will drop the IssueComment table
-func DBDropIssueCommentTable(ctx context.Context, db *sql.DB) error {
+func DBDropIssueCommentTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `issue_comment`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropIssueCommentTableTx will drop the IssueComment table using the provided transaction
-func DBDropIssueCommentTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropIssueCommentTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `issue_comment`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -1900,7 +1900,7 @@ func (t *IssueComment) CalculateChecksum() string {
 }
 
 // DBCreate will create a new IssueComment record in the database
-func (t *IssueComment) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *IssueComment) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `issue_comment` (`issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1928,7 +1928,7 @@ func (t *IssueComment) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, er
 }
 
 // DBCreateTx will create a new IssueComment record in the database using the provided transaction
-func (t *IssueComment) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *IssueComment) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `issue_comment` (`issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1956,7 +1956,7 @@ func (t *IssueComment) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, 
 }
 
 // DBCreateIgnoreDuplicate will upsert the IssueComment record in the database
-func (t *IssueComment) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *IssueComment) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `issue_comment` (`issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1984,7 +1984,7 @@ func (t *IssueComment) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) 
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the IssueComment record in the database using the provided transaction
-func (t *IssueComment) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *IssueComment) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `issue_comment` (`issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -2012,7 +2012,7 @@ func (t *IssueComment) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx
 }
 
 // DeleteAllIssueComments deletes all IssueComment records in the database with optional filters
-func DeleteAllIssueComments(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllIssueComments(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(IssueCommentTableName),
 	}
@@ -2027,7 +2027,7 @@ func DeleteAllIssueComments(ctx context.Context, db *sql.DB, _params ...interfac
 }
 
 // DeleteAllIssueCommentsTx deletes all IssueComment records in the database with optional filters using the provided transaction
-func DeleteAllIssueCommentsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllIssueCommentsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(IssueCommentTableName),
 	}
@@ -2042,7 +2042,7 @@ func DeleteAllIssueCommentsTx(ctx context.Context, tx *sql.Tx, _params ...interf
 }
 
 // DBDelete will delete this IssueComment record in the database
-func (t *IssueComment) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *IssueComment) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `issue_comment` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -2056,7 +2056,7 @@ func (t *IssueComment) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this IssueComment record in the database using the provided transaction
-func (t *IssueComment) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *IssueComment) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `issue_comment` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -2070,7 +2070,7 @@ func (t *IssueComment) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error)
 }
 
 // DBUpdate will update the IssueComment record in the database
-func (t *IssueComment) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *IssueComment) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -2098,7 +2098,7 @@ func (t *IssueComment) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, er
 }
 
 // DBUpdateTx will update the IssueComment record in the database using the provided transaction
-func (t *IssueComment) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *IssueComment) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -2126,7 +2126,7 @@ func (t *IssueComment) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, 
 }
 
 // DBUpsert will upsert the IssueComment record in the database
-func (t *IssueComment) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *IssueComment) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -2167,7 +2167,7 @@ func (t *IssueComment) DBUpsert(ctx context.Context, db *sql.DB, conditions ...i
 }
 
 // DBUpsertTx will upsert the IssueComment record in the database using the provided transaction
-func (t *IssueComment) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *IssueComment) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -2208,7 +2208,7 @@ func (t *IssueComment) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ..
 }
 
 // DBFindOne will find a IssueComment record in the database with the primary key
-func (t *IssueComment) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *IssueComment) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -2303,7 +2303,7 @@ func (t *IssueComment) DBFindOne(ctx context.Context, db *sql.DB, value string) 
 }
 
 // DBFindOneTx will find a IssueComment record in the database with the primary key using the provided transaction
-func (t *IssueComment) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *IssueComment) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -2398,7 +2398,7 @@ func (t *IssueComment) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string
 }
 
 // FindIssueComments will find a IssueComment record in the database with the provided parameters
-func FindIssueComments(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*IssueComment, error) {
+func FindIssueComments(ctx context.Context, db DB, _params ...interface{}) ([]*IssueComment, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2526,7 +2526,7 @@ func FindIssueComments(ctx context.Context, db *sql.DB, _params ...interface{}) 
 }
 
 // FindIssueCommentsTx will find a IssueComment record in the database with the provided parameters using the provided transaction
-func FindIssueCommentsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*IssueComment, error) {
+func FindIssueCommentsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*IssueComment, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2654,7 +2654,7 @@ func FindIssueCommentsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}
 }
 
 // DBFind will find a IssueComment record in the database with the provided parameters
-func (t *IssueComment) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *IssueComment) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2770,7 +2770,7 @@ func (t *IssueComment) DBFind(ctx context.Context, db *sql.DB, _params ...interf
 }
 
 // DBFindTx will find a IssueComment record in the database with the provided parameters using the provided transaction
-func (t *IssueComment) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *IssueComment) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2886,7 +2886,7 @@ func (t *IssueComment) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...inte
 }
 
 // CountIssueComments will find the count of IssueComment records in the database
-func CountIssueComments(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountIssueComments(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(IssueCommentTableName),
@@ -2906,7 +2906,7 @@ func CountIssueComments(ctx context.Context, db *sql.DB, _params ...interface{})
 }
 
 // CountIssueCommentsTx will find the count of IssueComment records in the database using the provided transaction
-func CountIssueCommentsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountIssueCommentsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(IssueCommentTableName),
@@ -2926,7 +2926,7 @@ func CountIssueCommentsTx(ctx context.Context, tx *sql.Tx, _params ...interface{
 }
 
 // DBCount will find the count of IssueComment records in the database
-func (t *IssueComment) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *IssueComment) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(IssueCommentTableName),
@@ -2946,7 +2946,7 @@ func (t *IssueComment) DBCount(ctx context.Context, db *sql.DB, _params ...inter
 }
 
 // DBCountTx will find the count of IssueComment records in the database using the provided transaction
-func (t *IssueComment) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *IssueComment) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(IssueCommentTableName),
@@ -2966,7 +2966,7 @@ func (t *IssueComment) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...int
 }
 
 // DBExists will return true if the IssueComment record exists in the database
-func (t *IssueComment) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *IssueComment) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `issue_comment` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -2977,7 +2977,7 @@ func (t *IssueComment) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the IssueComment record exists in the database using the provided transaction
-func (t *IssueComment) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *IssueComment) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `issue_comment` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

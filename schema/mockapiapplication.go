@@ -265,10 +265,10 @@ func NewMockapiApplicationCSVWriterFile(fn string, dedupers ...MockapiApplicatio
 	return ch, sdone, nil
 }
 
-type MockapiApplicationDBAction func(ctx context.Context, db *sql.DB, record MockapiApplication) error
+type MockapiApplicationDBAction func(ctx context.Context, db DB, record MockapiApplication) error
 
 // NewMockapiApplicationDBWriterSize creates a DB writer that will write each issue into the DB
-func NewMockapiApplicationDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...MockapiApplicationDBAction) (chan MockapiApplication, chan bool, error) {
+func NewMockapiApplicationDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...MockapiApplicationDBAction) (chan MockapiApplication, chan bool, error) {
 	ch := make(chan MockapiApplication, size)
 	done := make(chan bool)
 	var action MockapiApplicationDBAction
@@ -293,7 +293,7 @@ func NewMockapiApplicationDBWriterSize(ctx context.Context, db *sql.DB, errors c
 }
 
 // NewMockapiApplicationDBWriter creates a DB writer that will write each issue into the DB
-func NewMockapiApplicationDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...MockapiApplicationDBAction) (chan MockapiApplication, chan bool, error) {
+func NewMockapiApplicationDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...MockapiApplicationDBAction) (chan MockapiApplication, chan bool, error) {
 	return NewMockapiApplicationDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -338,7 +338,7 @@ func (t *MockapiApplication) SetID(v string) {
 }
 
 // FindMockapiApplicationByID will find a MockapiApplication by ID
-func FindMockapiApplicationByID(ctx context.Context, db *sql.DB, value string) (*MockapiApplication, error) {
+func FindMockapiApplicationByID(ctx context.Context, db DB, value string) (*MockapiApplication, error) {
 	q := "SELECT `mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name` FROM `mockapi_application` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -378,7 +378,7 @@ func FindMockapiApplicationByID(ctx context.Context, db *sql.DB, value string) (
 }
 
 // FindMockapiApplicationByIDTx will find a MockapiApplication by ID using the provided transaction
-func FindMockapiApplicationByIDTx(ctx context.Context, tx *sql.Tx, value string) (*MockapiApplication, error) {
+func FindMockapiApplicationByIDTx(ctx context.Context, tx Tx, value string) (*MockapiApplication, error) {
 	q := "SELECT `mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name` FROM `mockapi_application` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -441,7 +441,7 @@ func (t *MockapiApplication) SetCustomerID(v string) {
 }
 
 // FindMockapiApplicationsByCustomerID will find all MockapiApplications by the CustomerID value
-func FindMockapiApplicationsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*MockapiApplication, error) {
+func FindMockapiApplicationsByCustomerID(ctx context.Context, db DB, value string) ([]*MockapiApplication, error) {
 	q := "SELECT `mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name` FROM `mockapi_application` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -490,7 +490,7 @@ func FindMockapiApplicationsByCustomerID(ctx context.Context, db *sql.DB, value 
 }
 
 // FindMockapiApplicationsByCustomerIDTx will find all MockapiApplications by the CustomerID value using the provided transaction
-func FindMockapiApplicationsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*MockapiApplication, error) {
+func FindMockapiApplicationsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*MockapiApplication, error) {
 	q := "SELECT `mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name` FROM `mockapi_application` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -564,28 +564,28 @@ func (t *MockapiApplication) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateMockapiApplicationTable will create the MockapiApplication table
-func DBCreateMockapiApplicationTable(ctx context.Context, db *sql.DB) error {
+func DBCreateMockapiApplicationTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `mockapi_application` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT NOT NULL,`name`TEXT NOT NULL,INDEX mockapi_application_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateMockapiApplicationTableTx will create the MockapiApplication table using the provided transction
-func DBCreateMockapiApplicationTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateMockapiApplicationTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `mockapi_application` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id` BIGINT NOT NULL,`name`TEXT NOT NULL,INDEX mockapi_application_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropMockapiApplicationTable will drop the MockapiApplication table
-func DBDropMockapiApplicationTable(ctx context.Context, db *sql.DB) error {
+func DBDropMockapiApplicationTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `mockapi_application`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropMockapiApplicationTableTx will drop the MockapiApplication table using the provided transaction
-func DBDropMockapiApplicationTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropMockapiApplicationTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `mockapi_application`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -602,7 +602,7 @@ func (t *MockapiApplication) CalculateChecksum() string {
 }
 
 // DBCreate will create a new MockapiApplication record in the database
-func (t *MockapiApplication) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *MockapiApplication) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `mockapi_application` (`mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name`) VALUES (?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -619,7 +619,7 @@ func (t *MockapiApplication) DBCreate(ctx context.Context, db *sql.DB) (sql.Resu
 }
 
 // DBCreateTx will create a new MockapiApplication record in the database using the provided transaction
-func (t *MockapiApplication) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *MockapiApplication) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `mockapi_application` (`mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name`) VALUES (?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -636,7 +636,7 @@ func (t *MockapiApplication) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Re
 }
 
 // DBCreateIgnoreDuplicate will upsert the MockapiApplication record in the database
-func (t *MockapiApplication) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *MockapiApplication) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `mockapi_application` (`mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name`) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -653,7 +653,7 @@ func (t *MockapiApplication) DBCreateIgnoreDuplicate(ctx context.Context, db *sq
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the MockapiApplication record in the database using the provided transaction
-func (t *MockapiApplication) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *MockapiApplication) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `mockapi_application` (`mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name`) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -670,7 +670,7 @@ func (t *MockapiApplication) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *
 }
 
 // DeleteAllMockapiApplications deletes all MockapiApplication records in the database with optional filters
-func DeleteAllMockapiApplications(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllMockapiApplications(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(MockapiApplicationTableName),
 	}
@@ -685,7 +685,7 @@ func DeleteAllMockapiApplications(ctx context.Context, db *sql.DB, _params ...in
 }
 
 // DeleteAllMockapiApplicationsTx deletes all MockapiApplication records in the database with optional filters using the provided transaction
-func DeleteAllMockapiApplicationsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllMockapiApplicationsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(MockapiApplicationTableName),
 	}
@@ -700,7 +700,7 @@ func DeleteAllMockapiApplicationsTx(ctx context.Context, tx *sql.Tx, _params ...
 }
 
 // DBDelete will delete this MockapiApplication record in the database
-func (t *MockapiApplication) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *MockapiApplication) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `mockapi_application` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -714,7 +714,7 @@ func (t *MockapiApplication) DBDelete(ctx context.Context, db *sql.DB) (bool, er
 }
 
 // DBDeleteTx will delete this MockapiApplication record in the database using the provided transaction
-func (t *MockapiApplication) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *MockapiApplication) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `mockapi_application` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -728,7 +728,7 @@ func (t *MockapiApplication) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, 
 }
 
 // DBUpdate will update the MockapiApplication record in the database
-func (t *MockapiApplication) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *MockapiApplication) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -745,7 +745,7 @@ func (t *MockapiApplication) DBUpdate(ctx context.Context, db *sql.DB) (sql.Resu
 }
 
 // DBUpdateTx will update the MockapiApplication record in the database using the provided transaction
-func (t *MockapiApplication) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *MockapiApplication) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -762,7 +762,7 @@ func (t *MockapiApplication) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Re
 }
 
 // DBUpsert will upsert the MockapiApplication record in the database
-func (t *MockapiApplication) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *MockapiApplication) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -792,7 +792,7 @@ func (t *MockapiApplication) DBUpsert(ctx context.Context, db *sql.DB, condition
 }
 
 // DBUpsertTx will upsert the MockapiApplication record in the database using the provided transaction
-func (t *MockapiApplication) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *MockapiApplication) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -822,7 +822,7 @@ func (t *MockapiApplication) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditi
 }
 
 // DBFindOne will find a MockapiApplication record in the database with the primary key
-func (t *MockapiApplication) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *MockapiApplication) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name` FROM `mockapi_application` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -862,7 +862,7 @@ func (t *MockapiApplication) DBFindOne(ctx context.Context, db *sql.DB, value st
 }
 
 // DBFindOneTx will find a MockapiApplication record in the database with the primary key using the provided transaction
-func (t *MockapiApplication) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *MockapiApplication) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name` FROM `mockapi_application` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -902,7 +902,7 @@ func (t *MockapiApplication) DBFindOneTx(ctx context.Context, tx *sql.Tx, value 
 }
 
 // FindMockapiApplications will find a MockapiApplication record in the database with the provided parameters
-func FindMockapiApplications(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*MockapiApplication, error) {
+func FindMockapiApplications(ctx context.Context, db DB, _params ...interface{}) ([]*MockapiApplication, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -964,7 +964,7 @@ func FindMockapiApplications(ctx context.Context, db *sql.DB, _params ...interfa
 }
 
 // FindMockapiApplicationsTx will find a MockapiApplication record in the database with the provided parameters using the provided transaction
-func FindMockapiApplicationsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*MockapiApplication, error) {
+func FindMockapiApplicationsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*MockapiApplication, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1026,7 +1026,7 @@ func FindMockapiApplicationsTx(ctx context.Context, tx *sql.Tx, _params ...inter
 }
 
 // DBFind will find a MockapiApplication record in the database with the provided parameters
-func (t *MockapiApplication) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *MockapiApplication) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1076,7 +1076,7 @@ func (t *MockapiApplication) DBFind(ctx context.Context, db *sql.DB, _params ...
 }
 
 // DBFindTx will find a MockapiApplication record in the database with the provided parameters using the provided transaction
-func (t *MockapiApplication) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *MockapiApplication) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1126,7 +1126,7 @@ func (t *MockapiApplication) DBFindTx(ctx context.Context, tx *sql.Tx, _params .
 }
 
 // CountMockapiApplications will find the count of MockapiApplication records in the database
-func CountMockapiApplications(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountMockapiApplications(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(MockapiApplicationTableName),
@@ -1146,7 +1146,7 @@ func CountMockapiApplications(ctx context.Context, db *sql.DB, _params ...interf
 }
 
 // CountMockapiApplicationsTx will find the count of MockapiApplication records in the database using the provided transaction
-func CountMockapiApplicationsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountMockapiApplicationsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(MockapiApplicationTableName),
@@ -1166,7 +1166,7 @@ func CountMockapiApplicationsTx(ctx context.Context, tx *sql.Tx, _params ...inte
 }
 
 // DBCount will find the count of MockapiApplication records in the database
-func (t *MockapiApplication) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *MockapiApplication) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(MockapiApplicationTableName),
@@ -1186,7 +1186,7 @@ func (t *MockapiApplication) DBCount(ctx context.Context, db *sql.DB, _params ..
 }
 
 // DBCountTx will find the count of MockapiApplication records in the database using the provided transaction
-func (t *MockapiApplication) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *MockapiApplication) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(MockapiApplicationTableName),
@@ -1206,7 +1206,7 @@ func (t *MockapiApplication) DBCountTx(ctx context.Context, tx *sql.Tx, _params 
 }
 
 // DBExists will return true if the MockapiApplication record exists in the database
-func (t *MockapiApplication) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *MockapiApplication) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `mockapi_application` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1217,7 +1217,7 @@ func (t *MockapiApplication) DBExists(ctx context.Context, db *sql.DB) (bool, er
 }
 
 // DBExistsTx will return true if the MockapiApplication record exists in the database using the provided transaction
-func (t *MockapiApplication) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *MockapiApplication) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `mockapi_application` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

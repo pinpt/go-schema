@@ -322,10 +322,10 @@ func NewACLGrantCSVWriterFile(fn string, dedupers ...ACLGrantCSVDeduper) (chan A
 	return ch, sdone, nil
 }
 
-type ACLGrantDBAction func(ctx context.Context, db *sql.DB, record ACLGrant) error
+type ACLGrantDBAction func(ctx context.Context, db DB, record ACLGrant) error
 
 // NewACLGrantDBWriterSize creates a DB writer that will write each issue into the DB
-func NewACLGrantDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...ACLGrantDBAction) (chan ACLGrant, chan bool, error) {
+func NewACLGrantDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...ACLGrantDBAction) (chan ACLGrant, chan bool, error) {
 	ch := make(chan ACLGrant, size)
 	done := make(chan bool)
 	var action ACLGrantDBAction
@@ -350,7 +350,7 @@ func NewACLGrantDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- erro
 }
 
 // NewACLGrantDBWriter creates a DB writer that will write each issue into the DB
-func NewACLGrantDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...ACLGrantDBAction) (chan ACLGrant, chan bool, error) {
+func NewACLGrantDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...ACLGrantDBAction) (chan ACLGrant, chan bool, error) {
 	return NewACLGrantDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -419,7 +419,7 @@ func (t *ACLGrant) SetID(v string) {
 }
 
 // FindACLGrantByID will find a ACLGrant by ID
-func FindACLGrantByID(ctx context.Context, db *sql.DB, value string) (*ACLGrant, error) {
+func FindACLGrantByID(ctx context.Context, db DB, value string) (*ACLGrant, error) {
 	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -479,7 +479,7 @@ func FindACLGrantByID(ctx context.Context, db *sql.DB, value string) (*ACLGrant,
 }
 
 // FindACLGrantByIDTx will find a ACLGrant by ID using the provided transaction
-func FindACLGrantByIDTx(ctx context.Context, tx *sql.Tx, value string) (*ACLGrant, error) {
+func FindACLGrantByIDTx(ctx context.Context, tx Tx, value string) (*ACLGrant, error) {
 	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -562,7 +562,7 @@ func (t *ACLGrant) SetResourceID(v string) {
 }
 
 // FindACLGrantsByResourceID will find all ACLGrants by the ResourceID value
-func FindACLGrantsByResourceID(ctx context.Context, db *sql.DB, value string) ([]*ACLGrant, error) {
+func FindACLGrantsByResourceID(ctx context.Context, db DB, value string) ([]*ACLGrant, error) {
 	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `resource_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -631,7 +631,7 @@ func FindACLGrantsByResourceID(ctx context.Context, db *sql.DB, value string) ([
 }
 
 // FindACLGrantsByResourceIDTx will find all ACLGrants by the ResourceID value using the provided transaction
-func FindACLGrantsByResourceIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*ACLGrant, error) {
+func FindACLGrantsByResourceIDTx(ctx context.Context, tx Tx, value string) ([]*ACLGrant, error) {
 	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `resource_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -710,7 +710,7 @@ func (t *ACLGrant) SetRoleID(v string) {
 }
 
 // FindACLGrantsByRoleID will find all ACLGrants by the RoleID value
-func FindACLGrantsByRoleID(ctx context.Context, db *sql.DB, value string) ([]*ACLGrant, error) {
+func FindACLGrantsByRoleID(ctx context.Context, db DB, value string) ([]*ACLGrant, error) {
 	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `role_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -779,7 +779,7 @@ func FindACLGrantsByRoleID(ctx context.Context, db *sql.DB, value string) ([]*AC
 }
 
 // FindACLGrantsByRoleIDTx will find all ACLGrants by the RoleID value using the provided transaction
-func FindACLGrantsByRoleIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*ACLGrant, error) {
+func FindACLGrantsByRoleIDTx(ctx context.Context, tx Tx, value string) ([]*ACLGrant, error) {
 	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `role_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -891,7 +891,7 @@ func (t *ACLGrant) SetCustomerID(v string) {
 }
 
 // FindACLGrantsByCustomerID will find all ACLGrants by the CustomerID value
-func FindACLGrantsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*ACLGrant, error) {
+func FindACLGrantsByCustomerID(ctx context.Context, db DB, value string) ([]*ACLGrant, error) {
 	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -960,7 +960,7 @@ func FindACLGrantsByCustomerID(ctx context.Context, db *sql.DB, value string) ([
 }
 
 // FindACLGrantsByCustomerIDTx will find all ACLGrants by the CustomerID value using the provided transaction
-func FindACLGrantsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*ACLGrant, error) {
+func FindACLGrantsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*ACLGrant, error) {
 	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1057,28 +1057,28 @@ func (t *ACLGrant) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateACLGrantTable will create the ACLGrant table
-func DBCreateACLGrantTable(ctx context.Context, db *sql.DB) error {
+func DBCreateACLGrantTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `acl_grant` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`resource_id`VARCHAR(64) NOT NULL,`role_id` VARCHAR(64) NOT NULL,`permission` ENUM('read','readwrite','admin') NOT NULL,`admin_user_id` VARCHAR(64) NOT NULL,`customer_id`VARCHAR(64) NOT NULL,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,INDEX acl_grant_resource_id_index (`resource_id`),INDEX acl_grant_role_id_index (`role_id`),INDEX acl_grant_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateACLGrantTableTx will create the ACLGrant table using the provided transction
-func DBCreateACLGrantTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateACLGrantTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `acl_grant` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`resource_id`VARCHAR(64) NOT NULL,`role_id` VARCHAR(64) NOT NULL,`permission` ENUM('read','readwrite','admin') NOT NULL,`admin_user_id` VARCHAR(64) NOT NULL,`customer_id`VARCHAR(64) NOT NULL,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,INDEX acl_grant_resource_id_index (`resource_id`),INDEX acl_grant_role_id_index (`role_id`),INDEX acl_grant_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropACLGrantTable will drop the ACLGrant table
-func DBDropACLGrantTable(ctx context.Context, db *sql.DB) error {
+func DBDropACLGrantTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `acl_grant`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropACLGrantTableTx will drop the ACLGrant table using the provided transaction
-func DBDropACLGrantTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropACLGrantTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `acl_grant`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -1099,7 +1099,7 @@ func (t *ACLGrant) CalculateChecksum() string {
 }
 
 // DBCreate will create a new ACLGrant record in the database
-func (t *ACLGrant) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *ACLGrant) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `acl_grant` (`acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1120,7 +1120,7 @@ func (t *ACLGrant) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error)
 }
 
 // DBCreateTx will create a new ACLGrant record in the database using the provided transaction
-func (t *ACLGrant) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *ACLGrant) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `acl_grant` (`acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1141,7 +1141,7 @@ func (t *ACLGrant) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, erro
 }
 
 // DBCreateIgnoreDuplicate will upsert the ACLGrant record in the database
-func (t *ACLGrant) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *ACLGrant) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `acl_grant` (`acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1162,7 +1162,7 @@ func (t *ACLGrant) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the ACLGrant record in the database using the provided transaction
-func (t *ACLGrant) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *ACLGrant) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `acl_grant` (`acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1183,7 +1183,7 @@ func (t *ACLGrant) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (s
 }
 
 // DeleteAllACLGrants deletes all ACLGrant records in the database with optional filters
-func DeleteAllACLGrants(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllACLGrants(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(ACLGrantTableName),
 	}
@@ -1198,7 +1198,7 @@ func DeleteAllACLGrants(ctx context.Context, db *sql.DB, _params ...interface{})
 }
 
 // DeleteAllACLGrantsTx deletes all ACLGrant records in the database with optional filters using the provided transaction
-func DeleteAllACLGrantsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllACLGrantsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(ACLGrantTableName),
 	}
@@ -1213,7 +1213,7 @@ func DeleteAllACLGrantsTx(ctx context.Context, tx *sql.Tx, _params ...interface{
 }
 
 // DBDelete will delete this ACLGrant record in the database
-func (t *ACLGrant) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *ACLGrant) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `acl_grant` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1227,7 +1227,7 @@ func (t *ACLGrant) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this ACLGrant record in the database using the provided transaction
-func (t *ACLGrant) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *ACLGrant) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `acl_grant` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1241,7 +1241,7 @@ func (t *ACLGrant) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 }
 
 // DBUpdate will update the ACLGrant record in the database
-func (t *ACLGrant) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *ACLGrant) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1262,7 +1262,7 @@ func (t *ACLGrant) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error)
 }
 
 // DBUpdateTx will update the ACLGrant record in the database using the provided transaction
-func (t *ACLGrant) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *ACLGrant) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1283,7 +1283,7 @@ func (t *ACLGrant) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, erro
 }
 
 // DBUpsert will upsert the ACLGrant record in the database
-func (t *ACLGrant) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *ACLGrant) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1317,7 +1317,7 @@ func (t *ACLGrant) DBUpsert(ctx context.Context, db *sql.DB, conditions ...inter
 }
 
 // DBUpsertTx will upsert the ACLGrant record in the database using the provided transaction
-func (t *ACLGrant) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *ACLGrant) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1351,7 +1351,7 @@ func (t *ACLGrant) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...int
 }
 
 // DBFindOne will find a ACLGrant record in the database with the primary key
-func (t *ACLGrant) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *ACLGrant) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1411,7 +1411,7 @@ func (t *ACLGrant) DBFindOne(ctx context.Context, db *sql.DB, value string) (boo
 }
 
 // DBFindOneTx will find a ACLGrant record in the database with the primary key using the provided transaction
-func (t *ACLGrant) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *ACLGrant) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1471,7 +1471,7 @@ func (t *ACLGrant) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (b
 }
 
 // FindACLGrants will find a ACLGrant record in the database with the provided parameters
-func FindACLGrants(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*ACLGrant, error) {
+func FindACLGrants(ctx context.Context, db DB, _params ...interface{}) ([]*ACLGrant, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1557,7 +1557,7 @@ func FindACLGrants(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*
 }
 
 // FindACLGrantsTx will find a ACLGrant record in the database with the provided parameters using the provided transaction
-func FindACLGrantsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*ACLGrant, error) {
+func FindACLGrantsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*ACLGrant, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1643,7 +1643,7 @@ func FindACLGrantsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([
 }
 
 // DBFind will find a ACLGrant record in the database with the provided parameters
-func (t *ACLGrant) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *ACLGrant) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1717,7 +1717,7 @@ func (t *ACLGrant) DBFind(ctx context.Context, db *sql.DB, _params ...interface{
 }
 
 // DBFindTx will find a ACLGrant record in the database with the provided parameters using the provided transaction
-func (t *ACLGrant) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *ACLGrant) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1791,7 +1791,7 @@ func (t *ACLGrant) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interfac
 }
 
 // CountACLGrants will find the count of ACLGrant records in the database
-func CountACLGrants(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountACLGrants(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(ACLGrantTableName),
@@ -1811,7 +1811,7 @@ func CountACLGrants(ctx context.Context, db *sql.DB, _params ...interface{}) (in
 }
 
 // CountACLGrantsTx will find the count of ACLGrant records in the database using the provided transaction
-func CountACLGrantsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountACLGrantsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(ACLGrantTableName),
@@ -1831,7 +1831,7 @@ func CountACLGrantsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (
 }
 
 // DBCount will find the count of ACLGrant records in the database
-func (t *ACLGrant) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *ACLGrant) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(ACLGrantTableName),
@@ -1851,7 +1851,7 @@ func (t *ACLGrant) DBCount(ctx context.Context, db *sql.DB, _params ...interface
 }
 
 // DBCountTx will find the count of ACLGrant records in the database using the provided transaction
-func (t *ACLGrant) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *ACLGrant) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(ACLGrantTableName),
@@ -1871,7 +1871,7 @@ func (t *ACLGrant) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interfa
 }
 
 // DBExists will return true if the ACLGrant record exists in the database
-func (t *ACLGrant) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *ACLGrant) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `acl_grant` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1882,7 +1882,7 @@ func (t *ACLGrant) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the ACLGrant record exists in the database using the provided transaction
-func (t *ACLGrant) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *ACLGrant) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `acl_grant` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

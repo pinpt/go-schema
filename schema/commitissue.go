@@ -305,10 +305,10 @@ func NewCommitIssueCSVWriterFile(fn string, dedupers ...CommitIssueCSVDeduper) (
 	return ch, sdone, nil
 }
 
-type CommitIssueDBAction func(ctx context.Context, db *sql.DB, record CommitIssue) error
+type CommitIssueDBAction func(ctx context.Context, db DB, record CommitIssue) error
 
 // NewCommitIssueDBWriterSize creates a DB writer that will write each issue into the DB
-func NewCommitIssueDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...CommitIssueDBAction) (chan CommitIssue, chan bool, error) {
+func NewCommitIssueDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...CommitIssueDBAction) (chan CommitIssue, chan bool, error) {
 	ch := make(chan CommitIssue, size)
 	done := make(chan bool)
 	var action CommitIssueDBAction
@@ -333,7 +333,7 @@ func NewCommitIssueDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- e
 }
 
 // NewCommitIssueDBWriter creates a DB writer that will write each issue into the DB
-func NewCommitIssueDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...CommitIssueDBAction) (chan CommitIssue, chan bool, error) {
+func NewCommitIssueDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...CommitIssueDBAction) (chan CommitIssue, chan bool, error) {
 	return NewCommitIssueDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -438,7 +438,7 @@ func (t *CommitIssue) SetID(v string) {
 }
 
 // FindCommitIssueByID will find a CommitIssue by ID
-func FindCommitIssueByID(ctx context.Context, db *sql.DB, value string) (*CommitIssue, error) {
+func FindCommitIssueByID(ctx context.Context, db DB, value string) (*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -528,7 +528,7 @@ func FindCommitIssueByID(ctx context.Context, db *sql.DB, value string) (*Commit
 }
 
 // FindCommitIssueByIDTx will find a CommitIssue by ID using the provided transaction
-func FindCommitIssueByIDTx(ctx context.Context, tx *sql.Tx, value string) (*CommitIssue, error) {
+func FindCommitIssueByIDTx(ctx context.Context, tx Tx, value string) (*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -641,7 +641,7 @@ func (t *CommitIssue) SetCommitID(v string) {
 }
 
 // FindCommitIssuesByCommitID will find all CommitIssues by the CommitID value
-func FindCommitIssuesByCommitID(ctx context.Context, db *sql.DB, value string) ([]*CommitIssue, error) {
+func FindCommitIssuesByCommitID(ctx context.Context, db DB, value string) ([]*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `commit_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -740,7 +740,7 @@ func FindCommitIssuesByCommitID(ctx context.Context, db *sql.DB, value string) (
 }
 
 // FindCommitIssuesByCommitIDTx will find all CommitIssues by the CommitID value using the provided transaction
-func FindCommitIssuesByCommitIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*CommitIssue, error) {
+func FindCommitIssuesByCommitIDTx(ctx context.Context, tx Tx, value string) ([]*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `commit_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -899,7 +899,7 @@ func (t *CommitIssue) SetCustomerID(v string) {
 }
 
 // FindCommitIssuesByCustomerID will find all CommitIssues by the CustomerID value
-func FindCommitIssuesByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*CommitIssue, error) {
+func FindCommitIssuesByCustomerID(ctx context.Context, db DB, value string) ([]*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -998,7 +998,7 @@ func FindCommitIssuesByCustomerID(ctx context.Context, db *sql.DB, value string)
 }
 
 // FindCommitIssuesByCustomerIDTx will find all CommitIssues by the CustomerID value using the provided transaction
-func FindCommitIssuesByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*CommitIssue, error) {
+func FindCommitIssuesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1107,7 +1107,7 @@ func (t *CommitIssue) SetRefType(v string) {
 }
 
 // FindCommitIssuesByRefType will find all CommitIssues by the RefType value
-func FindCommitIssuesByRefType(ctx context.Context, db *sql.DB, value string) ([]*CommitIssue, error) {
+func FindCommitIssuesByRefType(ctx context.Context, db DB, value string) ([]*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1206,7 +1206,7 @@ func FindCommitIssuesByRefType(ctx context.Context, db *sql.DB, value string) ([
 }
 
 // FindCommitIssuesByRefTypeTx will find all CommitIssues by the RefType value using the provided transaction
-func FindCommitIssuesByRefTypeTx(ctx context.Context, tx *sql.Tx, value string) ([]*CommitIssue, error) {
+func FindCommitIssuesByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1315,7 +1315,7 @@ func (t *CommitIssue) SetRefCommitID(v string) {
 }
 
 // FindCommitIssuesByRefCommitID will find all CommitIssues by the RefCommitID value
-func FindCommitIssuesByRefCommitID(ctx context.Context, db *sql.DB, value string) ([]*CommitIssue, error) {
+func FindCommitIssuesByRefCommitID(ctx context.Context, db DB, value string) ([]*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_commit_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1414,7 +1414,7 @@ func FindCommitIssuesByRefCommitID(ctx context.Context, db *sql.DB, value string
 }
 
 // FindCommitIssuesByRefCommitIDTx will find all CommitIssues by the RefCommitID value using the provided transaction
-func FindCommitIssuesByRefCommitIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*CommitIssue, error) {
+func FindCommitIssuesByRefCommitIDTx(ctx context.Context, tx Tx, value string) ([]*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_commit_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1523,7 +1523,7 @@ func (t *CommitIssue) SetRefRepoID(v string) {
 }
 
 // FindCommitIssuesByRefRepoID will find all CommitIssues by the RefRepoID value
-func FindCommitIssuesByRefRepoID(ctx context.Context, db *sql.DB, value string) ([]*CommitIssue, error) {
+func FindCommitIssuesByRefRepoID(ctx context.Context, db DB, value string) ([]*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_repo_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1622,7 +1622,7 @@ func FindCommitIssuesByRefRepoID(ctx context.Context, db *sql.DB, value string) 
 }
 
 // FindCommitIssuesByRefRepoIDTx will find all CommitIssues by the RefRepoID value using the provided transaction
-func FindCommitIssuesByRefRepoIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*CommitIssue, error) {
+func FindCommitIssuesByRefRepoIDTx(ctx context.Context, tx Tx, value string) ([]*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_repo_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1731,7 +1731,7 @@ func (t *CommitIssue) SetRefIssueType(v string) {
 }
 
 // FindCommitIssuesByRefIssueType will find all CommitIssues by the RefIssueType value
-func FindCommitIssuesByRefIssueType(ctx context.Context, db *sql.DB, value string) ([]*CommitIssue, error) {
+func FindCommitIssuesByRefIssueType(ctx context.Context, db DB, value string) ([]*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_issue_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1830,7 +1830,7 @@ func FindCommitIssuesByRefIssueType(ctx context.Context, db *sql.DB, value strin
 }
 
 // FindCommitIssuesByRefIssueTypeTx will find all CommitIssues by the RefIssueType value using the provided transaction
-func FindCommitIssuesByRefIssueTypeTx(ctx context.Context, tx *sql.Tx, value string) ([]*CommitIssue, error) {
+func FindCommitIssuesByRefIssueTypeTx(ctx context.Context, tx Tx, value string) ([]*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_issue_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1939,7 +1939,7 @@ func (t *CommitIssue) SetRefIssueID(v string) {
 }
 
 // FindCommitIssuesByRefIssueID will find all CommitIssues by the RefIssueID value
-func FindCommitIssuesByRefIssueID(ctx context.Context, db *sql.DB, value string) ([]*CommitIssue, error) {
+func FindCommitIssuesByRefIssueID(ctx context.Context, db DB, value string) ([]*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_issue_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -2038,7 +2038,7 @@ func FindCommitIssuesByRefIssueID(ctx context.Context, db *sql.DB, value string)
 }
 
 // FindCommitIssuesByRefIssueIDTx will find all CommitIssues by the RefIssueID value using the provided transaction
-func FindCommitIssuesByRefIssueIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*CommitIssue, error) {
+func FindCommitIssuesByRefIssueIDTx(ctx context.Context, tx Tx, value string) ([]*CommitIssue, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_issue_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -2155,28 +2155,28 @@ func (t *CommitIssue) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateCommitIssueTable will create the CommitIssue table
-func DBCreateCommitIssueTable(ctx context.Context, db *sql.DB) error {
+func DBCreateCommitIssueTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `commit_issue` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`commit_id`VARCHAR(64) NOT NULL,`branch`VARCHAR(255) NOT NULL DEFAULT \"master\",`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`issue_id` VARCHAR(64) NOT NULL,`date` BIGINT UNSIGNED NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`ref_commit_id` VARCHAR(64) NOT NULL,`ref_repo_id` VARCHAR(64) NOT NULL,`ref_issue_type` VARCHAR(20) NOT NULL,`ref_issue_id`VARCHAR(64) NOT NULL,`metadata` JSON,INDEX commit_issue_commit_id_index (`commit_id`),INDEX commit_issue_customer_id_index (`customer_id`),INDEX commit_issue_ref_type_index (`ref_type`),INDEX commit_issue_ref_commit_id_index (`ref_commit_id`),INDEX commit_issue_ref_repo_id_index (`ref_repo_id`),INDEX commit_issue_ref_issue_type_index (`ref_issue_type`),INDEX commit_issue_ref_issue_id_index (`ref_issue_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateCommitIssueTableTx will create the CommitIssue table using the provided transction
-func DBCreateCommitIssueTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateCommitIssueTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `commit_issue` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`commit_id`VARCHAR(64) NOT NULL,`branch`VARCHAR(255) NOT NULL DEFAULT \"master\",`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`issue_id` VARCHAR(64) NOT NULL,`date` BIGINT UNSIGNED NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`ref_commit_id` VARCHAR(64) NOT NULL,`ref_repo_id` VARCHAR(64) NOT NULL,`ref_issue_type` VARCHAR(20) NOT NULL,`ref_issue_id`VARCHAR(64) NOT NULL,`metadata` JSON,INDEX commit_issue_commit_id_index (`commit_id`),INDEX commit_issue_customer_id_index (`customer_id`),INDEX commit_issue_ref_type_index (`ref_type`),INDEX commit_issue_ref_commit_id_index (`ref_commit_id`),INDEX commit_issue_ref_repo_id_index (`ref_repo_id`),INDEX commit_issue_ref_issue_type_index (`ref_issue_type`),INDEX commit_issue_ref_issue_id_index (`ref_issue_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropCommitIssueTable will drop the CommitIssue table
-func DBDropCommitIssueTable(ctx context.Context, db *sql.DB) error {
+func DBDropCommitIssueTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `commit_issue`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropCommitIssueTableTx will drop the CommitIssue table using the provided transaction
-func DBDropCommitIssueTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropCommitIssueTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `commit_issue`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -2203,7 +2203,7 @@ func (t *CommitIssue) CalculateChecksum() string {
 }
 
 // DBCreate will create a new CommitIssue record in the database
-func (t *CommitIssue) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *CommitIssue) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `commit_issue` (`commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -2230,7 +2230,7 @@ func (t *CommitIssue) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, err
 }
 
 // DBCreateTx will create a new CommitIssue record in the database using the provided transaction
-func (t *CommitIssue) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *CommitIssue) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `commit_issue` (`commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -2257,7 +2257,7 @@ func (t *CommitIssue) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, e
 }
 
 // DBCreateIgnoreDuplicate will upsert the CommitIssue record in the database
-func (t *CommitIssue) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *CommitIssue) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `commit_issue` (`commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -2284,7 +2284,7 @@ func (t *CommitIssue) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the CommitIssue record in the database using the provided transaction
-func (t *CommitIssue) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *CommitIssue) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `commit_issue` (`commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -2311,7 +2311,7 @@ func (t *CommitIssue) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx)
 }
 
 // DeleteAllCommitIssues deletes all CommitIssue records in the database with optional filters
-func DeleteAllCommitIssues(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllCommitIssues(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(CommitIssueTableName),
 	}
@@ -2326,7 +2326,7 @@ func DeleteAllCommitIssues(ctx context.Context, db *sql.DB, _params ...interface
 }
 
 // DeleteAllCommitIssuesTx deletes all CommitIssue records in the database with optional filters using the provided transaction
-func DeleteAllCommitIssuesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllCommitIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(CommitIssueTableName),
 	}
@@ -2341,7 +2341,7 @@ func DeleteAllCommitIssuesTx(ctx context.Context, tx *sql.Tx, _params ...interfa
 }
 
 // DBDelete will delete this CommitIssue record in the database
-func (t *CommitIssue) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *CommitIssue) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `commit_issue` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -2355,7 +2355,7 @@ func (t *CommitIssue) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this CommitIssue record in the database using the provided transaction
-func (t *CommitIssue) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *CommitIssue) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `commit_issue` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -2369,7 +2369,7 @@ func (t *CommitIssue) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) 
 }
 
 // DBUpdate will update the CommitIssue record in the database
-func (t *CommitIssue) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *CommitIssue) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -2396,7 +2396,7 @@ func (t *CommitIssue) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, err
 }
 
 // DBUpdateTx will update the CommitIssue record in the database using the provided transaction
-func (t *CommitIssue) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *CommitIssue) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -2423,7 +2423,7 @@ func (t *CommitIssue) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, e
 }
 
 // DBUpsert will upsert the CommitIssue record in the database
-func (t *CommitIssue) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *CommitIssue) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -2463,7 +2463,7 @@ func (t *CommitIssue) DBUpsert(ctx context.Context, db *sql.DB, conditions ...in
 }
 
 // DBUpsertTx will upsert the CommitIssue record in the database using the provided transaction
-func (t *CommitIssue) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *CommitIssue) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -2503,7 +2503,7 @@ func (t *CommitIssue) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...
 }
 
 // DBFindOne will find a CommitIssue record in the database with the primary key
-func (t *CommitIssue) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *CommitIssue) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -2593,7 +2593,7 @@ func (t *CommitIssue) DBFindOne(ctx context.Context, db *sql.DB, value string) (
 }
 
 // DBFindOneTx will find a CommitIssue record in the database with the primary key using the provided transaction
-func (t *CommitIssue) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *CommitIssue) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -2683,7 +2683,7 @@ func (t *CommitIssue) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string)
 }
 
 // FindCommitIssues will find a CommitIssue record in the database with the provided parameters
-func FindCommitIssues(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*CommitIssue, error) {
+func FindCommitIssues(ctx context.Context, db DB, _params ...interface{}) ([]*CommitIssue, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2805,7 +2805,7 @@ func FindCommitIssues(ctx context.Context, db *sql.DB, _params ...interface{}) (
 }
 
 // FindCommitIssuesTx will find a CommitIssue record in the database with the provided parameters using the provided transaction
-func FindCommitIssuesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*CommitIssue, error) {
+func FindCommitIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*CommitIssue, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2927,7 +2927,7 @@ func FindCommitIssuesTx(ctx context.Context, tx *sql.Tx, _params ...interface{})
 }
 
 // DBFind will find a CommitIssue record in the database with the provided parameters
-func (t *CommitIssue) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *CommitIssue) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -3037,7 +3037,7 @@ func (t *CommitIssue) DBFind(ctx context.Context, db *sql.DB, _params ...interfa
 }
 
 // DBFindTx will find a CommitIssue record in the database with the provided parameters using the provided transaction
-func (t *CommitIssue) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *CommitIssue) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -3147,7 +3147,7 @@ func (t *CommitIssue) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...inter
 }
 
 // CountCommitIssues will find the count of CommitIssue records in the database
-func CountCommitIssues(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountCommitIssues(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(CommitIssueTableName),
@@ -3167,7 +3167,7 @@ func CountCommitIssues(ctx context.Context, db *sql.DB, _params ...interface{}) 
 }
 
 // CountCommitIssuesTx will find the count of CommitIssue records in the database using the provided transaction
-func CountCommitIssuesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountCommitIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(CommitIssueTableName),
@@ -3187,7 +3187,7 @@ func CountCommitIssuesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}
 }
 
 // DBCount will find the count of CommitIssue records in the database
-func (t *CommitIssue) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *CommitIssue) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(CommitIssueTableName),
@@ -3207,7 +3207,7 @@ func (t *CommitIssue) DBCount(ctx context.Context, db *sql.DB, _params ...interf
 }
 
 // DBCountTx will find the count of CommitIssue records in the database using the provided transaction
-func (t *CommitIssue) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *CommitIssue) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(CommitIssueTableName),
@@ -3227,7 +3227,7 @@ func (t *CommitIssue) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...inte
 }
 
 // DBExists will return true if the CommitIssue record exists in the database
-func (t *CommitIssue) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *CommitIssue) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `commit_issue` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -3238,7 +3238,7 @@ func (t *CommitIssue) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the CommitIssue record exists in the database using the provided transaction
-func (t *CommitIssue) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *CommitIssue) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `commit_issue` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

@@ -269,10 +269,10 @@ func NewJiraIssuePriorityCSVWriterFile(fn string, dedupers ...JiraIssuePriorityC
 	return ch, sdone, nil
 }
 
-type JiraIssuePriorityDBAction func(ctx context.Context, db *sql.DB, record JiraIssuePriority) error
+type JiraIssuePriorityDBAction func(ctx context.Context, db DB, record JiraIssuePriority) error
 
 // NewJiraIssuePriorityDBWriterSize creates a DB writer that will write each issue into the DB
-func NewJiraIssuePriorityDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...JiraIssuePriorityDBAction) (chan JiraIssuePriority, chan bool, error) {
+func NewJiraIssuePriorityDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...JiraIssuePriorityDBAction) (chan JiraIssuePriority, chan bool, error) {
 	ch := make(chan JiraIssuePriority, size)
 	done := make(chan bool)
 	var action JiraIssuePriorityDBAction
@@ -297,7 +297,7 @@ func NewJiraIssuePriorityDBWriterSize(ctx context.Context, db *sql.DB, errors ch
 }
 
 // NewJiraIssuePriorityDBWriter creates a DB writer that will write each issue into the DB
-func NewJiraIssuePriorityDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...JiraIssuePriorityDBAction) (chan JiraIssuePriority, chan bool, error) {
+func NewJiraIssuePriorityDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...JiraIssuePriorityDBAction) (chan JiraIssuePriority, chan bool, error) {
 	return NewJiraIssuePriorityDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -348,7 +348,7 @@ func (t *JiraIssuePriority) SetID(v string) {
 }
 
 // FindJiraIssuePriorityByID will find a JiraIssuePriority by ID
-func FindJiraIssuePriorityByID(ctx context.Context, db *sql.DB, value string) (*JiraIssuePriority, error) {
+func FindJiraIssuePriorityByID(ctx context.Context, db DB, value string) (*JiraIssuePriority, error) {
 	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -393,7 +393,7 @@ func FindJiraIssuePriorityByID(ctx context.Context, db *sql.DB, value string) (*
 }
 
 // FindJiraIssuePriorityByIDTx will find a JiraIssuePriority by ID using the provided transaction
-func FindJiraIssuePriorityByIDTx(ctx context.Context, tx *sql.Tx, value string) (*JiraIssuePriority, error) {
+func FindJiraIssuePriorityByIDTx(ctx context.Context, tx Tx, value string) (*JiraIssuePriority, error) {
 	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -461,7 +461,7 @@ func (t *JiraIssuePriority) SetIssuePriorityID(v string) {
 }
 
 // FindJiraIssuePrioritiesByIssuePriorityID will find all JiraIssuePrioritys by the IssuePriorityID value
-func FindJiraIssuePrioritiesByIssuePriorityID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssuePriority, error) {
+func FindJiraIssuePrioritiesByIssuePriorityID(ctx context.Context, db DB, value string) ([]*JiraIssuePriority, error) {
 	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `issue_priority_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -515,7 +515,7 @@ func FindJiraIssuePrioritiesByIssuePriorityID(ctx context.Context, db *sql.DB, v
 }
 
 // FindJiraIssuePrioritiesByIssuePriorityIDTx will find all JiraIssuePrioritys by the IssuePriorityID value using the provided transaction
-func FindJiraIssuePrioritiesByIssuePriorityIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssuePriority, error) {
+func FindJiraIssuePrioritiesByIssuePriorityIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssuePriority, error) {
 	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `issue_priority_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -599,7 +599,7 @@ func (t *JiraIssuePriority) SetCustomerID(v string) {
 }
 
 // FindJiraIssuePrioritiesByCustomerID will find all JiraIssuePrioritys by the CustomerID value
-func FindJiraIssuePrioritiesByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssuePriority, error) {
+func FindJiraIssuePrioritiesByCustomerID(ctx context.Context, db DB, value string) ([]*JiraIssuePriority, error) {
 	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -653,7 +653,7 @@ func FindJiraIssuePrioritiesByCustomerID(ctx context.Context, db *sql.DB, value 
 }
 
 // FindJiraIssuePrioritiesByCustomerIDTx will find all JiraIssuePrioritys by the CustomerID value using the provided transaction
-func FindJiraIssuePrioritiesByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssuePriority, error) {
+func FindJiraIssuePrioritiesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssuePriority, error) {
 	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -712,28 +712,28 @@ func (t *JiraIssuePriority) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateJiraIssuePriorityTable will create the JiraIssuePriority table
-func DBCreateJiraIssuePriorityTable(ctx context.Context, db *sql.DB) error {
+func DBCreateJiraIssuePriorityTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `jira_issue_priority` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`issue_priority_id` VARCHAR(255) NOT NULL,`name` TEXT NOT NULL,`icon_url` TEXT NOT NULL,`customer_id` VARCHAR(64) NOT NULL,INDEX jira_issue_priority_issue_priority_id_index (`issue_priority_id`),INDEX jira_issue_priority_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraIssuePriorityTableTx will create the JiraIssuePriority table using the provided transction
-func DBCreateJiraIssuePriorityTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateJiraIssuePriorityTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `jira_issue_priority` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`issue_priority_id` VARCHAR(255) NOT NULL,`name` TEXT NOT NULL,`icon_url` TEXT NOT NULL,`customer_id` VARCHAR(64) NOT NULL,INDEX jira_issue_priority_issue_priority_id_index (`issue_priority_id`),INDEX jira_issue_priority_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraIssuePriorityTable will drop the JiraIssuePriority table
-func DBDropJiraIssuePriorityTable(ctx context.Context, db *sql.DB) error {
+func DBDropJiraIssuePriorityTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `jira_issue_priority`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraIssuePriorityTableTx will drop the JiraIssuePriority table using the provided transaction
-func DBDropJiraIssuePriorityTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropJiraIssuePriorityTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `jira_issue_priority`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -751,7 +751,7 @@ func (t *JiraIssuePriority) CalculateChecksum() string {
 }
 
 // DBCreate will create a new JiraIssuePriority record in the database
-func (t *JiraIssuePriority) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *JiraIssuePriority) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_priority` (`jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id`) VALUES (?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -769,7 +769,7 @@ func (t *JiraIssuePriority) DBCreate(ctx context.Context, db *sql.DB) (sql.Resul
 }
 
 // DBCreateTx will create a new JiraIssuePriority record in the database using the provided transaction
-func (t *JiraIssuePriority) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *JiraIssuePriority) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_priority` (`jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id`) VALUES (?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -787,7 +787,7 @@ func (t *JiraIssuePriority) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Res
 }
 
 // DBCreateIgnoreDuplicate will upsert the JiraIssuePriority record in the database
-func (t *JiraIssuePriority) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *JiraIssuePriority) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_priority` (`jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -805,7 +805,7 @@ func (t *JiraIssuePriority) DBCreateIgnoreDuplicate(ctx context.Context, db *sql
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the JiraIssuePriority record in the database using the provided transaction
-func (t *JiraIssuePriority) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *JiraIssuePriority) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_priority` (`jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -823,7 +823,7 @@ func (t *JiraIssuePriority) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *s
 }
 
 // DeleteAllJiraIssuePriorities deletes all JiraIssuePriority records in the database with optional filters
-func DeleteAllJiraIssuePriorities(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllJiraIssuePriorities(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraIssuePriorityTableName),
 	}
@@ -838,7 +838,7 @@ func DeleteAllJiraIssuePriorities(ctx context.Context, db *sql.DB, _params ...in
 }
 
 // DeleteAllJiraIssuePrioritiesTx deletes all JiraIssuePriority records in the database with optional filters using the provided transaction
-func DeleteAllJiraIssuePrioritiesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllJiraIssuePrioritiesTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraIssuePriorityTableName),
 	}
@@ -853,7 +853,7 @@ func DeleteAllJiraIssuePrioritiesTx(ctx context.Context, tx *sql.Tx, _params ...
 }
 
 // DBDelete will delete this JiraIssuePriority record in the database
-func (t *JiraIssuePriority) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *JiraIssuePriority) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `jira_issue_priority` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -867,7 +867,7 @@ func (t *JiraIssuePriority) DBDelete(ctx context.Context, db *sql.DB) (bool, err
 }
 
 // DBDeleteTx will delete this JiraIssuePriority record in the database using the provided transaction
-func (t *JiraIssuePriority) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *JiraIssuePriority) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `jira_issue_priority` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -881,7 +881,7 @@ func (t *JiraIssuePriority) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, e
 }
 
 // DBUpdate will update the JiraIssuePriority record in the database
-func (t *JiraIssuePriority) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *JiraIssuePriority) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -899,7 +899,7 @@ func (t *JiraIssuePriority) DBUpdate(ctx context.Context, db *sql.DB) (sql.Resul
 }
 
 // DBUpdateTx will update the JiraIssuePriority record in the database using the provided transaction
-func (t *JiraIssuePriority) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *JiraIssuePriority) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -917,7 +917,7 @@ func (t *JiraIssuePriority) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Res
 }
 
 // DBUpsert will upsert the JiraIssuePriority record in the database
-func (t *JiraIssuePriority) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraIssuePriority) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -948,7 +948,7 @@ func (t *JiraIssuePriority) DBUpsert(ctx context.Context, db *sql.DB, conditions
 }
 
 // DBUpsertTx will upsert the JiraIssuePriority record in the database using the provided transaction
-func (t *JiraIssuePriority) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraIssuePriority) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -979,7 +979,7 @@ func (t *JiraIssuePriority) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditio
 }
 
 // DBFindOne will find a JiraIssuePriority record in the database with the primary key
-func (t *JiraIssuePriority) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *JiraIssuePriority) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1024,7 +1024,7 @@ func (t *JiraIssuePriority) DBFindOne(ctx context.Context, db *sql.DB, value str
 }
 
 // DBFindOneTx will find a JiraIssuePriority record in the database with the primary key using the provided transaction
-func (t *JiraIssuePriority) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *JiraIssuePriority) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1069,7 +1069,7 @@ func (t *JiraIssuePriority) DBFindOneTx(ctx context.Context, tx *sql.Tx, value s
 }
 
 // FindJiraIssuePriorities will find a JiraIssuePriority record in the database with the provided parameters
-func FindJiraIssuePriorities(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*JiraIssuePriority, error) {
+func FindJiraIssuePriorities(ctx context.Context, db DB, _params ...interface{}) ([]*JiraIssuePriority, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1137,7 +1137,7 @@ func FindJiraIssuePriorities(ctx context.Context, db *sql.DB, _params ...interfa
 }
 
 // FindJiraIssuePrioritiesTx will find a JiraIssuePriority record in the database with the provided parameters using the provided transaction
-func FindJiraIssuePrioritiesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*JiraIssuePriority, error) {
+func FindJiraIssuePrioritiesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*JiraIssuePriority, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1205,7 +1205,7 @@ func FindJiraIssuePrioritiesTx(ctx context.Context, tx *sql.Tx, _params ...inter
 }
 
 // DBFind will find a JiraIssuePriority record in the database with the provided parameters
-func (t *JiraIssuePriority) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *JiraIssuePriority) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1261,7 +1261,7 @@ func (t *JiraIssuePriority) DBFind(ctx context.Context, db *sql.DB, _params ...i
 }
 
 // DBFindTx will find a JiraIssuePriority record in the database with the provided parameters using the provided transaction
-func (t *JiraIssuePriority) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *JiraIssuePriority) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1317,7 +1317,7 @@ func (t *JiraIssuePriority) DBFindTx(ctx context.Context, tx *sql.Tx, _params ..
 }
 
 // CountJiraIssuePriorities will find the count of JiraIssuePriority records in the database
-func CountJiraIssuePriorities(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountJiraIssuePriorities(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraIssuePriorityTableName),
@@ -1337,7 +1337,7 @@ func CountJiraIssuePriorities(ctx context.Context, db *sql.DB, _params ...interf
 }
 
 // CountJiraIssuePrioritiesTx will find the count of JiraIssuePriority records in the database using the provided transaction
-func CountJiraIssuePrioritiesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountJiraIssuePrioritiesTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraIssuePriorityTableName),
@@ -1357,7 +1357,7 @@ func CountJiraIssuePrioritiesTx(ctx context.Context, tx *sql.Tx, _params ...inte
 }
 
 // DBCount will find the count of JiraIssuePriority records in the database
-func (t *JiraIssuePriority) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *JiraIssuePriority) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraIssuePriorityTableName),
@@ -1377,7 +1377,7 @@ func (t *JiraIssuePriority) DBCount(ctx context.Context, db *sql.DB, _params ...
 }
 
 // DBCountTx will find the count of JiraIssuePriority records in the database using the provided transaction
-func (t *JiraIssuePriority) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *JiraIssuePriority) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraIssuePriorityTableName),
@@ -1397,7 +1397,7 @@ func (t *JiraIssuePriority) DBCountTx(ctx context.Context, tx *sql.Tx, _params .
 }
 
 // DBExists will return true if the JiraIssuePriority record exists in the database
-func (t *JiraIssuePriority) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *JiraIssuePriority) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `jira_issue_priority` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1408,7 +1408,7 @@ func (t *JiraIssuePriority) DBExists(ctx context.Context, db *sql.DB) (bool, err
 }
 
 // DBExistsTx will return true if the JiraIssuePriority record exists in the database using the provided transaction
-func (t *JiraIssuePriority) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *JiraIssuePriority) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `jira_issue_priority` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

@@ -285,10 +285,10 @@ func NewACLResourceCSVWriterFile(fn string, dedupers ...ACLResourceCSVDeduper) (
 	return ch, sdone, nil
 }
 
-type ACLResourceDBAction func(ctx context.Context, db *sql.DB, record ACLResource) error
+type ACLResourceDBAction func(ctx context.Context, db DB, record ACLResource) error
 
 // NewACLResourceDBWriterSize creates a DB writer that will write each issue into the DB
-func NewACLResourceDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...ACLResourceDBAction) (chan ACLResource, chan bool, error) {
+func NewACLResourceDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...ACLResourceDBAction) (chan ACLResource, chan bool, error) {
 	ch := make(chan ACLResource, size)
 	done := make(chan bool)
 	var action ACLResourceDBAction
@@ -313,7 +313,7 @@ func NewACLResourceDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- e
 }
 
 // NewACLResourceDBWriter creates a DB writer that will write each issue into the DB
-func NewACLResourceDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...ACLResourceDBAction) (chan ACLResource, chan bool, error) {
+func NewACLResourceDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...ACLResourceDBAction) (chan ACLResource, chan bool, error) {
 	return NewACLResourceDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -388,7 +388,7 @@ func (t *ACLResource) SetID(v string) {
 }
 
 // FindACLResourceByID will find a ACLResource by ID
-func FindACLResourceByID(ctx context.Context, db *sql.DB, value string) (*ACLResource, error) {
+func FindACLResourceByID(ctx context.Context, db DB, value string) (*ACLResource, error) {
 	q := "SELECT `acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at` FROM `acl_resource` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -453,7 +453,7 @@ func FindACLResourceByID(ctx context.Context, db *sql.DB, value string) (*ACLRes
 }
 
 // FindACLResourceByIDTx will find a ACLResource by ID using the provided transaction
-func FindACLResourceByIDTx(ctx context.Context, tx *sql.Tx, value string) (*ACLResource, error) {
+func FindACLResourceByIDTx(ctx context.Context, tx Tx, value string) (*ACLResource, error) {
 	q := "SELECT `acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at` FROM `acl_resource` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -541,7 +541,7 @@ func (t *ACLResource) SetUrn(v string) {
 }
 
 // FindACLResourcesByUrn will find all ACLResources by the Urn value
-func FindACLResourcesByUrn(ctx context.Context, db *sql.DB, value string) ([]*ACLResource, error) {
+func FindACLResourcesByUrn(ctx context.Context, db DB, value string) ([]*ACLResource, error) {
 	q := "SELECT `acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at` FROM `acl_resource` WHERE `urn` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -615,7 +615,7 @@ func FindACLResourcesByUrn(ctx context.Context, db *sql.DB, value string) ([]*AC
 }
 
 // FindACLResourcesByUrnTx will find all ACLResources by the Urn value using the provided transaction
-func FindACLResourcesByUrnTx(ctx context.Context, tx *sql.Tx, value string) ([]*ACLResource, error) {
+func FindACLResourcesByUrnTx(ctx context.Context, tx Tx, value string) ([]*ACLResource, error) {
 	q := "SELECT `acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at` FROM `acl_resource` WHERE `urn` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -773,28 +773,28 @@ func (t *ACLResource) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateACLResourceTable will create the ACLResource table
-func DBCreateACLResourceTable(ctx context.Context, db *sql.DB) error {
+func DBCreateACLResourceTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `acl_resource` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`urn` VARCHAR(255) NOT NULL,`description`TEXT,`title`TEXT,`public` TINYINT(1) NOT NULL,`hidden` TINYINT(1) NOT NULL,`admin`TINYINT(1) NOT NULL,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,INDEX acl_resource_urn_index (`urn`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateACLResourceTableTx will create the ACLResource table using the provided transction
-func DBCreateACLResourceTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateACLResourceTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `acl_resource` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`urn` VARCHAR(255) NOT NULL,`description`TEXT,`title`TEXT,`public` TINYINT(1) NOT NULL,`hidden` TINYINT(1) NOT NULL,`admin`TINYINT(1) NOT NULL,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,INDEX acl_resource_urn_index (`urn`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropACLResourceTable will drop the ACLResource table
-func DBDropACLResourceTable(ctx context.Context, db *sql.DB) error {
+func DBDropACLResourceTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `acl_resource`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropACLResourceTableTx will drop the ACLResource table using the provided transaction
-func DBDropACLResourceTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropACLResourceTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `acl_resource`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -816,7 +816,7 @@ func (t *ACLResource) CalculateChecksum() string {
 }
 
 // DBCreate will create a new ACLResource record in the database
-func (t *ACLResource) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *ACLResource) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `acl_resource` (`acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -838,7 +838,7 @@ func (t *ACLResource) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, err
 }
 
 // DBCreateTx will create a new ACLResource record in the database using the provided transaction
-func (t *ACLResource) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *ACLResource) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `acl_resource` (`acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -860,7 +860,7 @@ func (t *ACLResource) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, e
 }
 
 // DBCreateIgnoreDuplicate will upsert the ACLResource record in the database
-func (t *ACLResource) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *ACLResource) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `acl_resource` (`acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -882,7 +882,7 @@ func (t *ACLResource) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the ACLResource record in the database using the provided transaction
-func (t *ACLResource) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *ACLResource) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `acl_resource` (`acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -904,7 +904,7 @@ func (t *ACLResource) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx)
 }
 
 // DeleteAllACLResources deletes all ACLResource records in the database with optional filters
-func DeleteAllACLResources(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllACLResources(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(ACLResourceTableName),
 	}
@@ -919,7 +919,7 @@ func DeleteAllACLResources(ctx context.Context, db *sql.DB, _params ...interface
 }
 
 // DeleteAllACLResourcesTx deletes all ACLResource records in the database with optional filters using the provided transaction
-func DeleteAllACLResourcesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllACLResourcesTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(ACLResourceTableName),
 	}
@@ -934,7 +934,7 @@ func DeleteAllACLResourcesTx(ctx context.Context, tx *sql.Tx, _params ...interfa
 }
 
 // DBDelete will delete this ACLResource record in the database
-func (t *ACLResource) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *ACLResource) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `acl_resource` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -948,7 +948,7 @@ func (t *ACLResource) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this ACLResource record in the database using the provided transaction
-func (t *ACLResource) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *ACLResource) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `acl_resource` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -962,7 +962,7 @@ func (t *ACLResource) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) 
 }
 
 // DBUpdate will update the ACLResource record in the database
-func (t *ACLResource) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *ACLResource) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -984,7 +984,7 @@ func (t *ACLResource) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, err
 }
 
 // DBUpdateTx will update the ACLResource record in the database using the provided transaction
-func (t *ACLResource) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *ACLResource) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1006,7 +1006,7 @@ func (t *ACLResource) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, e
 }
 
 // DBUpsert will upsert the ACLResource record in the database
-func (t *ACLResource) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *ACLResource) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1041,7 +1041,7 @@ func (t *ACLResource) DBUpsert(ctx context.Context, db *sql.DB, conditions ...in
 }
 
 // DBUpsertTx will upsert the ACLResource record in the database using the provided transaction
-func (t *ACLResource) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *ACLResource) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1076,7 +1076,7 @@ func (t *ACLResource) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...
 }
 
 // DBFindOne will find a ACLResource record in the database with the primary key
-func (t *ACLResource) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *ACLResource) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at` FROM `acl_resource` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1141,7 +1141,7 @@ func (t *ACLResource) DBFindOne(ctx context.Context, db *sql.DB, value string) (
 }
 
 // DBFindOneTx will find a ACLResource record in the database with the primary key using the provided transaction
-func (t *ACLResource) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *ACLResource) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at` FROM `acl_resource` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1206,7 +1206,7 @@ func (t *ACLResource) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string)
 }
 
 // FindACLResources will find a ACLResource record in the database with the provided parameters
-func FindACLResources(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*ACLResource, error) {
+func FindACLResources(ctx context.Context, db DB, _params ...interface{}) ([]*ACLResource, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1298,7 +1298,7 @@ func FindACLResources(ctx context.Context, db *sql.DB, _params ...interface{}) (
 }
 
 // FindACLResourcesTx will find a ACLResource record in the database with the provided parameters using the provided transaction
-func FindACLResourcesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*ACLResource, error) {
+func FindACLResourcesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*ACLResource, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1390,7 +1390,7 @@ func FindACLResourcesTx(ctx context.Context, tx *sql.Tx, _params ...interface{})
 }
 
 // DBFind will find a ACLResource record in the database with the provided parameters
-func (t *ACLResource) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *ACLResource) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1470,7 +1470,7 @@ func (t *ACLResource) DBFind(ctx context.Context, db *sql.DB, _params ...interfa
 }
 
 // DBFindTx will find a ACLResource record in the database with the provided parameters using the provided transaction
-func (t *ACLResource) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *ACLResource) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1550,7 +1550,7 @@ func (t *ACLResource) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...inter
 }
 
 // CountACLResources will find the count of ACLResource records in the database
-func CountACLResources(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountACLResources(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(ACLResourceTableName),
@@ -1570,7 +1570,7 @@ func CountACLResources(ctx context.Context, db *sql.DB, _params ...interface{}) 
 }
 
 // CountACLResourcesTx will find the count of ACLResource records in the database using the provided transaction
-func CountACLResourcesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountACLResourcesTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(ACLResourceTableName),
@@ -1590,7 +1590,7 @@ func CountACLResourcesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}
 }
 
 // DBCount will find the count of ACLResource records in the database
-func (t *ACLResource) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *ACLResource) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(ACLResourceTableName),
@@ -1610,7 +1610,7 @@ func (t *ACLResource) DBCount(ctx context.Context, db *sql.DB, _params ...interf
 }
 
 // DBCountTx will find the count of ACLResource records in the database using the provided transaction
-func (t *ACLResource) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *ACLResource) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(ACLResourceTableName),
@@ -1630,7 +1630,7 @@ func (t *ACLResource) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...inte
 }
 
 // DBExists will return true if the ACLResource record exists in the database
-func (t *ACLResource) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *ACLResource) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `acl_resource` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1641,7 +1641,7 @@ func (t *ACLResource) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the ACLResource record exists in the database using the provided transaction
-func (t *ACLResource) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *ACLResource) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `acl_resource` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

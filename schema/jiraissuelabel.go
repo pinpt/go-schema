@@ -261,10 +261,10 @@ func NewJiraIssueLabelCSVWriterFile(fn string, dedupers ...JiraIssueLabelCSVDedu
 	return ch, sdone, nil
 }
 
-type JiraIssueLabelDBAction func(ctx context.Context, db *sql.DB, record JiraIssueLabel) error
+type JiraIssueLabelDBAction func(ctx context.Context, db DB, record JiraIssueLabel) error
 
 // NewJiraIssueLabelDBWriterSize creates a DB writer that will write each issue into the DB
-func NewJiraIssueLabelDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...JiraIssueLabelDBAction) (chan JiraIssueLabel, chan bool, error) {
+func NewJiraIssueLabelDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...JiraIssueLabelDBAction) (chan JiraIssueLabel, chan bool, error) {
 	ch := make(chan JiraIssueLabel, size)
 	done := make(chan bool)
 	var action JiraIssueLabelDBAction
@@ -289,7 +289,7 @@ func NewJiraIssueLabelDBWriterSize(ctx context.Context, db *sql.DB, errors chan<
 }
 
 // NewJiraIssueLabelDBWriter creates a DB writer that will write each issue into the DB
-func NewJiraIssueLabelDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...JiraIssueLabelDBAction) (chan JiraIssueLabel, chan bool, error) {
+func NewJiraIssueLabelDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...JiraIssueLabelDBAction) (chan JiraIssueLabel, chan bool, error) {
 	return NewJiraIssueLabelDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -328,7 +328,7 @@ func (t *JiraIssueLabel) SetID(v string) {
 }
 
 // FindJiraIssueLabelByID will find a JiraIssueLabel by ID
-func FindJiraIssueLabelByID(ctx context.Context, db *sql.DB, value string) (*JiraIssueLabel, error) {
+func FindJiraIssueLabelByID(ctx context.Context, db DB, value string) (*JiraIssueLabel, error) {
 	q := "SELECT `jira_issue_label`.`id`,`jira_issue_label`.`checksum`,`jira_issue_label`.`name`,`jira_issue_label`.`customer_id` FROM `jira_issue_label` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -363,7 +363,7 @@ func FindJiraIssueLabelByID(ctx context.Context, db *sql.DB, value string) (*Jir
 }
 
 // FindJiraIssueLabelByIDTx will find a JiraIssueLabel by ID using the provided transaction
-func FindJiraIssueLabelByIDTx(ctx context.Context, tx *sql.Tx, value string) (*JiraIssueLabel, error) {
+func FindJiraIssueLabelByIDTx(ctx context.Context, tx Tx, value string) (*JiraIssueLabel, error) {
 	q := "SELECT `jira_issue_label`.`id`,`jira_issue_label`.`checksum`,`jira_issue_label`.`name`,`jira_issue_label`.`customer_id` FROM `jira_issue_label` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -421,7 +421,7 @@ func (t *JiraIssueLabel) SetName(v string) {
 }
 
 // FindJiraIssueLabelsByName will find all JiraIssueLabels by the Name value
-func FindJiraIssueLabelsByName(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueLabel, error) {
+func FindJiraIssueLabelsByName(ctx context.Context, db DB, value string) ([]*JiraIssueLabel, error) {
 	q := "SELECT `jira_issue_label`.`id`,`jira_issue_label`.`checksum`,`jira_issue_label`.`name`,`jira_issue_label`.`customer_id` FROM `jira_issue_label` WHERE `name` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -465,7 +465,7 @@ func FindJiraIssueLabelsByName(ctx context.Context, db *sql.DB, value string) ([
 }
 
 // FindJiraIssueLabelsByNameTx will find all JiraIssueLabels by the Name value using the provided transaction
-func FindJiraIssueLabelsByNameTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueLabel, error) {
+func FindJiraIssueLabelsByNameTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueLabel, error) {
 	q := "SELECT `jira_issue_label`.`id`,`jira_issue_label`.`checksum`,`jira_issue_label`.`name`,`jira_issue_label`.`customer_id` FROM `jira_issue_label` WHERE `name` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -519,7 +519,7 @@ func (t *JiraIssueLabel) SetCustomerID(v string) {
 }
 
 // FindJiraIssueLabelsByCustomerID will find all JiraIssueLabels by the CustomerID value
-func FindJiraIssueLabelsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueLabel, error) {
+func FindJiraIssueLabelsByCustomerID(ctx context.Context, db DB, value string) ([]*JiraIssueLabel, error) {
 	q := "SELECT `jira_issue_label`.`id`,`jira_issue_label`.`checksum`,`jira_issue_label`.`name`,`jira_issue_label`.`customer_id` FROM `jira_issue_label` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -563,7 +563,7 @@ func FindJiraIssueLabelsByCustomerID(ctx context.Context, db *sql.DB, value stri
 }
 
 // FindJiraIssueLabelsByCustomerIDTx will find all JiraIssueLabels by the CustomerID value using the provided transaction
-func FindJiraIssueLabelsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueLabel, error) {
+func FindJiraIssueLabelsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueLabel, error) {
 	q := "SELECT `jira_issue_label`.`id`,`jira_issue_label`.`checksum`,`jira_issue_label`.`name`,`jira_issue_label`.`customer_id` FROM `jira_issue_label` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -612,28 +612,28 @@ func (t *JiraIssueLabel) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateJiraIssueLabelTable will create the JiraIssueLabel table
-func DBCreateJiraIssueLabelTable(ctx context.Context, db *sql.DB) error {
+func DBCreateJiraIssueLabelTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `jira_issue_label` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`name`VARCHAR(255) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,INDEX jira_issue_label_name_index (`name`),INDEX jira_issue_label_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraIssueLabelTableTx will create the JiraIssueLabel table using the provided transction
-func DBCreateJiraIssueLabelTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateJiraIssueLabelTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `jira_issue_label` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`name`VARCHAR(255) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,INDEX jira_issue_label_name_index (`name`),INDEX jira_issue_label_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraIssueLabelTable will drop the JiraIssueLabel table
-func DBDropJiraIssueLabelTable(ctx context.Context, db *sql.DB) error {
+func DBDropJiraIssueLabelTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `jira_issue_label`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraIssueLabelTableTx will drop the JiraIssueLabel table using the provided transaction
-func DBDropJiraIssueLabelTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropJiraIssueLabelTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `jira_issue_label`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -649,7 +649,7 @@ func (t *JiraIssueLabel) CalculateChecksum() string {
 }
 
 // DBCreate will create a new JiraIssueLabel record in the database
-func (t *JiraIssueLabel) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *JiraIssueLabel) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_label` (`jira_issue_label`.`id`,`jira_issue_label`.`checksum`,`jira_issue_label`.`name`,`jira_issue_label`.`customer_id`) VALUES (?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -665,7 +665,7 @@ func (t *JiraIssueLabel) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, 
 }
 
 // DBCreateTx will create a new JiraIssueLabel record in the database using the provided transaction
-func (t *JiraIssueLabel) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *JiraIssueLabel) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_label` (`jira_issue_label`.`id`,`jira_issue_label`.`checksum`,`jira_issue_label`.`name`,`jira_issue_label`.`customer_id`) VALUES (?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -681,7 +681,7 @@ func (t *JiraIssueLabel) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result
 }
 
 // DBCreateIgnoreDuplicate will upsert the JiraIssueLabel record in the database
-func (t *JiraIssueLabel) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *JiraIssueLabel) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_label` (`jira_issue_label`.`id`,`jira_issue_label`.`checksum`,`jira_issue_label`.`name`,`jira_issue_label`.`customer_id`) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -697,7 +697,7 @@ func (t *JiraIssueLabel) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the JiraIssueLabel record in the database using the provided transaction
-func (t *JiraIssueLabel) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *JiraIssueLabel) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_label` (`jira_issue_label`.`id`,`jira_issue_label`.`checksum`,`jira_issue_label`.`name`,`jira_issue_label`.`customer_id`) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -713,7 +713,7 @@ func (t *JiraIssueLabel) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.
 }
 
 // DeleteAllJiraIssueLabels deletes all JiraIssueLabel records in the database with optional filters
-func DeleteAllJiraIssueLabels(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllJiraIssueLabels(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraIssueLabelTableName),
 	}
@@ -728,7 +728,7 @@ func DeleteAllJiraIssueLabels(ctx context.Context, db *sql.DB, _params ...interf
 }
 
 // DeleteAllJiraIssueLabelsTx deletes all JiraIssueLabel records in the database with optional filters using the provided transaction
-func DeleteAllJiraIssueLabelsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllJiraIssueLabelsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraIssueLabelTableName),
 	}
@@ -743,7 +743,7 @@ func DeleteAllJiraIssueLabelsTx(ctx context.Context, tx *sql.Tx, _params ...inte
 }
 
 // DBDelete will delete this JiraIssueLabel record in the database
-func (t *JiraIssueLabel) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *JiraIssueLabel) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `jira_issue_label` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -757,7 +757,7 @@ func (t *JiraIssueLabel) DBDelete(ctx context.Context, db *sql.DB) (bool, error)
 }
 
 // DBDeleteTx will delete this JiraIssueLabel record in the database using the provided transaction
-func (t *JiraIssueLabel) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *JiraIssueLabel) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `jira_issue_label` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -771,7 +771,7 @@ func (t *JiraIssueLabel) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, erro
 }
 
 // DBUpdate will update the JiraIssueLabel record in the database
-func (t *JiraIssueLabel) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *JiraIssueLabel) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -787,7 +787,7 @@ func (t *JiraIssueLabel) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, 
 }
 
 // DBUpdateTx will update the JiraIssueLabel record in the database using the provided transaction
-func (t *JiraIssueLabel) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *JiraIssueLabel) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -803,7 +803,7 @@ func (t *JiraIssueLabel) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result
 }
 
 // DBUpsert will upsert the JiraIssueLabel record in the database
-func (t *JiraIssueLabel) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraIssueLabel) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -832,7 +832,7 @@ func (t *JiraIssueLabel) DBUpsert(ctx context.Context, db *sql.DB, conditions ..
 }
 
 // DBUpsertTx will upsert the JiraIssueLabel record in the database using the provided transaction
-func (t *JiraIssueLabel) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraIssueLabel) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -861,7 +861,7 @@ func (t *JiraIssueLabel) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions 
 }
 
 // DBFindOne will find a JiraIssueLabel record in the database with the primary key
-func (t *JiraIssueLabel) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *JiraIssueLabel) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `jira_issue_label`.`id`,`jira_issue_label`.`checksum`,`jira_issue_label`.`name`,`jira_issue_label`.`customer_id` FROM `jira_issue_label` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -896,7 +896,7 @@ func (t *JiraIssueLabel) DBFindOne(ctx context.Context, db *sql.DB, value string
 }
 
 // DBFindOneTx will find a JiraIssueLabel record in the database with the primary key using the provided transaction
-func (t *JiraIssueLabel) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *JiraIssueLabel) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `jira_issue_label`.`id`,`jira_issue_label`.`checksum`,`jira_issue_label`.`name`,`jira_issue_label`.`customer_id` FROM `jira_issue_label` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -931,7 +931,7 @@ func (t *JiraIssueLabel) DBFindOneTx(ctx context.Context, tx *sql.Tx, value stri
 }
 
 // FindJiraIssueLabels will find a JiraIssueLabel record in the database with the provided parameters
-func FindJiraIssueLabels(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*JiraIssueLabel, error) {
+func FindJiraIssueLabels(ctx context.Context, db DB, _params ...interface{}) ([]*JiraIssueLabel, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -987,7 +987,7 @@ func FindJiraIssueLabels(ctx context.Context, db *sql.DB, _params ...interface{}
 }
 
 // FindJiraIssueLabelsTx will find a JiraIssueLabel record in the database with the provided parameters using the provided transaction
-func FindJiraIssueLabelsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*JiraIssueLabel, error) {
+func FindJiraIssueLabelsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*JiraIssueLabel, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1043,7 +1043,7 @@ func FindJiraIssueLabelsTx(ctx context.Context, tx *sql.Tx, _params ...interface
 }
 
 // DBFind will find a JiraIssueLabel record in the database with the provided parameters
-func (t *JiraIssueLabel) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *JiraIssueLabel) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1087,7 +1087,7 @@ func (t *JiraIssueLabel) DBFind(ctx context.Context, db *sql.DB, _params ...inte
 }
 
 // DBFindTx will find a JiraIssueLabel record in the database with the provided parameters using the provided transaction
-func (t *JiraIssueLabel) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *JiraIssueLabel) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1131,7 +1131,7 @@ func (t *JiraIssueLabel) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...in
 }
 
 // CountJiraIssueLabels will find the count of JiraIssueLabel records in the database
-func CountJiraIssueLabels(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountJiraIssueLabels(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraIssueLabelTableName),
@@ -1151,7 +1151,7 @@ func CountJiraIssueLabels(ctx context.Context, db *sql.DB, _params ...interface{
 }
 
 // CountJiraIssueLabelsTx will find the count of JiraIssueLabel records in the database using the provided transaction
-func CountJiraIssueLabelsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountJiraIssueLabelsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraIssueLabelTableName),
@@ -1171,7 +1171,7 @@ func CountJiraIssueLabelsTx(ctx context.Context, tx *sql.Tx, _params ...interfac
 }
 
 // DBCount will find the count of JiraIssueLabel records in the database
-func (t *JiraIssueLabel) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *JiraIssueLabel) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraIssueLabelTableName),
@@ -1191,7 +1191,7 @@ func (t *JiraIssueLabel) DBCount(ctx context.Context, db *sql.DB, _params ...int
 }
 
 // DBCountTx will find the count of JiraIssueLabel records in the database using the provided transaction
-func (t *JiraIssueLabel) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *JiraIssueLabel) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraIssueLabelTableName),
@@ -1211,7 +1211,7 @@ func (t *JiraIssueLabel) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...i
 }
 
 // DBExists will return true if the JiraIssueLabel record exists in the database
-func (t *JiraIssueLabel) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *JiraIssueLabel) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `jira_issue_label` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1222,7 +1222,7 @@ func (t *JiraIssueLabel) DBExists(ctx context.Context, db *sql.DB) (bool, error)
 }
 
 // DBExistsTx will return true if the JiraIssueLabel record exists in the database using the provided transaction
-func (t *JiraIssueLabel) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *JiraIssueLabel) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `jira_issue_label` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

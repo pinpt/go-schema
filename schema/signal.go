@@ -273,10 +273,10 @@ func NewSignalCSVWriterFile(fn string, dedupers ...SignalCSVDeduper) (chan Signa
 	return ch, sdone, nil
 }
 
-type SignalDBAction func(ctx context.Context, db *sql.DB, record Signal) error
+type SignalDBAction func(ctx context.Context, db DB, record Signal) error
 
 // NewSignalDBWriterSize creates a DB writer that will write each issue into the DB
-func NewSignalDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...SignalDBAction) (chan Signal, chan bool, error) {
+func NewSignalDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...SignalDBAction) (chan Signal, chan bool, error) {
 	ch := make(chan Signal, size)
 	done := make(chan bool)
 	var action SignalDBAction
@@ -301,7 +301,7 @@ func NewSignalDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error,
 }
 
 // NewSignalDBWriter creates a DB writer that will write each issue into the DB
-func NewSignalDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...SignalDBAction) (chan Signal, chan bool, error) {
+func NewSignalDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...SignalDBAction) (chan Signal, chan bool, error) {
 	return NewSignalDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -370,7 +370,7 @@ func (t *Signal) SetID(v string) {
 }
 
 // FindSignalByID will find a Signal by ID
-func FindSignalByID(ctx context.Context, db *sql.DB, value string) (*Signal, error) {
+func FindSignalByID(ctx context.Context, db DB, value string) (*Signal, error) {
 	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Name sql.NullString
@@ -430,7 +430,7 @@ func FindSignalByID(ctx context.Context, db *sql.DB, value string) (*Signal, err
 }
 
 // FindSignalByIDTx will find a Signal by ID using the provided transaction
-func FindSignalByIDTx(ctx context.Context, tx *sql.Tx, value string) (*Signal, error) {
+func FindSignalByIDTx(ctx context.Context, tx Tx, value string) (*Signal, error) {
 	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Name sql.NullString
@@ -500,7 +500,7 @@ func (t *Signal) SetName(v string) {
 }
 
 // FindSignalsByName will find all Signals by the Name value
-func FindSignalsByName(ctx context.Context, db *sql.DB, value string) ([]*Signal, error) {
+func FindSignalsByName(ctx context.Context, db DB, value string) ([]*Signal, error) {
 	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `name` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -569,7 +569,7 @@ func FindSignalsByName(ctx context.Context, db *sql.DB, value string) ([]*Signal
 }
 
 // FindSignalsByNameTx will find all Signals by the Name value using the provided transaction
-func FindSignalsByNameTx(ctx context.Context, tx *sql.Tx, value string) ([]*Signal, error) {
+func FindSignalsByNameTx(ctx context.Context, tx Tx, value string) ([]*Signal, error) {
 	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `name` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -691,7 +691,7 @@ func (t *Signal) SetCustomerID(v string) {
 }
 
 // FindSignalsByCustomerID will find all Signals by the CustomerID value
-func FindSignalsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*Signal, error) {
+func FindSignalsByCustomerID(ctx context.Context, db DB, value string) ([]*Signal, error) {
 	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -760,7 +760,7 @@ func FindSignalsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*
 }
 
 // FindSignalsByCustomerIDTx will find all Signals by the CustomerID value using the provided transaction
-func FindSignalsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*Signal, error) {
+func FindSignalsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*Signal, error) {
 	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -842,7 +842,7 @@ func (t *Signal) SetRefType(v string) {
 }
 
 // FindSignalsByRefType will find all Signals by the RefType value
-func FindSignalsByRefType(ctx context.Context, db *sql.DB, value string) ([]*Signal, error) {
+func FindSignalsByRefType(ctx context.Context, db DB, value string) ([]*Signal, error) {
 	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -911,7 +911,7 @@ func FindSignalsByRefType(ctx context.Context, db *sql.DB, value string) ([]*Sig
 }
 
 // FindSignalsByRefTypeTx will find all Signals by the RefType value using the provided transaction
-func FindSignalsByRefTypeTx(ctx context.Context, tx *sql.Tx, value string) ([]*Signal, error) {
+func FindSignalsByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*Signal, error) {
 	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -993,7 +993,7 @@ func (t *Signal) SetRefID(v string) {
 }
 
 // FindSignalsByRefID will find all Signals by the RefID value
-func FindSignalsByRefID(ctx context.Context, db *sql.DB, value string) ([]*Signal, error) {
+func FindSignalsByRefID(ctx context.Context, db DB, value string) ([]*Signal, error) {
 	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1062,7 +1062,7 @@ func FindSignalsByRefID(ctx context.Context, db *sql.DB, value string) ([]*Signa
 }
 
 // FindSignalsByRefIDTx will find all Signals by the RefID value using the provided transaction
-func FindSignalsByRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*Signal, error) {
+func FindSignalsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*Signal, error) {
 	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1136,35 +1136,35 @@ func (t *Signal) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateSignalTable will create the Signal table
-func DBCreateSignalTable(ctx context.Context, db *sql.DB) error {
+func DBCreateSignalTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `signal` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`CHAR(60) NOT NULL,`value` REAL NOT NULL DEFAULT 0,`timeunit` INT NOT NULL,`date`DATE NOT NULL,`metadata` JSON,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20),`ref_id` VARCHAR(64),INDEX signal_name_index (`name`),INDEX signal_customer_id_index (`customer_id`),INDEX signal_ref_type_index (`ref_type`),INDEX signal_ref_id_index (`ref_id`),INDEX signal_name_timeunit_customer_id_index (`name`,`timeunit`,`customer_id`),INDEX signal_name_timeunit_customer_id_date_index (`name`,`timeunit`,`customer_id`,`date`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateSignalTableTx will create the Signal table using the provided transction
-func DBCreateSignalTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateSignalTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `signal` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`CHAR(60) NOT NULL,`value` REAL NOT NULL DEFAULT 0,`timeunit` INT NOT NULL,`date`DATE NOT NULL,`metadata` JSON,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20),`ref_id` VARCHAR(64),INDEX signal_name_index (`name`),INDEX signal_customer_id_index (`customer_id`),INDEX signal_ref_type_index (`ref_type`),INDEX signal_ref_id_index (`ref_id`),INDEX signal_name_timeunit_customer_id_index (`name`,`timeunit`,`customer_id`),INDEX signal_name_timeunit_customer_id_date_index (`name`,`timeunit`,`customer_id`,`date`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropSignalTable will drop the Signal table
-func DBDropSignalTable(ctx context.Context, db *sql.DB) error {
+func DBDropSignalTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `signal`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropSignalTableTx will drop the Signal table using the provided transaction
-func DBDropSignalTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropSignalTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `signal`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreate will create a new Signal record in the database
-func (t *Signal) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *Signal) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `signal` (`signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?)"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1180,7 +1180,7 @@ func (t *Signal) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 }
 
 // DBCreateTx will create a new Signal record in the database using the provided transaction
-func (t *Signal) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *Signal) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `signal` (`signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?)"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1196,7 +1196,7 @@ func (t *Signal) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error)
 }
 
 // DBCreateIgnoreDuplicate will upsert the Signal record in the database
-func (t *Signal) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *Signal) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `signal` (`signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1212,7 +1212,7 @@ func (t *Signal) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.R
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the Signal record in the database using the provided transaction
-func (t *Signal) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *Signal) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `signal` (`signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1228,7 +1228,7 @@ func (t *Signal) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql
 }
 
 // DeleteAllSignals deletes all Signal records in the database with optional filters
-func DeleteAllSignals(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllSignals(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(SignalTableName),
 	}
@@ -1243,7 +1243,7 @@ func DeleteAllSignals(ctx context.Context, db *sql.DB, _params ...interface{}) e
 }
 
 // DeleteAllSignalsTx deletes all Signal records in the database with optional filters using the provided transaction
-func DeleteAllSignalsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllSignalsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(SignalTableName),
 	}
@@ -1258,7 +1258,7 @@ func DeleteAllSignalsTx(ctx context.Context, tx *sql.Tx, _params ...interface{})
 }
 
 // DBDelete will delete this Signal record in the database
-func (t *Signal) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *Signal) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `signal` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1272,7 +1272,7 @@ func (t *Signal) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this Signal record in the database using the provided transaction
-func (t *Signal) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *Signal) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `signal` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1286,7 +1286,7 @@ func (t *Signal) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 }
 
 // DBUpdate will update the Signal record in the database
-func (t *Signal) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *Signal) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "UPDATE `signal` SET `name`=?,`value`=?,`timeunit`=?,`date`=?,`metadata`=?,`customer_id`=?,`ref_type`=?,`ref_id`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.Name),
@@ -1302,7 +1302,7 @@ func (t *Signal) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 }
 
 // DBUpdateTx will update the Signal record in the database using the provided transaction
-func (t *Signal) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *Signal) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "UPDATE `signal` SET `name`=?,`value`=?,`timeunit`=?,`date`=?,`metadata`=?,`customer_id`=?,`ref_type`=?,`ref_id`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.Name),
@@ -1318,7 +1318,7 @@ func (t *Signal) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error)
 }
 
 // DBUpsert will upsert the Signal record in the database
-func (t *Signal) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *Signal) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
 		q = "INSERT INTO `signal` (`signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
@@ -1347,7 +1347,7 @@ func (t *Signal) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interfa
 }
 
 // DBUpsertTx will upsert the Signal record in the database using the provided transaction
-func (t *Signal) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *Signal) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
 		q = "INSERT INTO `signal` (`signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
@@ -1376,7 +1376,7 @@ func (t *Signal) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...inter
 }
 
 // DBFindOne will find a Signal record in the database with the primary key
-func (t *Signal) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *Signal) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1436,7 +1436,7 @@ func (t *Signal) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool,
 }
 
 // DBFindOneTx will find a Signal record in the database with the primary key using the provided transaction
-func (t *Signal) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *Signal) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1496,7 +1496,7 @@ func (t *Signal) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (boo
 }
 
 // FindSignals will find a Signal record in the database with the provided parameters
-func FindSignals(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*Signal, error) {
+func FindSignals(ctx context.Context, db DB, _params ...interface{}) ([]*Signal, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("name"),
@@ -1582,7 +1582,7 @@ func FindSignals(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*Si
 }
 
 // FindSignalsTx will find a Signal record in the database with the provided parameters using the provided transaction
-func FindSignalsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*Signal, error) {
+func FindSignalsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*Signal, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("name"),
@@ -1668,7 +1668,7 @@ func FindSignalsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*
 }
 
 // DBFind will find a Signal record in the database with the provided parameters
-func (t *Signal) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *Signal) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("name"),
@@ -1742,7 +1742,7 @@ func (t *Signal) DBFind(ctx context.Context, db *sql.DB, _params ...interface{})
 }
 
 // DBFindTx will find a Signal record in the database with the provided parameters using the provided transaction
-func (t *Signal) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *Signal) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("name"),
@@ -1816,7 +1816,7 @@ func (t *Signal) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{
 }
 
 // CountSignals will find the count of Signal records in the database
-func CountSignals(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountSignals(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(SignalTableName),
@@ -1836,7 +1836,7 @@ func CountSignals(ctx context.Context, db *sql.DB, _params ...interface{}) (int6
 }
 
 // CountSignalsTx will find the count of Signal records in the database using the provided transaction
-func CountSignalsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountSignalsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(SignalTableName),
@@ -1856,7 +1856,7 @@ func CountSignalsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (in
 }
 
 // DBCount will find the count of Signal records in the database
-func (t *Signal) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *Signal) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(SignalTableName),
@@ -1876,7 +1876,7 @@ func (t *Signal) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}
 }
 
 // DBCountTx will find the count of Signal records in the database using the provided transaction
-func (t *Signal) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *Signal) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(SignalTableName),
@@ -1896,7 +1896,7 @@ func (t *Signal) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface
 }
 
 // DBExists will return true if the Signal record exists in the database
-func (t *Signal) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *Signal) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `signal` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1907,7 +1907,7 @@ func (t *Signal) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the Signal record exists in the database using the provided transaction
-func (t *Signal) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *Signal) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `signal` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

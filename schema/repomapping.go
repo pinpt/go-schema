@@ -269,10 +269,10 @@ func NewRepoMappingCSVWriterFile(fn string, dedupers ...RepoMappingCSVDeduper) (
 	return ch, sdone, nil
 }
 
-type RepoMappingDBAction func(ctx context.Context, db *sql.DB, record RepoMapping) error
+type RepoMappingDBAction func(ctx context.Context, db DB, record RepoMapping) error
 
 // NewRepoMappingDBWriterSize creates a DB writer that will write each issue into the DB
-func NewRepoMappingDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...RepoMappingDBAction) (chan RepoMapping, chan bool, error) {
+func NewRepoMappingDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...RepoMappingDBAction) (chan RepoMapping, chan bool, error) {
 	ch := make(chan RepoMapping, size)
 	done := make(chan bool)
 	var action RepoMappingDBAction
@@ -297,7 +297,7 @@ func NewRepoMappingDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- e
 }
 
 // NewRepoMappingDBWriter creates a DB writer that will write each issue into the DB
-func NewRepoMappingDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...RepoMappingDBAction) (chan RepoMapping, chan bool, error) {
+func NewRepoMappingDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...RepoMappingDBAction) (chan RepoMapping, chan bool, error) {
 	return NewRepoMappingDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -348,7 +348,7 @@ func (t *RepoMapping) SetID(v string) {
 }
 
 // FindRepoMappingByID will find a RepoMapping by ID
-func FindRepoMappingByID(ctx context.Context, db *sql.DB, value string) (*RepoMapping, error) {
+func FindRepoMappingByID(ctx context.Context, db DB, value string) (*RepoMapping, error) {
 	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -393,7 +393,7 @@ func FindRepoMappingByID(ctx context.Context, db *sql.DB, value string) (*RepoMa
 }
 
 // FindRepoMappingByIDTx will find a RepoMapping by ID using the provided transaction
-func FindRepoMappingByIDTx(ctx context.Context, tx *sql.Tx, value string) (*RepoMapping, error) {
+func FindRepoMappingByIDTx(ctx context.Context, tx Tx, value string) (*RepoMapping, error) {
 	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -471,7 +471,7 @@ func (t *RepoMapping) SetRepoID(v string) {
 }
 
 // FindRepoMappingsByRepoID will find all RepoMappings by the RepoID value
-func FindRepoMappingsByRepoID(ctx context.Context, db *sql.DB, value string) ([]*RepoMapping, error) {
+func FindRepoMappingsByRepoID(ctx context.Context, db DB, value string) ([]*RepoMapping, error) {
 	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -525,7 +525,7 @@ func FindRepoMappingsByRepoID(ctx context.Context, db *sql.DB, value string) ([]
 }
 
 // FindRepoMappingsByRepoIDTx will find all RepoMappings by the RepoID value using the provided transaction
-func FindRepoMappingsByRepoIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*RepoMapping, error) {
+func FindRepoMappingsByRepoIDTx(ctx context.Context, tx Tx, value string) ([]*RepoMapping, error) {
 	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -589,7 +589,7 @@ func (t *RepoMapping) SetRefID(v string) {
 }
 
 // FindRepoMappingsByRefID will find all RepoMappings by the RefID value
-func FindRepoMappingsByRefID(ctx context.Context, db *sql.DB, value string) ([]*RepoMapping, error) {
+func FindRepoMappingsByRefID(ctx context.Context, db DB, value string) ([]*RepoMapping, error) {
 	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -643,7 +643,7 @@ func FindRepoMappingsByRefID(ctx context.Context, db *sql.DB, value string) ([]*
 }
 
 // FindRepoMappingsByRefIDTx will find all RepoMappings by the RefID value using the provided transaction
-func FindRepoMappingsByRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*RepoMapping, error) {
+func FindRepoMappingsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*RepoMapping, error) {
 	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -712,28 +712,28 @@ func (t *RepoMapping) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateRepoMappingTable will create the RepoMapping table
-func DBCreateRepoMappingTable(ctx context.Context, db *sql.DB) error {
+func DBCreateRepoMappingTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `repo_mapping` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`repo_id`VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,INDEX repo_mapping_repo_id_index (`repo_id`),INDEX repo_mapping_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateRepoMappingTableTx will create the RepoMapping table using the provided transction
-func DBCreateRepoMappingTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateRepoMappingTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `repo_mapping` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`repo_id`VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,INDEX repo_mapping_repo_id_index (`repo_id`),INDEX repo_mapping_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropRepoMappingTable will drop the RepoMapping table
-func DBDropRepoMappingTable(ctx context.Context, db *sql.DB) error {
+func DBDropRepoMappingTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `repo_mapping`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropRepoMappingTableTx will drop the RepoMapping table using the provided transaction
-func DBDropRepoMappingTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropRepoMappingTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `repo_mapping`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -751,7 +751,7 @@ func (t *RepoMapping) CalculateChecksum() string {
 }
 
 // DBCreate will create a new RepoMapping record in the database
-func (t *RepoMapping) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *RepoMapping) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `repo_mapping` (`repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type`) VALUES (?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -769,7 +769,7 @@ func (t *RepoMapping) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, err
 }
 
 // DBCreateTx will create a new RepoMapping record in the database using the provided transaction
-func (t *RepoMapping) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *RepoMapping) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `repo_mapping` (`repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type`) VALUES (?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -787,7 +787,7 @@ func (t *RepoMapping) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, e
 }
 
 // DBCreateIgnoreDuplicate will upsert the RepoMapping record in the database
-func (t *RepoMapping) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *RepoMapping) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `repo_mapping` (`repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -805,7 +805,7 @@ func (t *RepoMapping) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the RepoMapping record in the database using the provided transaction
-func (t *RepoMapping) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *RepoMapping) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `repo_mapping` (`repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -823,7 +823,7 @@ func (t *RepoMapping) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx)
 }
 
 // DeleteAllRepoMappings deletes all RepoMapping records in the database with optional filters
-func DeleteAllRepoMappings(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllRepoMappings(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(RepoMappingTableName),
 	}
@@ -838,7 +838,7 @@ func DeleteAllRepoMappings(ctx context.Context, db *sql.DB, _params ...interface
 }
 
 // DeleteAllRepoMappingsTx deletes all RepoMapping records in the database with optional filters using the provided transaction
-func DeleteAllRepoMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllRepoMappingsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(RepoMappingTableName),
 	}
@@ -853,7 +853,7 @@ func DeleteAllRepoMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interfa
 }
 
 // DBDelete will delete this RepoMapping record in the database
-func (t *RepoMapping) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *RepoMapping) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `repo_mapping` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -867,7 +867,7 @@ func (t *RepoMapping) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this RepoMapping record in the database using the provided transaction
-func (t *RepoMapping) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *RepoMapping) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `repo_mapping` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -881,7 +881,7 @@ func (t *RepoMapping) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) 
 }
 
 // DBUpdate will update the RepoMapping record in the database
-func (t *RepoMapping) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *RepoMapping) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -899,7 +899,7 @@ func (t *RepoMapping) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, err
 }
 
 // DBUpdateTx will update the RepoMapping record in the database using the provided transaction
-func (t *RepoMapping) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *RepoMapping) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -917,7 +917,7 @@ func (t *RepoMapping) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, e
 }
 
 // DBUpsert will upsert the RepoMapping record in the database
-func (t *RepoMapping) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *RepoMapping) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -948,7 +948,7 @@ func (t *RepoMapping) DBUpsert(ctx context.Context, db *sql.DB, conditions ...in
 }
 
 // DBUpsertTx will upsert the RepoMapping record in the database using the provided transaction
-func (t *RepoMapping) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *RepoMapping) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -979,7 +979,7 @@ func (t *RepoMapping) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...
 }
 
 // DBFindOne will find a RepoMapping record in the database with the primary key
-func (t *RepoMapping) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *RepoMapping) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1024,7 +1024,7 @@ func (t *RepoMapping) DBFindOne(ctx context.Context, db *sql.DB, value string) (
 }
 
 // DBFindOneTx will find a RepoMapping record in the database with the primary key using the provided transaction
-func (t *RepoMapping) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *RepoMapping) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1069,7 +1069,7 @@ func (t *RepoMapping) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string)
 }
 
 // FindRepoMappings will find a RepoMapping record in the database with the provided parameters
-func FindRepoMappings(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*RepoMapping, error) {
+func FindRepoMappings(ctx context.Context, db DB, _params ...interface{}) ([]*RepoMapping, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1137,7 +1137,7 @@ func FindRepoMappings(ctx context.Context, db *sql.DB, _params ...interface{}) (
 }
 
 // FindRepoMappingsTx will find a RepoMapping record in the database with the provided parameters using the provided transaction
-func FindRepoMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*RepoMapping, error) {
+func FindRepoMappingsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*RepoMapping, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1205,7 +1205,7 @@ func FindRepoMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interface{})
 }
 
 // DBFind will find a RepoMapping record in the database with the provided parameters
-func (t *RepoMapping) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *RepoMapping) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1261,7 +1261,7 @@ func (t *RepoMapping) DBFind(ctx context.Context, db *sql.DB, _params ...interfa
 }
 
 // DBFindTx will find a RepoMapping record in the database with the provided parameters using the provided transaction
-func (t *RepoMapping) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *RepoMapping) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1317,7 +1317,7 @@ func (t *RepoMapping) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...inter
 }
 
 // CountRepoMappings will find the count of RepoMapping records in the database
-func CountRepoMappings(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountRepoMappings(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(RepoMappingTableName),
@@ -1337,7 +1337,7 @@ func CountRepoMappings(ctx context.Context, db *sql.DB, _params ...interface{}) 
 }
 
 // CountRepoMappingsTx will find the count of RepoMapping records in the database using the provided transaction
-func CountRepoMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountRepoMappingsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(RepoMappingTableName),
@@ -1357,7 +1357,7 @@ func CountRepoMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}
 }
 
 // DBCount will find the count of RepoMapping records in the database
-func (t *RepoMapping) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *RepoMapping) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(RepoMappingTableName),
@@ -1377,7 +1377,7 @@ func (t *RepoMapping) DBCount(ctx context.Context, db *sql.DB, _params ...interf
 }
 
 // DBCountTx will find the count of RepoMapping records in the database using the provided transaction
-func (t *RepoMapping) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *RepoMapping) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(RepoMappingTableName),
@@ -1397,7 +1397,7 @@ func (t *RepoMapping) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...inte
 }
 
 // DBExists will return true if the RepoMapping record exists in the database
-func (t *RepoMapping) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *RepoMapping) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `repo_mapping` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1408,7 +1408,7 @@ func (t *RepoMapping) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the RepoMapping record exists in the database using the provided transaction
-func (t *RepoMapping) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *RepoMapping) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `repo_mapping` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

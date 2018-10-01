@@ -385,10 +385,10 @@ func NewCostCenterCSVWriterFile(fn string, dedupers ...CostCenterCSVDeduper) (ch
 	return ch, sdone, nil
 }
 
-type CostCenterDBAction func(ctx context.Context, db *sql.DB, record CostCenter) error
+type CostCenterDBAction func(ctx context.Context, db DB, record CostCenter) error
 
 // NewCostCenterDBWriterSize creates a DB writer that will write each issue into the DB
-func NewCostCenterDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...CostCenterDBAction) (chan CostCenter, chan bool, error) {
+func NewCostCenterDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...CostCenterDBAction) (chan CostCenter, chan bool, error) {
 	ch := make(chan CostCenter, size)
 	done := make(chan bool)
 	var action CostCenterDBAction
@@ -413,7 +413,7 @@ func NewCostCenterDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- er
 }
 
 // NewCostCenterDBWriter creates a DB writer that will write each issue into the DB
-func NewCostCenterDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...CostCenterDBAction) (chan CostCenter, chan bool, error) {
+func NewCostCenterDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...CostCenterDBAction) (chan CostCenter, chan bool, error) {
 	return NewCostCenterDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -506,7 +506,7 @@ func (t *CostCenter) SetID(v string) {
 }
 
 // FindCostCenterByID will find a CostCenter by ID
-func FindCostCenterByID(ctx context.Context, db *sql.DB, value string) (*CostCenter, error) {
+func FindCostCenterByID(ctx context.Context, db DB, value string) (*CostCenter, error) {
 	q := "SELECT `cost_center`.`id`,`cost_center`.`checksum`,`cost_center`.`customer_id`,`cost_center`.`name`,`cost_center`.`description`,`cost_center`.`identifier`,`cost_center`.`unit_cost`,`cost_center`.`value_type`,`cost_center`.`unit_type`,`cost_center`.`unit_currency`,`cost_center`.`allocation`,`cost_center`.`created_at`,`cost_center`.`updated_at` FROM `cost_center` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -586,7 +586,7 @@ func FindCostCenterByID(ctx context.Context, db *sql.DB, value string) (*CostCen
 }
 
 // FindCostCenterByIDTx will find a CostCenter by ID using the provided transaction
-func FindCostCenterByIDTx(ctx context.Context, tx *sql.Tx, value string) (*CostCenter, error) {
+func FindCostCenterByIDTx(ctx context.Context, tx Tx, value string) (*CostCenter, error) {
 	q := "SELECT `cost_center`.`id`,`cost_center`.`checksum`,`cost_center`.`customer_id`,`cost_center`.`name`,`cost_center`.`description`,`cost_center`.`identifier`,`cost_center`.`unit_cost`,`cost_center`.`value_type`,`cost_center`.`unit_type`,`cost_center`.`unit_currency`,`cost_center`.`allocation`,`cost_center`.`created_at`,`cost_center`.`updated_at` FROM `cost_center` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -829,28 +829,28 @@ func (t *CostCenter) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateCostCenterTable will create the CostCenter table
-func DBCreateCostCenterTable(ctx context.Context, db *sql.DB) error {
+func DBCreateCostCenterTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `cost_center` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`name` TEXT NOT NULL,`description` TEXT,`identifier` TEXT,`unit_cost`FLOAT NOT NULL,`value_type` ENUM('absolute','percentage') NOT NULL,`unit_type`ENUM('salary','hourly','contractor','casual','other') NOT NULL,`unit_currency` CHAR(3) NOT NULL,`allocation` FLOAT NOT NULL,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateCostCenterTableTx will create the CostCenter table using the provided transction
-func DBCreateCostCenterTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateCostCenterTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `cost_center` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`name` TEXT NOT NULL,`description` TEXT,`identifier` TEXT,`unit_cost`FLOAT NOT NULL,`value_type` ENUM('absolute','percentage') NOT NULL,`unit_type`ENUM('salary','hourly','contractor','casual','other') NOT NULL,`unit_currency` CHAR(3) NOT NULL,`allocation` FLOAT NOT NULL,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropCostCenterTable will drop the CostCenter table
-func DBDropCostCenterTable(ctx context.Context, db *sql.DB) error {
+func DBDropCostCenterTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `cost_center`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropCostCenterTableTx will drop the CostCenter table using the provided transaction
-func DBDropCostCenterTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropCostCenterTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `cost_center`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -875,7 +875,7 @@ func (t *CostCenter) CalculateChecksum() string {
 }
 
 // DBCreate will create a new CostCenter record in the database
-func (t *CostCenter) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *CostCenter) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `cost_center` (`cost_center`.`id`,`cost_center`.`checksum`,`cost_center`.`customer_id`,`cost_center`.`name`,`cost_center`.`description`,`cost_center`.`identifier`,`cost_center`.`unit_cost`,`cost_center`.`value_type`,`cost_center`.`unit_type`,`cost_center`.`unit_currency`,`cost_center`.`allocation`,`cost_center`.`created_at`,`cost_center`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -900,7 +900,7 @@ func (t *CostCenter) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, erro
 }
 
 // DBCreateTx will create a new CostCenter record in the database using the provided transaction
-func (t *CostCenter) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *CostCenter) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `cost_center` (`cost_center`.`id`,`cost_center`.`checksum`,`cost_center`.`customer_id`,`cost_center`.`name`,`cost_center`.`description`,`cost_center`.`identifier`,`cost_center`.`unit_cost`,`cost_center`.`value_type`,`cost_center`.`unit_type`,`cost_center`.`unit_currency`,`cost_center`.`allocation`,`cost_center`.`created_at`,`cost_center`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -925,7 +925,7 @@ func (t *CostCenter) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, er
 }
 
 // DBCreateIgnoreDuplicate will upsert the CostCenter record in the database
-func (t *CostCenter) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *CostCenter) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `cost_center` (`cost_center`.`id`,`cost_center`.`checksum`,`cost_center`.`customer_id`,`cost_center`.`name`,`cost_center`.`description`,`cost_center`.`identifier`,`cost_center`.`unit_cost`,`cost_center`.`value_type`,`cost_center`.`unit_type`,`cost_center`.`unit_currency`,`cost_center`.`allocation`,`cost_center`.`created_at`,`cost_center`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -950,7 +950,7 @@ func (t *CostCenter) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (s
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the CostCenter record in the database using the provided transaction
-func (t *CostCenter) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *CostCenter) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `cost_center` (`cost_center`.`id`,`cost_center`.`checksum`,`cost_center`.`customer_id`,`cost_center`.`name`,`cost_center`.`description`,`cost_center`.`identifier`,`cost_center`.`unit_cost`,`cost_center`.`value_type`,`cost_center`.`unit_type`,`cost_center`.`unit_currency`,`cost_center`.`allocation`,`cost_center`.`created_at`,`cost_center`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -975,7 +975,7 @@ func (t *CostCenter) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) 
 }
 
 // DeleteAllCostCenters deletes all CostCenter records in the database with optional filters
-func DeleteAllCostCenters(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllCostCenters(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(CostCenterTableName),
 	}
@@ -990,7 +990,7 @@ func DeleteAllCostCenters(ctx context.Context, db *sql.DB, _params ...interface{
 }
 
 // DeleteAllCostCentersTx deletes all CostCenter records in the database with optional filters using the provided transaction
-func DeleteAllCostCentersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllCostCentersTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(CostCenterTableName),
 	}
@@ -1005,7 +1005,7 @@ func DeleteAllCostCentersTx(ctx context.Context, tx *sql.Tx, _params ...interfac
 }
 
 // DBDelete will delete this CostCenter record in the database
-func (t *CostCenter) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *CostCenter) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `cost_center` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1019,7 +1019,7 @@ func (t *CostCenter) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this CostCenter record in the database using the provided transaction
-func (t *CostCenter) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *CostCenter) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `cost_center` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1033,7 +1033,7 @@ func (t *CostCenter) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 }
 
 // DBUpdate will update the CostCenter record in the database
-func (t *CostCenter) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *CostCenter) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1058,7 +1058,7 @@ func (t *CostCenter) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, erro
 }
 
 // DBUpdateTx will update the CostCenter record in the database using the provided transaction
-func (t *CostCenter) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *CostCenter) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1083,7 +1083,7 @@ func (t *CostCenter) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, er
 }
 
 // DBUpsert will upsert the CostCenter record in the database
-func (t *CostCenter) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *CostCenter) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1121,7 +1121,7 @@ func (t *CostCenter) DBUpsert(ctx context.Context, db *sql.DB, conditions ...int
 }
 
 // DBUpsertTx will upsert the CostCenter record in the database using the provided transaction
-func (t *CostCenter) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *CostCenter) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1159,7 +1159,7 @@ func (t *CostCenter) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...i
 }
 
 // DBFindOne will find a CostCenter record in the database with the primary key
-func (t *CostCenter) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *CostCenter) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `cost_center`.`id`,`cost_center`.`checksum`,`cost_center`.`customer_id`,`cost_center`.`name`,`cost_center`.`description`,`cost_center`.`identifier`,`cost_center`.`unit_cost`,`cost_center`.`value_type`,`cost_center`.`unit_type`,`cost_center`.`unit_currency`,`cost_center`.`allocation`,`cost_center`.`created_at`,`cost_center`.`updated_at` FROM `cost_center` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1239,7 +1239,7 @@ func (t *CostCenter) DBFindOne(ctx context.Context, db *sql.DB, value string) (b
 }
 
 // DBFindOneTx will find a CostCenter record in the database with the primary key using the provided transaction
-func (t *CostCenter) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *CostCenter) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `cost_center`.`id`,`cost_center`.`checksum`,`cost_center`.`customer_id`,`cost_center`.`name`,`cost_center`.`description`,`cost_center`.`identifier`,`cost_center`.`unit_cost`,`cost_center`.`value_type`,`cost_center`.`unit_type`,`cost_center`.`unit_currency`,`cost_center`.`allocation`,`cost_center`.`created_at`,`cost_center`.`updated_at` FROM `cost_center` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1319,7 +1319,7 @@ func (t *CostCenter) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) 
 }
 
 // FindCostCenters will find a CostCenter record in the database with the provided parameters
-func FindCostCenters(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*CostCenter, error) {
+func FindCostCenters(ctx context.Context, db DB, _params ...interface{}) ([]*CostCenter, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1429,7 +1429,7 @@ func FindCostCenters(ctx context.Context, db *sql.DB, _params ...interface{}) ([
 }
 
 // FindCostCentersTx will find a CostCenter record in the database with the provided parameters using the provided transaction
-func FindCostCentersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*CostCenter, error) {
+func FindCostCentersTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*CostCenter, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1539,7 +1539,7 @@ func FindCostCentersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) 
 }
 
 // DBFind will find a CostCenter record in the database with the provided parameters
-func (t *CostCenter) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *CostCenter) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1637,7 +1637,7 @@ func (t *CostCenter) DBFind(ctx context.Context, db *sql.DB, _params ...interfac
 }
 
 // DBFindTx will find a CostCenter record in the database with the provided parameters using the provided transaction
-func (t *CostCenter) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *CostCenter) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1735,7 +1735,7 @@ func (t *CostCenter) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interf
 }
 
 // CountCostCenters will find the count of CostCenter records in the database
-func CountCostCenters(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountCostCenters(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(CostCenterTableName),
@@ -1755,7 +1755,7 @@ func CountCostCenters(ctx context.Context, db *sql.DB, _params ...interface{}) (
 }
 
 // CountCostCentersTx will find the count of CostCenter records in the database using the provided transaction
-func CountCostCentersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountCostCentersTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(CostCenterTableName),
@@ -1775,7 +1775,7 @@ func CountCostCentersTx(ctx context.Context, tx *sql.Tx, _params ...interface{})
 }
 
 // DBCount will find the count of CostCenter records in the database
-func (t *CostCenter) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *CostCenter) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(CostCenterTableName),
@@ -1795,7 +1795,7 @@ func (t *CostCenter) DBCount(ctx context.Context, db *sql.DB, _params ...interfa
 }
 
 // DBCountTx will find the count of CostCenter records in the database using the provided transaction
-func (t *CostCenter) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *CostCenter) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(CostCenterTableName),
@@ -1815,7 +1815,7 @@ func (t *CostCenter) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...inter
 }
 
 // DBExists will return true if the CostCenter record exists in the database
-func (t *CostCenter) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *CostCenter) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `cost_center` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1826,7 +1826,7 @@ func (t *CostCenter) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the CostCenter record exists in the database using the provided transaction
-func (t *CostCenter) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *CostCenter) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `cost_center` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
