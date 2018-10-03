@@ -269,10 +269,10 @@ func NewSystemCSVWriterFile(fn string, dedupers ...SystemCSVDeduper) (chan Syste
 	return ch, sdone, nil
 }
 
-type SystemDBAction func(ctx context.Context, db DB, record System) error
+type SystemDBAction func(ctx context.Context, db *sql.DB, record System) error
 
 // NewSystemDBWriterSize creates a DB writer that will write each issue into the DB
-func NewSystemDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...SystemDBAction) (chan System, chan bool, error) {
+func NewSystemDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...SystemDBAction) (chan System, chan bool, error) {
 	ch := make(chan System, size)
 	done := make(chan bool)
 	var action SystemDBAction
@@ -297,7 +297,7 @@ func NewSystemDBWriterSize(ctx context.Context, db DB, errors chan<- error, size
 }
 
 // NewSystemDBWriter creates a DB writer that will write each issue into the DB
-func NewSystemDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...SystemDBAction) (chan System, chan bool, error) {
+func NewSystemDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...SystemDBAction) (chan System, chan bool, error) {
 	return NewSystemDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -348,7 +348,7 @@ func (t *System) SetID(v string) {
 }
 
 // FindSystemByID will find a System by ID
-func FindSystemByID(ctx context.Context, db DB, value string) (*System, error) {
+func FindSystemByID(ctx context.Context, db *sql.DB, value string) (*System, error) {
 	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -393,7 +393,7 @@ func FindSystemByID(ctx context.Context, db DB, value string) (*System, error) {
 }
 
 // FindSystemByIDTx will find a System by ID using the provided transaction
-func FindSystemByIDTx(ctx context.Context, tx Tx, value string) (*System, error) {
+func FindSystemByIDTx(ctx context.Context, tx *sql.Tx, value string) (*System, error) {
 	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -461,7 +461,7 @@ func (t *System) SetRepoID(v string) {
 }
 
 // FindSystemsByRepoID will find all Systems by the RepoID value
-func FindSystemsByRepoID(ctx context.Context, db DB, value string) ([]*System, error) {
+func FindSystemsByRepoID(ctx context.Context, db *sql.DB, value string) ([]*System, error) {
 	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -515,7 +515,7 @@ func FindSystemsByRepoID(ctx context.Context, db DB, value string) ([]*System, e
 }
 
 // FindSystemsByRepoIDTx will find all Systems by the RepoID value using the provided transaction
-func FindSystemsByRepoIDTx(ctx context.Context, tx Tx, value string) ([]*System, error) {
+func FindSystemsByRepoIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*System, error) {
 	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -599,7 +599,7 @@ func (t *System) SetCustomerID(v string) {
 }
 
 // FindSystemsByCustomerID will find all Systems by the CustomerID value
-func FindSystemsByCustomerID(ctx context.Context, db DB, value string) ([]*System, error) {
+func FindSystemsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*System, error) {
 	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -653,7 +653,7 @@ func FindSystemsByCustomerID(ctx context.Context, db DB, value string) ([]*Syste
 }
 
 // FindSystemsByCustomerIDTx will find all Systems by the CustomerID value using the provided transaction
-func FindSystemsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*System, error) {
+func FindSystemsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*System, error) {
 	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -712,28 +712,28 @@ func (t *System) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateSystemTable will create the System table
-func DBCreateSystemTable(ctx context.Context, db DB) error {
+func DBCreateSystemTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `system` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`repo_id`VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,INDEX system_repo_id_index (`repo_id`),INDEX system_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateSystemTableTx will create the System table using the provided transction
-func DBCreateSystemTableTx(ctx context.Context, tx Tx) error {
+func DBCreateSystemTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `system` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`repo_id`VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,INDEX system_repo_id_index (`repo_id`),INDEX system_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropSystemTable will drop the System table
-func DBDropSystemTable(ctx context.Context, db DB) error {
+func DBDropSystemTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `system`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropSystemTableTx will drop the System table using the provided transaction
-func DBDropSystemTableTx(ctx context.Context, tx Tx) error {
+func DBDropSystemTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `system`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -751,7 +751,7 @@ func (t *System) CalculateChecksum() string {
 }
 
 // DBCreate will create a new System record in the database
-func (t *System) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *System) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `system` (`system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id`) VALUES (?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -769,7 +769,7 @@ func (t *System) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBCreateTx will create a new System record in the database using the provided transaction
-func (t *System) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *System) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `system` (`system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id`) VALUES (?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -787,7 +787,7 @@ func (t *System) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBCreateIgnoreDuplicate will upsert the System record in the database
-func (t *System) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *System) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `system` (`system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -805,7 +805,7 @@ func (t *System) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the System record in the database using the provided transaction
-func (t *System) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *System) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `system` (`system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -823,7 +823,7 @@ func (t *System) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Resu
 }
 
 // DeleteAllSystems deletes all System records in the database with optional filters
-func DeleteAllSystems(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllSystems(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(SystemTableName),
 	}
@@ -838,7 +838,7 @@ func DeleteAllSystems(ctx context.Context, db DB, _params ...interface{}) error 
 }
 
 // DeleteAllSystemsTx deletes all System records in the database with optional filters using the provided transaction
-func DeleteAllSystemsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllSystemsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(SystemTableName),
 	}
@@ -853,7 +853,7 @@ func DeleteAllSystemsTx(ctx context.Context, tx Tx, _params ...interface{}) erro
 }
 
 // DBDelete will delete this System record in the database
-func (t *System) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *System) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `system` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -867,7 +867,7 @@ func (t *System) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this System record in the database using the provided transaction
-func (t *System) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *System) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `system` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -881,7 +881,7 @@ func (t *System) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the System record in the database
-func (t *System) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *System) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -899,7 +899,7 @@ func (t *System) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBUpdateTx will update the System record in the database using the provided transaction
-func (t *System) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *System) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -917,7 +917,7 @@ func (t *System) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBUpsert will upsert the System record in the database
-func (t *System) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *System) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -948,7 +948,7 @@ func (t *System) DBUpsert(ctx context.Context, db DB, conditions ...interface{})
 }
 
 // DBUpsertTx will upsert the System record in the database using the provided transaction
-func (t *System) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *System) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -979,7 +979,7 @@ func (t *System) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{
 }
 
 // DBFindOne will find a System record in the database with the primary key
-func (t *System) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *System) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1024,7 +1024,7 @@ func (t *System) DBFindOne(ctx context.Context, db DB, value string) (bool, erro
 }
 
 // DBFindOneTx will find a System record in the database with the primary key using the provided transaction
-func (t *System) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *System) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1069,7 +1069,7 @@ func (t *System) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, er
 }
 
 // FindSystems will find a System record in the database with the provided parameters
-func FindSystems(ctx context.Context, db DB, _params ...interface{}) ([]*System, error) {
+func FindSystems(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*System, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1137,7 +1137,7 @@ func FindSystems(ctx context.Context, db DB, _params ...interface{}) ([]*System,
 }
 
 // FindSystemsTx will find a System record in the database with the provided parameters using the provided transaction
-func FindSystemsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*System, error) {
+func FindSystemsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*System, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1205,7 +1205,7 @@ func FindSystemsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*Syste
 }
 
 // DBFind will find a System record in the database with the provided parameters
-func (t *System) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *System) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1261,7 +1261,7 @@ func (t *System) DBFind(ctx context.Context, db DB, _params ...interface{}) (boo
 }
 
 // DBFindTx will find a System record in the database with the provided parameters using the provided transaction
-func (t *System) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *System) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1317,7 +1317,7 @@ func (t *System) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (b
 }
 
 // CountSystems will find the count of System records in the database
-func CountSystems(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountSystems(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(SystemTableName),
@@ -1337,7 +1337,7 @@ func CountSystems(ctx context.Context, db DB, _params ...interface{}) (int64, er
 }
 
 // CountSystemsTx will find the count of System records in the database using the provided transaction
-func CountSystemsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountSystemsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(SystemTableName),
@@ -1357,7 +1357,7 @@ func CountSystemsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, 
 }
 
 // DBCount will find the count of System records in the database
-func (t *System) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *System) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(SystemTableName),
@@ -1377,7 +1377,7 @@ func (t *System) DBCount(ctx context.Context, db DB, _params ...interface{}) (in
 }
 
 // DBCountTx will find the count of System records in the database using the provided transaction
-func (t *System) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *System) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(SystemTableName),
@@ -1397,7 +1397,7 @@ func (t *System) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (
 }
 
 // DBExists will return true if the System record exists in the database
-func (t *System) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *System) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `system` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1408,7 +1408,7 @@ func (t *System) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the System record exists in the database using the provided transaction
-func (t *System) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *System) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `system` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

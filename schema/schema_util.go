@@ -355,46 +355,20 @@ func Deserialize(r io.Reader, dser Deserializer) error {
 	return orm.Deserialize(r, dser)
 }
 
-// DB is an interface to the db
-type DB interface {
-	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
-
-	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
-
-	QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
-
-	Begin() (*sql.Tx, error)
-
-	Close() error
-}
-
-// Tx is an interface to a DB transaction
-type Tx interface {
-	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
-
-	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
-
-	QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
-
-	Commit() error
-
-	Rollback() error
-}
-
 // Model is an interface for describing a DB model object
 type Model interface {
 
 	// TableName is the SQL name of the table
 	TableName() string
 
-	DBCreate(ctx context.Context, db DB) (sql.Result, error)
-	DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error)
+	DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error)
+	DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error)
 
-	DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error)
-	DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error)
+	DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error)
+	DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error)
 
-	DBUpdate(ctx context.Context, db DB) (sql.Result, error)
-	DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error)
+	DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error)
+	DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error)
 }
 
 // ModelWithPrimaryKey is an interface for describing a DB model object that has a primary key
@@ -403,17 +377,17 @@ type ModelWithPrimaryKey interface {
 	PrimaryKeyColumnType() string
 	PrimaryKey() interface{}
 
-	DBDelete(ctx context.Context, db DB) (bool, error)
-	DBDeleteTx(ctx context.Context, tx Tx) (bool, error)
+	DBDelete(ctx context.Context, db *sql.DB) (bool, error)
+	DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error)
 
-	DBExists(ctx context.Context, db DB) (bool, error)
-	DBExistsTx(ctx context.Context, tx Tx) (bool, error)
+	DBExists(ctx context.Context, db *sql.DB) (bool, error)
+	DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error)
 
-	DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error)
-	DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error)
+	DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error)
+	DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error)
 
-	DBCount(ctx context.Context, db DB, _params ...interface{})
-	DBCountTx(ctx context.Context, tx Tx, _params ...interface{})
+	DBCount(ctx context.Context, db *sql.DB, _params ...interface{})
+	DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{})
 }
 
 // Checksum is an interface for describing checking the contents of the model for equality

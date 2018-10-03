@@ -261,10 +261,10 @@ func NewCustomerCSVWriterFile(fn string, dedupers ...CustomerCSVDeduper) (chan C
 	return ch, sdone, nil
 }
 
-type CustomerDBAction func(ctx context.Context, db DB, record Customer) error
+type CustomerDBAction func(ctx context.Context, db *sql.DB, record Customer) error
 
 // NewCustomerDBWriterSize creates a DB writer that will write each issue into the DB
-func NewCustomerDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...CustomerDBAction) (chan Customer, chan bool, error) {
+func NewCustomerDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...CustomerDBAction) (chan Customer, chan bool, error) {
 	ch := make(chan Customer, size)
 	done := make(chan bool)
 	var action CustomerDBAction
@@ -289,7 +289,7 @@ func NewCustomerDBWriterSize(ctx context.Context, db DB, errors chan<- error, si
 }
 
 // NewCustomerDBWriter creates a DB writer that will write each issue into the DB
-func NewCustomerDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...CustomerDBAction) (chan Customer, chan bool, error) {
+func NewCustomerDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...CustomerDBAction) (chan Customer, chan bool, error) {
 	return NewCustomerDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -340,7 +340,7 @@ func (t *Customer) SetID(v string) {
 }
 
 // FindCustomerByID will find a Customer by ID
-func FindCustomerByID(ctx context.Context, db DB, value string) (*Customer, error) {
+func FindCustomerByID(ctx context.Context, db *sql.DB, value string) (*Customer, error) {
 	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata` FROM `customer` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Name sql.NullString
@@ -385,7 +385,7 @@ func FindCustomerByID(ctx context.Context, db DB, value string) (*Customer, erro
 }
 
 // FindCustomerByIDTx will find a Customer by ID using the provided transaction
-func FindCustomerByIDTx(ctx context.Context, tx Tx, value string) (*Customer, error) {
+func FindCustomerByIDTx(ctx context.Context, tx *sql.Tx, value string) (*Customer, error) {
 	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata` FROM `customer` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Name sql.NullString
@@ -491,35 +491,35 @@ func (t *Customer) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateCustomerTable will create the Customer table
-func DBCreateCustomerTable(ctx context.Context, db DB) error {
+func DBCreateCustomerTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `customer` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name` TEXT NOT NULL,`active`BOOL NOT NULL DEFAULT false,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,`metadata` JSON) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateCustomerTableTx will create the Customer table using the provided transction
-func DBCreateCustomerTableTx(ctx context.Context, tx Tx) error {
+func DBCreateCustomerTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `customer` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name` TEXT NOT NULL,`active`BOOL NOT NULL DEFAULT false,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,`metadata` JSON) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropCustomerTable will drop the Customer table
-func DBDropCustomerTable(ctx context.Context, db DB) error {
+func DBDropCustomerTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `customer`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropCustomerTableTx will drop the Customer table using the provided transaction
-func DBDropCustomerTableTx(ctx context.Context, tx Tx) error {
+func DBDropCustomerTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `customer`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreate will create a new Customer record in the database
-func (t *Customer) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *Customer) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata`) VALUES (?,?,?,?,?,?)"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -532,7 +532,7 @@ func (t *Customer) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBCreateTx will create a new Customer record in the database using the provided transaction
-func (t *Customer) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *Customer) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata`) VALUES (?,?,?,?,?,?)"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -545,7 +545,7 @@ func (t *Customer) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBCreateIgnoreDuplicate will upsert the Customer record in the database
-func (t *Customer) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *Customer) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -558,7 +558,7 @@ func (t *Customer) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Resu
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the Customer record in the database using the provided transaction
-func (t *Customer) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *Customer) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -571,7 +571,7 @@ func (t *Customer) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Re
 }
 
 // DeleteAllCustomers deletes all Customer records in the database with optional filters
-func DeleteAllCustomers(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllCustomers(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(CustomerTableName),
 	}
@@ -586,7 +586,7 @@ func DeleteAllCustomers(ctx context.Context, db DB, _params ...interface{}) erro
 }
 
 // DeleteAllCustomersTx deletes all Customer records in the database with optional filters using the provided transaction
-func DeleteAllCustomersTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllCustomersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(CustomerTableName),
 	}
@@ -601,7 +601,7 @@ func DeleteAllCustomersTx(ctx context.Context, tx Tx, _params ...interface{}) er
 }
 
 // DBDelete will delete this Customer record in the database
-func (t *Customer) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *Customer) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `customer` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -615,7 +615,7 @@ func (t *Customer) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this Customer record in the database using the provided transaction
-func (t *Customer) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *Customer) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `customer` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -629,7 +629,7 @@ func (t *Customer) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the Customer record in the database
-func (t *Customer) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *Customer) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "UPDATE `customer` SET `name`=?,`active`=?,`created_at`=?,`updated_at`=?,`metadata`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.Name),
@@ -642,7 +642,7 @@ func (t *Customer) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBUpdateTx will update the Customer record in the database using the provided transaction
-func (t *Customer) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *Customer) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "UPDATE `customer` SET `name`=?,`active`=?,`created_at`=?,`updated_at`=?,`metadata`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.Name),
@@ -655,7 +655,7 @@ func (t *Customer) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBUpsert will upsert the Customer record in the database
-func (t *Customer) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *Customer) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
 		q = "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
@@ -681,7 +681,7 @@ func (t *Customer) DBUpsert(ctx context.Context, db DB, conditions ...interface{
 }
 
 // DBUpsertTx will upsert the Customer record in the database using the provided transaction
-func (t *Customer) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *Customer) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
 		q = "INSERT INTO `customer` (`customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
@@ -707,7 +707,7 @@ func (t *Customer) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interfac
 }
 
 // DBFindOne will find a Customer record in the database with the primary key
-func (t *Customer) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *Customer) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata` FROM `customer` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -752,7 +752,7 @@ func (t *Customer) DBFindOne(ctx context.Context, db DB, value string) (bool, er
 }
 
 // DBFindOneTx will find a Customer record in the database with the primary key using the provided transaction
-func (t *Customer) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *Customer) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata` FROM `customer` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -797,7 +797,7 @@ func (t *Customer) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, 
 }
 
 // FindCustomers will find a Customer record in the database with the provided parameters
-func FindCustomers(ctx context.Context, db DB, _params ...interface{}) ([]*Customer, error) {
+func FindCustomers(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*Customer, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("name"),
@@ -865,7 +865,7 @@ func FindCustomers(ctx context.Context, db DB, _params ...interface{}) ([]*Custo
 }
 
 // FindCustomersTx will find a Customer record in the database with the provided parameters using the provided transaction
-func FindCustomersTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*Customer, error) {
+func FindCustomersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*Customer, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("name"),
@@ -933,7 +933,7 @@ func FindCustomersTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*Cus
 }
 
 // DBFind will find a Customer record in the database with the provided parameters
-func (t *Customer) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *Customer) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("name"),
@@ -989,7 +989,7 @@ func (t *Customer) DBFind(ctx context.Context, db DB, _params ...interface{}) (b
 }
 
 // DBFindTx will find a Customer record in the database with the provided parameters using the provided transaction
-func (t *Customer) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *Customer) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("name"),
@@ -1045,7 +1045,7 @@ func (t *Customer) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) 
 }
 
 // CountCustomers will find the count of Customer records in the database
-func CountCustomers(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountCustomers(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(CustomerTableName),
@@ -1065,7 +1065,7 @@ func CountCustomers(ctx context.Context, db DB, _params ...interface{}) (int64, 
 }
 
 // CountCustomersTx will find the count of Customer records in the database using the provided transaction
-func CountCustomersTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountCustomersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(CustomerTableName),
@@ -1085,7 +1085,7 @@ func CountCustomersTx(ctx context.Context, tx Tx, _params ...interface{}) (int64
 }
 
 // DBCount will find the count of Customer records in the database
-func (t *Customer) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *Customer) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(CustomerTableName),
@@ -1105,7 +1105,7 @@ func (t *Customer) DBCount(ctx context.Context, db DB, _params ...interface{}) (
 }
 
 // DBCountTx will find the count of Customer records in the database using the provided transaction
-func (t *Customer) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *Customer) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(CustomerTableName),
@@ -1125,7 +1125,7 @@ func (t *Customer) DBCountTx(ctx context.Context, tx Tx, _params ...interface{})
 }
 
 // DBExists will return true if the Customer record exists in the database
-func (t *Customer) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *Customer) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `customer` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1136,7 +1136,7 @@ func (t *Customer) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the Customer record exists in the database using the provided transaction
-func (t *Customer) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *Customer) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `customer` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

@@ -440,10 +440,10 @@ func NewIssueCSVWriterFile(fn string, dedupers ...IssueCSVDeduper) (chan Issue, 
 	return ch, sdone, nil
 }
 
-type IssueDBAction func(ctx context.Context, db DB, record Issue) error
+type IssueDBAction func(ctx context.Context, db *sql.DB, record Issue) error
 
 // NewIssueDBWriterSize creates a DB writer that will write each issue into the DB
-func NewIssueDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...IssueDBAction) (chan Issue, chan bool, error) {
+func NewIssueDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...IssueDBAction) (chan Issue, chan bool, error) {
 	ch := make(chan Issue, size)
 	done := make(chan bool)
 	var action IssueDBAction
@@ -468,7 +468,7 @@ func NewIssueDBWriterSize(ctx context.Context, db DB, errors chan<- error, size 
 }
 
 // NewIssueDBWriter creates a DB writer that will write each issue into the DB
-func NewIssueDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...IssueDBAction) (chan Issue, chan bool, error) {
+func NewIssueDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...IssueDBAction) (chan Issue, chan bool, error) {
 	return NewIssueDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -591,7 +591,7 @@ func (t *Issue) SetID(v string) {
 }
 
 // FindIssueByID will find a Issue by ID
-func FindIssueByID(ctx context.Context, db DB, value string) (*Issue, error) {
+func FindIssueByID(ctx context.Context, db *sql.DB, value string) (*Issue, error) {
 	q := "SELECT `issue`.`id`,`issue`.`checksum`,`issue`.`user_id`,`issue`.`project_id`,`issue`.`title`,`issue`.`body`,`issue`.`state`,`issue`.`type`,`issue`.`resolution`,`issue`.`created_at`,`issue`.`updated_at`,`issue`.`closed_at`,`issue`.`closedby_user_id`,`issue`.`url`,`issue`.`customer_id`,`issue`.`ref_type`,`issue`.`ref_id`,`issue`.`metadata` FROM `issue` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -696,7 +696,7 @@ func FindIssueByID(ctx context.Context, db DB, value string) (*Issue, error) {
 }
 
 // FindIssueByIDTx will find a Issue by ID using the provided transaction
-func FindIssueByIDTx(ctx context.Context, tx Tx, value string) (*Issue, error) {
+func FindIssueByIDTx(ctx context.Context, tx *sql.Tx, value string) (*Issue, error) {
 	q := "SELECT `issue`.`id`,`issue`.`checksum`,`issue`.`user_id`,`issue`.`project_id`,`issue`.`title`,`issue`.`body`,`issue`.`state`,`issue`.`type`,`issue`.`resolution`,`issue`.`created_at`,`issue`.`updated_at`,`issue`.`closed_at`,`issue`.`closedby_user_id`,`issue`.`url`,`issue`.`customer_id`,`issue`.`ref_type`,`issue`.`ref_id`,`issue`.`metadata` FROM `issue` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -998,7 +998,7 @@ func (t *Issue) SetCustomerID(v string) {
 }
 
 // FindIssuesByCustomerID will find all Issues by the CustomerID value
-func FindIssuesByCustomerID(ctx context.Context, db DB, value string) ([]*Issue, error) {
+func FindIssuesByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*Issue, error) {
 	q := "SELECT `issue`.`id`,`issue`.`checksum`,`issue`.`user_id`,`issue`.`project_id`,`issue`.`title`,`issue`.`body`,`issue`.`state`,`issue`.`type`,`issue`.`resolution`,`issue`.`created_at`,`issue`.`updated_at`,`issue`.`closed_at`,`issue`.`closedby_user_id`,`issue`.`url`,`issue`.`customer_id`,`issue`.`ref_type`,`issue`.`ref_id`,`issue`.`metadata` FROM `issue` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1112,7 +1112,7 @@ func FindIssuesByCustomerID(ctx context.Context, db DB, value string) ([]*Issue,
 }
 
 // FindIssuesByCustomerIDTx will find all Issues by the CustomerID value using the provided transaction
-func FindIssuesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*Issue, error) {
+func FindIssuesByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*Issue, error) {
 	q := "SELECT `issue`.`id`,`issue`.`checksum`,`issue`.`user_id`,`issue`.`project_id`,`issue`.`title`,`issue`.`body`,`issue`.`state`,`issue`.`type`,`issue`.`resolution`,`issue`.`created_at`,`issue`.`updated_at`,`issue`.`closed_at`,`issue`.`closedby_user_id`,`issue`.`url`,`issue`.`customer_id`,`issue`.`ref_type`,`issue`.`ref_id`,`issue`.`metadata` FROM `issue` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1236,7 +1236,7 @@ func (t *Issue) SetRefType(v string) {
 }
 
 // FindIssuesByRefType will find all Issues by the RefType value
-func FindIssuesByRefType(ctx context.Context, db DB, value string) ([]*Issue, error) {
+func FindIssuesByRefType(ctx context.Context, db *sql.DB, value string) ([]*Issue, error) {
 	q := "SELECT `issue`.`id`,`issue`.`checksum`,`issue`.`user_id`,`issue`.`project_id`,`issue`.`title`,`issue`.`body`,`issue`.`state`,`issue`.`type`,`issue`.`resolution`,`issue`.`created_at`,`issue`.`updated_at`,`issue`.`closed_at`,`issue`.`closedby_user_id`,`issue`.`url`,`issue`.`customer_id`,`issue`.`ref_type`,`issue`.`ref_id`,`issue`.`metadata` FROM `issue` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1350,7 +1350,7 @@ func FindIssuesByRefType(ctx context.Context, db DB, value string) ([]*Issue, er
 }
 
 // FindIssuesByRefTypeTx will find all Issues by the RefType value using the provided transaction
-func FindIssuesByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*Issue, error) {
+func FindIssuesByRefTypeTx(ctx context.Context, tx *sql.Tx, value string) ([]*Issue, error) {
 	q := "SELECT `issue`.`id`,`issue`.`checksum`,`issue`.`user_id`,`issue`.`project_id`,`issue`.`title`,`issue`.`body`,`issue`.`state`,`issue`.`type`,`issue`.`resolution`,`issue`.`created_at`,`issue`.`updated_at`,`issue`.`closed_at`,`issue`.`closedby_user_id`,`issue`.`url`,`issue`.`customer_id`,`issue`.`ref_type`,`issue`.`ref_id`,`issue`.`metadata` FROM `issue` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1474,7 +1474,7 @@ func (t *Issue) SetRefID(v string) {
 }
 
 // FindIssuesByRefID will find all Issues by the RefID value
-func FindIssuesByRefID(ctx context.Context, db DB, value string) ([]*Issue, error) {
+func FindIssuesByRefID(ctx context.Context, db *sql.DB, value string) ([]*Issue, error) {
 	q := "SELECT `issue`.`id`,`issue`.`checksum`,`issue`.`user_id`,`issue`.`project_id`,`issue`.`title`,`issue`.`body`,`issue`.`state`,`issue`.`type`,`issue`.`resolution`,`issue`.`created_at`,`issue`.`updated_at`,`issue`.`closed_at`,`issue`.`closedby_user_id`,`issue`.`url`,`issue`.`customer_id`,`issue`.`ref_type`,`issue`.`ref_id`,`issue`.`metadata` FROM `issue` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1588,7 +1588,7 @@ func FindIssuesByRefID(ctx context.Context, db DB, value string) ([]*Issue, erro
 }
 
 // FindIssuesByRefIDTx will find all Issues by the RefID value using the provided transaction
-func FindIssuesByRefIDTx(ctx context.Context, tx Tx, value string) ([]*Issue, error) {
+func FindIssuesByRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*Issue, error) {
 	q := "SELECT `issue`.`id`,`issue`.`checksum`,`issue`.`user_id`,`issue`.`project_id`,`issue`.`title`,`issue`.`body`,`issue`.`state`,`issue`.`type`,`issue`.`resolution`,`issue`.`created_at`,`issue`.`updated_at`,`issue`.`closed_at`,`issue`.`closedby_user_id`,`issue`.`url`,`issue`.`customer_id`,`issue`.`ref_type`,`issue`.`ref_id`,`issue`.`metadata` FROM `issue` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1720,28 +1720,28 @@ func (t *Issue) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateIssueTable will create the Issue table
-func DBCreateIssueTable(ctx context.Context, db DB) error {
+func DBCreateIssueTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `issue` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`user_id` VARCHAR(64),`project_id` VARCHAR(64) NOT NULL,`title`TEXT NOT NULL,`body` LONGTEXT,`state`ENUM('open','closed') NOT NULL,`type` ENUM('bug','feature','enhancement','other') NOT NULL,`resolution` ENUM('none','resolved','unresolved') NOT NULL,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,`closed_at` BIGINT UNSIGNED,`closedby_user_id` VARCHAR(64),`url` VARCHAR(255) NOT NULL,`customer_id`VARCHAR(64) NOT NULL,`ref_type`VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata`JSON,INDEX issue_customer_id_index (`customer_id`),INDEX issue_ref_type_index (`ref_type`),INDEX issue_ref_id_index (`ref_id`),INDEX issue_customer_id_user_id_project_id_index (`customer_id`,`user_id`,`project_id`),INDEX issue_state_created_at_customer_id_index (`state`,`created_at`,`customer_id`),INDEX issue_type_customer_id_project_id_index (`type`,`customer_id`,`project_id`),INDEX issue_ref_type_state_project_id_customer_id_index (`ref_type`,`state`,`project_id`,`customer_id`),INDEX issue_ref_type_state_closed_at_project_id_customer_id_index (`ref_type`,`state`,`closed_at`,`project_id`,`customer_id`),INDEX issue_ref_type_state_created_at_project_id_customer_id_index (`ref_type`,`state`,`created_at`,`project_id`,`customer_id`),INDEX issue_state_customer_id_project_id_index (`state`,`customer_id`,`project_id`),INDEX issue_state_ref_id_closed_at_index (`state`,`ref_id`,`closed_at`),INDEX issue_state_customer_id_closed_at_ref_id_type_index (`state`,`customer_id`,`closed_at`,`ref_id`,`type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateIssueTableTx will create the Issue table using the provided transction
-func DBCreateIssueTableTx(ctx context.Context, tx Tx) error {
+func DBCreateIssueTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `issue` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`user_id` VARCHAR(64),`project_id` VARCHAR(64) NOT NULL,`title`TEXT NOT NULL,`body` LONGTEXT,`state`ENUM('open','closed') NOT NULL,`type` ENUM('bug','feature','enhancement','other') NOT NULL,`resolution` ENUM('none','resolved','unresolved') NOT NULL,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,`closed_at` BIGINT UNSIGNED,`closedby_user_id` VARCHAR(64),`url` VARCHAR(255) NOT NULL,`customer_id`VARCHAR(64) NOT NULL,`ref_type`VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata`JSON,INDEX issue_customer_id_index (`customer_id`),INDEX issue_ref_type_index (`ref_type`),INDEX issue_ref_id_index (`ref_id`),INDEX issue_customer_id_user_id_project_id_index (`customer_id`,`user_id`,`project_id`),INDEX issue_state_created_at_customer_id_index (`state`,`created_at`,`customer_id`),INDEX issue_type_customer_id_project_id_index (`type`,`customer_id`,`project_id`),INDEX issue_ref_type_state_project_id_customer_id_index (`ref_type`,`state`,`project_id`,`customer_id`),INDEX issue_ref_type_state_closed_at_project_id_customer_id_index (`ref_type`,`state`,`closed_at`,`project_id`,`customer_id`),INDEX issue_ref_type_state_created_at_project_id_customer_id_index (`ref_type`,`state`,`created_at`,`project_id`,`customer_id`),INDEX issue_state_customer_id_project_id_index (`state`,`customer_id`,`project_id`),INDEX issue_state_ref_id_closed_at_index (`state`,`ref_id`,`closed_at`),INDEX issue_state_customer_id_closed_at_ref_id_type_index (`state`,`customer_id`,`closed_at`,`ref_id`,`type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropIssueTable will drop the Issue table
-func DBDropIssueTable(ctx context.Context, db DB) error {
+func DBDropIssueTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `issue`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropIssueTableTx will drop the Issue table using the provided transaction
-func DBDropIssueTableTx(ctx context.Context, tx Tx) error {
+func DBDropIssueTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `issue`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -1771,7 +1771,7 @@ func (t *Issue) CalculateChecksum() string {
 }
 
 // DBCreate will create a new Issue record in the database
-func (t *Issue) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *Issue) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `issue` (`issue`.`id`,`issue`.`checksum`,`issue`.`user_id`,`issue`.`project_id`,`issue`.`title`,`issue`.`body`,`issue`.`state`,`issue`.`type`,`issue`.`resolution`,`issue`.`created_at`,`issue`.`updated_at`,`issue`.`closed_at`,`issue`.`closedby_user_id`,`issue`.`url`,`issue`.`customer_id`,`issue`.`ref_type`,`issue`.`ref_id`,`issue`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1801,7 +1801,7 @@ func (t *Issue) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBCreateTx will create a new Issue record in the database using the provided transaction
-func (t *Issue) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *Issue) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `issue` (`issue`.`id`,`issue`.`checksum`,`issue`.`user_id`,`issue`.`project_id`,`issue`.`title`,`issue`.`body`,`issue`.`state`,`issue`.`type`,`issue`.`resolution`,`issue`.`created_at`,`issue`.`updated_at`,`issue`.`closed_at`,`issue`.`closedby_user_id`,`issue`.`url`,`issue`.`customer_id`,`issue`.`ref_type`,`issue`.`ref_id`,`issue`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1831,7 +1831,7 @@ func (t *Issue) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBCreateIgnoreDuplicate will upsert the Issue record in the database
-func (t *Issue) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *Issue) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `issue` (`issue`.`id`,`issue`.`checksum`,`issue`.`user_id`,`issue`.`project_id`,`issue`.`title`,`issue`.`body`,`issue`.`state`,`issue`.`type`,`issue`.`resolution`,`issue`.`created_at`,`issue`.`updated_at`,`issue`.`closed_at`,`issue`.`closedby_user_id`,`issue`.`url`,`issue`.`customer_id`,`issue`.`ref_type`,`issue`.`ref_id`,`issue`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1861,7 +1861,7 @@ func (t *Issue) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result,
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the Issue record in the database using the provided transaction
-func (t *Issue) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *Issue) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `issue` (`issue`.`id`,`issue`.`checksum`,`issue`.`user_id`,`issue`.`project_id`,`issue`.`title`,`issue`.`body`,`issue`.`state`,`issue`.`type`,`issue`.`resolution`,`issue`.`created_at`,`issue`.`updated_at`,`issue`.`closed_at`,`issue`.`closedby_user_id`,`issue`.`url`,`issue`.`customer_id`,`issue`.`ref_type`,`issue`.`ref_id`,`issue`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1891,7 +1891,7 @@ func (t *Issue) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Resul
 }
 
 // DeleteAllIssues deletes all Issue records in the database with optional filters
-func DeleteAllIssues(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllIssues(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(IssueTableName),
 	}
@@ -1906,7 +1906,7 @@ func DeleteAllIssues(ctx context.Context, db DB, _params ...interface{}) error {
 }
 
 // DeleteAllIssuesTx deletes all Issue records in the database with optional filters using the provided transaction
-func DeleteAllIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllIssuesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(IssueTableName),
 	}
@@ -1921,7 +1921,7 @@ func DeleteAllIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) error
 }
 
 // DBDelete will delete this Issue record in the database
-func (t *Issue) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *Issue) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `issue` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1935,7 +1935,7 @@ func (t *Issue) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this Issue record in the database using the provided transaction
-func (t *Issue) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *Issue) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `issue` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1949,7 +1949,7 @@ func (t *Issue) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the Issue record in the database
-func (t *Issue) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *Issue) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1979,7 +1979,7 @@ func (t *Issue) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBUpdateTx will update the Issue record in the database using the provided transaction
-func (t *Issue) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *Issue) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -2009,7 +2009,7 @@ func (t *Issue) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBUpsert will upsert the Issue record in the database
-func (t *Issue) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *Issue) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -2052,7 +2052,7 @@ func (t *Issue) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) 
 }
 
 // DBUpsertTx will upsert the Issue record in the database using the provided transaction
-func (t *Issue) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *Issue) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -2095,7 +2095,7 @@ func (t *Issue) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}
 }
 
 // DBFindOne will find a Issue record in the database with the primary key
-func (t *Issue) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *Issue) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `issue`.`id`,`issue`.`checksum`,`issue`.`user_id`,`issue`.`project_id`,`issue`.`title`,`issue`.`body`,`issue`.`state`,`issue`.`type`,`issue`.`resolution`,`issue`.`created_at`,`issue`.`updated_at`,`issue`.`closed_at`,`issue`.`closedby_user_id`,`issue`.`url`,`issue`.`customer_id`,`issue`.`ref_type`,`issue`.`ref_id`,`issue`.`metadata` FROM `issue` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -2200,7 +2200,7 @@ func (t *Issue) DBFindOne(ctx context.Context, db DB, value string) (bool, error
 }
 
 // DBFindOneTx will find a Issue record in the database with the primary key using the provided transaction
-func (t *Issue) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *Issue) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `issue`.`id`,`issue`.`checksum`,`issue`.`user_id`,`issue`.`project_id`,`issue`.`title`,`issue`.`body`,`issue`.`state`,`issue`.`type`,`issue`.`resolution`,`issue`.`created_at`,`issue`.`updated_at`,`issue`.`closed_at`,`issue`.`closedby_user_id`,`issue`.`url`,`issue`.`customer_id`,`issue`.`ref_type`,`issue`.`ref_id`,`issue`.`metadata` FROM `issue` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -2305,7 +2305,7 @@ func (t *Issue) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, err
 }
 
 // FindIssues will find a Issue record in the database with the provided parameters
-func FindIssues(ctx context.Context, db DB, _params ...interface{}) ([]*Issue, error) {
+func FindIssues(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*Issue, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2445,7 +2445,7 @@ func FindIssues(ctx context.Context, db DB, _params ...interface{}) ([]*Issue, e
 }
 
 // FindIssuesTx will find a Issue record in the database with the provided parameters using the provided transaction
-func FindIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*Issue, error) {
+func FindIssuesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*Issue, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2585,7 +2585,7 @@ func FindIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*Issue,
 }
 
 // DBFind will find a Issue record in the database with the provided parameters
-func (t *Issue) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *Issue) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2713,7 +2713,7 @@ func (t *Issue) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool
 }
 
 // DBFindTx will find a Issue record in the database with the provided parameters using the provided transaction
-func (t *Issue) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *Issue) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2841,7 +2841,7 @@ func (t *Issue) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bo
 }
 
 // CountIssues will find the count of Issue records in the database
-func CountIssues(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountIssues(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(IssueTableName),
@@ -2861,7 +2861,7 @@ func CountIssues(ctx context.Context, db DB, _params ...interface{}) (int64, err
 }
 
 // CountIssuesTx will find the count of Issue records in the database using the provided transaction
-func CountIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountIssuesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(IssueTableName),
@@ -2881,7 +2881,7 @@ func CountIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, e
 }
 
 // DBCount will find the count of Issue records in the database
-func (t *Issue) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *Issue) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(IssueTableName),
@@ -2901,7 +2901,7 @@ func (t *Issue) DBCount(ctx context.Context, db DB, _params ...interface{}) (int
 }
 
 // DBCountTx will find the count of Issue records in the database using the provided transaction
-func (t *Issue) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *Issue) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(IssueTableName),
@@ -2921,7 +2921,7 @@ func (t *Issue) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (i
 }
 
 // DBExists will return true if the Issue record exists in the database
-func (t *Issue) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *Issue) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `issue` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -2932,7 +2932,7 @@ func (t *Issue) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the Issue record exists in the database using the provided transaction
-func (t *Issue) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *Issue) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `issue` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

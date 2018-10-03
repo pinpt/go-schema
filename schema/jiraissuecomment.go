@@ -281,10 +281,10 @@ func NewJiraIssueCommentCSVWriterFile(fn string, dedupers ...JiraIssueCommentCSV
 	return ch, sdone, nil
 }
 
-type JiraIssueCommentDBAction func(ctx context.Context, db DB, record JiraIssueComment) error
+type JiraIssueCommentDBAction func(ctx context.Context, db *sql.DB, record JiraIssueComment) error
 
 // NewJiraIssueCommentDBWriterSize creates a DB writer that will write each issue into the DB
-func NewJiraIssueCommentDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...JiraIssueCommentDBAction) (chan JiraIssueComment, chan bool, error) {
+func NewJiraIssueCommentDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...JiraIssueCommentDBAction) (chan JiraIssueComment, chan bool, error) {
 	ch := make(chan JiraIssueComment, size)
 	done := make(chan bool)
 	var action JiraIssueCommentDBAction
@@ -309,7 +309,7 @@ func NewJiraIssueCommentDBWriterSize(ctx context.Context, db DB, errors chan<- e
 }
 
 // NewJiraIssueCommentDBWriter creates a DB writer that will write each issue into the DB
-func NewJiraIssueCommentDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...JiraIssueCommentDBAction) (chan JiraIssueComment, chan bool, error) {
+func NewJiraIssueCommentDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...JiraIssueCommentDBAction) (chan JiraIssueComment, chan bool, error) {
 	return NewJiraIssueCommentDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -378,7 +378,7 @@ func (t *JiraIssueComment) SetID(v string) {
 }
 
 // FindJiraIssueCommentByID will find a JiraIssueComment by ID
-func FindJiraIssueCommentByID(ctx context.Context, db DB, value string) (*JiraIssueComment, error) {
+func FindJiraIssueCommentByID(ctx context.Context, db *sql.DB, value string) (*JiraIssueComment, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -438,7 +438,7 @@ func FindJiraIssueCommentByID(ctx context.Context, db DB, value string) (*JiraIs
 }
 
 // FindJiraIssueCommentByIDTx will find a JiraIssueComment by ID using the provided transaction
-func FindJiraIssueCommentByIDTx(ctx context.Context, tx Tx, value string) (*JiraIssueComment, error) {
+func FindJiraIssueCommentByIDTx(ctx context.Context, tx *sql.Tx, value string) (*JiraIssueComment, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -521,7 +521,7 @@ func (t *JiraIssueComment) SetCommentID(v string) {
 }
 
 // FindJiraIssueCommentsByCommentID will find all JiraIssueComments by the CommentID value
-func FindJiraIssueCommentsByCommentID(ctx context.Context, db DB, value string) ([]*JiraIssueComment, error) {
+func FindJiraIssueCommentsByCommentID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueComment, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `comment_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -590,7 +590,7 @@ func FindJiraIssueCommentsByCommentID(ctx context.Context, db DB, value string) 
 }
 
 // FindJiraIssueCommentsByCommentIDTx will find all JiraIssueComments by the CommentID value using the provided transaction
-func FindJiraIssueCommentsByCommentIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueComment, error) {
+func FindJiraIssueCommentsByCommentIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueComment, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `comment_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -669,7 +669,7 @@ func (t *JiraIssueComment) SetIssueID(v string) {
 }
 
 // FindJiraIssueCommentsByIssueID will find all JiraIssueComments by the IssueID value
-func FindJiraIssueCommentsByIssueID(ctx context.Context, db DB, value string) ([]*JiraIssueComment, error) {
+func FindJiraIssueCommentsByIssueID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueComment, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -738,7 +738,7 @@ func FindJiraIssueCommentsByIssueID(ctx context.Context, db DB, value string) ([
 }
 
 // FindJiraIssueCommentsByIssueIDTx will find all JiraIssueComments by the IssueID value using the provided transaction
-func FindJiraIssueCommentsByIssueIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueComment, error) {
+func FindJiraIssueCommentsByIssueIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueComment, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -817,7 +817,7 @@ func (t *JiraIssueComment) SetProjectID(v string) {
 }
 
 // FindJiraIssueCommentsByProjectID will find all JiraIssueComments by the ProjectID value
-func FindJiraIssueCommentsByProjectID(ctx context.Context, db DB, value string) ([]*JiraIssueComment, error) {
+func FindJiraIssueCommentsByProjectID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueComment, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `project_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -886,7 +886,7 @@ func FindJiraIssueCommentsByProjectID(ctx context.Context, db DB, value string) 
 }
 
 // FindJiraIssueCommentsByProjectIDTx will find all JiraIssueComments by the ProjectID value using the provided transaction
-func FindJiraIssueCommentsByProjectIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueComment, error) {
+func FindJiraIssueCommentsByProjectIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueComment, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `project_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -968,7 +968,7 @@ func (t *JiraIssueComment) SetUserID(v string) {
 }
 
 // FindJiraIssueCommentsByUserID will find all JiraIssueComments by the UserID value
-func FindJiraIssueCommentsByUserID(ctx context.Context, db DB, value string) ([]*JiraIssueComment, error) {
+func FindJiraIssueCommentsByUserID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueComment, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1037,7 +1037,7 @@ func FindJiraIssueCommentsByUserID(ctx context.Context, db DB, value string) ([]
 }
 
 // FindJiraIssueCommentsByUserIDTx will find all JiraIssueComments by the UserID value using the provided transaction
-func FindJiraIssueCommentsByUserIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueComment, error) {
+func FindJiraIssueCommentsByUserIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueComment, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1126,7 +1126,7 @@ func (t *JiraIssueComment) SetCustomerID(v string) {
 }
 
 // FindJiraIssueCommentsByCustomerID will find all JiraIssueComments by the CustomerID value
-func FindJiraIssueCommentsByCustomerID(ctx context.Context, db DB, value string) ([]*JiraIssueComment, error) {
+func FindJiraIssueCommentsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueComment, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1195,7 +1195,7 @@ func FindJiraIssueCommentsByCustomerID(ctx context.Context, db DB, value string)
 }
 
 // FindJiraIssueCommentsByCustomerIDTx will find all JiraIssueComments by the CustomerID value using the provided transaction
-func FindJiraIssueCommentsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueComment, error) {
+func FindJiraIssueCommentsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueComment, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1274,7 +1274,7 @@ func (t *JiraIssueComment) SetRefID(v string) {
 }
 
 // FindJiraIssueCommentsByRefID will find all JiraIssueComments by the RefID value
-func FindJiraIssueCommentsByRefID(ctx context.Context, db DB, value string) ([]*JiraIssueComment, error) {
+func FindJiraIssueCommentsByRefID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueComment, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1343,7 +1343,7 @@ func FindJiraIssueCommentsByRefID(ctx context.Context, db DB, value string) ([]*
 }
 
 // FindJiraIssueCommentsByRefIDTx will find all JiraIssueComments by the RefID value using the provided transaction
-func FindJiraIssueCommentsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueComment, error) {
+func FindJiraIssueCommentsByRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueComment, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1417,28 +1417,28 @@ func (t *JiraIssueComment) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateJiraIssueCommentTable will create the JiraIssueComment table
-func DBCreateJiraIssueCommentTable(ctx context.Context, db DB) error {
+func DBCreateJiraIssueCommentTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `jira_issue_comment` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`comment_id`VARCHAR(255) NOT NULL,`issue_id` VARCHAR(64) NOT NULL,`project_id`VARCHAR(64) NOT NULL,`user_id`VARCHAR(64),`updated_at`BIGINT UNSIGNED NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,INDEX jira_issue_comment_comment_id_index (`comment_id`),INDEX jira_issue_comment_issue_id_index (`issue_id`),INDEX jira_issue_comment_project_id_index (`project_id`),INDEX jira_issue_comment_user_id_index (`user_id`),INDEX jira_issue_comment_customer_id_index (`customer_id`),INDEX jira_issue_comment_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraIssueCommentTableTx will create the JiraIssueComment table using the provided transction
-func DBCreateJiraIssueCommentTableTx(ctx context.Context, tx Tx) error {
+func DBCreateJiraIssueCommentTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `jira_issue_comment` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`comment_id`VARCHAR(255) NOT NULL,`issue_id` VARCHAR(64) NOT NULL,`project_id`VARCHAR(64) NOT NULL,`user_id`VARCHAR(64),`updated_at`BIGINT UNSIGNED NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,INDEX jira_issue_comment_comment_id_index (`comment_id`),INDEX jira_issue_comment_issue_id_index (`issue_id`),INDEX jira_issue_comment_project_id_index (`project_id`),INDEX jira_issue_comment_user_id_index (`user_id`),INDEX jira_issue_comment_customer_id_index (`customer_id`),INDEX jira_issue_comment_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraIssueCommentTable will drop the JiraIssueComment table
-func DBDropJiraIssueCommentTable(ctx context.Context, db DB) error {
+func DBDropJiraIssueCommentTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `jira_issue_comment`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraIssueCommentTableTx will drop the JiraIssueComment table using the provided transaction
-func DBDropJiraIssueCommentTableTx(ctx context.Context, tx Tx) error {
+func DBDropJiraIssueCommentTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `jira_issue_comment`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -1459,7 +1459,7 @@ func (t *JiraIssueComment) CalculateChecksum() string {
 }
 
 // DBCreate will create a new JiraIssueComment record in the database
-func (t *JiraIssueComment) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraIssueComment) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_comment` (`jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1480,7 +1480,7 @@ func (t *JiraIssueComment) DBCreate(ctx context.Context, db DB) (sql.Result, err
 }
 
 // DBCreateTx will create a new JiraIssueComment record in the database using the provided transaction
-func (t *JiraIssueComment) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraIssueComment) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_comment` (`jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1501,7 +1501,7 @@ func (t *JiraIssueComment) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, e
 }
 
 // DBCreateIgnoreDuplicate will upsert the JiraIssueComment record in the database
-func (t *JiraIssueComment) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraIssueComment) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_comment` (`jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1522,7 +1522,7 @@ func (t *JiraIssueComment) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the JiraIssueComment record in the database using the provided transaction
-func (t *JiraIssueComment) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraIssueComment) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_comment` (`jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1543,7 +1543,7 @@ func (t *JiraIssueComment) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx)
 }
 
 // DeleteAllJiraIssueComments deletes all JiraIssueComment records in the database with optional filters
-func DeleteAllJiraIssueComments(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllJiraIssueComments(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraIssueCommentTableName),
 	}
@@ -1558,7 +1558,7 @@ func DeleteAllJiraIssueComments(ctx context.Context, db DB, _params ...interface
 }
 
 // DeleteAllJiraIssueCommentsTx deletes all JiraIssueComment records in the database with optional filters using the provided transaction
-func DeleteAllJiraIssueCommentsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllJiraIssueCommentsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraIssueCommentTableName),
 	}
@@ -1573,7 +1573,7 @@ func DeleteAllJiraIssueCommentsTx(ctx context.Context, tx Tx, _params ...interfa
 }
 
 // DBDelete will delete this JiraIssueComment record in the database
-func (t *JiraIssueComment) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *JiraIssueComment) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `jira_issue_comment` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1587,7 +1587,7 @@ func (t *JiraIssueComment) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this JiraIssueComment record in the database using the provided transaction
-func (t *JiraIssueComment) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraIssueComment) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `jira_issue_comment` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1601,7 +1601,7 @@ func (t *JiraIssueComment) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) 
 }
 
 // DBUpdate will update the JiraIssueComment record in the database
-func (t *JiraIssueComment) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraIssueComment) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1622,7 +1622,7 @@ func (t *JiraIssueComment) DBUpdate(ctx context.Context, db DB) (sql.Result, err
 }
 
 // DBUpdateTx will update the JiraIssueComment record in the database using the provided transaction
-func (t *JiraIssueComment) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraIssueComment) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1643,7 +1643,7 @@ func (t *JiraIssueComment) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, e
 }
 
 // DBUpsert will upsert the JiraIssueComment record in the database
-func (t *JiraIssueComment) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraIssueComment) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1677,7 +1677,7 @@ func (t *JiraIssueComment) DBUpsert(ctx context.Context, db DB, conditions ...in
 }
 
 // DBUpsertTx will upsert the JiraIssueComment record in the database using the provided transaction
-func (t *JiraIssueComment) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraIssueComment) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1711,7 +1711,7 @@ func (t *JiraIssueComment) DBUpsertTx(ctx context.Context, tx Tx, conditions ...
 }
 
 // DBFindOne will find a JiraIssueComment record in the database with the primary key
-func (t *JiraIssueComment) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *JiraIssueComment) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1771,7 +1771,7 @@ func (t *JiraIssueComment) DBFindOne(ctx context.Context, db DB, value string) (
 }
 
 // DBFindOneTx will find a JiraIssueComment record in the database with the primary key using the provided transaction
-func (t *JiraIssueComment) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *JiraIssueComment) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `jira_issue_comment`.`id`,`jira_issue_comment`.`checksum`,`jira_issue_comment`.`comment_id`,`jira_issue_comment`.`issue_id`,`jira_issue_comment`.`project_id`,`jira_issue_comment`.`user_id`,`jira_issue_comment`.`updated_at`,`jira_issue_comment`.`customer_id`,`jira_issue_comment`.`ref_id` FROM `jira_issue_comment` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1831,7 +1831,7 @@ func (t *JiraIssueComment) DBFindOneTx(ctx context.Context, tx Tx, value string)
 }
 
 // FindJiraIssueComments will find a JiraIssueComment record in the database with the provided parameters
-func FindJiraIssueComments(ctx context.Context, db DB, _params ...interface{}) ([]*JiraIssueComment, error) {
+func FindJiraIssueComments(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*JiraIssueComment, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1917,7 +1917,7 @@ func FindJiraIssueComments(ctx context.Context, db DB, _params ...interface{}) (
 }
 
 // FindJiraIssueCommentsTx will find a JiraIssueComment record in the database with the provided parameters using the provided transaction
-func FindJiraIssueCommentsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*JiraIssueComment, error) {
+func FindJiraIssueCommentsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*JiraIssueComment, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2003,7 +2003,7 @@ func FindJiraIssueCommentsTx(ctx context.Context, tx Tx, _params ...interface{})
 }
 
 // DBFind will find a JiraIssueComment record in the database with the provided parameters
-func (t *JiraIssueComment) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *JiraIssueComment) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2077,7 +2077,7 @@ func (t *JiraIssueComment) DBFind(ctx context.Context, db DB, _params ...interfa
 }
 
 // DBFindTx will find a JiraIssueComment record in the database with the provided parameters using the provided transaction
-func (t *JiraIssueComment) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *JiraIssueComment) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2151,7 +2151,7 @@ func (t *JiraIssueComment) DBFindTx(ctx context.Context, tx Tx, _params ...inter
 }
 
 // CountJiraIssueComments will find the count of JiraIssueComment records in the database
-func CountJiraIssueComments(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountJiraIssueComments(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraIssueCommentTableName),
@@ -2171,7 +2171,7 @@ func CountJiraIssueComments(ctx context.Context, db DB, _params ...interface{}) 
 }
 
 // CountJiraIssueCommentsTx will find the count of JiraIssueComment records in the database using the provided transaction
-func CountJiraIssueCommentsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountJiraIssueCommentsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraIssueCommentTableName),
@@ -2191,7 +2191,7 @@ func CountJiraIssueCommentsTx(ctx context.Context, tx Tx, _params ...interface{}
 }
 
 // DBCount will find the count of JiraIssueComment records in the database
-func (t *JiraIssueComment) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *JiraIssueComment) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraIssueCommentTableName),
@@ -2211,7 +2211,7 @@ func (t *JiraIssueComment) DBCount(ctx context.Context, db DB, _params ...interf
 }
 
 // DBCountTx will find the count of JiraIssueComment records in the database using the provided transaction
-func (t *JiraIssueComment) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *JiraIssueComment) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraIssueCommentTableName),
@@ -2231,7 +2231,7 @@ func (t *JiraIssueComment) DBCountTx(ctx context.Context, tx Tx, _params ...inte
 }
 
 // DBExists will return true if the JiraIssueComment record exists in the database
-func (t *JiraIssueComment) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *JiraIssueComment) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `jira_issue_comment` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -2242,7 +2242,7 @@ func (t *JiraIssueComment) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the JiraIssueComment record exists in the database using the provided transaction
-func (t *JiraIssueComment) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraIssueComment) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `jira_issue_comment` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

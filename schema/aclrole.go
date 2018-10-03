@@ -277,10 +277,10 @@ func NewACLRoleCSVWriterFile(fn string, dedupers ...ACLRoleCSVDeduper) (chan ACL
 	return ch, sdone, nil
 }
 
-type ACLRoleDBAction func(ctx context.Context, db DB, record ACLRole) error
+type ACLRoleDBAction func(ctx context.Context, db *sql.DB, record ACLRole) error
 
 // NewACLRoleDBWriterSize creates a DB writer that will write each issue into the DB
-func NewACLRoleDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...ACLRoleDBAction) (chan ACLRole, chan bool, error) {
+func NewACLRoleDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...ACLRoleDBAction) (chan ACLRole, chan bool, error) {
 	ch := make(chan ACLRole, size)
 	done := make(chan bool)
 	var action ACLRoleDBAction
@@ -305,7 +305,7 @@ func NewACLRoleDBWriterSize(ctx context.Context, db DB, errors chan<- error, siz
 }
 
 // NewACLRoleDBWriter creates a DB writer that will write each issue into the DB
-func NewACLRoleDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...ACLRoleDBAction) (chan ACLRole, chan bool, error) {
+func NewACLRoleDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...ACLRoleDBAction) (chan ACLRole, chan bool, error) {
 	return NewACLRoleDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -368,7 +368,7 @@ func (t *ACLRole) SetID(v string) {
 }
 
 // FindACLRoleByID will find a ACLRole by ID
-func FindACLRoleByID(ctx context.Context, db DB, value string) (*ACLRole, error) {
+func FindACLRoleByID(ctx context.Context, db *sql.DB, value string) (*ACLRole, error) {
 	q := "SELECT `acl_role`.`id`,`acl_role`.`checksum`,`acl_role`.`name`,`acl_role`.`description`,`acl_role`.`admin_user_id`,`acl_role`.`customer_id`,`acl_role`.`created_at`,`acl_role`.`updated_at` FROM `acl_role` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -423,7 +423,7 @@ func FindACLRoleByID(ctx context.Context, db DB, value string) (*ACLRole, error)
 }
 
 // FindACLRoleByIDTx will find a ACLRole by ID using the provided transaction
-func FindACLRoleByIDTx(ctx context.Context, tx Tx, value string) (*ACLRole, error) {
+func FindACLRoleByIDTx(ctx context.Context, tx *sql.Tx, value string) (*ACLRole, error) {
 	q := "SELECT `acl_role`.`id`,`acl_role`.`checksum`,`acl_role`.`name`,`acl_role`.`description`,`acl_role`.`admin_user_id`,`acl_role`.`customer_id`,`acl_role`.`created_at`,`acl_role`.`updated_at` FROM `acl_role` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -501,7 +501,7 @@ func (t *ACLRole) SetName(v string) {
 }
 
 // FindACLRolesByName will find all ACLRoles by the Name value
-func FindACLRolesByName(ctx context.Context, db DB, value string) ([]*ACLRole, error) {
+func FindACLRolesByName(ctx context.Context, db *sql.DB, value string) ([]*ACLRole, error) {
 	q := "SELECT `acl_role`.`id`,`acl_role`.`checksum`,`acl_role`.`name`,`acl_role`.`description`,`acl_role`.`admin_user_id`,`acl_role`.`customer_id`,`acl_role`.`created_at`,`acl_role`.`updated_at` FROM `acl_role` WHERE `name` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -565,7 +565,7 @@ func FindACLRolesByName(ctx context.Context, db DB, value string) ([]*ACLRole, e
 }
 
 // FindACLRolesByNameTx will find all ACLRoles by the Name value using the provided transaction
-func FindACLRolesByNameTx(ctx context.Context, tx Tx, value string) ([]*ACLRole, error) {
+func FindACLRolesByNameTx(ctx context.Context, tx *sql.Tx, value string) ([]*ACLRole, error) {
 	q := "SELECT `acl_role`.`id`,`acl_role`.`checksum`,`acl_role`.`name`,`acl_role`.`description`,`acl_role`.`admin_user_id`,`acl_role`.`customer_id`,`acl_role`.`created_at`,`acl_role`.`updated_at` FROM `acl_role` WHERE `name` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -668,7 +668,7 @@ func (t *ACLRole) SetCustomerID(v string) {
 }
 
 // FindACLRolesByCustomerID will find all ACLRoles by the CustomerID value
-func FindACLRolesByCustomerID(ctx context.Context, db DB, value string) ([]*ACLRole, error) {
+func FindACLRolesByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*ACLRole, error) {
 	q := "SELECT `acl_role`.`id`,`acl_role`.`checksum`,`acl_role`.`name`,`acl_role`.`description`,`acl_role`.`admin_user_id`,`acl_role`.`customer_id`,`acl_role`.`created_at`,`acl_role`.`updated_at` FROM `acl_role` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -732,7 +732,7 @@ func FindACLRolesByCustomerID(ctx context.Context, db DB, value string) ([]*ACLR
 }
 
 // FindACLRolesByCustomerIDTx will find all ACLRoles by the CustomerID value using the provided transaction
-func FindACLRolesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*ACLRole, error) {
+func FindACLRolesByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*ACLRole, error) {
 	q := "SELECT `acl_role`.`id`,`acl_role`.`checksum`,`acl_role`.`name`,`acl_role`.`description`,`acl_role`.`admin_user_id`,`acl_role`.`customer_id`,`acl_role`.`created_at`,`acl_role`.`updated_at` FROM `acl_role` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -824,28 +824,28 @@ func (t *ACLRole) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateACLRoleTable will create the ACLRole table
-func DBCreateACLRoleTable(ctx context.Context, db DB) error {
+func DBCreateACLRoleTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `acl_role` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(100) NOT NULL,`description`TEXT,`admin_user_id` VARCHAR(64),`customer_id`VARCHAR(64),`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,INDEX acl_role_name_index (`name`),INDEX acl_role_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateACLRoleTableTx will create the ACLRole table using the provided transction
-func DBCreateACLRoleTableTx(ctx context.Context, tx Tx) error {
+func DBCreateACLRoleTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `acl_role` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(100) NOT NULL,`description`TEXT,`admin_user_id` VARCHAR(64),`customer_id`VARCHAR(64),`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,INDEX acl_role_name_index (`name`),INDEX acl_role_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropACLRoleTable will drop the ACLRole table
-func DBDropACLRoleTable(ctx context.Context, db DB) error {
+func DBDropACLRoleTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `acl_role`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropACLRoleTableTx will drop the ACLRole table using the provided transaction
-func DBDropACLRoleTableTx(ctx context.Context, tx Tx) error {
+func DBDropACLRoleTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `acl_role`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -865,7 +865,7 @@ func (t *ACLRole) CalculateChecksum() string {
 }
 
 // DBCreate will create a new ACLRole record in the database
-func (t *ACLRole) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *ACLRole) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `acl_role` (`acl_role`.`id`,`acl_role`.`checksum`,`acl_role`.`name`,`acl_role`.`description`,`acl_role`.`admin_user_id`,`acl_role`.`customer_id`,`acl_role`.`created_at`,`acl_role`.`updated_at`) VALUES (?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -885,7 +885,7 @@ func (t *ACLRole) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBCreateTx will create a new ACLRole record in the database using the provided transaction
-func (t *ACLRole) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *ACLRole) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `acl_role` (`acl_role`.`id`,`acl_role`.`checksum`,`acl_role`.`name`,`acl_role`.`description`,`acl_role`.`admin_user_id`,`acl_role`.`customer_id`,`acl_role`.`created_at`,`acl_role`.`updated_at`) VALUES (?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -905,7 +905,7 @@ func (t *ACLRole) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBCreateIgnoreDuplicate will upsert the ACLRole record in the database
-func (t *ACLRole) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *ACLRole) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `acl_role` (`acl_role`.`id`,`acl_role`.`checksum`,`acl_role`.`name`,`acl_role`.`description`,`acl_role`.`admin_user_id`,`acl_role`.`customer_id`,`acl_role`.`created_at`,`acl_role`.`updated_at`) VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -925,7 +925,7 @@ func (t *ACLRole) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Resul
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the ACLRole record in the database using the provided transaction
-func (t *ACLRole) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *ACLRole) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `acl_role` (`acl_role`.`id`,`acl_role`.`checksum`,`acl_role`.`name`,`acl_role`.`description`,`acl_role`.`admin_user_id`,`acl_role`.`customer_id`,`acl_role`.`created_at`,`acl_role`.`updated_at`) VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -945,7 +945,7 @@ func (t *ACLRole) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Res
 }
 
 // DeleteAllACLRoles deletes all ACLRole records in the database with optional filters
-func DeleteAllACLRoles(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllACLRoles(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(ACLRoleTableName),
 	}
@@ -960,7 +960,7 @@ func DeleteAllACLRoles(ctx context.Context, db DB, _params ...interface{}) error
 }
 
 // DeleteAllACLRolesTx deletes all ACLRole records in the database with optional filters using the provided transaction
-func DeleteAllACLRolesTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllACLRolesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(ACLRoleTableName),
 	}
@@ -975,7 +975,7 @@ func DeleteAllACLRolesTx(ctx context.Context, tx Tx, _params ...interface{}) err
 }
 
 // DBDelete will delete this ACLRole record in the database
-func (t *ACLRole) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *ACLRole) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `acl_role` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -989,7 +989,7 @@ func (t *ACLRole) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this ACLRole record in the database using the provided transaction
-func (t *ACLRole) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *ACLRole) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `acl_role` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1003,7 +1003,7 @@ func (t *ACLRole) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the ACLRole record in the database
-func (t *ACLRole) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *ACLRole) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1023,7 +1023,7 @@ func (t *ACLRole) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBUpdateTx will update the ACLRole record in the database using the provided transaction
-func (t *ACLRole) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *ACLRole) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1043,7 +1043,7 @@ func (t *ACLRole) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBUpsert will upsert the ACLRole record in the database
-func (t *ACLRole) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *ACLRole) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1076,7 +1076,7 @@ func (t *ACLRole) DBUpsert(ctx context.Context, db DB, conditions ...interface{}
 }
 
 // DBUpsertTx will upsert the ACLRole record in the database using the provided transaction
-func (t *ACLRole) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *ACLRole) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1109,7 +1109,7 @@ func (t *ACLRole) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface
 }
 
 // DBFindOne will find a ACLRole record in the database with the primary key
-func (t *ACLRole) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *ACLRole) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `acl_role`.`id`,`acl_role`.`checksum`,`acl_role`.`name`,`acl_role`.`description`,`acl_role`.`admin_user_id`,`acl_role`.`customer_id`,`acl_role`.`created_at`,`acl_role`.`updated_at` FROM `acl_role` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1164,7 +1164,7 @@ func (t *ACLRole) DBFindOne(ctx context.Context, db DB, value string) (bool, err
 }
 
 // DBFindOneTx will find a ACLRole record in the database with the primary key using the provided transaction
-func (t *ACLRole) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *ACLRole) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `acl_role`.`id`,`acl_role`.`checksum`,`acl_role`.`name`,`acl_role`.`description`,`acl_role`.`admin_user_id`,`acl_role`.`customer_id`,`acl_role`.`created_at`,`acl_role`.`updated_at` FROM `acl_role` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1219,7 +1219,7 @@ func (t *ACLRole) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, e
 }
 
 // FindACLRoles will find a ACLRole record in the database with the provided parameters
-func FindACLRoles(ctx context.Context, db DB, _params ...interface{}) ([]*ACLRole, error) {
+func FindACLRoles(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*ACLRole, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1299,7 +1299,7 @@ func FindACLRoles(ctx context.Context, db DB, _params ...interface{}) ([]*ACLRol
 }
 
 // FindACLRolesTx will find a ACLRole record in the database with the provided parameters using the provided transaction
-func FindACLRolesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*ACLRole, error) {
+func FindACLRolesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*ACLRole, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1379,7 +1379,7 @@ func FindACLRolesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*ACLR
 }
 
 // DBFind will find a ACLRole record in the database with the provided parameters
-func (t *ACLRole) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *ACLRole) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1447,7 +1447,7 @@ func (t *ACLRole) DBFind(ctx context.Context, db DB, _params ...interface{}) (bo
 }
 
 // DBFindTx will find a ACLRole record in the database with the provided parameters using the provided transaction
-func (t *ACLRole) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *ACLRole) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1515,7 +1515,7 @@ func (t *ACLRole) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (
 }
 
 // CountACLRoles will find the count of ACLRole records in the database
-func CountACLRoles(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountACLRoles(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(ACLRoleTableName),
@@ -1535,7 +1535,7 @@ func CountACLRoles(ctx context.Context, db DB, _params ...interface{}) (int64, e
 }
 
 // CountACLRolesTx will find the count of ACLRole records in the database using the provided transaction
-func CountACLRolesTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountACLRolesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(ACLRoleTableName),
@@ -1555,7 +1555,7 @@ func CountACLRolesTx(ctx context.Context, tx Tx, _params ...interface{}) (int64,
 }
 
 // DBCount will find the count of ACLRole records in the database
-func (t *ACLRole) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *ACLRole) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(ACLRoleTableName),
@@ -1575,7 +1575,7 @@ func (t *ACLRole) DBCount(ctx context.Context, db DB, _params ...interface{}) (i
 }
 
 // DBCountTx will find the count of ACLRole records in the database using the provided transaction
-func (t *ACLRole) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *ACLRole) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(ACLRoleTableName),
@@ -1595,7 +1595,7 @@ func (t *ACLRole) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) 
 }
 
 // DBExists will return true if the ACLRole record exists in the database
-func (t *ACLRole) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *ACLRole) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `acl_role` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1606,7 +1606,7 @@ func (t *ACLRole) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the ACLRole record exists in the database using the provided transaction
-func (t *ACLRole) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *ACLRole) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `acl_role` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

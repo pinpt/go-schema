@@ -277,10 +277,10 @@ func NewJiraProjectCSVWriterFile(fn string, dedupers ...JiraProjectCSVDeduper) (
 	return ch, sdone, nil
 }
 
-type JiraProjectDBAction func(ctx context.Context, db DB, record JiraProject) error
+type JiraProjectDBAction func(ctx context.Context, db *sql.DB, record JiraProject) error
 
 // NewJiraProjectDBWriterSize creates a DB writer that will write each issue into the DB
-func NewJiraProjectDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...JiraProjectDBAction) (chan JiraProject, chan bool, error) {
+func NewJiraProjectDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...JiraProjectDBAction) (chan JiraProject, chan bool, error) {
 	ch := make(chan JiraProject, size)
 	done := make(chan bool)
 	var action JiraProjectDBAction
@@ -305,7 +305,7 @@ func NewJiraProjectDBWriterSize(ctx context.Context, db DB, errors chan<- error,
 }
 
 // NewJiraProjectDBWriter creates a DB writer that will write each issue into the DB
-func NewJiraProjectDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...JiraProjectDBAction) (chan JiraProject, chan bool, error) {
+func NewJiraProjectDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...JiraProjectDBAction) (chan JiraProject, chan bool, error) {
 	return NewJiraProjectDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -368,7 +368,7 @@ func (t *JiraProject) SetID(v string) {
 }
 
 // FindJiraProjectByID will find a JiraProject by ID
-func FindJiraProjectByID(ctx context.Context, db DB, value string) (*JiraProject, error) {
+func FindJiraProjectByID(ctx context.Context, db *sql.DB, value string) (*JiraProject, error) {
 	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -423,7 +423,7 @@ func FindJiraProjectByID(ctx context.Context, db DB, value string) (*JiraProject
 }
 
 // FindJiraProjectByIDTx will find a JiraProject by ID using the provided transaction
-func FindJiraProjectByIDTx(ctx context.Context, tx Tx, value string) (*JiraProject, error) {
+func FindJiraProjectByIDTx(ctx context.Context, tx *sql.Tx, value string) (*JiraProject, error) {
 	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -501,7 +501,7 @@ func (t *JiraProject) SetProjectID(v string) {
 }
 
 // FindJiraProjectsByProjectID will find all JiraProjects by the ProjectID value
-func FindJiraProjectsByProjectID(ctx context.Context, db DB, value string) ([]*JiraProject, error) {
+func FindJiraProjectsByProjectID(ctx context.Context, db *sql.DB, value string) ([]*JiraProject, error) {
 	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `project_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -565,7 +565,7 @@ func FindJiraProjectsByProjectID(ctx context.Context, db DB, value string) ([]*J
 }
 
 // FindJiraProjectsByProjectIDTx will find all JiraProjects by the ProjectID value using the provided transaction
-func FindJiraProjectsByProjectIDTx(ctx context.Context, tx Tx, value string) ([]*JiraProject, error) {
+func FindJiraProjectsByProjectIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraProject, error) {
 	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `project_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -672,7 +672,7 @@ func (t *JiraProject) SetCustomerID(v string) {
 }
 
 // FindJiraProjectsByCustomerID will find all JiraProjects by the CustomerID value
-func FindJiraProjectsByCustomerID(ctx context.Context, db DB, value string) ([]*JiraProject, error) {
+func FindJiraProjectsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*JiraProject, error) {
 	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -736,7 +736,7 @@ func FindJiraProjectsByCustomerID(ctx context.Context, db DB, value string) ([]*
 }
 
 // FindJiraProjectsByCustomerIDTx will find all JiraProjects by the CustomerID value using the provided transaction
-func FindJiraProjectsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraProject, error) {
+func FindJiraProjectsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraProject, error) {
 	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -810,7 +810,7 @@ func (t *JiraProject) SetRefID(v string) {
 }
 
 // FindJiraProjectsByRefID will find all JiraProjects by the RefID value
-func FindJiraProjectsByRefID(ctx context.Context, db DB, value string) ([]*JiraProject, error) {
+func FindJiraProjectsByRefID(ctx context.Context, db *sql.DB, value string) ([]*JiraProject, error) {
 	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -874,7 +874,7 @@ func FindJiraProjectsByRefID(ctx context.Context, db DB, value string) ([]*JiraP
 }
 
 // FindJiraProjectsByRefIDTx will find all JiraProjects by the RefID value using the provided transaction
-func FindJiraProjectsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*JiraProject, error) {
+func FindJiraProjectsByRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraProject, error) {
 	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -943,28 +943,28 @@ func (t *JiraProject) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateJiraProjectTable will create the JiraProject table
-func DBCreateJiraProjectTable(ctx context.Context, db DB) error {
+func DBCreateJiraProjectTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `jira_project` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`project_id`VARCHAR(255) NOT NULL,`key` VARCHAR(100) NOT NULL,`avatar_url`VARCHAR(255) NOT NULL,`category_id` VARCHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,INDEX jira_project_project_id_index (`project_id`),INDEX jira_project_customer_id_index (`customer_id`),INDEX jira_project_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraProjectTableTx will create the JiraProject table using the provided transction
-func DBCreateJiraProjectTableTx(ctx context.Context, tx Tx) error {
+func DBCreateJiraProjectTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `jira_project` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`project_id`VARCHAR(255) NOT NULL,`key` VARCHAR(100) NOT NULL,`avatar_url`VARCHAR(255) NOT NULL,`category_id` VARCHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,INDEX jira_project_project_id_index (`project_id`),INDEX jira_project_customer_id_index (`customer_id`),INDEX jira_project_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraProjectTable will drop the JiraProject table
-func DBDropJiraProjectTable(ctx context.Context, db DB) error {
+func DBDropJiraProjectTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `jira_project`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraProjectTableTx will drop the JiraProject table using the provided transaction
-func DBDropJiraProjectTableTx(ctx context.Context, tx Tx) error {
+func DBDropJiraProjectTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `jira_project`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -984,7 +984,7 @@ func (t *JiraProject) CalculateChecksum() string {
 }
 
 // DBCreate will create a new JiraProject record in the database
-func (t *JiraProject) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraProject) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_project` (`jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id`) VALUES (?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1004,7 +1004,7 @@ func (t *JiraProject) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBCreateTx will create a new JiraProject record in the database using the provided transaction
-func (t *JiraProject) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraProject) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_project` (`jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id`) VALUES (?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1024,7 +1024,7 @@ func (t *JiraProject) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error)
 }
 
 // DBCreateIgnoreDuplicate will upsert the JiraProject record in the database
-func (t *JiraProject) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraProject) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_project` (`jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id`) VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1044,7 +1044,7 @@ func (t *JiraProject) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.R
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the JiraProject record in the database using the provided transaction
-func (t *JiraProject) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraProject) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_project` (`jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id`) VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1064,7 +1064,7 @@ func (t *JiraProject) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql
 }
 
 // DeleteAllJiraProjects deletes all JiraProject records in the database with optional filters
-func DeleteAllJiraProjects(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllJiraProjects(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraProjectTableName),
 	}
@@ -1079,7 +1079,7 @@ func DeleteAllJiraProjects(ctx context.Context, db DB, _params ...interface{}) e
 }
 
 // DeleteAllJiraProjectsTx deletes all JiraProject records in the database with optional filters using the provided transaction
-func DeleteAllJiraProjectsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllJiraProjectsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraProjectTableName),
 	}
@@ -1094,7 +1094,7 @@ func DeleteAllJiraProjectsTx(ctx context.Context, tx Tx, _params ...interface{})
 }
 
 // DBDelete will delete this JiraProject record in the database
-func (t *JiraProject) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *JiraProject) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `jira_project` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1108,7 +1108,7 @@ func (t *JiraProject) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this JiraProject record in the database using the provided transaction
-func (t *JiraProject) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraProject) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `jira_project` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1122,7 +1122,7 @@ func (t *JiraProject) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the JiraProject record in the database
-func (t *JiraProject) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraProject) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1142,7 +1142,7 @@ func (t *JiraProject) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBUpdateTx will update the JiraProject record in the database using the provided transaction
-func (t *JiraProject) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraProject) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1162,7 +1162,7 @@ func (t *JiraProject) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error)
 }
 
 // DBUpsert will upsert the JiraProject record in the database
-func (t *JiraProject) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraProject) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1195,7 +1195,7 @@ func (t *JiraProject) DBUpsert(ctx context.Context, db DB, conditions ...interfa
 }
 
 // DBUpsertTx will upsert the JiraProject record in the database using the provided transaction
-func (t *JiraProject) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraProject) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1228,7 +1228,7 @@ func (t *JiraProject) DBUpsertTx(ctx context.Context, tx Tx, conditions ...inter
 }
 
 // DBFindOne will find a JiraProject record in the database with the primary key
-func (t *JiraProject) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *JiraProject) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1283,7 +1283,7 @@ func (t *JiraProject) DBFindOne(ctx context.Context, db DB, value string) (bool,
 }
 
 // DBFindOneTx will find a JiraProject record in the database with the primary key using the provided transaction
-func (t *JiraProject) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *JiraProject) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1338,7 +1338,7 @@ func (t *JiraProject) DBFindOneTx(ctx context.Context, tx Tx, value string) (boo
 }
 
 // FindJiraProjects will find a JiraProject record in the database with the provided parameters
-func FindJiraProjects(ctx context.Context, db DB, _params ...interface{}) ([]*JiraProject, error) {
+func FindJiraProjects(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*JiraProject, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1418,7 +1418,7 @@ func FindJiraProjects(ctx context.Context, db DB, _params ...interface{}) ([]*Ji
 }
 
 // FindJiraProjectsTx will find a JiraProject record in the database with the provided parameters using the provided transaction
-func FindJiraProjectsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*JiraProject, error) {
+func FindJiraProjectsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*JiraProject, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1498,7 +1498,7 @@ func FindJiraProjectsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*
 }
 
 // DBFind will find a JiraProject record in the database with the provided parameters
-func (t *JiraProject) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *JiraProject) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1566,7 +1566,7 @@ func (t *JiraProject) DBFind(ctx context.Context, db DB, _params ...interface{})
 }
 
 // DBFindTx will find a JiraProject record in the database with the provided parameters using the provided transaction
-func (t *JiraProject) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *JiraProject) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1634,7 +1634,7 @@ func (t *JiraProject) DBFindTx(ctx context.Context, tx Tx, _params ...interface{
 }
 
 // CountJiraProjects will find the count of JiraProject records in the database
-func CountJiraProjects(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountJiraProjects(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraProjectTableName),
@@ -1654,7 +1654,7 @@ func CountJiraProjects(ctx context.Context, db DB, _params ...interface{}) (int6
 }
 
 // CountJiraProjectsTx will find the count of JiraProject records in the database using the provided transaction
-func CountJiraProjectsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountJiraProjectsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraProjectTableName),
@@ -1674,7 +1674,7 @@ func CountJiraProjectsTx(ctx context.Context, tx Tx, _params ...interface{}) (in
 }
 
 // DBCount will find the count of JiraProject records in the database
-func (t *JiraProject) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *JiraProject) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraProjectTableName),
@@ -1694,7 +1694,7 @@ func (t *JiraProject) DBCount(ctx context.Context, db DB, _params ...interface{}
 }
 
 // DBCountTx will find the count of JiraProject records in the database using the provided transaction
-func (t *JiraProject) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *JiraProject) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraProjectTableName),
@@ -1714,7 +1714,7 @@ func (t *JiraProject) DBCountTx(ctx context.Context, tx Tx, _params ...interface
 }
 
 // DBExists will return true if the JiraProject record exists in the database
-func (t *JiraProject) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *JiraProject) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `jira_project` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1725,7 +1725,7 @@ func (t *JiraProject) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the JiraProject record exists in the database using the provided transaction
-func (t *JiraProject) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraProject) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `jira_project` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

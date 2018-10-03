@@ -289,10 +289,10 @@ func NewDataGroupCSVWriterFile(fn string, dedupers ...DataGroupCSVDeduper) (chan
 	return ch, sdone, nil
 }
 
-type DataGroupDBAction func(ctx context.Context, db DB, record DataGroup) error
+type DataGroupDBAction func(ctx context.Context, db *sql.DB, record DataGroup) error
 
 // NewDataGroupDBWriterSize creates a DB writer that will write each issue into the DB
-func NewDataGroupDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...DataGroupDBAction) (chan DataGroup, chan bool, error) {
+func NewDataGroupDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...DataGroupDBAction) (chan DataGroup, chan bool, error) {
 	ch := make(chan DataGroup, size)
 	done := make(chan bool)
 	var action DataGroupDBAction
@@ -317,7 +317,7 @@ func NewDataGroupDBWriterSize(ctx context.Context, db DB, errors chan<- error, s
 }
 
 // NewDataGroupDBWriter creates a DB writer that will write each issue into the DB
-func NewDataGroupDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...DataGroupDBAction) (chan DataGroup, chan bool, error) {
+func NewDataGroupDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...DataGroupDBAction) (chan DataGroup, chan bool, error) {
 	return NewDataGroupDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -398,7 +398,7 @@ func (t *DataGroup) SetID(v string) {
 }
 
 // FindDataGroupByID will find a DataGroup by ID
-func FindDataGroupByID(ctx context.Context, db DB, value string) (*DataGroup, error) {
+func FindDataGroupByID(ctx context.Context, db *sql.DB, value string) (*DataGroup, error) {
 	q := "SELECT `data_group`.`id`,`data_group`.`checksum`,`data_group`.`customer_id`,`data_group`.`name`,`data_group`.`description`,`data_group`.`parent_id`,`data_group`.`issue_project_ids`,`data_group`.`user_ids`,`data_group`.`repo_ids`,`data_group`.`created_at`,`data_group`.`updated_at` FROM `data_group` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -468,7 +468,7 @@ func FindDataGroupByID(ctx context.Context, db DB, value string) (*DataGroup, er
 }
 
 // FindDataGroupByIDTx will find a DataGroup by ID using the provided transaction
-func FindDataGroupByIDTx(ctx context.Context, tx Tx, value string) (*DataGroup, error) {
+func FindDataGroupByIDTx(ctx context.Context, tx *sql.Tx, value string) (*DataGroup, error) {
 	q := "SELECT `data_group`.`id`,`data_group`.`checksum`,`data_group`.`customer_id`,`data_group`.`name`,`data_group`.`description`,`data_group`.`parent_id`,`data_group`.`issue_project_ids`,`data_group`.`user_ids`,`data_group`.`repo_ids`,`data_group`.`created_at`,`data_group`.`updated_at` FROM `data_group` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -664,28 +664,28 @@ func (t *DataGroup) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateDataGroupTable will create the DataGroup table
-func DBCreateDataGroupTable(ctx context.Context, db DB) error {
+func DBCreateDataGroupTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `data_group` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`name` TEXT NOT NULL,`description` TEXT,`parent_id`VARCHAR(64),`issue_project_ids` JSON,`user_ids` JSON,`repo_ids` JSON,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateDataGroupTableTx will create the DataGroup table using the provided transction
-func DBCreateDataGroupTableTx(ctx context.Context, tx Tx) error {
+func DBCreateDataGroupTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `data_group` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`name` TEXT NOT NULL,`description` TEXT,`parent_id`VARCHAR(64),`issue_project_ids` JSON,`user_ids` JSON,`repo_ids` JSON,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropDataGroupTable will drop the DataGroup table
-func DBDropDataGroupTable(ctx context.Context, db DB) error {
+func DBDropDataGroupTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `data_group`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropDataGroupTableTx will drop the DataGroup table using the provided transaction
-func DBDropDataGroupTableTx(ctx context.Context, tx Tx) error {
+func DBDropDataGroupTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `data_group`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -708,7 +708,7 @@ func (t *DataGroup) CalculateChecksum() string {
 }
 
 // DBCreate will create a new DataGroup record in the database
-func (t *DataGroup) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *DataGroup) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `data_group` (`data_group`.`id`,`data_group`.`checksum`,`data_group`.`customer_id`,`data_group`.`name`,`data_group`.`description`,`data_group`.`parent_id`,`data_group`.`issue_project_ids`,`data_group`.`user_ids`,`data_group`.`repo_ids`,`data_group`.`created_at`,`data_group`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -731,7 +731,7 @@ func (t *DataGroup) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBCreateTx will create a new DataGroup record in the database using the provided transaction
-func (t *DataGroup) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *DataGroup) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `data_group` (`data_group`.`id`,`data_group`.`checksum`,`data_group`.`customer_id`,`data_group`.`name`,`data_group`.`description`,`data_group`.`parent_id`,`data_group`.`issue_project_ids`,`data_group`.`user_ids`,`data_group`.`repo_ids`,`data_group`.`created_at`,`data_group`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -754,7 +754,7 @@ func (t *DataGroup) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBCreateIgnoreDuplicate will upsert the DataGroup record in the database
-func (t *DataGroup) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *DataGroup) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `data_group` (`data_group`.`id`,`data_group`.`checksum`,`data_group`.`customer_id`,`data_group`.`name`,`data_group`.`description`,`data_group`.`parent_id`,`data_group`.`issue_project_ids`,`data_group`.`user_ids`,`data_group`.`repo_ids`,`data_group`.`created_at`,`data_group`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -777,7 +777,7 @@ func (t *DataGroup) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Res
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the DataGroup record in the database using the provided transaction
-func (t *DataGroup) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *DataGroup) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `data_group` (`data_group`.`id`,`data_group`.`checksum`,`data_group`.`customer_id`,`data_group`.`name`,`data_group`.`description`,`data_group`.`parent_id`,`data_group`.`issue_project_ids`,`data_group`.`user_ids`,`data_group`.`repo_ids`,`data_group`.`created_at`,`data_group`.`updated_at`) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -800,7 +800,7 @@ func (t *DataGroup) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.R
 }
 
 // DeleteAllDataGroups deletes all DataGroup records in the database with optional filters
-func DeleteAllDataGroups(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllDataGroups(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(DataGroupTableName),
 	}
@@ -815,7 +815,7 @@ func DeleteAllDataGroups(ctx context.Context, db DB, _params ...interface{}) err
 }
 
 // DeleteAllDataGroupsTx deletes all DataGroup records in the database with optional filters using the provided transaction
-func DeleteAllDataGroupsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllDataGroupsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(DataGroupTableName),
 	}
@@ -830,7 +830,7 @@ func DeleteAllDataGroupsTx(ctx context.Context, tx Tx, _params ...interface{}) e
 }
 
 // DBDelete will delete this DataGroup record in the database
-func (t *DataGroup) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *DataGroup) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `data_group` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -844,7 +844,7 @@ func (t *DataGroup) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this DataGroup record in the database using the provided transaction
-func (t *DataGroup) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *DataGroup) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `data_group` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -858,7 +858,7 @@ func (t *DataGroup) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the DataGroup record in the database
-func (t *DataGroup) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *DataGroup) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -881,7 +881,7 @@ func (t *DataGroup) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBUpdateTx will update the DataGroup record in the database using the provided transaction
-func (t *DataGroup) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *DataGroup) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -904,7 +904,7 @@ func (t *DataGroup) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBUpsert will upsert the DataGroup record in the database
-func (t *DataGroup) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *DataGroup) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -940,7 +940,7 @@ func (t *DataGroup) DBUpsert(ctx context.Context, db DB, conditions ...interface
 }
 
 // DBUpsertTx will upsert the DataGroup record in the database using the provided transaction
-func (t *DataGroup) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *DataGroup) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -976,7 +976,7 @@ func (t *DataGroup) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interfa
 }
 
 // DBFindOne will find a DataGroup record in the database with the primary key
-func (t *DataGroup) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *DataGroup) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `data_group`.`id`,`data_group`.`checksum`,`data_group`.`customer_id`,`data_group`.`name`,`data_group`.`description`,`data_group`.`parent_id`,`data_group`.`issue_project_ids`,`data_group`.`user_ids`,`data_group`.`repo_ids`,`data_group`.`created_at`,`data_group`.`updated_at` FROM `data_group` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1046,7 +1046,7 @@ func (t *DataGroup) DBFindOne(ctx context.Context, db DB, value string) (bool, e
 }
 
 // DBFindOneTx will find a DataGroup record in the database with the primary key using the provided transaction
-func (t *DataGroup) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *DataGroup) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `data_group`.`id`,`data_group`.`checksum`,`data_group`.`customer_id`,`data_group`.`name`,`data_group`.`description`,`data_group`.`parent_id`,`data_group`.`issue_project_ids`,`data_group`.`user_ids`,`data_group`.`repo_ids`,`data_group`.`created_at`,`data_group`.`updated_at` FROM `data_group` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1116,7 +1116,7 @@ func (t *DataGroup) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool,
 }
 
 // FindDataGroups will find a DataGroup record in the database with the provided parameters
-func FindDataGroups(ctx context.Context, db DB, _params ...interface{}) ([]*DataGroup, error) {
+func FindDataGroups(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*DataGroup, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1214,7 +1214,7 @@ func FindDataGroups(ctx context.Context, db DB, _params ...interface{}) ([]*Data
 }
 
 // FindDataGroupsTx will find a DataGroup record in the database with the provided parameters using the provided transaction
-func FindDataGroupsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*DataGroup, error) {
+func FindDataGroupsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*DataGroup, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1312,7 +1312,7 @@ func FindDataGroupsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*Da
 }
 
 // DBFind will find a DataGroup record in the database with the provided parameters
-func (t *DataGroup) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *DataGroup) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1398,7 +1398,7 @@ func (t *DataGroup) DBFind(ctx context.Context, db DB, _params ...interface{}) (
 }
 
 // DBFindTx will find a DataGroup record in the database with the provided parameters using the provided transaction
-func (t *DataGroup) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *DataGroup) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1484,7 +1484,7 @@ func (t *DataGroup) DBFindTx(ctx context.Context, tx Tx, _params ...interface{})
 }
 
 // CountDataGroups will find the count of DataGroup records in the database
-func CountDataGroups(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountDataGroups(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(DataGroupTableName),
@@ -1504,7 +1504,7 @@ func CountDataGroups(ctx context.Context, db DB, _params ...interface{}) (int64,
 }
 
 // CountDataGroupsTx will find the count of DataGroup records in the database using the provided transaction
-func CountDataGroupsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountDataGroupsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(DataGroupTableName),
@@ -1524,7 +1524,7 @@ func CountDataGroupsTx(ctx context.Context, tx Tx, _params ...interface{}) (int6
 }
 
 // DBCount will find the count of DataGroup records in the database
-func (t *DataGroup) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *DataGroup) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(DataGroupTableName),
@@ -1544,7 +1544,7 @@ func (t *DataGroup) DBCount(ctx context.Context, db DB, _params ...interface{}) 
 }
 
 // DBCountTx will find the count of DataGroup records in the database using the provided transaction
-func (t *DataGroup) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *DataGroup) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(DataGroupTableName),
@@ -1564,7 +1564,7 @@ func (t *DataGroup) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}
 }
 
 // DBExists will return true if the DataGroup record exists in the database
-func (t *DataGroup) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *DataGroup) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `data_group` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1575,7 +1575,7 @@ func (t *DataGroup) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the DataGroup record exists in the database using the provided transaction
-func (t *DataGroup) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *DataGroup) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `data_group` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

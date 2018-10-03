@@ -281,10 +281,10 @@ func NewJiraIssueTypeCSVWriterFile(fn string, dedupers ...JiraIssueTypeCSVDedupe
 	return ch, sdone, nil
 }
 
-type JiraIssueTypeDBAction func(ctx context.Context, db DB, record JiraIssueType) error
+type JiraIssueTypeDBAction func(ctx context.Context, db *sql.DB, record JiraIssueType) error
 
 // NewJiraIssueTypeDBWriterSize creates a DB writer that will write each issue into the DB
-func NewJiraIssueTypeDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...JiraIssueTypeDBAction) (chan JiraIssueType, chan bool, error) {
+func NewJiraIssueTypeDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...JiraIssueTypeDBAction) (chan JiraIssueType, chan bool, error) {
 	ch := make(chan JiraIssueType, size)
 	done := make(chan bool)
 	var action JiraIssueTypeDBAction
@@ -309,7 +309,7 @@ func NewJiraIssueTypeDBWriterSize(ctx context.Context, db DB, errors chan<- erro
 }
 
 // NewJiraIssueTypeDBWriter creates a DB writer that will write each issue into the DB
-func NewJiraIssueTypeDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...JiraIssueTypeDBAction) (chan JiraIssueType, chan bool, error) {
+func NewJiraIssueTypeDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...JiraIssueTypeDBAction) (chan JiraIssueType, chan bool, error) {
 	return NewJiraIssueTypeDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -378,7 +378,7 @@ func (t *JiraIssueType) SetID(v string) {
 }
 
 // FindJiraIssueTypeByID will find a JiraIssueType by ID
-func FindJiraIssueTypeByID(ctx context.Context, db DB, value string) (*JiraIssueType, error) {
+func FindJiraIssueTypeByID(ctx context.Context, db *sql.DB, value string) (*JiraIssueType, error) {
 	q := "SELECT `jira_issue_type`.`id`,`jira_issue_type`.`checksum`,`jira_issue_type`.`issue_type_id`,`jira_issue_type`.`name`,`jira_issue_type`.`description`,`jira_issue_type`.`icon_url`,`jira_issue_type`.`url`,`jira_issue_type`.`subtask`,`jira_issue_type`.`customer_id` FROM `jira_issue_type` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -438,7 +438,7 @@ func FindJiraIssueTypeByID(ctx context.Context, db DB, value string) (*JiraIssue
 }
 
 // FindJiraIssueTypeByIDTx will find a JiraIssueType by ID using the provided transaction
-func FindJiraIssueTypeByIDTx(ctx context.Context, tx Tx, value string) (*JiraIssueType, error) {
+func FindJiraIssueTypeByIDTx(ctx context.Context, tx *sql.Tx, value string) (*JiraIssueType, error) {
 	q := "SELECT `jira_issue_type`.`id`,`jira_issue_type`.`checksum`,`jira_issue_type`.`issue_type_id`,`jira_issue_type`.`name`,`jira_issue_type`.`description`,`jira_issue_type`.`icon_url`,`jira_issue_type`.`url`,`jira_issue_type`.`subtask`,`jira_issue_type`.`customer_id` FROM `jira_issue_type` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -531,7 +531,7 @@ func (t *JiraIssueType) SetName(v string) {
 }
 
 // FindJiraIssueTypesByName will find all JiraIssueTypes by the Name value
-func FindJiraIssueTypesByName(ctx context.Context, db DB, value string) ([]*JiraIssueType, error) {
+func FindJiraIssueTypesByName(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueType, error) {
 	q := "SELECT `jira_issue_type`.`id`,`jira_issue_type`.`checksum`,`jira_issue_type`.`issue_type_id`,`jira_issue_type`.`name`,`jira_issue_type`.`description`,`jira_issue_type`.`icon_url`,`jira_issue_type`.`url`,`jira_issue_type`.`subtask`,`jira_issue_type`.`customer_id` FROM `jira_issue_type` WHERE `name` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -600,7 +600,7 @@ func FindJiraIssueTypesByName(ctx context.Context, db DB, value string) ([]*Jira
 }
 
 // FindJiraIssueTypesByNameTx will find all JiraIssueTypes by the Name value using the provided transaction
-func FindJiraIssueTypesByNameTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueType, error) {
+func FindJiraIssueTypesByNameTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueType, error) {
 	q := "SELECT `jira_issue_type`.`id`,`jira_issue_type`.`checksum`,`jira_issue_type`.`issue_type_id`,`jira_issue_type`.`name`,`jira_issue_type`.`description`,`jira_issue_type`.`icon_url`,`jira_issue_type`.`url`,`jira_issue_type`.`subtask`,`jira_issue_type`.`customer_id` FROM `jira_issue_type` WHERE `name` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -728,7 +728,7 @@ func (t *JiraIssueType) SetCustomerID(v string) {
 }
 
 // FindJiraIssueTypesByCustomerID will find all JiraIssueTypes by the CustomerID value
-func FindJiraIssueTypesByCustomerID(ctx context.Context, db DB, value string) ([]*JiraIssueType, error) {
+func FindJiraIssueTypesByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueType, error) {
 	q := "SELECT `jira_issue_type`.`id`,`jira_issue_type`.`checksum`,`jira_issue_type`.`issue_type_id`,`jira_issue_type`.`name`,`jira_issue_type`.`description`,`jira_issue_type`.`icon_url`,`jira_issue_type`.`url`,`jira_issue_type`.`subtask`,`jira_issue_type`.`customer_id` FROM `jira_issue_type` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -797,7 +797,7 @@ func FindJiraIssueTypesByCustomerID(ctx context.Context, db DB, value string) ([
 }
 
 // FindJiraIssueTypesByCustomerIDTx will find all JiraIssueTypes by the CustomerID value using the provided transaction
-func FindJiraIssueTypesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueType, error) {
+func FindJiraIssueTypesByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueType, error) {
 	q := "SELECT `jira_issue_type`.`id`,`jira_issue_type`.`checksum`,`jira_issue_type`.`issue_type_id`,`jira_issue_type`.`name`,`jira_issue_type`.`description`,`jira_issue_type`.`icon_url`,`jira_issue_type`.`url`,`jira_issue_type`.`subtask`,`jira_issue_type`.`customer_id` FROM `jira_issue_type` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -871,28 +871,28 @@ func (t *JiraIssueType) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateJiraIssueTypeTable will create the JiraIssueType table
-func DBCreateJiraIssueTypeTable(ctx context.Context, db DB) error {
+func DBCreateJiraIssueTypeTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `jira_issue_type` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`issue_type_id` VARCHAR(64) NOT NULL,`name` VARCHAR(255) NOT NULL,`description`TEXT,`icon_url`VARCHAR(255),`url` VARCHAR(255),`subtask` BOOL NOT NULL,`customer_id`VARCHAR(64) NOT NULL,INDEX jira_issue_type_name_index (`name`),INDEX jira_issue_type_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraIssueTypeTableTx will create the JiraIssueType table using the provided transction
-func DBCreateJiraIssueTypeTableTx(ctx context.Context, tx Tx) error {
+func DBCreateJiraIssueTypeTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `jira_issue_type` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`issue_type_id` VARCHAR(64) NOT NULL,`name` VARCHAR(255) NOT NULL,`description`TEXT,`icon_url`VARCHAR(255),`url` VARCHAR(255),`subtask` BOOL NOT NULL,`customer_id`VARCHAR(64) NOT NULL,INDEX jira_issue_type_name_index (`name`),INDEX jira_issue_type_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraIssueTypeTable will drop the JiraIssueType table
-func DBDropJiraIssueTypeTable(ctx context.Context, db DB) error {
+func DBDropJiraIssueTypeTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `jira_issue_type`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraIssueTypeTableTx will drop the JiraIssueType table using the provided transaction
-func DBDropJiraIssueTypeTableTx(ctx context.Context, tx Tx) error {
+func DBDropJiraIssueTypeTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `jira_issue_type`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -913,7 +913,7 @@ func (t *JiraIssueType) CalculateChecksum() string {
 }
 
 // DBCreate will create a new JiraIssueType record in the database
-func (t *JiraIssueType) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraIssueType) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_type` (`jira_issue_type`.`id`,`jira_issue_type`.`checksum`,`jira_issue_type`.`issue_type_id`,`jira_issue_type`.`name`,`jira_issue_type`.`description`,`jira_issue_type`.`icon_url`,`jira_issue_type`.`url`,`jira_issue_type`.`subtask`,`jira_issue_type`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -934,7 +934,7 @@ func (t *JiraIssueType) DBCreate(ctx context.Context, db DB) (sql.Result, error)
 }
 
 // DBCreateTx will create a new JiraIssueType record in the database using the provided transaction
-func (t *JiraIssueType) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraIssueType) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_type` (`jira_issue_type`.`id`,`jira_issue_type`.`checksum`,`jira_issue_type`.`issue_type_id`,`jira_issue_type`.`name`,`jira_issue_type`.`description`,`jira_issue_type`.`icon_url`,`jira_issue_type`.`url`,`jira_issue_type`.`subtask`,`jira_issue_type`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -955,7 +955,7 @@ func (t *JiraIssueType) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, erro
 }
 
 // DBCreateIgnoreDuplicate will upsert the JiraIssueType record in the database
-func (t *JiraIssueType) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraIssueType) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_type` (`jira_issue_type`.`id`,`jira_issue_type`.`checksum`,`jira_issue_type`.`issue_type_id`,`jira_issue_type`.`name`,`jira_issue_type`.`description`,`jira_issue_type`.`icon_url`,`jira_issue_type`.`url`,`jira_issue_type`.`subtask`,`jira_issue_type`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -976,7 +976,7 @@ func (t *JiraIssueType) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the JiraIssueType record in the database using the provided transaction
-func (t *JiraIssueType) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraIssueType) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_type` (`jira_issue_type`.`id`,`jira_issue_type`.`checksum`,`jira_issue_type`.`issue_type_id`,`jira_issue_type`.`name`,`jira_issue_type`.`description`,`jira_issue_type`.`icon_url`,`jira_issue_type`.`url`,`jira_issue_type`.`subtask`,`jira_issue_type`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -997,7 +997,7 @@ func (t *JiraIssueType) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (s
 }
 
 // DeleteAllJiraIssueTypes deletes all JiraIssueType records in the database with optional filters
-func DeleteAllJiraIssueTypes(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllJiraIssueTypes(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraIssueTypeTableName),
 	}
@@ -1012,7 +1012,7 @@ func DeleteAllJiraIssueTypes(ctx context.Context, db DB, _params ...interface{})
 }
 
 // DeleteAllJiraIssueTypesTx deletes all JiraIssueType records in the database with optional filters using the provided transaction
-func DeleteAllJiraIssueTypesTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllJiraIssueTypesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraIssueTypeTableName),
 	}
@@ -1027,7 +1027,7 @@ func DeleteAllJiraIssueTypesTx(ctx context.Context, tx Tx, _params ...interface{
 }
 
 // DBDelete will delete this JiraIssueType record in the database
-func (t *JiraIssueType) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *JiraIssueType) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `jira_issue_type` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1041,7 +1041,7 @@ func (t *JiraIssueType) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this JiraIssueType record in the database using the provided transaction
-func (t *JiraIssueType) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraIssueType) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `jira_issue_type` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1055,7 +1055,7 @@ func (t *JiraIssueType) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the JiraIssueType record in the database
-func (t *JiraIssueType) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraIssueType) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1076,7 +1076,7 @@ func (t *JiraIssueType) DBUpdate(ctx context.Context, db DB) (sql.Result, error)
 }
 
 // DBUpdateTx will update the JiraIssueType record in the database using the provided transaction
-func (t *JiraIssueType) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraIssueType) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1097,7 +1097,7 @@ func (t *JiraIssueType) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, erro
 }
 
 // DBUpsert will upsert the JiraIssueType record in the database
-func (t *JiraIssueType) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraIssueType) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1131,7 +1131,7 @@ func (t *JiraIssueType) DBUpsert(ctx context.Context, db DB, conditions ...inter
 }
 
 // DBUpsertTx will upsert the JiraIssueType record in the database using the provided transaction
-func (t *JiraIssueType) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraIssueType) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1165,7 +1165,7 @@ func (t *JiraIssueType) DBUpsertTx(ctx context.Context, tx Tx, conditions ...int
 }
 
 // DBFindOne will find a JiraIssueType record in the database with the primary key
-func (t *JiraIssueType) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *JiraIssueType) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `jira_issue_type`.`id`,`jira_issue_type`.`checksum`,`jira_issue_type`.`issue_type_id`,`jira_issue_type`.`name`,`jira_issue_type`.`description`,`jira_issue_type`.`icon_url`,`jira_issue_type`.`url`,`jira_issue_type`.`subtask`,`jira_issue_type`.`customer_id` FROM `jira_issue_type` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1225,7 +1225,7 @@ func (t *JiraIssueType) DBFindOne(ctx context.Context, db DB, value string) (boo
 }
 
 // DBFindOneTx will find a JiraIssueType record in the database with the primary key using the provided transaction
-func (t *JiraIssueType) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *JiraIssueType) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `jira_issue_type`.`id`,`jira_issue_type`.`checksum`,`jira_issue_type`.`issue_type_id`,`jira_issue_type`.`name`,`jira_issue_type`.`description`,`jira_issue_type`.`icon_url`,`jira_issue_type`.`url`,`jira_issue_type`.`subtask`,`jira_issue_type`.`customer_id` FROM `jira_issue_type` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1285,7 +1285,7 @@ func (t *JiraIssueType) DBFindOneTx(ctx context.Context, tx Tx, value string) (b
 }
 
 // FindJiraIssueTypes will find a JiraIssueType record in the database with the provided parameters
-func FindJiraIssueTypes(ctx context.Context, db DB, _params ...interface{}) ([]*JiraIssueType, error) {
+func FindJiraIssueTypes(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*JiraIssueType, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1371,7 +1371,7 @@ func FindJiraIssueTypes(ctx context.Context, db DB, _params ...interface{}) ([]*
 }
 
 // FindJiraIssueTypesTx will find a JiraIssueType record in the database with the provided parameters using the provided transaction
-func FindJiraIssueTypesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*JiraIssueType, error) {
+func FindJiraIssueTypesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*JiraIssueType, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1457,7 +1457,7 @@ func FindJiraIssueTypesTx(ctx context.Context, tx Tx, _params ...interface{}) ([
 }
 
 // DBFind will find a JiraIssueType record in the database with the provided parameters
-func (t *JiraIssueType) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *JiraIssueType) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1531,7 +1531,7 @@ func (t *JiraIssueType) DBFind(ctx context.Context, db DB, _params ...interface{
 }
 
 // DBFindTx will find a JiraIssueType record in the database with the provided parameters using the provided transaction
-func (t *JiraIssueType) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *JiraIssueType) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1605,7 +1605,7 @@ func (t *JiraIssueType) DBFindTx(ctx context.Context, tx Tx, _params ...interfac
 }
 
 // CountJiraIssueTypes will find the count of JiraIssueType records in the database
-func CountJiraIssueTypes(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountJiraIssueTypes(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraIssueTypeTableName),
@@ -1625,7 +1625,7 @@ func CountJiraIssueTypes(ctx context.Context, db DB, _params ...interface{}) (in
 }
 
 // CountJiraIssueTypesTx will find the count of JiraIssueType records in the database using the provided transaction
-func CountJiraIssueTypesTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountJiraIssueTypesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraIssueTypeTableName),
@@ -1645,7 +1645,7 @@ func CountJiraIssueTypesTx(ctx context.Context, tx Tx, _params ...interface{}) (
 }
 
 // DBCount will find the count of JiraIssueType records in the database
-func (t *JiraIssueType) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *JiraIssueType) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraIssueTypeTableName),
@@ -1665,7 +1665,7 @@ func (t *JiraIssueType) DBCount(ctx context.Context, db DB, _params ...interface
 }
 
 // DBCountTx will find the count of JiraIssueType records in the database using the provided transaction
-func (t *JiraIssueType) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *JiraIssueType) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraIssueTypeTableName),
@@ -1685,7 +1685,7 @@ func (t *JiraIssueType) DBCountTx(ctx context.Context, tx Tx, _params ...interfa
 }
 
 // DBExists will return true if the JiraIssueType record exists in the database
-func (t *JiraIssueType) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *JiraIssueType) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `jira_issue_type` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1696,7 +1696,7 @@ func (t *JiraIssueType) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the JiraIssueType record exists in the database using the provided transaction
-func (t *JiraIssueType) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraIssueType) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `jira_issue_type` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

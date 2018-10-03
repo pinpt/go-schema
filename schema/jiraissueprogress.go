@@ -281,10 +281,10 @@ func NewJiraIssueProgressCSVWriterFile(fn string, dedupers ...JiraIssueProgressC
 	return ch, sdone, nil
 }
 
-type JiraIssueProgressDBAction func(ctx context.Context, db DB, record JiraIssueProgress) error
+type JiraIssueProgressDBAction func(ctx context.Context, db *sql.DB, record JiraIssueProgress) error
 
 // NewJiraIssueProgressDBWriterSize creates a DB writer that will write each issue into the DB
-func NewJiraIssueProgressDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...JiraIssueProgressDBAction) (chan JiraIssueProgress, chan bool, error) {
+func NewJiraIssueProgressDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...JiraIssueProgressDBAction) (chan JiraIssueProgress, chan bool, error) {
 	ch := make(chan JiraIssueProgress, size)
 	done := make(chan bool)
 	var action JiraIssueProgressDBAction
@@ -309,7 +309,7 @@ func NewJiraIssueProgressDBWriterSize(ctx context.Context, db DB, errors chan<- 
 }
 
 // NewJiraIssueProgressDBWriter creates a DB writer that will write each issue into the DB
-func NewJiraIssueProgressDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...JiraIssueProgressDBAction) (chan JiraIssueProgress, chan bool, error) {
+func NewJiraIssueProgressDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...JiraIssueProgressDBAction) (chan JiraIssueProgress, chan bool, error) {
 	return NewJiraIssueProgressDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -378,7 +378,7 @@ func (t *JiraIssueProgress) SetID(v string) {
 }
 
 // FindJiraIssueProgressByID will find a JiraIssueProgress by ID
-func FindJiraIssueProgressByID(ctx context.Context, db DB, value string) (*JiraIssueProgress, error) {
+func FindJiraIssueProgressByID(ctx context.Context, db *sql.DB, value string) (*JiraIssueProgress, error) {
 	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -438,7 +438,7 @@ func FindJiraIssueProgressByID(ctx context.Context, db DB, value string) (*JiraI
 }
 
 // FindJiraIssueProgressByIDTx will find a JiraIssueProgress by ID using the provided transaction
-func FindJiraIssueProgressByIDTx(ctx context.Context, tx Tx, value string) (*JiraIssueProgress, error) {
+func FindJiraIssueProgressByIDTx(ctx context.Context, tx *sql.Tx, value string) (*JiraIssueProgress, error) {
 	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -524,7 +524,7 @@ func (t *JiraIssueProgress) SetUserID(v string) {
 }
 
 // FindJiraIssueProgressesByUserID will find all JiraIssueProgresss by the UserID value
-func FindJiraIssueProgressesByUserID(ctx context.Context, db DB, value string) ([]*JiraIssueProgress, error) {
+func FindJiraIssueProgressesByUserID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueProgress, error) {
 	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -593,7 +593,7 @@ func FindJiraIssueProgressesByUserID(ctx context.Context, db DB, value string) (
 }
 
 // FindJiraIssueProgressesByUserIDTx will find all JiraIssueProgresss by the UserID value using the provided transaction
-func FindJiraIssueProgressesByUserIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueProgress, error) {
+func FindJiraIssueProgressesByUserIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueProgress, error) {
 	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -672,7 +672,7 @@ func (t *JiraIssueProgress) SetIssueID(v string) {
 }
 
 // FindJiraIssueProgressesByIssueID will find all JiraIssueProgresss by the IssueID value
-func FindJiraIssueProgressesByIssueID(ctx context.Context, db DB, value string) ([]*JiraIssueProgress, error) {
+func FindJiraIssueProgressesByIssueID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueProgress, error) {
 	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -741,7 +741,7 @@ func FindJiraIssueProgressesByIssueID(ctx context.Context, db DB, value string) 
 }
 
 // FindJiraIssueProgressesByIssueIDTx will find all JiraIssueProgresss by the IssueID value using the provided transaction
-func FindJiraIssueProgressesByIssueIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueProgress, error) {
+func FindJiraIssueProgressesByIssueIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueProgress, error) {
 	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -859,7 +859,7 @@ func (t *JiraIssueProgress) SetCustomerID(v string) {
 }
 
 // FindJiraIssueProgressesByCustomerID will find all JiraIssueProgresss by the CustomerID value
-func FindJiraIssueProgressesByCustomerID(ctx context.Context, db DB, value string) ([]*JiraIssueProgress, error) {
+func FindJiraIssueProgressesByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueProgress, error) {
 	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -928,7 +928,7 @@ func FindJiraIssueProgressesByCustomerID(ctx context.Context, db DB, value strin
 }
 
 // FindJiraIssueProgressesByCustomerIDTx will find all JiraIssueProgresss by the CustomerID value using the provided transaction
-func FindJiraIssueProgressesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueProgress, error) {
+func FindJiraIssueProgressesByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueProgress, error) {
 	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1007,7 +1007,7 @@ func (t *JiraIssueProgress) SetRefID(v string) {
 }
 
 // FindJiraIssueProgressesByRefID will find all JiraIssueProgresss by the RefID value
-func FindJiraIssueProgressesByRefID(ctx context.Context, db DB, value string) ([]*JiraIssueProgress, error) {
+func FindJiraIssueProgressesByRefID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssueProgress, error) {
 	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1076,7 +1076,7 @@ func FindJiraIssueProgressesByRefID(ctx context.Context, db DB, value string) ([
 }
 
 // FindJiraIssueProgressesByRefIDTx will find all JiraIssueProgresss by the RefID value using the provided transaction
-func FindJiraIssueProgressesByRefIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueProgress, error) {
+func FindJiraIssueProgressesByRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssueProgress, error) {
 	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1150,28 +1150,28 @@ func (t *JiraIssueProgress) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateJiraIssueProgressTable will create the JiraIssueProgress table
-func DBCreateJiraIssueProgressTable(ctx context.Context, db DB) error {
+func DBCreateJiraIssueProgressTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `jira_issue_progress` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`user_id`VARCHAR(64),`issue_id` VARCHAR(64) NOT NULL,`start_date`BIGINT UNSIGNED,`end_date` BIGINT UNSIGNED,`duration` BIGINT UNSIGNED,`customer_id` VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,INDEX jira_issue_progress_user_id_index (`user_id`),INDEX jira_issue_progress_issue_id_index (`issue_id`),INDEX jira_issue_progress_customer_id_index (`customer_id`),INDEX jira_issue_progress_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraIssueProgressTableTx will create the JiraIssueProgress table using the provided transction
-func DBCreateJiraIssueProgressTableTx(ctx context.Context, tx Tx) error {
+func DBCreateJiraIssueProgressTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `jira_issue_progress` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`user_id`VARCHAR(64),`issue_id` VARCHAR(64) NOT NULL,`start_date`BIGINT UNSIGNED,`end_date` BIGINT UNSIGNED,`duration` BIGINT UNSIGNED,`customer_id` VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,INDEX jira_issue_progress_user_id_index (`user_id`),INDEX jira_issue_progress_issue_id_index (`issue_id`),INDEX jira_issue_progress_customer_id_index (`customer_id`),INDEX jira_issue_progress_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraIssueProgressTable will drop the JiraIssueProgress table
-func DBDropJiraIssueProgressTable(ctx context.Context, db DB) error {
+func DBDropJiraIssueProgressTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `jira_issue_progress`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraIssueProgressTableTx will drop the JiraIssueProgress table using the provided transaction
-func DBDropJiraIssueProgressTableTx(ctx context.Context, tx Tx) error {
+func DBDropJiraIssueProgressTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `jira_issue_progress`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -1192,7 +1192,7 @@ func (t *JiraIssueProgress) CalculateChecksum() string {
 }
 
 // DBCreate will create a new JiraIssueProgress record in the database
-func (t *JiraIssueProgress) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraIssueProgress) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_progress` (`jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1213,7 +1213,7 @@ func (t *JiraIssueProgress) DBCreate(ctx context.Context, db DB) (sql.Result, er
 }
 
 // DBCreateTx will create a new JiraIssueProgress record in the database using the provided transaction
-func (t *JiraIssueProgress) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraIssueProgress) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_progress` (`jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1234,7 +1234,7 @@ func (t *JiraIssueProgress) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, 
 }
 
 // DBCreateIgnoreDuplicate will upsert the JiraIssueProgress record in the database
-func (t *JiraIssueProgress) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraIssueProgress) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_progress` (`jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1255,7 +1255,7 @@ func (t *JiraIssueProgress) DBCreateIgnoreDuplicate(ctx context.Context, db DB) 
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the JiraIssueProgress record in the database using the provided transaction
-func (t *JiraIssueProgress) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraIssueProgress) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue_progress` (`jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1276,7 +1276,7 @@ func (t *JiraIssueProgress) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx
 }
 
 // DeleteAllJiraIssueProgresses deletes all JiraIssueProgress records in the database with optional filters
-func DeleteAllJiraIssueProgresses(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllJiraIssueProgresses(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraIssueProgressTableName),
 	}
@@ -1291,7 +1291,7 @@ func DeleteAllJiraIssueProgresses(ctx context.Context, db DB, _params ...interfa
 }
 
 // DeleteAllJiraIssueProgressesTx deletes all JiraIssueProgress records in the database with optional filters using the provided transaction
-func DeleteAllJiraIssueProgressesTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllJiraIssueProgressesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraIssueProgressTableName),
 	}
@@ -1306,7 +1306,7 @@ func DeleteAllJiraIssueProgressesTx(ctx context.Context, tx Tx, _params ...inter
 }
 
 // DBDelete will delete this JiraIssueProgress record in the database
-func (t *JiraIssueProgress) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *JiraIssueProgress) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `jira_issue_progress` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1320,7 +1320,7 @@ func (t *JiraIssueProgress) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this JiraIssueProgress record in the database using the provided transaction
-func (t *JiraIssueProgress) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraIssueProgress) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `jira_issue_progress` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1334,7 +1334,7 @@ func (t *JiraIssueProgress) DBDeleteTx(ctx context.Context, tx Tx) (bool, error)
 }
 
 // DBUpdate will update the JiraIssueProgress record in the database
-func (t *JiraIssueProgress) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraIssueProgress) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1355,7 +1355,7 @@ func (t *JiraIssueProgress) DBUpdate(ctx context.Context, db DB) (sql.Result, er
 }
 
 // DBUpdateTx will update the JiraIssueProgress record in the database using the provided transaction
-func (t *JiraIssueProgress) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraIssueProgress) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1376,7 +1376,7 @@ func (t *JiraIssueProgress) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, 
 }
 
 // DBUpsert will upsert the JiraIssueProgress record in the database
-func (t *JiraIssueProgress) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraIssueProgress) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1410,7 +1410,7 @@ func (t *JiraIssueProgress) DBUpsert(ctx context.Context, db DB, conditions ...i
 }
 
 // DBUpsertTx will upsert the JiraIssueProgress record in the database using the provided transaction
-func (t *JiraIssueProgress) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraIssueProgress) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1444,7 +1444,7 @@ func (t *JiraIssueProgress) DBUpsertTx(ctx context.Context, tx Tx, conditions ..
 }
 
 // DBFindOne will find a JiraIssueProgress record in the database with the primary key
-func (t *JiraIssueProgress) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *JiraIssueProgress) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1504,7 +1504,7 @@ func (t *JiraIssueProgress) DBFindOne(ctx context.Context, db DB, value string) 
 }
 
 // DBFindOneTx will find a JiraIssueProgress record in the database with the primary key using the provided transaction
-func (t *JiraIssueProgress) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *JiraIssueProgress) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1564,7 +1564,7 @@ func (t *JiraIssueProgress) DBFindOneTx(ctx context.Context, tx Tx, value string
 }
 
 // FindJiraIssueProgresses will find a JiraIssueProgress record in the database with the provided parameters
-func FindJiraIssueProgresses(ctx context.Context, db DB, _params ...interface{}) ([]*JiraIssueProgress, error) {
+func FindJiraIssueProgresses(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*JiraIssueProgress, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1650,7 +1650,7 @@ func FindJiraIssueProgresses(ctx context.Context, db DB, _params ...interface{})
 }
 
 // FindJiraIssueProgressesTx will find a JiraIssueProgress record in the database with the provided parameters using the provided transaction
-func FindJiraIssueProgressesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*JiraIssueProgress, error) {
+func FindJiraIssueProgressesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*JiraIssueProgress, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1736,7 +1736,7 @@ func FindJiraIssueProgressesTx(ctx context.Context, tx Tx, _params ...interface{
 }
 
 // DBFind will find a JiraIssueProgress record in the database with the provided parameters
-func (t *JiraIssueProgress) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *JiraIssueProgress) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1810,7 +1810,7 @@ func (t *JiraIssueProgress) DBFind(ctx context.Context, db DB, _params ...interf
 }
 
 // DBFindTx will find a JiraIssueProgress record in the database with the provided parameters using the provided transaction
-func (t *JiraIssueProgress) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *JiraIssueProgress) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1884,7 +1884,7 @@ func (t *JiraIssueProgress) DBFindTx(ctx context.Context, tx Tx, _params ...inte
 }
 
 // CountJiraIssueProgresses will find the count of JiraIssueProgress records in the database
-func CountJiraIssueProgresses(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountJiraIssueProgresses(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraIssueProgressTableName),
@@ -1904,7 +1904,7 @@ func CountJiraIssueProgresses(ctx context.Context, db DB, _params ...interface{}
 }
 
 // CountJiraIssueProgressesTx will find the count of JiraIssueProgress records in the database using the provided transaction
-func CountJiraIssueProgressesTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountJiraIssueProgressesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraIssueProgressTableName),
@@ -1924,7 +1924,7 @@ func CountJiraIssueProgressesTx(ctx context.Context, tx Tx, _params ...interface
 }
 
 // DBCount will find the count of JiraIssueProgress records in the database
-func (t *JiraIssueProgress) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *JiraIssueProgress) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraIssueProgressTableName),
@@ -1944,7 +1944,7 @@ func (t *JiraIssueProgress) DBCount(ctx context.Context, db DB, _params ...inter
 }
 
 // DBCountTx will find the count of JiraIssueProgress records in the database using the provided transaction
-func (t *JiraIssueProgress) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *JiraIssueProgress) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraIssueProgressTableName),
@@ -1964,7 +1964,7 @@ func (t *JiraIssueProgress) DBCountTx(ctx context.Context, tx Tx, _params ...int
 }
 
 // DBExists will return true if the JiraIssueProgress record exists in the database
-func (t *JiraIssueProgress) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *JiraIssueProgress) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `jira_issue_progress` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1975,7 +1975,7 @@ func (t *JiraIssueProgress) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the JiraIssueProgress record exists in the database using the provided transaction
-func (t *JiraIssueProgress) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraIssueProgress) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `jira_issue_progress` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

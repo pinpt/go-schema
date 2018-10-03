@@ -329,10 +329,10 @@ func NewJiraProjectSprintCSVWriterFile(fn string, dedupers ...JiraProjectSprintC
 	return ch, sdone, nil
 }
 
-type JiraProjectSprintDBAction func(ctx context.Context, db DB, record JiraProjectSprint) error
+type JiraProjectSprintDBAction func(ctx context.Context, db *sql.DB, record JiraProjectSprint) error
 
 // NewJiraProjectSprintDBWriterSize creates a DB writer that will write each issue into the DB
-func NewJiraProjectSprintDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...JiraProjectSprintDBAction) (chan JiraProjectSprint, chan bool, error) {
+func NewJiraProjectSprintDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...JiraProjectSprintDBAction) (chan JiraProjectSprint, chan bool, error) {
 	ch := make(chan JiraProjectSprint, size)
 	done := make(chan bool)
 	var action JiraProjectSprintDBAction
@@ -357,7 +357,7 @@ func NewJiraProjectSprintDBWriterSize(ctx context.Context, db DB, errors chan<- 
 }
 
 // NewJiraProjectSprintDBWriter creates a DB writer that will write each issue into the DB
-func NewJiraProjectSprintDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...JiraProjectSprintDBAction) (chan JiraProjectSprint, chan bool, error) {
+func NewJiraProjectSprintDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...JiraProjectSprintDBAction) (chan JiraProjectSprint, chan bool, error) {
 	return NewJiraProjectSprintDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -498,7 +498,7 @@ func (t *JiraProjectSprint) SetID(v string) {
 }
 
 // FindJiraProjectSprintByID will find a JiraProjectSprint by ID
-func FindJiraProjectSprintByID(ctx context.Context, db DB, value string) (*JiraProjectSprint, error) {
+func FindJiraProjectSprintByID(ctx context.Context, db *sql.DB, value string) (*JiraProjectSprint, error) {
 	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -618,7 +618,7 @@ func FindJiraProjectSprintByID(ctx context.Context, db DB, value string) (*JiraP
 }
 
 // FindJiraProjectSprintByIDTx will find a JiraProjectSprint by ID using the provided transaction
-func FindJiraProjectSprintByIDTx(ctx context.Context, tx Tx, value string) (*JiraProjectSprint, error) {
+func FindJiraProjectSprintByIDTx(ctx context.Context, tx *sql.Tx, value string) (*JiraProjectSprint, error) {
 	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -761,7 +761,7 @@ func (t *JiraProjectSprint) SetProjectID(v string) {
 }
 
 // FindJiraProjectSprintsByProjectID will find all JiraProjectSprints by the ProjectID value
-func FindJiraProjectSprintsByProjectID(ctx context.Context, db DB, value string) ([]*JiraProjectSprint, error) {
+func FindJiraProjectSprintsByProjectID(ctx context.Context, db *sql.DB, value string) ([]*JiraProjectSprint, error) {
 	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `project_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -890,7 +890,7 @@ func FindJiraProjectSprintsByProjectID(ctx context.Context, db DB, value string)
 }
 
 // FindJiraProjectSprintsByProjectIDTx will find all JiraProjectSprints by the ProjectID value using the provided transaction
-func FindJiraProjectSprintsByProjectIDTx(ctx context.Context, tx Tx, value string) ([]*JiraProjectSprint, error) {
+func FindJiraProjectSprintsByProjectIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraProjectSprint, error) {
 	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `project_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1049,7 +1049,7 @@ func (t *JiraProjectSprint) SetCustomerID(v string) {
 }
 
 // FindJiraProjectSprintsByCustomerID will find all JiraProjectSprints by the CustomerID value
-func FindJiraProjectSprintsByCustomerID(ctx context.Context, db DB, value string) ([]*JiraProjectSprint, error) {
+func FindJiraProjectSprintsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*JiraProjectSprint, error) {
 	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1178,7 +1178,7 @@ func FindJiraProjectSprintsByCustomerID(ctx context.Context, db DB, value string
 }
 
 // FindJiraProjectSprintsByCustomerIDTx will find all JiraProjectSprints by the CustomerID value using the provided transaction
-func FindJiraProjectSprintsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraProjectSprint, error) {
+func FindJiraProjectSprintsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraProjectSprint, error) {
 	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1486,28 +1486,28 @@ func (t *JiraProjectSprint) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateJiraProjectSprintTable will create the JiraProjectSprint table
-func DBCreateJiraProjectSprintTable(ctx context.Context, db DB) error {
+func DBCreateJiraProjectSprintTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `jira_project_sprint` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`project_id`VARCHAR(64) NOT NULL,`sprint_id` TEXT NOT NULL,`name`TEXT NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`complete_date`BIGINT UNSIGNED,`end_date` BIGINT UNSIGNED,`start_date`BIGINT UNSIGNED,`state` TEXT,`goal`TEXT,`initial_issue_ids` JSON,`final_issue_ids` JSON,`final_closed_issue_ids`JSON,`initial_issue_count`INT NOT NULL,`final_issue_count` INT NOT NULL,`closed_issue_count` INT NOT NULL,`added_issue_count` INT NOT NULL,`removed_issue_count`INT NOT NULL,`initial_issues_closed` INT NOT NULL,`initial_issues_in_final_count` INT NOT NULL,INDEX jira_project_sprint_project_id_index (`project_id`),INDEX jira_project_sprint_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraProjectSprintTableTx will create the JiraProjectSprint table using the provided transction
-func DBCreateJiraProjectSprintTableTx(ctx context.Context, tx Tx) error {
+func DBCreateJiraProjectSprintTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `jira_project_sprint` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`project_id`VARCHAR(64) NOT NULL,`sprint_id` TEXT NOT NULL,`name`TEXT NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`complete_date`BIGINT UNSIGNED,`end_date` BIGINT UNSIGNED,`start_date`BIGINT UNSIGNED,`state` TEXT,`goal`TEXT,`initial_issue_ids` JSON,`final_issue_ids` JSON,`final_closed_issue_ids`JSON,`initial_issue_count`INT NOT NULL,`final_issue_count` INT NOT NULL,`closed_issue_count` INT NOT NULL,`added_issue_count` INT NOT NULL,`removed_issue_count`INT NOT NULL,`initial_issues_closed` INT NOT NULL,`initial_issues_in_final_count` INT NOT NULL,INDEX jira_project_sprint_project_id_index (`project_id`),INDEX jira_project_sprint_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraProjectSprintTable will drop the JiraProjectSprint table
-func DBDropJiraProjectSprintTable(ctx context.Context, db DB) error {
+func DBDropJiraProjectSprintTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `jira_project_sprint`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraProjectSprintTableTx will drop the JiraProjectSprint table using the provided transaction
-func DBDropJiraProjectSprintTableTx(ctx context.Context, tx Tx) error {
+func DBDropJiraProjectSprintTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `jira_project_sprint`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -1540,7 +1540,7 @@ func (t *JiraProjectSprint) CalculateChecksum() string {
 }
 
 // DBCreate will create a new JiraProjectSprint record in the database
-func (t *JiraProjectSprint) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraProjectSprint) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1573,7 +1573,7 @@ func (t *JiraProjectSprint) DBCreate(ctx context.Context, db DB) (sql.Result, er
 }
 
 // DBCreateTx will create a new JiraProjectSprint record in the database using the provided transaction
-func (t *JiraProjectSprint) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraProjectSprint) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1606,7 +1606,7 @@ func (t *JiraProjectSprint) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, 
 }
 
 // DBCreateIgnoreDuplicate will upsert the JiraProjectSprint record in the database
-func (t *JiraProjectSprint) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraProjectSprint) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1639,7 +1639,7 @@ func (t *JiraProjectSprint) DBCreateIgnoreDuplicate(ctx context.Context, db DB) 
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the JiraProjectSprint record in the database using the provided transaction
-func (t *JiraProjectSprint) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraProjectSprint) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_project_sprint` (`jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1672,7 +1672,7 @@ func (t *JiraProjectSprint) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx
 }
 
 // DeleteAllJiraProjectSprints deletes all JiraProjectSprint records in the database with optional filters
-func DeleteAllJiraProjectSprints(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllJiraProjectSprints(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraProjectSprintTableName),
 	}
@@ -1687,7 +1687,7 @@ func DeleteAllJiraProjectSprints(ctx context.Context, db DB, _params ...interfac
 }
 
 // DeleteAllJiraProjectSprintsTx deletes all JiraProjectSprint records in the database with optional filters using the provided transaction
-func DeleteAllJiraProjectSprintsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllJiraProjectSprintsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraProjectSprintTableName),
 	}
@@ -1702,7 +1702,7 @@ func DeleteAllJiraProjectSprintsTx(ctx context.Context, tx Tx, _params ...interf
 }
 
 // DBDelete will delete this JiraProjectSprint record in the database
-func (t *JiraProjectSprint) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *JiraProjectSprint) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `jira_project_sprint` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1716,7 +1716,7 @@ func (t *JiraProjectSprint) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this JiraProjectSprint record in the database using the provided transaction
-func (t *JiraProjectSprint) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraProjectSprint) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `jira_project_sprint` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1730,7 +1730,7 @@ func (t *JiraProjectSprint) DBDeleteTx(ctx context.Context, tx Tx) (bool, error)
 }
 
 // DBUpdate will update the JiraProjectSprint record in the database
-func (t *JiraProjectSprint) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraProjectSprint) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1763,7 +1763,7 @@ func (t *JiraProjectSprint) DBUpdate(ctx context.Context, db DB) (sql.Result, er
 }
 
 // DBUpdateTx will update the JiraProjectSprint record in the database using the provided transaction
-func (t *JiraProjectSprint) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraProjectSprint) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1796,7 +1796,7 @@ func (t *JiraProjectSprint) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, 
 }
 
 // DBUpsert will upsert the JiraProjectSprint record in the database
-func (t *JiraProjectSprint) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraProjectSprint) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1842,7 +1842,7 @@ func (t *JiraProjectSprint) DBUpsert(ctx context.Context, db DB, conditions ...i
 }
 
 // DBUpsertTx will upsert the JiraProjectSprint record in the database using the provided transaction
-func (t *JiraProjectSprint) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraProjectSprint) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1888,7 +1888,7 @@ func (t *JiraProjectSprint) DBUpsertTx(ctx context.Context, tx Tx, conditions ..
 }
 
 // DBFindOne will find a JiraProjectSprint record in the database with the primary key
-func (t *JiraProjectSprint) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *JiraProjectSprint) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -2008,7 +2008,7 @@ func (t *JiraProjectSprint) DBFindOne(ctx context.Context, db DB, value string) 
 }
 
 // DBFindOneTx will find a JiraProjectSprint record in the database with the primary key using the provided transaction
-func (t *JiraProjectSprint) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *JiraProjectSprint) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -2128,7 +2128,7 @@ func (t *JiraProjectSprint) DBFindOneTx(ctx context.Context, tx Tx, value string
 }
 
 // FindJiraProjectSprints will find a JiraProjectSprint record in the database with the provided parameters
-func FindJiraProjectSprints(ctx context.Context, db DB, _params ...interface{}) ([]*JiraProjectSprint, error) {
+func FindJiraProjectSprints(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*JiraProjectSprint, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2286,7 +2286,7 @@ func FindJiraProjectSprints(ctx context.Context, db DB, _params ...interface{}) 
 }
 
 // FindJiraProjectSprintsTx will find a JiraProjectSprint record in the database with the provided parameters using the provided transaction
-func FindJiraProjectSprintsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*JiraProjectSprint, error) {
+func FindJiraProjectSprintsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*JiraProjectSprint, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2444,7 +2444,7 @@ func FindJiraProjectSprintsTx(ctx context.Context, tx Tx, _params ...interface{}
 }
 
 // DBFind will find a JiraProjectSprint record in the database with the provided parameters
-func (t *JiraProjectSprint) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *JiraProjectSprint) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2590,7 +2590,7 @@ func (t *JiraProjectSprint) DBFind(ctx context.Context, db DB, _params ...interf
 }
 
 // DBFindTx will find a JiraProjectSprint record in the database with the provided parameters using the provided transaction
-func (t *JiraProjectSprint) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *JiraProjectSprint) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2736,7 +2736,7 @@ func (t *JiraProjectSprint) DBFindTx(ctx context.Context, tx Tx, _params ...inte
 }
 
 // CountJiraProjectSprints will find the count of JiraProjectSprint records in the database
-func CountJiraProjectSprints(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountJiraProjectSprints(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraProjectSprintTableName),
@@ -2756,7 +2756,7 @@ func CountJiraProjectSprints(ctx context.Context, db DB, _params ...interface{})
 }
 
 // CountJiraProjectSprintsTx will find the count of JiraProjectSprint records in the database using the provided transaction
-func CountJiraProjectSprintsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountJiraProjectSprintsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraProjectSprintTableName),
@@ -2776,7 +2776,7 @@ func CountJiraProjectSprintsTx(ctx context.Context, tx Tx, _params ...interface{
 }
 
 // DBCount will find the count of JiraProjectSprint records in the database
-func (t *JiraProjectSprint) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *JiraProjectSprint) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraProjectSprintTableName),
@@ -2796,7 +2796,7 @@ func (t *JiraProjectSprint) DBCount(ctx context.Context, db DB, _params ...inter
 }
 
 // DBCountTx will find the count of JiraProjectSprint records in the database using the provided transaction
-func (t *JiraProjectSprint) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *JiraProjectSprint) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraProjectSprintTableName),
@@ -2816,7 +2816,7 @@ func (t *JiraProjectSprint) DBCountTx(ctx context.Context, tx Tx, _params ...int
 }
 
 // DBExists will return true if the JiraProjectSprint record exists in the database
-func (t *JiraProjectSprint) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *JiraProjectSprint) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -2827,7 +2827,7 @@ func (t *JiraProjectSprint) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the JiraProjectSprint record exists in the database using the provided transaction
-func (t *JiraProjectSprint) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraProjectSprint) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

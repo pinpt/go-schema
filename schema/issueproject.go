@@ -281,10 +281,10 @@ func NewIssueProjectCSVWriterFile(fn string, dedupers ...IssueProjectCSVDeduper)
 	return ch, sdone, nil
 }
 
-type IssueProjectDBAction func(ctx context.Context, db DB, record IssueProject) error
+type IssueProjectDBAction func(ctx context.Context, db *sql.DB, record IssueProject) error
 
 // NewIssueProjectDBWriterSize creates a DB writer that will write each issue into the DB
-func NewIssueProjectDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...IssueProjectDBAction) (chan IssueProject, chan bool, error) {
+func NewIssueProjectDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...IssueProjectDBAction) (chan IssueProject, chan bool, error) {
 	ch := make(chan IssueProject, size)
 	done := make(chan bool)
 	var action IssueProjectDBAction
@@ -309,7 +309,7 @@ func NewIssueProjectDBWriterSize(ctx context.Context, db DB, errors chan<- error
 }
 
 // NewIssueProjectDBWriter creates a DB writer that will write each issue into the DB
-func NewIssueProjectDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...IssueProjectDBAction) (chan IssueProject, chan bool, error) {
+func NewIssueProjectDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...IssueProjectDBAction) (chan IssueProject, chan bool, error) {
 	return NewIssueProjectDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -378,7 +378,7 @@ func (t *IssueProject) SetID(v string) {
 }
 
 // FindIssueProjectByID will find a IssueProject by ID
-func FindIssueProjectByID(ctx context.Context, db DB, value string) (*IssueProject, error) {
+func FindIssueProjectByID(ctx context.Context, db *sql.DB, value string) (*IssueProject, error) {
 	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -438,7 +438,7 @@ func FindIssueProjectByID(ctx context.Context, db DB, value string) (*IssueProje
 }
 
 // FindIssueProjectByIDTx will find a IssueProject by ID using the provided transaction
-func FindIssueProjectByIDTx(ctx context.Context, tx Tx, value string) (*IssueProject, error) {
+func FindIssueProjectByIDTx(ctx context.Context, tx *sql.Tx, value string) (*IssueProject, error) {
 	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -551,7 +551,7 @@ func (t *IssueProject) SetCustomerID(v string) {
 }
 
 // FindIssueProjectsByCustomerID will find all IssueProjects by the CustomerID value
-func FindIssueProjectsByCustomerID(ctx context.Context, db DB, value string) ([]*IssueProject, error) {
+func FindIssueProjectsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*IssueProject, error) {
 	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -620,7 +620,7 @@ func FindIssueProjectsByCustomerID(ctx context.Context, db DB, value string) ([]
 }
 
 // FindIssueProjectsByCustomerIDTx will find all IssueProjects by the CustomerID value using the provided transaction
-func FindIssueProjectsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*IssueProject, error) {
+func FindIssueProjectsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueProject, error) {
 	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -699,7 +699,7 @@ func (t *IssueProject) SetRefType(v string) {
 }
 
 // FindIssueProjectsByRefType will find all IssueProjects by the RefType value
-func FindIssueProjectsByRefType(ctx context.Context, db DB, value string) ([]*IssueProject, error) {
+func FindIssueProjectsByRefType(ctx context.Context, db *sql.DB, value string) ([]*IssueProject, error) {
 	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -768,7 +768,7 @@ func FindIssueProjectsByRefType(ctx context.Context, db DB, value string) ([]*Is
 }
 
 // FindIssueProjectsByRefTypeTx will find all IssueProjects by the RefType value using the provided transaction
-func FindIssueProjectsByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*IssueProject, error) {
+func FindIssueProjectsByRefTypeTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueProject, error) {
 	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -847,7 +847,7 @@ func (t *IssueProject) SetRefID(v string) {
 }
 
 // FindIssueProjectsByRefID will find all IssueProjects by the RefID value
-func FindIssueProjectsByRefID(ctx context.Context, db DB, value string) ([]*IssueProject, error) {
+func FindIssueProjectsByRefID(ctx context.Context, db *sql.DB, value string) ([]*IssueProject, error) {
 	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -916,7 +916,7 @@ func FindIssueProjectsByRefID(ctx context.Context, db DB, value string) ([]*Issu
 }
 
 // FindIssueProjectsByRefIDTx will find all IssueProjects by the RefID value using the provided transaction
-func FindIssueProjectsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*IssueProject, error) {
+func FindIssueProjectsByRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*IssueProject, error) {
 	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1003,28 +1003,28 @@ func (t *IssueProject) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateIssueProjectTable will create the IssueProject table
-func DBCreateIssueProjectTable(ctx context.Context, db DB) error {
+func DBCreateIssueProjectTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `issue_project` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`name`TEXT NOT NULL,`url` TEXT NOT NULL,`created_at`BIGINT UNSIGNED NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata` JSON,INDEX issue_project_customer_id_index (`customer_id`),INDEX issue_project_ref_type_index (`ref_type`),INDEX issue_project_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateIssueProjectTableTx will create the IssueProject table using the provided transction
-func DBCreateIssueProjectTableTx(ctx context.Context, tx Tx) error {
+func DBCreateIssueProjectTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `issue_project` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`name`TEXT NOT NULL,`url` TEXT NOT NULL,`created_at`BIGINT UNSIGNED NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata` JSON,INDEX issue_project_customer_id_index (`customer_id`),INDEX issue_project_ref_type_index (`ref_type`),INDEX issue_project_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropIssueProjectTable will drop the IssueProject table
-func DBDropIssueProjectTable(ctx context.Context, db DB) error {
+func DBDropIssueProjectTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `issue_project`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropIssueProjectTableTx will drop the IssueProject table using the provided transaction
-func DBDropIssueProjectTableTx(ctx context.Context, tx Tx) error {
+func DBDropIssueProjectTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `issue_project`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -1045,7 +1045,7 @@ func (t *IssueProject) CalculateChecksum() string {
 }
 
 // DBCreate will create a new IssueProject record in the database
-func (t *IssueProject) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *IssueProject) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `issue_project` (`issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1066,7 +1066,7 @@ func (t *IssueProject) DBCreate(ctx context.Context, db DB) (sql.Result, error) 
 }
 
 // DBCreateTx will create a new IssueProject record in the database using the provided transaction
-func (t *IssueProject) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *IssueProject) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `issue_project` (`issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1087,7 +1087,7 @@ func (t *IssueProject) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error
 }
 
 // DBCreateIgnoreDuplicate will upsert the IssueProject record in the database
-func (t *IssueProject) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *IssueProject) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `issue_project` (`issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1108,7 +1108,7 @@ func (t *IssueProject) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the IssueProject record in the database using the provided transaction
-func (t *IssueProject) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *IssueProject) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `issue_project` (`issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1129,7 +1129,7 @@ func (t *IssueProject) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sq
 }
 
 // DeleteAllIssueProjects deletes all IssueProject records in the database with optional filters
-func DeleteAllIssueProjects(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllIssueProjects(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(IssueProjectTableName),
 	}
@@ -1144,7 +1144,7 @@ func DeleteAllIssueProjects(ctx context.Context, db DB, _params ...interface{}) 
 }
 
 // DeleteAllIssueProjectsTx deletes all IssueProject records in the database with optional filters using the provided transaction
-func DeleteAllIssueProjectsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllIssueProjectsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(IssueProjectTableName),
 	}
@@ -1159,7 +1159,7 @@ func DeleteAllIssueProjectsTx(ctx context.Context, tx Tx, _params ...interface{}
 }
 
 // DBDelete will delete this IssueProject record in the database
-func (t *IssueProject) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *IssueProject) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `issue_project` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1173,7 +1173,7 @@ func (t *IssueProject) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this IssueProject record in the database using the provided transaction
-func (t *IssueProject) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *IssueProject) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `issue_project` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1187,7 +1187,7 @@ func (t *IssueProject) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the IssueProject record in the database
-func (t *IssueProject) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *IssueProject) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1208,7 +1208,7 @@ func (t *IssueProject) DBUpdate(ctx context.Context, db DB) (sql.Result, error) 
 }
 
 // DBUpdateTx will update the IssueProject record in the database using the provided transaction
-func (t *IssueProject) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *IssueProject) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1229,7 +1229,7 @@ func (t *IssueProject) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error
 }
 
 // DBUpsert will upsert the IssueProject record in the database
-func (t *IssueProject) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *IssueProject) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1263,7 +1263,7 @@ func (t *IssueProject) DBUpsert(ctx context.Context, db DB, conditions ...interf
 }
 
 // DBUpsertTx will upsert the IssueProject record in the database using the provided transaction
-func (t *IssueProject) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *IssueProject) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1297,7 +1297,7 @@ func (t *IssueProject) DBUpsertTx(ctx context.Context, tx Tx, conditions ...inte
 }
 
 // DBFindOne will find a IssueProject record in the database with the primary key
-func (t *IssueProject) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *IssueProject) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1357,7 +1357,7 @@ func (t *IssueProject) DBFindOne(ctx context.Context, db DB, value string) (bool
 }
 
 // DBFindOneTx will find a IssueProject record in the database with the primary key using the provided transaction
-func (t *IssueProject) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *IssueProject) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1417,7 +1417,7 @@ func (t *IssueProject) DBFindOneTx(ctx context.Context, tx Tx, value string) (bo
 }
 
 // FindIssueProjects will find a IssueProject record in the database with the provided parameters
-func FindIssueProjects(ctx context.Context, db DB, _params ...interface{}) ([]*IssueProject, error) {
+func FindIssueProjects(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*IssueProject, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1503,7 +1503,7 @@ func FindIssueProjects(ctx context.Context, db DB, _params ...interface{}) ([]*I
 }
 
 // FindIssueProjectsTx will find a IssueProject record in the database with the provided parameters using the provided transaction
-func FindIssueProjectsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*IssueProject, error) {
+func FindIssueProjectsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*IssueProject, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1589,7 +1589,7 @@ func FindIssueProjectsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]
 }
 
 // DBFind will find a IssueProject record in the database with the provided parameters
-func (t *IssueProject) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *IssueProject) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1663,7 +1663,7 @@ func (t *IssueProject) DBFind(ctx context.Context, db DB, _params ...interface{}
 }
 
 // DBFindTx will find a IssueProject record in the database with the provided parameters using the provided transaction
-func (t *IssueProject) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *IssueProject) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1737,7 +1737,7 @@ func (t *IssueProject) DBFindTx(ctx context.Context, tx Tx, _params ...interface
 }
 
 // CountIssueProjects will find the count of IssueProject records in the database
-func CountIssueProjects(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountIssueProjects(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(IssueProjectTableName),
@@ -1757,7 +1757,7 @@ func CountIssueProjects(ctx context.Context, db DB, _params ...interface{}) (int
 }
 
 // CountIssueProjectsTx will find the count of IssueProject records in the database using the provided transaction
-func CountIssueProjectsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountIssueProjectsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(IssueProjectTableName),
@@ -1777,7 +1777,7 @@ func CountIssueProjectsTx(ctx context.Context, tx Tx, _params ...interface{}) (i
 }
 
 // DBCount will find the count of IssueProject records in the database
-func (t *IssueProject) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *IssueProject) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(IssueProjectTableName),
@@ -1797,7 +1797,7 @@ func (t *IssueProject) DBCount(ctx context.Context, db DB, _params ...interface{
 }
 
 // DBCountTx will find the count of IssueProject records in the database using the provided transaction
-func (t *IssueProject) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *IssueProject) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(IssueProjectTableName),
@@ -1817,7 +1817,7 @@ func (t *IssueProject) DBCountTx(ctx context.Context, tx Tx, _params ...interfac
 }
 
 // DBExists will return true if the IssueProject record exists in the database
-func (t *IssueProject) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *IssueProject) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `issue_project` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1828,7 +1828,7 @@ func (t *IssueProject) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the IssueProject record exists in the database using the provided transaction
-func (t *IssueProject) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *IssueProject) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `issue_project` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

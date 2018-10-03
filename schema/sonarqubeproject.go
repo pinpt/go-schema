@@ -269,10 +269,10 @@ func NewSonarqubeProjectCSVWriterFile(fn string, dedupers ...SonarqubeProjectCSV
 	return ch, sdone, nil
 }
 
-type SonarqubeProjectDBAction func(ctx context.Context, db DB, record SonarqubeProject) error
+type SonarqubeProjectDBAction func(ctx context.Context, db *sql.DB, record SonarqubeProject) error
 
 // NewSonarqubeProjectDBWriterSize creates a DB writer that will write each issue into the DB
-func NewSonarqubeProjectDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...SonarqubeProjectDBAction) (chan SonarqubeProject, chan bool, error) {
+func NewSonarqubeProjectDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...SonarqubeProjectDBAction) (chan SonarqubeProject, chan bool, error) {
 	ch := make(chan SonarqubeProject, size)
 	done := make(chan bool)
 	var action SonarqubeProjectDBAction
@@ -297,7 +297,7 @@ func NewSonarqubeProjectDBWriterSize(ctx context.Context, db DB, errors chan<- e
 }
 
 // NewSonarqubeProjectDBWriter creates a DB writer that will write each issue into the DB
-func NewSonarqubeProjectDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...SonarqubeProjectDBAction) (chan SonarqubeProject, chan bool, error) {
+func NewSonarqubeProjectDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...SonarqubeProjectDBAction) (chan SonarqubeProject, chan bool, error) {
 	return NewSonarqubeProjectDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -348,7 +348,7 @@ func (t *SonarqubeProject) SetID(v string) {
 }
 
 // FindSonarqubeProjectByID will find a SonarqubeProject by ID
-func FindSonarqubeProjectByID(ctx context.Context, db DB, value string) (*SonarqubeProject, error) {
+func FindSonarqubeProjectByID(ctx context.Context, db *sql.DB, value string) (*SonarqubeProject, error) {
 	q := "SELECT `sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name` FROM `sonarqube_project` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -393,7 +393,7 @@ func FindSonarqubeProjectByID(ctx context.Context, db DB, value string) (*Sonarq
 }
 
 // FindSonarqubeProjectByIDTx will find a SonarqubeProject by ID using the provided transaction
-func FindSonarqubeProjectByIDTx(ctx context.Context, tx Tx, value string) (*SonarqubeProject, error) {
+func FindSonarqubeProjectByIDTx(ctx context.Context, tx *sql.Tx, value string) (*SonarqubeProject, error) {
 	q := "SELECT `sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name` FROM `sonarqube_project` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -461,7 +461,7 @@ func (t *SonarqubeProject) SetCustomerID(v string) {
 }
 
 // FindSonarqubeProjectsByCustomerID will find all SonarqubeProjects by the CustomerID value
-func FindSonarqubeProjectsByCustomerID(ctx context.Context, db DB, value string) ([]*SonarqubeProject, error) {
+func FindSonarqubeProjectsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*SonarqubeProject, error) {
 	q := "SELECT `sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name` FROM `sonarqube_project` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -515,7 +515,7 @@ func FindSonarqubeProjectsByCustomerID(ctx context.Context, db DB, value string)
 }
 
 // FindSonarqubeProjectsByCustomerIDTx will find all SonarqubeProjects by the CustomerID value using the provided transaction
-func FindSonarqubeProjectsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*SonarqubeProject, error) {
+func FindSonarqubeProjectsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*SonarqubeProject, error) {
 	q := "SELECT `sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name` FROM `sonarqube_project` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -604,28 +604,28 @@ func (t *SonarqubeProject) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateSonarqubeProjectTable will create the SonarqubeProject table
-func DBCreateSonarqubeProjectTable(ctx context.Context, db DB) error {
+func DBCreateSonarqubeProjectTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `sonarqube_project` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id` TEXT NOT NULL,`key` TEXT NOT NULL,`name`TEXT NOT NULL,INDEX sonarqube_project_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateSonarqubeProjectTableTx will create the SonarqubeProject table using the provided transction
-func DBCreateSonarqubeProjectTableTx(ctx context.Context, tx Tx) error {
+func DBCreateSonarqubeProjectTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `sonarqube_project` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`ext_id` TEXT NOT NULL,`key` TEXT NOT NULL,`name`TEXT NOT NULL,INDEX sonarqube_project_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropSonarqubeProjectTable will drop the SonarqubeProject table
-func DBDropSonarqubeProjectTable(ctx context.Context, db DB) error {
+func DBDropSonarqubeProjectTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `sonarqube_project`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropSonarqubeProjectTableTx will drop the SonarqubeProject table using the provided transaction
-func DBDropSonarqubeProjectTableTx(ctx context.Context, tx Tx) error {
+func DBDropSonarqubeProjectTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `sonarqube_project`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -643,7 +643,7 @@ func (t *SonarqubeProject) CalculateChecksum() string {
 }
 
 // DBCreate will create a new SonarqubeProject record in the database
-func (t *SonarqubeProject) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *SonarqubeProject) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `sonarqube_project` (`sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name`) VALUES (?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -661,7 +661,7 @@ func (t *SonarqubeProject) DBCreate(ctx context.Context, db DB) (sql.Result, err
 }
 
 // DBCreateTx will create a new SonarqubeProject record in the database using the provided transaction
-func (t *SonarqubeProject) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *SonarqubeProject) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `sonarqube_project` (`sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name`) VALUES (?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -679,7 +679,7 @@ func (t *SonarqubeProject) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, e
 }
 
 // DBCreateIgnoreDuplicate will upsert the SonarqubeProject record in the database
-func (t *SonarqubeProject) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *SonarqubeProject) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `sonarqube_project` (`sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -697,7 +697,7 @@ func (t *SonarqubeProject) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the SonarqubeProject record in the database using the provided transaction
-func (t *SonarqubeProject) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *SonarqubeProject) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `sonarqube_project` (`sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -715,7 +715,7 @@ func (t *SonarqubeProject) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx)
 }
 
 // DeleteAllSonarqubeProjects deletes all SonarqubeProject records in the database with optional filters
-func DeleteAllSonarqubeProjects(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllSonarqubeProjects(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(SonarqubeProjectTableName),
 	}
@@ -730,7 +730,7 @@ func DeleteAllSonarqubeProjects(ctx context.Context, db DB, _params ...interface
 }
 
 // DeleteAllSonarqubeProjectsTx deletes all SonarqubeProject records in the database with optional filters using the provided transaction
-func DeleteAllSonarqubeProjectsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllSonarqubeProjectsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(SonarqubeProjectTableName),
 	}
@@ -745,7 +745,7 @@ func DeleteAllSonarqubeProjectsTx(ctx context.Context, tx Tx, _params ...interfa
 }
 
 // DBDelete will delete this SonarqubeProject record in the database
-func (t *SonarqubeProject) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *SonarqubeProject) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `sonarqube_project` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -759,7 +759,7 @@ func (t *SonarqubeProject) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this SonarqubeProject record in the database using the provided transaction
-func (t *SonarqubeProject) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *SonarqubeProject) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `sonarqube_project` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -773,7 +773,7 @@ func (t *SonarqubeProject) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) 
 }
 
 // DBUpdate will update the SonarqubeProject record in the database
-func (t *SonarqubeProject) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *SonarqubeProject) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -791,7 +791,7 @@ func (t *SonarqubeProject) DBUpdate(ctx context.Context, db DB) (sql.Result, err
 }
 
 // DBUpdateTx will update the SonarqubeProject record in the database using the provided transaction
-func (t *SonarqubeProject) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *SonarqubeProject) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -809,7 +809,7 @@ func (t *SonarqubeProject) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, e
 }
 
 // DBUpsert will upsert the SonarqubeProject record in the database
-func (t *SonarqubeProject) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *SonarqubeProject) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -840,7 +840,7 @@ func (t *SonarqubeProject) DBUpsert(ctx context.Context, db DB, conditions ...in
 }
 
 // DBUpsertTx will upsert the SonarqubeProject record in the database using the provided transaction
-func (t *SonarqubeProject) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *SonarqubeProject) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -871,7 +871,7 @@ func (t *SonarqubeProject) DBUpsertTx(ctx context.Context, tx Tx, conditions ...
 }
 
 // DBFindOne will find a SonarqubeProject record in the database with the primary key
-func (t *SonarqubeProject) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *SonarqubeProject) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name` FROM `sonarqube_project` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -916,7 +916,7 @@ func (t *SonarqubeProject) DBFindOne(ctx context.Context, db DB, value string) (
 }
 
 // DBFindOneTx will find a SonarqubeProject record in the database with the primary key using the provided transaction
-func (t *SonarqubeProject) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *SonarqubeProject) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name` FROM `sonarqube_project` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -961,7 +961,7 @@ func (t *SonarqubeProject) DBFindOneTx(ctx context.Context, tx Tx, value string)
 }
 
 // FindSonarqubeProjects will find a SonarqubeProject record in the database with the provided parameters
-func FindSonarqubeProjects(ctx context.Context, db DB, _params ...interface{}) ([]*SonarqubeProject, error) {
+func FindSonarqubeProjects(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*SonarqubeProject, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1029,7 +1029,7 @@ func FindSonarqubeProjects(ctx context.Context, db DB, _params ...interface{}) (
 }
 
 // FindSonarqubeProjectsTx will find a SonarqubeProject record in the database with the provided parameters using the provided transaction
-func FindSonarqubeProjectsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*SonarqubeProject, error) {
+func FindSonarqubeProjectsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*SonarqubeProject, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1097,7 +1097,7 @@ func FindSonarqubeProjectsTx(ctx context.Context, tx Tx, _params ...interface{})
 }
 
 // DBFind will find a SonarqubeProject record in the database with the provided parameters
-func (t *SonarqubeProject) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *SonarqubeProject) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1153,7 +1153,7 @@ func (t *SonarqubeProject) DBFind(ctx context.Context, db DB, _params ...interfa
 }
 
 // DBFindTx will find a SonarqubeProject record in the database with the provided parameters using the provided transaction
-func (t *SonarqubeProject) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *SonarqubeProject) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1209,7 +1209,7 @@ func (t *SonarqubeProject) DBFindTx(ctx context.Context, tx Tx, _params ...inter
 }
 
 // CountSonarqubeProjects will find the count of SonarqubeProject records in the database
-func CountSonarqubeProjects(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountSonarqubeProjects(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(SonarqubeProjectTableName),
@@ -1229,7 +1229,7 @@ func CountSonarqubeProjects(ctx context.Context, db DB, _params ...interface{}) 
 }
 
 // CountSonarqubeProjectsTx will find the count of SonarqubeProject records in the database using the provided transaction
-func CountSonarqubeProjectsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountSonarqubeProjectsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(SonarqubeProjectTableName),
@@ -1249,7 +1249,7 @@ func CountSonarqubeProjectsTx(ctx context.Context, tx Tx, _params ...interface{}
 }
 
 // DBCount will find the count of SonarqubeProject records in the database
-func (t *SonarqubeProject) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *SonarqubeProject) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(SonarqubeProjectTableName),
@@ -1269,7 +1269,7 @@ func (t *SonarqubeProject) DBCount(ctx context.Context, db DB, _params ...interf
 }
 
 // DBCountTx will find the count of SonarqubeProject records in the database using the provided transaction
-func (t *SonarqubeProject) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *SonarqubeProject) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(SonarqubeProjectTableName),
@@ -1289,7 +1289,7 @@ func (t *SonarqubeProject) DBCountTx(ctx context.Context, tx Tx, _params ...inte
 }
 
 // DBExists will return true if the SonarqubeProject record exists in the database
-func (t *SonarqubeProject) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *SonarqubeProject) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `sonarqube_project` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1300,7 +1300,7 @@ func (t *SonarqubeProject) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the SonarqubeProject record exists in the database using the provided transaction
-func (t *SonarqubeProject) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *SonarqubeProject) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `sonarqube_project` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

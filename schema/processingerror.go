@@ -273,10 +273,10 @@ func NewProcessingErrorCSVWriterFile(fn string, dedupers ...ProcessingErrorCSVDe
 	return ch, sdone, nil
 }
 
-type ProcessingErrorDBAction func(ctx context.Context, db DB, record ProcessingError) error
+type ProcessingErrorDBAction func(ctx context.Context, db *sql.DB, record ProcessingError) error
 
 // NewProcessingErrorDBWriterSize creates a DB writer that will write each issue into the DB
-func NewProcessingErrorDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...ProcessingErrorDBAction) (chan ProcessingError, chan bool, error) {
+func NewProcessingErrorDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...ProcessingErrorDBAction) (chan ProcessingError, chan bool, error) {
 	ch := make(chan ProcessingError, size)
 	done := make(chan bool)
 	var action ProcessingErrorDBAction
@@ -301,7 +301,7 @@ func NewProcessingErrorDBWriterSize(ctx context.Context, db DB, errors chan<- er
 }
 
 // NewProcessingErrorDBWriter creates a DB writer that will write each issue into the DB
-func NewProcessingErrorDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...ProcessingErrorDBAction) (chan ProcessingError, chan bool, error) {
+func NewProcessingErrorDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...ProcessingErrorDBAction) (chan ProcessingError, chan bool, error) {
 	return NewProcessingErrorDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -358,7 +358,7 @@ func (t *ProcessingError) SetID(v string) {
 }
 
 // FindProcessingErrorByID will find a ProcessingError by ID
-func FindProcessingErrorByID(ctx context.Context, db DB, value string) (*ProcessingError, error) {
+func FindProcessingErrorByID(ctx context.Context, db *sql.DB, value string) (*ProcessingError, error) {
 	q := "SELECT `processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id` FROM `processing_error` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -408,7 +408,7 @@ func FindProcessingErrorByID(ctx context.Context, db DB, value string) (*Process
 }
 
 // FindProcessingErrorByIDTx will find a ProcessingError by ID using the provided transaction
-func FindProcessingErrorByIDTx(ctx context.Context, tx Tx, value string) (*ProcessingError, error) {
+func FindProcessingErrorByIDTx(ctx context.Context, tx *sql.Tx, value string) (*ProcessingError, error) {
 	q := "SELECT `processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id` FROM `processing_error` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -521,7 +521,7 @@ func (t *ProcessingError) SetCustomerID(v string) {
 }
 
 // FindProcessingErrorsByCustomerID will find all ProcessingErrors by the CustomerID value
-func FindProcessingErrorsByCustomerID(ctx context.Context, db DB, value string) ([]*ProcessingError, error) {
+func FindProcessingErrorsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*ProcessingError, error) {
 	q := "SELECT `processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id` FROM `processing_error` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -580,7 +580,7 @@ func FindProcessingErrorsByCustomerID(ctx context.Context, db DB, value string) 
 }
 
 // FindProcessingErrorsByCustomerIDTx will find all ProcessingErrors by the CustomerID value using the provided transaction
-func FindProcessingErrorsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*ProcessingError, error) {
+func FindProcessingErrorsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*ProcessingError, error) {
 	q := "SELECT `processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id` FROM `processing_error` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -644,28 +644,28 @@ func (t *ProcessingError) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateProcessingErrorTable will create the ProcessingError table
-func DBCreateProcessingErrorTable(ctx context.Context, db DB) error {
+func DBCreateProcessingErrorTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `processing_error` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`created_at`BIGINT UNSIGNED NOT NULL,`type`TEXT NOT NULL,`message`MEDIUMTEXT NOT NULL,`fatal` BOOL NOT NULL,`customer_id` VARCHAR(64) NOT NULL,INDEX processing_error_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateProcessingErrorTableTx will create the ProcessingError table using the provided transction
-func DBCreateProcessingErrorTableTx(ctx context.Context, tx Tx) error {
+func DBCreateProcessingErrorTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `processing_error` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`created_at`BIGINT UNSIGNED NOT NULL,`type`TEXT NOT NULL,`message`MEDIUMTEXT NOT NULL,`fatal` BOOL NOT NULL,`customer_id` VARCHAR(64) NOT NULL,INDEX processing_error_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropProcessingErrorTable will drop the ProcessingError table
-func DBDropProcessingErrorTable(ctx context.Context, db DB) error {
+func DBDropProcessingErrorTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `processing_error`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropProcessingErrorTableTx will drop the ProcessingError table using the provided transaction
-func DBDropProcessingErrorTableTx(ctx context.Context, tx Tx) error {
+func DBDropProcessingErrorTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `processing_error`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -684,7 +684,7 @@ func (t *ProcessingError) CalculateChecksum() string {
 }
 
 // DBCreate will create a new ProcessingError record in the database
-func (t *ProcessingError) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *ProcessingError) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `processing_error` (`processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id`) VALUES (?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -703,7 +703,7 @@ func (t *ProcessingError) DBCreate(ctx context.Context, db DB) (sql.Result, erro
 }
 
 // DBCreateTx will create a new ProcessingError record in the database using the provided transaction
-func (t *ProcessingError) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *ProcessingError) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `processing_error` (`processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id`) VALUES (?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -722,7 +722,7 @@ func (t *ProcessingError) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, er
 }
 
 // DBCreateIgnoreDuplicate will upsert the ProcessingError record in the database
-func (t *ProcessingError) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *ProcessingError) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `processing_error` (`processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id`) VALUES (?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -741,7 +741,7 @@ func (t *ProcessingError) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (s
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the ProcessingError record in the database using the provided transaction
-func (t *ProcessingError) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *ProcessingError) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `processing_error` (`processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id`) VALUES (?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -760,7 +760,7 @@ func (t *ProcessingError) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) 
 }
 
 // DeleteAllProcessingErrors deletes all ProcessingError records in the database with optional filters
-func DeleteAllProcessingErrors(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllProcessingErrors(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(ProcessingErrorTableName),
 	}
@@ -775,7 +775,7 @@ func DeleteAllProcessingErrors(ctx context.Context, db DB, _params ...interface{
 }
 
 // DeleteAllProcessingErrorsTx deletes all ProcessingError records in the database with optional filters using the provided transaction
-func DeleteAllProcessingErrorsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllProcessingErrorsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(ProcessingErrorTableName),
 	}
@@ -790,7 +790,7 @@ func DeleteAllProcessingErrorsTx(ctx context.Context, tx Tx, _params ...interfac
 }
 
 // DBDelete will delete this ProcessingError record in the database
-func (t *ProcessingError) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *ProcessingError) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `processing_error` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -804,7 +804,7 @@ func (t *ProcessingError) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this ProcessingError record in the database using the provided transaction
-func (t *ProcessingError) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *ProcessingError) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `processing_error` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -818,7 +818,7 @@ func (t *ProcessingError) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the ProcessingError record in the database
-func (t *ProcessingError) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *ProcessingError) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -837,7 +837,7 @@ func (t *ProcessingError) DBUpdate(ctx context.Context, db DB) (sql.Result, erro
 }
 
 // DBUpdateTx will update the ProcessingError record in the database using the provided transaction
-func (t *ProcessingError) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *ProcessingError) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -856,7 +856,7 @@ func (t *ProcessingError) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, er
 }
 
 // DBUpsert will upsert the ProcessingError record in the database
-func (t *ProcessingError) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *ProcessingError) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -888,7 +888,7 @@ func (t *ProcessingError) DBUpsert(ctx context.Context, db DB, conditions ...int
 }
 
 // DBUpsertTx will upsert the ProcessingError record in the database using the provided transaction
-func (t *ProcessingError) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *ProcessingError) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -920,7 +920,7 @@ func (t *ProcessingError) DBUpsertTx(ctx context.Context, tx Tx, conditions ...i
 }
 
 // DBFindOne will find a ProcessingError record in the database with the primary key
-func (t *ProcessingError) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *ProcessingError) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id` FROM `processing_error` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -970,7 +970,7 @@ func (t *ProcessingError) DBFindOne(ctx context.Context, db DB, value string) (b
 }
 
 // DBFindOneTx will find a ProcessingError record in the database with the primary key using the provided transaction
-func (t *ProcessingError) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *ProcessingError) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id` FROM `processing_error` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1020,7 +1020,7 @@ func (t *ProcessingError) DBFindOneTx(ctx context.Context, tx Tx, value string) 
 }
 
 // FindProcessingErrors will find a ProcessingError record in the database with the provided parameters
-func FindProcessingErrors(ctx context.Context, db DB, _params ...interface{}) ([]*ProcessingError, error) {
+func FindProcessingErrors(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*ProcessingError, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1094,7 +1094,7 @@ func FindProcessingErrors(ctx context.Context, db DB, _params ...interface{}) ([
 }
 
 // FindProcessingErrorsTx will find a ProcessingError record in the database with the provided parameters using the provided transaction
-func FindProcessingErrorsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*ProcessingError, error) {
+func FindProcessingErrorsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*ProcessingError, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1168,7 +1168,7 @@ func FindProcessingErrorsTx(ctx context.Context, tx Tx, _params ...interface{}) 
 }
 
 // DBFind will find a ProcessingError record in the database with the provided parameters
-func (t *ProcessingError) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *ProcessingError) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1230,7 +1230,7 @@ func (t *ProcessingError) DBFind(ctx context.Context, db DB, _params ...interfac
 }
 
 // DBFindTx will find a ProcessingError record in the database with the provided parameters using the provided transaction
-func (t *ProcessingError) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *ProcessingError) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1292,7 +1292,7 @@ func (t *ProcessingError) DBFindTx(ctx context.Context, tx Tx, _params ...interf
 }
 
 // CountProcessingErrors will find the count of ProcessingError records in the database
-func CountProcessingErrors(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountProcessingErrors(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(ProcessingErrorTableName),
@@ -1312,7 +1312,7 @@ func CountProcessingErrors(ctx context.Context, db DB, _params ...interface{}) (
 }
 
 // CountProcessingErrorsTx will find the count of ProcessingError records in the database using the provided transaction
-func CountProcessingErrorsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountProcessingErrorsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(ProcessingErrorTableName),
@@ -1332,7 +1332,7 @@ func CountProcessingErrorsTx(ctx context.Context, tx Tx, _params ...interface{})
 }
 
 // DBCount will find the count of ProcessingError records in the database
-func (t *ProcessingError) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *ProcessingError) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(ProcessingErrorTableName),
@@ -1352,7 +1352,7 @@ func (t *ProcessingError) DBCount(ctx context.Context, db DB, _params ...interfa
 }
 
 // DBCountTx will find the count of ProcessingError records in the database using the provided transaction
-func (t *ProcessingError) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *ProcessingError) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(ProcessingErrorTableName),
@@ -1372,7 +1372,7 @@ func (t *ProcessingError) DBCountTx(ctx context.Context, tx Tx, _params ...inter
 }
 
 // DBExists will return true if the ProcessingError record exists in the database
-func (t *ProcessingError) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *ProcessingError) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `processing_error` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1383,7 +1383,7 @@ func (t *ProcessingError) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the ProcessingError record exists in the database using the provided transaction
-func (t *ProcessingError) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *ProcessingError) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `processing_error` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

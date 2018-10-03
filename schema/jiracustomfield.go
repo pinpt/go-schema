@@ -277,10 +277,10 @@ func NewJiraCustomFieldCSVWriterFile(fn string, dedupers ...JiraCustomFieldCSVDe
 	return ch, sdone, nil
 }
 
-type JiraCustomFieldDBAction func(ctx context.Context, db DB, record JiraCustomField) error
+type JiraCustomFieldDBAction func(ctx context.Context, db *sql.DB, record JiraCustomField) error
 
 // NewJiraCustomFieldDBWriterSize creates a DB writer that will write each issue into the DB
-func NewJiraCustomFieldDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...JiraCustomFieldDBAction) (chan JiraCustomField, chan bool, error) {
+func NewJiraCustomFieldDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...JiraCustomFieldDBAction) (chan JiraCustomField, chan bool, error) {
 	ch := make(chan JiraCustomField, size)
 	done := make(chan bool)
 	var action JiraCustomFieldDBAction
@@ -305,7 +305,7 @@ func NewJiraCustomFieldDBWriterSize(ctx context.Context, db DB, errors chan<- er
 }
 
 // NewJiraCustomFieldDBWriter creates a DB writer that will write each issue into the DB
-func NewJiraCustomFieldDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...JiraCustomFieldDBAction) (chan JiraCustomField, chan bool, error) {
+func NewJiraCustomFieldDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...JiraCustomFieldDBAction) (chan JiraCustomField, chan bool, error) {
 	return NewJiraCustomFieldDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -368,7 +368,7 @@ func (t *JiraCustomField) SetID(v string) {
 }
 
 // FindJiraCustomFieldByID will find a JiraCustomField by ID
-func FindJiraCustomFieldByID(ctx context.Context, db DB, value string) (*JiraCustomField, error) {
+func FindJiraCustomFieldByID(ctx context.Context, db *sql.DB, value string) (*JiraCustomField, error) {
 	q := "SELECT `jira_custom_field`.`id`,`jira_custom_field`.`checksum`,`jira_custom_field`.`field_id`,`jira_custom_field`.`name`,`jira_custom_field`.`schema_type`,`jira_custom_field`.`schema_custom`,`jira_custom_field`.`schema_custom_id`,`jira_custom_field`.`customer_id` FROM `jira_custom_field` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -423,7 +423,7 @@ func FindJiraCustomFieldByID(ctx context.Context, db DB, value string) (*JiraCus
 }
 
 // FindJiraCustomFieldByIDTx will find a JiraCustomField by ID using the provided transaction
-func FindJiraCustomFieldByIDTx(ctx context.Context, tx Tx, value string) (*JiraCustomField, error) {
+func FindJiraCustomFieldByIDTx(ctx context.Context, tx *sql.Tx, value string) (*JiraCustomField, error) {
 	q := "SELECT `jira_custom_field`.`id`,`jira_custom_field`.`checksum`,`jira_custom_field`.`field_id`,`jira_custom_field`.`name`,`jira_custom_field`.`schema_type`,`jira_custom_field`.`schema_custom`,`jira_custom_field`.`schema_custom_id`,`jira_custom_field`.`customer_id` FROM `jira_custom_field` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -511,7 +511,7 @@ func (t *JiraCustomField) SetName(v string) {
 }
 
 // FindJiraCustomFieldsByName will find all JiraCustomFields by the Name value
-func FindJiraCustomFieldsByName(ctx context.Context, db DB, value string) ([]*JiraCustomField, error) {
+func FindJiraCustomFieldsByName(ctx context.Context, db *sql.DB, value string) ([]*JiraCustomField, error) {
 	q := "SELECT `jira_custom_field`.`id`,`jira_custom_field`.`checksum`,`jira_custom_field`.`field_id`,`jira_custom_field`.`name`,`jira_custom_field`.`schema_type`,`jira_custom_field`.`schema_custom`,`jira_custom_field`.`schema_custom_id`,`jira_custom_field`.`customer_id` FROM `jira_custom_field` WHERE `name` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -575,7 +575,7 @@ func FindJiraCustomFieldsByName(ctx context.Context, db DB, value string) ([]*Ji
 }
 
 // FindJiraCustomFieldsByNameTx will find all JiraCustomFields by the Name value using the provided transaction
-func FindJiraCustomFieldsByNameTx(ctx context.Context, tx Tx, value string) ([]*JiraCustomField, error) {
+func FindJiraCustomFieldsByNameTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraCustomField, error) {
 	q := "SELECT `jira_custom_field`.`id`,`jira_custom_field`.`checksum`,`jira_custom_field`.`field_id`,`jira_custom_field`.`name`,`jira_custom_field`.`schema_type`,`jira_custom_field`.`schema_custom`,`jira_custom_field`.`schema_custom_id`,`jira_custom_field`.`customer_id` FROM `jira_custom_field` WHERE `name` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -682,7 +682,7 @@ func (t *JiraCustomField) SetCustomerID(v string) {
 }
 
 // FindJiraCustomFieldsByCustomerID will find all JiraCustomFields by the CustomerID value
-func FindJiraCustomFieldsByCustomerID(ctx context.Context, db DB, value string) ([]*JiraCustomField, error) {
+func FindJiraCustomFieldsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*JiraCustomField, error) {
 	q := "SELECT `jira_custom_field`.`id`,`jira_custom_field`.`checksum`,`jira_custom_field`.`field_id`,`jira_custom_field`.`name`,`jira_custom_field`.`schema_type`,`jira_custom_field`.`schema_custom`,`jira_custom_field`.`schema_custom_id`,`jira_custom_field`.`customer_id` FROM `jira_custom_field` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -746,7 +746,7 @@ func FindJiraCustomFieldsByCustomerID(ctx context.Context, db DB, value string) 
 }
 
 // FindJiraCustomFieldsByCustomerIDTx will find all JiraCustomFields by the CustomerID value using the provided transaction
-func FindJiraCustomFieldsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraCustomField, error) {
+func FindJiraCustomFieldsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraCustomField, error) {
 	q := "SELECT `jira_custom_field`.`id`,`jira_custom_field`.`checksum`,`jira_custom_field`.`field_id`,`jira_custom_field`.`name`,`jira_custom_field`.`schema_type`,`jira_custom_field`.`schema_custom`,`jira_custom_field`.`schema_custom_id`,`jira_custom_field`.`customer_id` FROM `jira_custom_field` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -815,28 +815,28 @@ func (t *JiraCustomField) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateJiraCustomFieldTable will create the JiraCustomField table
-func DBCreateJiraCustomFieldTable(ctx context.Context, db DB) error {
+func DBCreateJiraCustomFieldTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `jira_custom_field` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`field_id`VARCHAR(64) NOT NULL,`name` VARCHAR(255) NOT NULL,`schema_type`VARCHAR(100) NOT NULL,`schema_custom` VARCHAR(255) NOT NULL,`schema_custom_id` BIGINT UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,INDEX jira_custom_field_name_index (`name`),INDEX jira_custom_field_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraCustomFieldTableTx will create the JiraCustomField table using the provided transction
-func DBCreateJiraCustomFieldTableTx(ctx context.Context, tx Tx) error {
+func DBCreateJiraCustomFieldTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `jira_custom_field` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`field_id`VARCHAR(64) NOT NULL,`name` VARCHAR(255) NOT NULL,`schema_type`VARCHAR(100) NOT NULL,`schema_custom` VARCHAR(255) NOT NULL,`schema_custom_id` BIGINT UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,INDEX jira_custom_field_name_index (`name`),INDEX jira_custom_field_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraCustomFieldTable will drop the JiraCustomField table
-func DBDropJiraCustomFieldTable(ctx context.Context, db DB) error {
+func DBDropJiraCustomFieldTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `jira_custom_field`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraCustomFieldTableTx will drop the JiraCustomField table using the provided transaction
-func DBDropJiraCustomFieldTableTx(ctx context.Context, tx Tx) error {
+func DBDropJiraCustomFieldTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `jira_custom_field`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -856,7 +856,7 @@ func (t *JiraCustomField) CalculateChecksum() string {
 }
 
 // DBCreate will create a new JiraCustomField record in the database
-func (t *JiraCustomField) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraCustomField) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_custom_field` (`jira_custom_field`.`id`,`jira_custom_field`.`checksum`,`jira_custom_field`.`field_id`,`jira_custom_field`.`name`,`jira_custom_field`.`schema_type`,`jira_custom_field`.`schema_custom`,`jira_custom_field`.`schema_custom_id`,`jira_custom_field`.`customer_id`) VALUES (?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -876,7 +876,7 @@ func (t *JiraCustomField) DBCreate(ctx context.Context, db DB) (sql.Result, erro
 }
 
 // DBCreateTx will create a new JiraCustomField record in the database using the provided transaction
-func (t *JiraCustomField) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraCustomField) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_custom_field` (`jira_custom_field`.`id`,`jira_custom_field`.`checksum`,`jira_custom_field`.`field_id`,`jira_custom_field`.`name`,`jira_custom_field`.`schema_type`,`jira_custom_field`.`schema_custom`,`jira_custom_field`.`schema_custom_id`,`jira_custom_field`.`customer_id`) VALUES (?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -896,7 +896,7 @@ func (t *JiraCustomField) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, er
 }
 
 // DBCreateIgnoreDuplicate will upsert the JiraCustomField record in the database
-func (t *JiraCustomField) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraCustomField) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_custom_field` (`jira_custom_field`.`id`,`jira_custom_field`.`checksum`,`jira_custom_field`.`field_id`,`jira_custom_field`.`name`,`jira_custom_field`.`schema_type`,`jira_custom_field`.`schema_custom`,`jira_custom_field`.`schema_custom_id`,`jira_custom_field`.`customer_id`) VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -916,7 +916,7 @@ func (t *JiraCustomField) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (s
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the JiraCustomField record in the database using the provided transaction
-func (t *JiraCustomField) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraCustomField) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_custom_field` (`jira_custom_field`.`id`,`jira_custom_field`.`checksum`,`jira_custom_field`.`field_id`,`jira_custom_field`.`name`,`jira_custom_field`.`schema_type`,`jira_custom_field`.`schema_custom`,`jira_custom_field`.`schema_custom_id`,`jira_custom_field`.`customer_id`) VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -936,7 +936,7 @@ func (t *JiraCustomField) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) 
 }
 
 // DeleteAllJiraCustomFields deletes all JiraCustomField records in the database with optional filters
-func DeleteAllJiraCustomFields(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllJiraCustomFields(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraCustomFieldTableName),
 	}
@@ -951,7 +951,7 @@ func DeleteAllJiraCustomFields(ctx context.Context, db DB, _params ...interface{
 }
 
 // DeleteAllJiraCustomFieldsTx deletes all JiraCustomField records in the database with optional filters using the provided transaction
-func DeleteAllJiraCustomFieldsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllJiraCustomFieldsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraCustomFieldTableName),
 	}
@@ -966,7 +966,7 @@ func DeleteAllJiraCustomFieldsTx(ctx context.Context, tx Tx, _params ...interfac
 }
 
 // DBDelete will delete this JiraCustomField record in the database
-func (t *JiraCustomField) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *JiraCustomField) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `jira_custom_field` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -980,7 +980,7 @@ func (t *JiraCustomField) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this JiraCustomField record in the database using the provided transaction
-func (t *JiraCustomField) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraCustomField) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `jira_custom_field` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -994,7 +994,7 @@ func (t *JiraCustomField) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the JiraCustomField record in the database
-func (t *JiraCustomField) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraCustomField) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1014,7 +1014,7 @@ func (t *JiraCustomField) DBUpdate(ctx context.Context, db DB) (sql.Result, erro
 }
 
 // DBUpdateTx will update the JiraCustomField record in the database using the provided transaction
-func (t *JiraCustomField) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraCustomField) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1034,7 +1034,7 @@ func (t *JiraCustomField) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, er
 }
 
 // DBUpsert will upsert the JiraCustomField record in the database
-func (t *JiraCustomField) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraCustomField) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1067,7 +1067,7 @@ func (t *JiraCustomField) DBUpsert(ctx context.Context, db DB, conditions ...int
 }
 
 // DBUpsertTx will upsert the JiraCustomField record in the database using the provided transaction
-func (t *JiraCustomField) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraCustomField) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1100,7 +1100,7 @@ func (t *JiraCustomField) DBUpsertTx(ctx context.Context, tx Tx, conditions ...i
 }
 
 // DBFindOne will find a JiraCustomField record in the database with the primary key
-func (t *JiraCustomField) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *JiraCustomField) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `jira_custom_field`.`id`,`jira_custom_field`.`checksum`,`jira_custom_field`.`field_id`,`jira_custom_field`.`name`,`jira_custom_field`.`schema_type`,`jira_custom_field`.`schema_custom`,`jira_custom_field`.`schema_custom_id`,`jira_custom_field`.`customer_id` FROM `jira_custom_field` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1155,7 +1155,7 @@ func (t *JiraCustomField) DBFindOne(ctx context.Context, db DB, value string) (b
 }
 
 // DBFindOneTx will find a JiraCustomField record in the database with the primary key using the provided transaction
-func (t *JiraCustomField) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *JiraCustomField) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `jira_custom_field`.`id`,`jira_custom_field`.`checksum`,`jira_custom_field`.`field_id`,`jira_custom_field`.`name`,`jira_custom_field`.`schema_type`,`jira_custom_field`.`schema_custom`,`jira_custom_field`.`schema_custom_id`,`jira_custom_field`.`customer_id` FROM `jira_custom_field` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1210,7 +1210,7 @@ func (t *JiraCustomField) DBFindOneTx(ctx context.Context, tx Tx, value string) 
 }
 
 // FindJiraCustomFields will find a JiraCustomField record in the database with the provided parameters
-func FindJiraCustomFields(ctx context.Context, db DB, _params ...interface{}) ([]*JiraCustomField, error) {
+func FindJiraCustomFields(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*JiraCustomField, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1290,7 +1290,7 @@ func FindJiraCustomFields(ctx context.Context, db DB, _params ...interface{}) ([
 }
 
 // FindJiraCustomFieldsTx will find a JiraCustomField record in the database with the provided parameters using the provided transaction
-func FindJiraCustomFieldsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*JiraCustomField, error) {
+func FindJiraCustomFieldsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*JiraCustomField, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1370,7 +1370,7 @@ func FindJiraCustomFieldsTx(ctx context.Context, tx Tx, _params ...interface{}) 
 }
 
 // DBFind will find a JiraCustomField record in the database with the provided parameters
-func (t *JiraCustomField) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *JiraCustomField) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1438,7 +1438,7 @@ func (t *JiraCustomField) DBFind(ctx context.Context, db DB, _params ...interfac
 }
 
 // DBFindTx will find a JiraCustomField record in the database with the provided parameters using the provided transaction
-func (t *JiraCustomField) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *JiraCustomField) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1506,7 +1506,7 @@ func (t *JiraCustomField) DBFindTx(ctx context.Context, tx Tx, _params ...interf
 }
 
 // CountJiraCustomFields will find the count of JiraCustomField records in the database
-func CountJiraCustomFields(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountJiraCustomFields(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraCustomFieldTableName),
@@ -1526,7 +1526,7 @@ func CountJiraCustomFields(ctx context.Context, db DB, _params ...interface{}) (
 }
 
 // CountJiraCustomFieldsTx will find the count of JiraCustomField records in the database using the provided transaction
-func CountJiraCustomFieldsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountJiraCustomFieldsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraCustomFieldTableName),
@@ -1546,7 +1546,7 @@ func CountJiraCustomFieldsTx(ctx context.Context, tx Tx, _params ...interface{})
 }
 
 // DBCount will find the count of JiraCustomField records in the database
-func (t *JiraCustomField) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *JiraCustomField) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraCustomFieldTableName),
@@ -1566,7 +1566,7 @@ func (t *JiraCustomField) DBCount(ctx context.Context, db DB, _params ...interfa
 }
 
 // DBCountTx will find the count of JiraCustomField records in the database using the provided transaction
-func (t *JiraCustomField) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *JiraCustomField) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraCustomFieldTableName),
@@ -1586,7 +1586,7 @@ func (t *JiraCustomField) DBCountTx(ctx context.Context, tx Tx, _params ...inter
 }
 
 // DBExists will return true if the JiraCustomField record exists in the database
-func (t *JiraCustomField) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *JiraCustomField) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `jira_custom_field` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1597,7 +1597,7 @@ func (t *JiraCustomField) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the JiraCustomField record exists in the database using the provided transaction
-func (t *JiraCustomField) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraCustomField) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `jira_custom_field` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

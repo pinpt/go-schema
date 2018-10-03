@@ -253,10 +253,10 @@ func NewGooseDbVersionCSVWriterFile(fn string, dedupers ...GooseDbVersionCSVDedu
 	return ch, sdone, nil
 }
 
-type GooseDbVersionDBAction func(ctx context.Context, db DB, record GooseDbVersion) error
+type GooseDbVersionDBAction func(ctx context.Context, db *sql.DB, record GooseDbVersion) error
 
 // NewGooseDbVersionDBWriterSize creates a DB writer that will write each issue into the DB
-func NewGooseDbVersionDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...GooseDbVersionDBAction) (chan GooseDbVersion, chan bool, error) {
+func NewGooseDbVersionDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...GooseDbVersionDBAction) (chan GooseDbVersion, chan bool, error) {
 	ch := make(chan GooseDbVersion, size)
 	done := make(chan bool)
 	var action GooseDbVersionDBAction
@@ -281,7 +281,7 @@ func NewGooseDbVersionDBWriterSize(ctx context.Context, db DB, errors chan<- err
 }
 
 // NewGooseDbVersionDBWriter creates a DB writer that will write each issue into the DB
-func NewGooseDbVersionDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...GooseDbVersionDBAction) (chan GooseDbVersion, chan bool, error) {
+func NewGooseDbVersionDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...GooseDbVersionDBAction) (chan GooseDbVersion, chan bool, error) {
 	return NewGooseDbVersionDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -320,7 +320,7 @@ func (t *GooseDbVersion) SetID(v int32) {
 }
 
 // FindGooseDbVersionByID will find a GooseDbVersion by ID
-func FindGooseDbVersionByID(ctx context.Context, db DB, value int32) (*GooseDbVersion, error) {
+func FindGooseDbVersionByID(ctx context.Context, db *sql.DB, value int32) (*GooseDbVersion, error) {
 	q := "SELECT `goose_db_version`.`id`,`goose_db_version`.`version_id`,`goose_db_version`.`is_applied`,`goose_db_version`.`tstamp` FROM `goose_db_version` WHERE `id` = ?"
 	var _ID sql.NullInt64
 	var _VersionID sql.NullInt64
@@ -355,7 +355,7 @@ func FindGooseDbVersionByID(ctx context.Context, db DB, value int32) (*GooseDbVe
 }
 
 // FindGooseDbVersionByIDTx will find a GooseDbVersion by ID using the provided transaction
-func FindGooseDbVersionByIDTx(ctx context.Context, tx Tx, value int32) (*GooseDbVersion, error) {
+func FindGooseDbVersionByIDTx(ctx context.Context, tx *sql.Tx, value int32) (*GooseDbVersion, error) {
 	q := "SELECT `goose_db_version`.`id`,`goose_db_version`.`version_id`,`goose_db_version`.`is_applied`,`goose_db_version`.`tstamp` FROM `goose_db_version` WHERE `id` = ?"
 	var _ID sql.NullInt64
 	var _VersionID sql.NullInt64
@@ -425,35 +425,35 @@ func (t *GooseDbVersion) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateGooseDbVersionTable will create the GooseDbVersion table
-func DBCreateGooseDbVersionTable(ctx context.Context, db DB) error {
+func DBCreateGooseDbVersionTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `goose_db_version` (`id` INT NOT NULL PRIMARY KEY,`version_id` INT NOT NULL,`is_applied` BOOL NOT NULL,`tstamp`DATETIME NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateGooseDbVersionTableTx will create the GooseDbVersion table using the provided transction
-func DBCreateGooseDbVersionTableTx(ctx context.Context, tx Tx) error {
+func DBCreateGooseDbVersionTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `goose_db_version` (`id` INT NOT NULL PRIMARY KEY,`version_id` INT NOT NULL,`is_applied` BOOL NOT NULL,`tstamp`DATETIME NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropGooseDbVersionTable will drop the GooseDbVersion table
-func DBDropGooseDbVersionTable(ctx context.Context, db DB) error {
+func DBDropGooseDbVersionTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `goose_db_version`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropGooseDbVersionTableTx will drop the GooseDbVersion table using the provided transaction
-func DBDropGooseDbVersionTableTx(ctx context.Context, tx Tx) error {
+func DBDropGooseDbVersionTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `goose_db_version`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreate will create a new GooseDbVersion record in the database
-func (t *GooseDbVersion) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *GooseDbVersion) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `goose_db_version` (`goose_db_version`.`id`,`goose_db_version`.`version_id`,`goose_db_version`.`is_applied`,`goose_db_version`.`tstamp`) VALUES (?,?,?,?)"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLInt64(t.ID),
@@ -464,7 +464,7 @@ func (t *GooseDbVersion) DBCreate(ctx context.Context, db DB) (sql.Result, error
 }
 
 // DBCreateTx will create a new GooseDbVersion record in the database using the provided transaction
-func (t *GooseDbVersion) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *GooseDbVersion) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `goose_db_version` (`goose_db_version`.`id`,`goose_db_version`.`version_id`,`goose_db_version`.`is_applied`,`goose_db_version`.`tstamp`) VALUES (?,?,?,?)"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLInt64(t.ID),
@@ -475,7 +475,7 @@ func (t *GooseDbVersion) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, err
 }
 
 // DBCreateIgnoreDuplicate will upsert the GooseDbVersion record in the database
-func (t *GooseDbVersion) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *GooseDbVersion) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `goose_db_version` (`goose_db_version`.`id`,`goose_db_version`.`version_id`,`goose_db_version`.`is_applied`,`goose_db_version`.`tstamp`) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLInt64(t.ID),
@@ -486,7 +486,7 @@ func (t *GooseDbVersion) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sq
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the GooseDbVersion record in the database using the provided transaction
-func (t *GooseDbVersion) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *GooseDbVersion) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `goose_db_version` (`goose_db_version`.`id`,`goose_db_version`.`version_id`,`goose_db_version`.`is_applied`,`goose_db_version`.`tstamp`) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLInt64(t.ID),
@@ -497,7 +497,7 @@ func (t *GooseDbVersion) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (
 }
 
 // DeleteAllGooseDbVersions deletes all GooseDbVersion records in the database with optional filters
-func DeleteAllGooseDbVersions(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllGooseDbVersions(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(GooseDbVersionTableName),
 	}
@@ -512,7 +512,7 @@ func DeleteAllGooseDbVersions(ctx context.Context, db DB, _params ...interface{}
 }
 
 // DeleteAllGooseDbVersionsTx deletes all GooseDbVersion records in the database with optional filters using the provided transaction
-func DeleteAllGooseDbVersionsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllGooseDbVersionsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(GooseDbVersionTableName),
 	}
@@ -527,7 +527,7 @@ func DeleteAllGooseDbVersionsTx(ctx context.Context, tx Tx, _params ...interface
 }
 
 // DBDelete will delete this GooseDbVersion record in the database
-func (t *GooseDbVersion) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *GooseDbVersion) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `goose_db_version` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLInt64(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -541,7 +541,7 @@ func (t *GooseDbVersion) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this GooseDbVersion record in the database using the provided transaction
-func (t *GooseDbVersion) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *GooseDbVersion) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `goose_db_version` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLInt64(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -555,7 +555,7 @@ func (t *GooseDbVersion) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the GooseDbVersion record in the database
-func (t *GooseDbVersion) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *GooseDbVersion) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "UPDATE `goose_db_version` SET `version_id`=?,`is_applied`=?,`tstamp`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLInt64(t.VersionID),
@@ -566,7 +566,7 @@ func (t *GooseDbVersion) DBUpdate(ctx context.Context, db DB) (sql.Result, error
 }
 
 // DBUpdateTx will update the GooseDbVersion record in the database using the provided transaction
-func (t *GooseDbVersion) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *GooseDbVersion) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "UPDATE `goose_db_version` SET `version_id`=?,`is_applied`=?,`tstamp`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLInt64(t.VersionID),
@@ -577,7 +577,7 @@ func (t *GooseDbVersion) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, err
 }
 
 // DBUpsert will upsert the GooseDbVersion record in the database
-func (t *GooseDbVersion) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *GooseDbVersion) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
 		q = "INSERT INTO `goose_db_version` (`goose_db_version`.`id`,`goose_db_version`.`version_id`,`goose_db_version`.`is_applied`,`goose_db_version`.`tstamp`) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE "
@@ -601,7 +601,7 @@ func (t *GooseDbVersion) DBUpsert(ctx context.Context, db DB, conditions ...inte
 }
 
 // DBUpsertTx will upsert the GooseDbVersion record in the database using the provided transaction
-func (t *GooseDbVersion) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *GooseDbVersion) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
 		q = "INSERT INTO `goose_db_version` (`goose_db_version`.`id`,`goose_db_version`.`version_id`,`goose_db_version`.`is_applied`,`goose_db_version`.`tstamp`) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE "
@@ -625,7 +625,7 @@ func (t *GooseDbVersion) DBUpsertTx(ctx context.Context, tx Tx, conditions ...in
 }
 
 // DBFindOne will find a GooseDbVersion record in the database with the primary key
-func (t *GooseDbVersion) DBFindOne(ctx context.Context, db DB, value int32) (bool, error) {
+func (t *GooseDbVersion) DBFindOne(ctx context.Context, db *sql.DB, value int32) (bool, error) {
 	q := "SELECT `goose_db_version`.`id`,`goose_db_version`.`version_id`,`goose_db_version`.`is_applied`,`goose_db_version`.`tstamp` FROM `goose_db_version` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLInt64(value))
 	var _ID sql.NullInt64
@@ -660,7 +660,7 @@ func (t *GooseDbVersion) DBFindOne(ctx context.Context, db DB, value int32) (boo
 }
 
 // DBFindOneTx will find a GooseDbVersion record in the database with the primary key using the provided transaction
-func (t *GooseDbVersion) DBFindOneTx(ctx context.Context, tx Tx, value int32) (bool, error) {
+func (t *GooseDbVersion) DBFindOneTx(ctx context.Context, tx *sql.Tx, value int32) (bool, error) {
 	q := "SELECT `goose_db_version`.`id`,`goose_db_version`.`version_id`,`goose_db_version`.`is_applied`,`goose_db_version`.`tstamp` FROM `goose_db_version` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLInt64(value))
 	var _ID sql.NullInt64
@@ -695,7 +695,7 @@ func (t *GooseDbVersion) DBFindOneTx(ctx context.Context, tx Tx, value int32) (b
 }
 
 // FindGooseDbVersions will find a GooseDbVersion record in the database with the provided parameters
-func FindGooseDbVersions(ctx context.Context, db DB, _params ...interface{}) ([]*GooseDbVersion, error) {
+func FindGooseDbVersions(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*GooseDbVersion, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("version_id"),
@@ -751,7 +751,7 @@ func FindGooseDbVersions(ctx context.Context, db DB, _params ...interface{}) ([]
 }
 
 // FindGooseDbVersionsTx will find a GooseDbVersion record in the database with the provided parameters using the provided transaction
-func FindGooseDbVersionsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*GooseDbVersion, error) {
+func FindGooseDbVersionsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*GooseDbVersion, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("version_id"),
@@ -807,7 +807,7 @@ func FindGooseDbVersionsTx(ctx context.Context, tx Tx, _params ...interface{}) (
 }
 
 // DBFind will find a GooseDbVersion record in the database with the provided parameters
-func (t *GooseDbVersion) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *GooseDbVersion) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("version_id"),
@@ -851,7 +851,7 @@ func (t *GooseDbVersion) DBFind(ctx context.Context, db DB, _params ...interface
 }
 
 // DBFindTx will find a GooseDbVersion record in the database with the provided parameters using the provided transaction
-func (t *GooseDbVersion) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *GooseDbVersion) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("version_id"),
@@ -895,7 +895,7 @@ func (t *GooseDbVersion) DBFindTx(ctx context.Context, tx Tx, _params ...interfa
 }
 
 // CountGooseDbVersions will find the count of GooseDbVersion records in the database
-func CountGooseDbVersions(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountGooseDbVersions(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(GooseDbVersionTableName),
@@ -915,7 +915,7 @@ func CountGooseDbVersions(ctx context.Context, db DB, _params ...interface{}) (i
 }
 
 // CountGooseDbVersionsTx will find the count of GooseDbVersion records in the database using the provided transaction
-func CountGooseDbVersionsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountGooseDbVersionsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(GooseDbVersionTableName),
@@ -935,7 +935,7 @@ func CountGooseDbVersionsTx(ctx context.Context, tx Tx, _params ...interface{}) 
 }
 
 // DBCount will find the count of GooseDbVersion records in the database
-func (t *GooseDbVersion) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *GooseDbVersion) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(GooseDbVersionTableName),
@@ -955,7 +955,7 @@ func (t *GooseDbVersion) DBCount(ctx context.Context, db DB, _params ...interfac
 }
 
 // DBCountTx will find the count of GooseDbVersion records in the database using the provided transaction
-func (t *GooseDbVersion) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *GooseDbVersion) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(GooseDbVersionTableName),
@@ -975,7 +975,7 @@ func (t *GooseDbVersion) DBCountTx(ctx context.Context, tx Tx, _params ...interf
 }
 
 // DBExists will return true if the GooseDbVersion record exists in the database
-func (t *GooseDbVersion) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *GooseDbVersion) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `goose_db_version` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLInt64(t.ID)).Scan(&_ID)
@@ -986,7 +986,7 @@ func (t *GooseDbVersion) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the GooseDbVersion record exists in the database using the provided transaction
-func (t *GooseDbVersion) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *GooseDbVersion) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `goose_db_version` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLInt64(t.ID)).Scan(&_ID)

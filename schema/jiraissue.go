@@ -377,10 +377,10 @@ func NewJiraIssueCSVWriterFile(fn string, dedupers ...JiraIssueCSVDeduper) (chan
 	return ch, sdone, nil
 }
 
-type JiraIssueDBAction func(ctx context.Context, db DB, record JiraIssue) error
+type JiraIssueDBAction func(ctx context.Context, db *sql.DB, record JiraIssue) error
 
 // NewJiraIssueDBWriterSize creates a DB writer that will write each issue into the DB
-func NewJiraIssueDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...JiraIssueDBAction) (chan JiraIssue, chan bool, error) {
+func NewJiraIssueDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...JiraIssueDBAction) (chan JiraIssue, chan bool, error) {
 	ch := make(chan JiraIssue, size)
 	done := make(chan bool)
 	var action JiraIssueDBAction
@@ -405,7 +405,7 @@ func NewJiraIssueDBWriterSize(ctx context.Context, db DB, errors chan<- error, s
 }
 
 // NewJiraIssueDBWriter creates a DB writer that will write each issue into the DB
-func NewJiraIssueDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...JiraIssueDBAction) (chan JiraIssue, chan bool, error) {
+func NewJiraIssueDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...JiraIssueDBAction) (chan JiraIssue, chan bool, error) {
 	return NewJiraIssueDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -618,7 +618,7 @@ func (t *JiraIssue) SetID(v string) {
 }
 
 // FindJiraIssueByID will find a JiraIssue by ID
-func FindJiraIssueByID(ctx context.Context, db DB, value string) (*JiraIssue, error) {
+func FindJiraIssueByID(ctx context.Context, db *sql.DB, value string) (*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -798,7 +798,7 @@ func FindJiraIssueByID(ctx context.Context, db DB, value string) (*JiraIssue, er
 }
 
 // FindJiraIssueByIDTx will find a JiraIssue by ID using the provided transaction
-func FindJiraIssueByIDTx(ctx context.Context, tx Tx, value string) (*JiraIssue, error) {
+func FindJiraIssueByIDTx(ctx context.Context, tx *sql.Tx, value string) (*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1001,7 +1001,7 @@ func (t *JiraIssue) SetIssueID(v string) {
 }
 
 // FindJiraIssuesByIssueID will find all JiraIssues by the IssueID value
-func FindJiraIssuesByIssueID(ctx context.Context, db DB, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByIssueID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1190,7 +1190,7 @@ func FindJiraIssuesByIssueID(ctx context.Context, db DB, value string) ([]*JiraI
 }
 
 // FindJiraIssuesByIssueIDTx will find all JiraIssues by the IssueID value using the provided transaction
-func FindJiraIssuesByIssueIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByIssueIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1389,7 +1389,7 @@ func (t *JiraIssue) SetProjectID(v string) {
 }
 
 // FindJiraIssuesByProjectID will find all JiraIssues by the ProjectID value
-func FindJiraIssuesByProjectID(ctx context.Context, db DB, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByProjectID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `project_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1578,7 +1578,7 @@ func FindJiraIssuesByProjectID(ctx context.Context, db DB, value string) ([]*Jir
 }
 
 // FindJiraIssuesByProjectIDTx will find all JiraIssues by the ProjectID value using the provided transaction
-func FindJiraIssuesByProjectIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByProjectIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `project_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1777,7 +1777,7 @@ func (t *JiraIssue) SetIssueTypeID(v string) {
 }
 
 // FindJiraIssuesByIssueTypeID will find all JiraIssues by the IssueTypeID value
-func FindJiraIssuesByIssueTypeID(ctx context.Context, db DB, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByIssueTypeID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `issue_type_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1966,7 +1966,7 @@ func FindJiraIssuesByIssueTypeID(ctx context.Context, db DB, value string) ([]*J
 }
 
 // FindJiraIssuesByIssueTypeIDTx will find all JiraIssues by the IssueTypeID value using the provided transaction
-func FindJiraIssuesByIssueTypeIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByIssueTypeIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `issue_type_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -2331,7 +2331,7 @@ func (t *JiraIssue) SetKey(v string) {
 }
 
 // FindJiraIssuesByKey will find all JiraIssues by the Key value
-func FindJiraIssuesByKey(ctx context.Context, db DB, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByKey(ctx context.Context, db *sql.DB, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `key` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -2520,7 +2520,7 @@ func FindJiraIssuesByKey(ctx context.Context, db DB, value string) ([]*JiraIssue
 }
 
 // FindJiraIssuesByKeyTx will find all JiraIssues by the Key value using the provided transaction
-func FindJiraIssuesByKeyTx(ctx context.Context, tx Tx, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByKeyTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `key` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -2748,7 +2748,7 @@ func (t *JiraIssue) SetEpicID(v string) {
 }
 
 // FindJiraIssuesByEpicID will find all JiraIssues by the EpicID value
-func FindJiraIssuesByEpicID(ctx context.Context, db DB, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByEpicID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `epic_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -2937,7 +2937,7 @@ func FindJiraIssuesByEpicID(ctx context.Context, db DB, value string) ([]*JiraIs
 }
 
 // FindJiraIssuesByEpicIDTx will find all JiraIssues by the EpicID value using the provided transaction
-func FindJiraIssuesByEpicIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByEpicIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `epic_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -3139,7 +3139,7 @@ func (t *JiraIssue) SetParentID(v string) {
 }
 
 // FindJiraIssuesByParentID will find all JiraIssues by the ParentID value
-func FindJiraIssuesByParentID(ctx context.Context, db DB, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByParentID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `parent_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -3328,7 +3328,7 @@ func FindJiraIssuesByParentID(ctx context.Context, db DB, value string) ([]*Jira
 }
 
 // FindJiraIssuesByParentIDTx will find all JiraIssues by the ParentID value using the provided transaction
-func FindJiraIssuesByParentIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByParentIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `parent_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -3530,7 +3530,7 @@ func (t *JiraIssue) SetStrategicParentID(v string) {
 }
 
 // FindJiraIssuesByStrategicParentID will find all JiraIssues by the StrategicParentID value
-func FindJiraIssuesByStrategicParentID(ctx context.Context, db DB, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByStrategicParentID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `strategic_parent_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -3719,7 +3719,7 @@ func FindJiraIssuesByStrategicParentID(ctx context.Context, db DB, value string)
 }
 
 // FindJiraIssuesByStrategicParentIDTx will find all JiraIssues by the StrategicParentID value using the provided transaction
-func FindJiraIssuesByStrategicParentIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByStrategicParentIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `strategic_parent_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -3971,7 +3971,7 @@ func (t *JiraIssue) SetCustomerID(v string) {
 }
 
 // FindJiraIssuesByCustomerID will find all JiraIssues by the CustomerID value
-func FindJiraIssuesByCustomerID(ctx context.Context, db DB, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -4160,7 +4160,7 @@ func FindJiraIssuesByCustomerID(ctx context.Context, db DB, value string) ([]*Ji
 }
 
 // FindJiraIssuesByCustomerIDTx will find all JiraIssues by the CustomerID value using the provided transaction
-func FindJiraIssuesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -4359,7 +4359,7 @@ func (t *JiraIssue) SetRefID(v string) {
 }
 
 // FindJiraIssuesByRefID will find all JiraIssues by the RefID value
-func FindJiraIssuesByRefID(ctx context.Context, db DB, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByRefID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -4548,7 +4548,7 @@ func FindJiraIssuesByRefID(ctx context.Context, db DB, value string) ([]*JiraIss
 }
 
 // FindJiraIssuesByRefIDTx will find all JiraIssues by the RefID value using the provided transaction
-func FindJiraIssuesByRefIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -4747,7 +4747,7 @@ func (t *JiraIssue) SetUserRefID(v string) {
 }
 
 // FindJiraIssuesByUserRefID will find all JiraIssues by the UserRefID value
-func FindJiraIssuesByUserRefID(ctx context.Context, db DB, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByUserRefID(ctx context.Context, db *sql.DB, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `user_ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -4936,7 +4936,7 @@ func FindJiraIssuesByUserRefID(ctx context.Context, db DB, value string) ([]*Jir
 }
 
 // FindJiraIssuesByUserRefIDTx will find all JiraIssues by the UserRefID value using the provided transaction
-func FindJiraIssuesByUserRefIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssue, error) {
+func FindJiraIssuesByUserRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraIssue, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `user_ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -5140,28 +5140,28 @@ func (t *JiraIssue) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateJiraIssueTable will create the JiraIssue table
-func DBCreateJiraIssueTable(ctx context.Context, db DB) error {
+func DBCreateJiraIssueTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `jira_issue` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`issue_id`VARCHAR(255) NOT NULL,`project_id` VARCHAR(64) NOT NULL,`issue_type_id` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64),`assignee_id`VARCHAR(64),`priority_id`VARCHAR(64),`status_id` VARCHAR(64) NOT NULL,`resolution_id` VARCHAR(64),`fix_version_ids` JSON,`version_ids`JSON,`environment`TEXT,`component_ids` JSON,`label_ids` JSON,`duedate_at` BIGINT UNSIGNED,`planned_start_at` BIGINT UNSIGNED,`planned_end_at`BIGINT UNSIGNED,`key` VARCHAR(20) NOT NULL,`custom_field_ids` JSON,`sprint_id` JSON,`epic_id` VARCHAR(64),`parent_id` VARCHAR(64),`strategic_parent_id` VARCHAR(64),`in_progress_count`INT NOT NULL,`reopen_count` INT NOT NULL,`in_progress_duration`BIGINT NOT NULL,`verification_duration` BIGINT NOT NULL,`in_progress_start_at`BIGINT,`customer_id`VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`user_ref_id`VARCHAR(64) NOT NULL,`cost` REAL NOT NULL DEFAULT 0,INDEX jira_issue_issue_id_index (`issue_id`),INDEX jira_issue_project_id_index (`project_id`),INDEX jira_issue_issue_type_id_index (`issue_type_id`),INDEX jira_issue_key_index (`key`),INDEX jira_issue_epic_id_index (`epic_id`),INDEX jira_issue_parent_id_index (`parent_id`),INDEX jira_issue_strategic_parent_id_index (`strategic_parent_id`),INDEX jira_issue_customer_id_index (`customer_id`),INDEX jira_issue_ref_id_index (`ref_id`),INDEX jira_issue_user_ref_id_index (`user_ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraIssueTableTx will create the JiraIssue table using the provided transction
-func DBCreateJiraIssueTableTx(ctx context.Context, tx Tx) error {
+func DBCreateJiraIssueTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `jira_issue` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`issue_id`VARCHAR(255) NOT NULL,`project_id` VARCHAR(64) NOT NULL,`issue_type_id` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64),`assignee_id`VARCHAR(64),`priority_id`VARCHAR(64),`status_id` VARCHAR(64) NOT NULL,`resolution_id` VARCHAR(64),`fix_version_ids` JSON,`version_ids`JSON,`environment`TEXT,`component_ids` JSON,`label_ids` JSON,`duedate_at` BIGINT UNSIGNED,`planned_start_at` BIGINT UNSIGNED,`planned_end_at`BIGINT UNSIGNED,`key` VARCHAR(20) NOT NULL,`custom_field_ids` JSON,`sprint_id` JSON,`epic_id` VARCHAR(64),`parent_id` VARCHAR(64),`strategic_parent_id` VARCHAR(64),`in_progress_count`INT NOT NULL,`reopen_count` INT NOT NULL,`in_progress_duration`BIGINT NOT NULL,`verification_duration` BIGINT NOT NULL,`in_progress_start_at`BIGINT,`customer_id`VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`user_ref_id`VARCHAR(64) NOT NULL,`cost` REAL NOT NULL DEFAULT 0,INDEX jira_issue_issue_id_index (`issue_id`),INDEX jira_issue_project_id_index (`project_id`),INDEX jira_issue_issue_type_id_index (`issue_type_id`),INDEX jira_issue_key_index (`key`),INDEX jira_issue_epic_id_index (`epic_id`),INDEX jira_issue_parent_id_index (`parent_id`),INDEX jira_issue_strategic_parent_id_index (`strategic_parent_id`),INDEX jira_issue_customer_id_index (`customer_id`),INDEX jira_issue_ref_id_index (`ref_id`),INDEX jira_issue_user_ref_id_index (`user_ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraIssueTable will drop the JiraIssue table
-func DBDropJiraIssueTable(ctx context.Context, db DB) error {
+func DBDropJiraIssueTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `jira_issue`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraIssueTableTx will drop the JiraIssue table using the provided transaction
-func DBDropJiraIssueTableTx(ctx context.Context, tx Tx) error {
+func DBDropJiraIssueTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `jira_issue`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -5206,7 +5206,7 @@ func (t *JiraIssue) CalculateChecksum() string {
 }
 
 // DBCreate will create a new JiraIssue record in the database
-func (t *JiraIssue) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraIssue) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue` (`jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -5251,7 +5251,7 @@ func (t *JiraIssue) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBCreateTx will create a new JiraIssue record in the database using the provided transaction
-func (t *JiraIssue) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraIssue) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue` (`jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -5296,7 +5296,7 @@ func (t *JiraIssue) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBCreateIgnoreDuplicate will upsert the JiraIssue record in the database
-func (t *JiraIssue) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraIssue) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue` (`jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -5341,7 +5341,7 @@ func (t *JiraIssue) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Res
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the JiraIssue record in the database using the provided transaction
-func (t *JiraIssue) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraIssue) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_issue` (`jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -5386,7 +5386,7 @@ func (t *JiraIssue) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.R
 }
 
 // DeleteAllJiraIssues deletes all JiraIssue records in the database with optional filters
-func DeleteAllJiraIssues(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllJiraIssues(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraIssueTableName),
 	}
@@ -5401,7 +5401,7 @@ func DeleteAllJiraIssues(ctx context.Context, db DB, _params ...interface{}) err
 }
 
 // DeleteAllJiraIssuesTx deletes all JiraIssue records in the database with optional filters using the provided transaction
-func DeleteAllJiraIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllJiraIssuesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraIssueTableName),
 	}
@@ -5416,7 +5416,7 @@ func DeleteAllJiraIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) e
 }
 
 // DBDelete will delete this JiraIssue record in the database
-func (t *JiraIssue) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *JiraIssue) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `jira_issue` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -5430,7 +5430,7 @@ func (t *JiraIssue) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this JiraIssue record in the database using the provided transaction
-func (t *JiraIssue) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraIssue) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `jira_issue` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -5444,7 +5444,7 @@ func (t *JiraIssue) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the JiraIssue record in the database
-func (t *JiraIssue) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraIssue) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -5489,7 +5489,7 @@ func (t *JiraIssue) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBUpdateTx will update the JiraIssue record in the database using the provided transaction
-func (t *JiraIssue) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraIssue) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -5534,7 +5534,7 @@ func (t *JiraIssue) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBUpsert will upsert the JiraIssue record in the database
-func (t *JiraIssue) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraIssue) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -5592,7 +5592,7 @@ func (t *JiraIssue) DBUpsert(ctx context.Context, db DB, conditions ...interface
 }
 
 // DBUpsertTx will upsert the JiraIssue record in the database using the provided transaction
-func (t *JiraIssue) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraIssue) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -5650,7 +5650,7 @@ func (t *JiraIssue) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interfa
 }
 
 // DBFindOne will find a JiraIssue record in the database with the primary key
-func (t *JiraIssue) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *JiraIssue) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -5830,7 +5830,7 @@ func (t *JiraIssue) DBFindOne(ctx context.Context, db DB, value string) (bool, e
 }
 
 // DBFindOneTx will find a JiraIssue record in the database with the primary key using the provided transaction
-func (t *JiraIssue) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *JiraIssue) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `jira_issue`.`id`,`jira_issue`.`checksum`,`jira_issue`.`issue_id`,`jira_issue`.`project_id`,`jira_issue`.`issue_type_id`,`jira_issue`.`user_id`,`jira_issue`.`assignee_id`,`jira_issue`.`priority_id`,`jira_issue`.`status_id`,`jira_issue`.`resolution_id`,`jira_issue`.`fix_version_ids`,`jira_issue`.`version_ids`,`jira_issue`.`environment`,`jira_issue`.`component_ids`,`jira_issue`.`label_ids`,`jira_issue`.`duedate_at`,`jira_issue`.`planned_start_at`,`jira_issue`.`planned_end_at`,`jira_issue`.`key`,`jira_issue`.`custom_field_ids`,`jira_issue`.`sprint_id`,`jira_issue`.`epic_id`,`jira_issue`.`parent_id`,`jira_issue`.`strategic_parent_id`,`jira_issue`.`in_progress_count`,`jira_issue`.`reopen_count`,`jira_issue`.`in_progress_duration`,`jira_issue`.`verification_duration`,`jira_issue`.`in_progress_start_at`,`jira_issue`.`customer_id`,`jira_issue`.`ref_id`,`jira_issue`.`user_ref_id`,`jira_issue`.`cost` FROM `jira_issue` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -6010,7 +6010,7 @@ func (t *JiraIssue) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool,
 }
 
 // FindJiraIssues will find a JiraIssue record in the database with the provided parameters
-func FindJiraIssues(ctx context.Context, db DB, _params ...interface{}) ([]*JiraIssue, error) {
+func FindJiraIssues(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*JiraIssue, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -6240,7 +6240,7 @@ func FindJiraIssues(ctx context.Context, db DB, _params ...interface{}) ([]*Jira
 }
 
 // FindJiraIssuesTx will find a JiraIssue record in the database with the provided parameters using the provided transaction
-func FindJiraIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*JiraIssue, error) {
+func FindJiraIssuesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*JiraIssue, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -6470,7 +6470,7 @@ func FindJiraIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*Ji
 }
 
 // DBFind will find a JiraIssue record in the database with the provided parameters
-func (t *JiraIssue) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *JiraIssue) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -6688,7 +6688,7 @@ func (t *JiraIssue) DBFind(ctx context.Context, db DB, _params ...interface{}) (
 }
 
 // DBFindTx will find a JiraIssue record in the database with the provided parameters using the provided transaction
-func (t *JiraIssue) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *JiraIssue) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -6906,7 +6906,7 @@ func (t *JiraIssue) DBFindTx(ctx context.Context, tx Tx, _params ...interface{})
 }
 
 // CountJiraIssues will find the count of JiraIssue records in the database
-func CountJiraIssues(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountJiraIssues(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraIssueTableName),
@@ -6926,7 +6926,7 @@ func CountJiraIssues(ctx context.Context, db DB, _params ...interface{}) (int64,
 }
 
 // CountJiraIssuesTx will find the count of JiraIssue records in the database using the provided transaction
-func CountJiraIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountJiraIssuesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraIssueTableName),
@@ -6946,7 +6946,7 @@ func CountJiraIssuesTx(ctx context.Context, tx Tx, _params ...interface{}) (int6
 }
 
 // DBCount will find the count of JiraIssue records in the database
-func (t *JiraIssue) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *JiraIssue) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraIssueTableName),
@@ -6966,7 +6966,7 @@ func (t *JiraIssue) DBCount(ctx context.Context, db DB, _params ...interface{}) 
 }
 
 // DBCountTx will find the count of JiraIssue records in the database using the provided transaction
-func (t *JiraIssue) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *JiraIssue) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraIssueTableName),
@@ -6986,7 +6986,7 @@ func (t *JiraIssue) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}
 }
 
 // DBExists will return true if the JiraIssue record exists in the database
-func (t *JiraIssue) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *JiraIssue) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `jira_issue` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -6997,7 +6997,7 @@ func (t *JiraIssue) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the JiraIssue record exists in the database using the provided transaction
-func (t *JiraIssue) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraIssue) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `jira_issue` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

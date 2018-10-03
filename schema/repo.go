@@ -301,10 +301,10 @@ func NewRepoCSVWriterFile(fn string, dedupers ...RepoCSVDeduper) (chan Repo, cha
 	return ch, sdone, nil
 }
 
-type RepoDBAction func(ctx context.Context, db DB, record Repo) error
+type RepoDBAction func(ctx context.Context, db *sql.DB, record Repo) error
 
 // NewRepoDBWriterSize creates a DB writer that will write each issue into the DB
-func NewRepoDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...RepoDBAction) (chan Repo, chan bool, error) {
+func NewRepoDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...RepoDBAction) (chan Repo, chan bool, error) {
 	ch := make(chan Repo, size)
 	done := make(chan bool)
 	var action RepoDBAction
@@ -329,7 +329,7 @@ func NewRepoDBWriterSize(ctx context.Context, db DB, errors chan<- error, size i
 }
 
 // NewRepoDBWriter creates a DB writer that will write each issue into the DB
-func NewRepoDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...RepoDBAction) (chan Repo, chan bool, error) {
+func NewRepoDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...RepoDBAction) (chan Repo, chan bool, error) {
 	return NewRepoDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -428,7 +428,7 @@ func (t *Repo) SetID(v string) {
 }
 
 // FindRepoByID will find a Repo by ID
-func FindRepoByID(ctx context.Context, db DB, value string) (*Repo, error) {
+func FindRepoByID(ctx context.Context, db *sql.DB, value string) (*Repo, error) {
 	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -513,7 +513,7 @@ func FindRepoByID(ctx context.Context, db DB, value string) (*Repo, error) {
 }
 
 // FindRepoByIDTx will find a Repo by ID using the provided transaction
-func FindRepoByIDTx(ctx context.Context, tx Tx, value string) (*Repo, error) {
+func FindRepoByIDTx(ctx context.Context, tx *sql.Tx, value string) (*Repo, error) {
 	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -621,7 +621,7 @@ func (t *Repo) SetName(v string) {
 }
 
 // FindReposByName will find all Repos by the Name value
-func FindReposByName(ctx context.Context, db DB, value string) ([]*Repo, error) {
+func FindReposByName(ctx context.Context, db *sql.DB, value string) ([]*Repo, error) {
 	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `name` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -715,7 +715,7 @@ func FindReposByName(ctx context.Context, db DB, value string) ([]*Repo, error) 
 }
 
 // FindReposByNameTx will find all Repos by the Name value using the provided transaction
-func FindReposByNameTx(ctx context.Context, tx Tx, value string) ([]*Repo, error) {
+func FindReposByNameTx(ctx context.Context, tx *sql.Tx, value string) ([]*Repo, error) {
 	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `name` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -898,7 +898,7 @@ func (t *Repo) SetCustomerID(v string) {
 }
 
 // FindReposByCustomerID will find all Repos by the CustomerID value
-func FindReposByCustomerID(ctx context.Context, db DB, value string) ([]*Repo, error) {
+func FindReposByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*Repo, error) {
 	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -992,7 +992,7 @@ func FindReposByCustomerID(ctx context.Context, db DB, value string) ([]*Repo, e
 }
 
 // FindReposByCustomerIDTx will find all Repos by the CustomerID value using the provided transaction
-func FindReposByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*Repo, error) {
+func FindReposByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*Repo, error) {
 	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1096,7 +1096,7 @@ func (t *Repo) SetRefType(v string) {
 }
 
 // FindReposByRefType will find all Repos by the RefType value
-func FindReposByRefType(ctx context.Context, db DB, value string) ([]*Repo, error) {
+func FindReposByRefType(ctx context.Context, db *sql.DB, value string) ([]*Repo, error) {
 	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1190,7 +1190,7 @@ func FindReposByRefType(ctx context.Context, db DB, value string) ([]*Repo, erro
 }
 
 // FindReposByRefTypeTx will find all Repos by the RefType value using the provided transaction
-func FindReposByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*Repo, error) {
+func FindReposByRefTypeTx(ctx context.Context, tx *sql.Tx, value string) ([]*Repo, error) {
 	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1294,7 +1294,7 @@ func (t *Repo) SetRefID(v string) {
 }
 
 // FindReposByRefID will find all Repos by the RefID value
-func FindReposByRefID(ctx context.Context, db DB, value string) ([]*Repo, error) {
+func FindReposByRefID(ctx context.Context, db *sql.DB, value string) ([]*Repo, error) {
 	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1388,7 +1388,7 @@ func FindReposByRefID(ctx context.Context, db DB, value string) ([]*Repo, error)
 }
 
 // FindReposByRefIDTx will find all Repos by the RefID value using the provided transaction
-func FindReposByRefIDTx(ctx context.Context, tx Tx, value string) ([]*Repo, error) {
+func FindReposByRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*Repo, error) {
 	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1500,28 +1500,28 @@ func (t *Repo) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateRepoTable will create the Repo table
-func DBCreateRepoTable(ctx context.Context, db DB) error {
+func DBCreateRepoTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `repo` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(255) NOT NULL,`url` VARCHAR(255) NOT NULL,`active` BOOL NOT NULL DEFAULT true,`fork` BOOL NOT NULL DEFAULT false,`parent_id` VARCHAR(64),`description`TEXT,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,`ref_type`VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata`JSON,INDEX repo_name_index (`name`),INDEX repo_customer_id_index (`customer_id`),INDEX repo_ref_type_index (`ref_type`),INDEX repo_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateRepoTableTx will create the Repo table using the provided transction
-func DBCreateRepoTableTx(ctx context.Context, tx Tx) error {
+func DBCreateRepoTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `repo` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(255) NOT NULL,`url` VARCHAR(255) NOT NULL,`active` BOOL NOT NULL DEFAULT true,`fork` BOOL NOT NULL DEFAULT false,`parent_id` VARCHAR(64),`description`TEXT,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,`ref_type`VARCHAR(20) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`metadata`JSON,INDEX repo_name_index (`name`),INDEX repo_customer_id_index (`customer_id`),INDEX repo_ref_type_index (`ref_type`),INDEX repo_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropRepoTable will drop the Repo table
-func DBDropRepoTable(ctx context.Context, db DB) error {
+func DBDropRepoTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `repo`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropRepoTableTx will drop the Repo table using the provided transaction
-func DBDropRepoTableTx(ctx context.Context, tx Tx) error {
+func DBDropRepoTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `repo`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -1547,7 +1547,7 @@ func (t *Repo) CalculateChecksum() string {
 }
 
 // DBCreate will create a new Repo record in the database
-func (t *Repo) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *Repo) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `repo` (`repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1573,7 +1573,7 @@ func (t *Repo) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBCreateTx will create a new Repo record in the database using the provided transaction
-func (t *Repo) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *Repo) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `repo` (`repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1599,7 +1599,7 @@ func (t *Repo) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBCreateIgnoreDuplicate will upsert the Repo record in the database
-func (t *Repo) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *Repo) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `repo` (`repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1625,7 +1625,7 @@ func (t *Repo) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, 
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the Repo record in the database using the provided transaction
-func (t *Repo) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *Repo) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `repo` (`repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1651,7 +1651,7 @@ func (t *Repo) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result
 }
 
 // DeleteAllRepos deletes all Repo records in the database with optional filters
-func DeleteAllRepos(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllRepos(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(RepoTableName),
 	}
@@ -1666,7 +1666,7 @@ func DeleteAllRepos(ctx context.Context, db DB, _params ...interface{}) error {
 }
 
 // DeleteAllReposTx deletes all Repo records in the database with optional filters using the provided transaction
-func DeleteAllReposTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllReposTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(RepoTableName),
 	}
@@ -1681,7 +1681,7 @@ func DeleteAllReposTx(ctx context.Context, tx Tx, _params ...interface{}) error 
 }
 
 // DBDelete will delete this Repo record in the database
-func (t *Repo) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *Repo) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `repo` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1695,7 +1695,7 @@ func (t *Repo) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this Repo record in the database using the provided transaction
-func (t *Repo) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *Repo) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `repo` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1709,7 +1709,7 @@ func (t *Repo) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the Repo record in the database
-func (t *Repo) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *Repo) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1735,7 +1735,7 @@ func (t *Repo) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBUpdateTx will update the Repo record in the database using the provided transaction
-func (t *Repo) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *Repo) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1761,7 +1761,7 @@ func (t *Repo) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBUpsert will upsert the Repo record in the database
-func (t *Repo) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *Repo) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1800,7 +1800,7 @@ func (t *Repo) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (
 }
 
 // DBUpsertTx will upsert the Repo record in the database using the provided transaction
-func (t *Repo) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *Repo) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1839,7 +1839,7 @@ func (t *Repo) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{})
 }
 
 // DBFindOne will find a Repo record in the database with the primary key
-func (t *Repo) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *Repo) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1924,7 +1924,7 @@ func (t *Repo) DBFindOne(ctx context.Context, db DB, value string) (bool, error)
 }
 
 // DBFindOneTx will find a Repo record in the database with the primary key using the provided transaction
-func (t *Repo) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *Repo) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -2009,7 +2009,7 @@ func (t *Repo) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, erro
 }
 
 // FindRepos will find a Repo record in the database with the provided parameters
-func FindRepos(ctx context.Context, db DB, _params ...interface{}) ([]*Repo, error) {
+func FindRepos(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*Repo, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2125,7 +2125,7 @@ func FindRepos(ctx context.Context, db DB, _params ...interface{}) ([]*Repo, err
 }
 
 // FindReposTx will find a Repo record in the database with the provided parameters using the provided transaction
-func FindReposTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*Repo, error) {
+func FindReposTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*Repo, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2241,7 +2241,7 @@ func FindReposTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*Repo, e
 }
 
 // DBFind will find a Repo record in the database with the provided parameters
-func (t *Repo) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *Repo) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2345,7 +2345,7 @@ func (t *Repo) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool,
 }
 
 // DBFindTx will find a Repo record in the database with the provided parameters using the provided transaction
-func (t *Repo) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *Repo) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2449,7 +2449,7 @@ func (t *Repo) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (boo
 }
 
 // CountRepos will find the count of Repo records in the database
-func CountRepos(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountRepos(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(RepoTableName),
@@ -2469,7 +2469,7 @@ func CountRepos(ctx context.Context, db DB, _params ...interface{}) (int64, erro
 }
 
 // CountReposTx will find the count of Repo records in the database using the provided transaction
-func CountReposTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountReposTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(RepoTableName),
@@ -2489,7 +2489,7 @@ func CountReposTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, er
 }
 
 // DBCount will find the count of Repo records in the database
-func (t *Repo) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *Repo) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(RepoTableName),
@@ -2509,7 +2509,7 @@ func (t *Repo) DBCount(ctx context.Context, db DB, _params ...interface{}) (int6
 }
 
 // DBCountTx will find the count of Repo records in the database using the provided transaction
-func (t *Repo) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *Repo) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(RepoTableName),
@@ -2529,7 +2529,7 @@ func (t *Repo) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (in
 }
 
 // DBExists will return true if the Repo record exists in the database
-func (t *Repo) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *Repo) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `repo` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -2540,7 +2540,7 @@ func (t *Repo) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the Repo record exists in the database using the provided transaction
-func (t *Repo) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *Repo) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `repo` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

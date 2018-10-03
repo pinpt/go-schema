@@ -285,10 +285,10 @@ func NewSonarqubeMetricCSVWriterFile(fn string, dedupers ...SonarqubeMetricCSVDe
 	return ch, sdone, nil
 }
 
-type SonarqubeMetricDBAction func(ctx context.Context, db DB, record SonarqubeMetric) error
+type SonarqubeMetricDBAction func(ctx context.Context, db *sql.DB, record SonarqubeMetric) error
 
 // NewSonarqubeMetricDBWriterSize creates a DB writer that will write each issue into the DB
-func NewSonarqubeMetricDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...SonarqubeMetricDBAction) (chan SonarqubeMetric, chan bool, error) {
+func NewSonarqubeMetricDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...SonarqubeMetricDBAction) (chan SonarqubeMetric, chan bool, error) {
 	ch := make(chan SonarqubeMetric, size)
 	done := make(chan bool)
 	var action SonarqubeMetricDBAction
@@ -313,7 +313,7 @@ func NewSonarqubeMetricDBWriterSize(ctx context.Context, db DB, errors chan<- er
 }
 
 // NewSonarqubeMetricDBWriter creates a DB writer that will write each issue into the DB
-func NewSonarqubeMetricDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...SonarqubeMetricDBAction) (chan SonarqubeMetric, chan bool, error) {
+func NewSonarqubeMetricDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...SonarqubeMetricDBAction) (chan SonarqubeMetric, chan bool, error) {
 	return NewSonarqubeMetricDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -388,7 +388,7 @@ func (t *SonarqubeMetric) SetID(v string) {
 }
 
 // FindSonarqubeMetricByID will find a SonarqubeMetric by ID
-func FindSonarqubeMetricByID(ctx context.Context, db DB, value string) (*SonarqubeMetric, error) {
+func FindSonarqubeMetricByID(ctx context.Context, db *sql.DB, value string) (*SonarqubeMetric, error) {
 	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -453,7 +453,7 @@ func FindSonarqubeMetricByID(ctx context.Context, db DB, value string) (*Sonarqu
 }
 
 // FindSonarqubeMetricByIDTx will find a SonarqubeMetric by ID using the provided transaction
-func FindSonarqubeMetricByIDTx(ctx context.Context, tx Tx, value string) (*SonarqubeMetric, error) {
+func FindSonarqubeMetricByIDTx(ctx context.Context, tx *sql.Tx, value string) (*SonarqubeMetric, error) {
 	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -541,7 +541,7 @@ func (t *SonarqubeMetric) SetCustomerID(v string) {
 }
 
 // FindSonarqubeMetricsByCustomerID will find all SonarqubeMetrics by the CustomerID value
-func FindSonarqubeMetricsByCustomerID(ctx context.Context, db DB, value string) ([]*SonarqubeMetric, error) {
+func FindSonarqubeMetricsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*SonarqubeMetric, error) {
 	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -615,7 +615,7 @@ func FindSonarqubeMetricsByCustomerID(ctx context.Context, db DB, value string) 
 }
 
 // FindSonarqubeMetricsByCustomerIDTx will find all SonarqubeMetrics by the CustomerID value using the provided transaction
-func FindSonarqubeMetricsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*SonarqubeMetric, error) {
+func FindSonarqubeMetricsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*SonarqubeMetric, error) {
 	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -709,7 +709,7 @@ func (t *SonarqubeMetric) SetProjectID(v string) {
 }
 
 // FindSonarqubeMetricsByProjectID will find all SonarqubeMetrics by the ProjectID value
-func FindSonarqubeMetricsByProjectID(ctx context.Context, db DB, value string) ([]*SonarqubeMetric, error) {
+func FindSonarqubeMetricsByProjectID(ctx context.Context, db *sql.DB, value string) ([]*SonarqubeMetric, error) {
 	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `project_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -783,7 +783,7 @@ func FindSonarqubeMetricsByProjectID(ctx context.Context, db DB, value string) (
 }
 
 // FindSonarqubeMetricsByProjectIDTx will find all SonarqubeMetrics by the ProjectID value using the provided transaction
-func FindSonarqubeMetricsByProjectIDTx(ctx context.Context, tx Tx, value string) ([]*SonarqubeMetric, error) {
+func FindSonarqubeMetricsByProjectIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*SonarqubeMetric, error) {
 	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `project_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -912,28 +912,28 @@ func (t *SonarqubeMetric) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateSonarqubeMetricTable will create the SonarqubeMetric table
-func DBCreateSonarqubeMetricTable(ctx context.Context, db DB) error {
+func DBCreateSonarqubeMetricTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `sonarqube_metric` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`project_ext_id` VARCHAR(255) NOT NULL,`project_id` VARCHAR(64) NOT NULL,`project_key_ext_id` VARCHAR(255) NOT NULL,`ext_id`VARCHAR(255) NOT NULL,`date` BIGINT NOT NULL,`metric`VARCHAR(64) NOT NULL,`value` VARCHAR(64) NOT NULL,INDEX sonarqube_metric_customer_id_index (`customer_id`),INDEX sonarqube_metric_project_id_index (`project_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateSonarqubeMetricTableTx will create the SonarqubeMetric table using the provided transction
-func DBCreateSonarqubeMetricTableTx(ctx context.Context, tx Tx) error {
+func DBCreateSonarqubeMetricTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `sonarqube_metric` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`project_ext_id` VARCHAR(255) NOT NULL,`project_id` VARCHAR(64) NOT NULL,`project_key_ext_id` VARCHAR(255) NOT NULL,`ext_id`VARCHAR(255) NOT NULL,`date` BIGINT NOT NULL,`metric`VARCHAR(64) NOT NULL,`value` VARCHAR(64) NOT NULL,INDEX sonarqube_metric_customer_id_index (`customer_id`),INDEX sonarqube_metric_project_id_index (`project_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropSonarqubeMetricTable will drop the SonarqubeMetric table
-func DBDropSonarqubeMetricTable(ctx context.Context, db DB) error {
+func DBDropSonarqubeMetricTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `sonarqube_metric`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropSonarqubeMetricTableTx will drop the SonarqubeMetric table using the provided transaction
-func DBDropSonarqubeMetricTableTx(ctx context.Context, tx Tx) error {
+func DBDropSonarqubeMetricTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `sonarqube_metric`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -955,7 +955,7 @@ func (t *SonarqubeMetric) CalculateChecksum() string {
 }
 
 // DBCreate will create a new SonarqubeMetric record in the database
-func (t *SonarqubeMetric) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *SonarqubeMetric) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -977,7 +977,7 @@ func (t *SonarqubeMetric) DBCreate(ctx context.Context, db DB) (sql.Result, erro
 }
 
 // DBCreateTx will create a new SonarqubeMetric record in the database using the provided transaction
-func (t *SonarqubeMetric) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *SonarqubeMetric) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -999,7 +999,7 @@ func (t *SonarqubeMetric) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, er
 }
 
 // DBCreateIgnoreDuplicate will upsert the SonarqubeMetric record in the database
-func (t *SonarqubeMetric) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *SonarqubeMetric) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1021,7 +1021,7 @@ func (t *SonarqubeMetric) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (s
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the SonarqubeMetric record in the database using the provided transaction
-func (t *SonarqubeMetric) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *SonarqubeMetric) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `sonarqube_metric` (`sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1043,7 +1043,7 @@ func (t *SonarqubeMetric) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) 
 }
 
 // DeleteAllSonarqubeMetrics deletes all SonarqubeMetric records in the database with optional filters
-func DeleteAllSonarqubeMetrics(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllSonarqubeMetrics(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(SonarqubeMetricTableName),
 	}
@@ -1058,7 +1058,7 @@ func DeleteAllSonarqubeMetrics(ctx context.Context, db DB, _params ...interface{
 }
 
 // DeleteAllSonarqubeMetricsTx deletes all SonarqubeMetric records in the database with optional filters using the provided transaction
-func DeleteAllSonarqubeMetricsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllSonarqubeMetricsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(SonarqubeMetricTableName),
 	}
@@ -1073,7 +1073,7 @@ func DeleteAllSonarqubeMetricsTx(ctx context.Context, tx Tx, _params ...interfac
 }
 
 // DBDelete will delete this SonarqubeMetric record in the database
-func (t *SonarqubeMetric) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *SonarqubeMetric) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `sonarqube_metric` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1087,7 +1087,7 @@ func (t *SonarqubeMetric) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this SonarqubeMetric record in the database using the provided transaction
-func (t *SonarqubeMetric) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *SonarqubeMetric) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `sonarqube_metric` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1101,7 +1101,7 @@ func (t *SonarqubeMetric) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the SonarqubeMetric record in the database
-func (t *SonarqubeMetric) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *SonarqubeMetric) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1123,7 +1123,7 @@ func (t *SonarqubeMetric) DBUpdate(ctx context.Context, db DB) (sql.Result, erro
 }
 
 // DBUpdateTx will update the SonarqubeMetric record in the database using the provided transaction
-func (t *SonarqubeMetric) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *SonarqubeMetric) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1145,7 +1145,7 @@ func (t *SonarqubeMetric) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, er
 }
 
 // DBUpsert will upsert the SonarqubeMetric record in the database
-func (t *SonarqubeMetric) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *SonarqubeMetric) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1180,7 +1180,7 @@ func (t *SonarqubeMetric) DBUpsert(ctx context.Context, db DB, conditions ...int
 }
 
 // DBUpsertTx will upsert the SonarqubeMetric record in the database using the provided transaction
-func (t *SonarqubeMetric) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *SonarqubeMetric) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1215,7 +1215,7 @@ func (t *SonarqubeMetric) DBUpsertTx(ctx context.Context, tx Tx, conditions ...i
 }
 
 // DBFindOne will find a SonarqubeMetric record in the database with the primary key
-func (t *SonarqubeMetric) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *SonarqubeMetric) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1280,7 +1280,7 @@ func (t *SonarqubeMetric) DBFindOne(ctx context.Context, db DB, value string) (b
 }
 
 // DBFindOneTx will find a SonarqubeMetric record in the database with the primary key using the provided transaction
-func (t *SonarqubeMetric) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *SonarqubeMetric) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `sonarqube_metric`.`id`,`sonarqube_metric`.`checksum`,`sonarqube_metric`.`customer_id`,`sonarqube_metric`.`project_ext_id`,`sonarqube_metric`.`project_id`,`sonarqube_metric`.`project_key_ext_id`,`sonarqube_metric`.`ext_id`,`sonarqube_metric`.`date`,`sonarqube_metric`.`metric`,`sonarqube_metric`.`value` FROM `sonarqube_metric` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1345,7 +1345,7 @@ func (t *SonarqubeMetric) DBFindOneTx(ctx context.Context, tx Tx, value string) 
 }
 
 // FindSonarqubeMetrics will find a SonarqubeMetric record in the database with the provided parameters
-func FindSonarqubeMetrics(ctx context.Context, db DB, _params ...interface{}) ([]*SonarqubeMetric, error) {
+func FindSonarqubeMetrics(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*SonarqubeMetric, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1437,7 +1437,7 @@ func FindSonarqubeMetrics(ctx context.Context, db DB, _params ...interface{}) ([
 }
 
 // FindSonarqubeMetricsTx will find a SonarqubeMetric record in the database with the provided parameters using the provided transaction
-func FindSonarqubeMetricsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*SonarqubeMetric, error) {
+func FindSonarqubeMetricsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*SonarqubeMetric, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1529,7 +1529,7 @@ func FindSonarqubeMetricsTx(ctx context.Context, tx Tx, _params ...interface{}) 
 }
 
 // DBFind will find a SonarqubeMetric record in the database with the provided parameters
-func (t *SonarqubeMetric) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *SonarqubeMetric) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1609,7 +1609,7 @@ func (t *SonarqubeMetric) DBFind(ctx context.Context, db DB, _params ...interfac
 }
 
 // DBFindTx will find a SonarqubeMetric record in the database with the provided parameters using the provided transaction
-func (t *SonarqubeMetric) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *SonarqubeMetric) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1689,7 +1689,7 @@ func (t *SonarqubeMetric) DBFindTx(ctx context.Context, tx Tx, _params ...interf
 }
 
 // CountSonarqubeMetrics will find the count of SonarqubeMetric records in the database
-func CountSonarqubeMetrics(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountSonarqubeMetrics(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(SonarqubeMetricTableName),
@@ -1709,7 +1709,7 @@ func CountSonarqubeMetrics(ctx context.Context, db DB, _params ...interface{}) (
 }
 
 // CountSonarqubeMetricsTx will find the count of SonarqubeMetric records in the database using the provided transaction
-func CountSonarqubeMetricsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountSonarqubeMetricsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(SonarqubeMetricTableName),
@@ -1729,7 +1729,7 @@ func CountSonarqubeMetricsTx(ctx context.Context, tx Tx, _params ...interface{})
 }
 
 // DBCount will find the count of SonarqubeMetric records in the database
-func (t *SonarqubeMetric) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *SonarqubeMetric) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(SonarqubeMetricTableName),
@@ -1749,7 +1749,7 @@ func (t *SonarqubeMetric) DBCount(ctx context.Context, db DB, _params ...interfa
 }
 
 // DBCountTx will find the count of SonarqubeMetric records in the database using the provided transaction
-func (t *SonarqubeMetric) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *SonarqubeMetric) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(SonarqubeMetricTableName),
@@ -1769,7 +1769,7 @@ func (t *SonarqubeMetric) DBCountTx(ctx context.Context, tx Tx, _params ...inter
 }
 
 // DBExists will return true if the SonarqubeMetric record exists in the database
-func (t *SonarqubeMetric) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *SonarqubeMetric) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `sonarqube_metric` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1780,7 +1780,7 @@ func (t *SonarqubeMetric) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the SonarqubeMetric record exists in the database using the provided transaction
-func (t *SonarqubeMetric) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *SonarqubeMetric) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `sonarqube_metric` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

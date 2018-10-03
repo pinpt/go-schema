@@ -285,10 +285,10 @@ func NewJiraUserCSVWriterFile(fn string, dedupers ...JiraUserCSVDeduper) (chan J
 	return ch, sdone, nil
 }
 
-type JiraUserDBAction func(ctx context.Context, db DB, record JiraUser) error
+type JiraUserDBAction func(ctx context.Context, db *sql.DB, record JiraUser) error
 
 // NewJiraUserDBWriterSize creates a DB writer that will write each issue into the DB
-func NewJiraUserDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...JiraUserDBAction) (chan JiraUser, chan bool, error) {
+func NewJiraUserDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...JiraUserDBAction) (chan JiraUser, chan bool, error) {
 	ch := make(chan JiraUser, size)
 	done := make(chan bool)
 	var action JiraUserDBAction
@@ -313,7 +313,7 @@ func NewJiraUserDBWriterSize(ctx context.Context, db DB, errors chan<- error, si
 }
 
 // NewJiraUserDBWriter creates a DB writer that will write each issue into the DB
-func NewJiraUserDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...JiraUserDBAction) (chan JiraUser, chan bool, error) {
+func NewJiraUserDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...JiraUserDBAction) (chan JiraUser, chan bool, error) {
 	return NewJiraUserDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -388,7 +388,7 @@ func (t *JiraUser) SetID(v string) {
 }
 
 // FindJiraUserByID will find a JiraUser by ID
-func FindJiraUserByID(ctx context.Context, db DB, value string) (*JiraUser, error) {
+func FindJiraUserByID(ctx context.Context, db *sql.DB, value string) (*JiraUser, error) {
 	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -453,7 +453,7 @@ func FindJiraUserByID(ctx context.Context, db DB, value string) (*JiraUser, erro
 }
 
 // FindJiraUserByIDTx will find a JiraUser by ID using the provided transaction
-func FindJiraUserByIDTx(ctx context.Context, tx Tx, value string) (*JiraUser, error) {
+func FindJiraUserByIDTx(ctx context.Context, tx *sql.Tx, value string) (*JiraUser, error) {
 	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -541,7 +541,7 @@ func (t *JiraUser) SetUserID(v string) {
 }
 
 // FindJiraUsersByUserID will find all JiraUsers by the UserID value
-func FindJiraUsersByUserID(ctx context.Context, db DB, value string) ([]*JiraUser, error) {
+func FindJiraUsersByUserID(ctx context.Context, db *sql.DB, value string) ([]*JiraUser, error) {
 	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -615,7 +615,7 @@ func FindJiraUsersByUserID(ctx context.Context, db DB, value string) ([]*JiraUse
 }
 
 // FindJiraUsersByUserIDTx will find all JiraUsers by the UserID value using the provided transaction
-func FindJiraUsersByUserIDTx(ctx context.Context, tx Tx, value string) ([]*JiraUser, error) {
+func FindJiraUsersByUserIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraUser, error) {
 	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -749,7 +749,7 @@ func (t *JiraUser) SetCustomerID(v string) {
 }
 
 // FindJiraUsersByCustomerID will find all JiraUsers by the CustomerID value
-func FindJiraUsersByCustomerID(ctx context.Context, db DB, value string) ([]*JiraUser, error) {
+func FindJiraUsersByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*JiraUser, error) {
 	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -823,7 +823,7 @@ func FindJiraUsersByCustomerID(ctx context.Context, db DB, value string) ([]*Jir
 }
 
 // FindJiraUsersByCustomerIDTx will find all JiraUsers by the CustomerID value using the provided transaction
-func FindJiraUsersByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraUser, error) {
+func FindJiraUsersByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraUser, error) {
 	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -907,7 +907,7 @@ func (t *JiraUser) SetRefID(v string) {
 }
 
 // FindJiraUsersByRefID will find all JiraUsers by the RefID value
-func FindJiraUsersByRefID(ctx context.Context, db DB, value string) ([]*JiraUser, error) {
+func FindJiraUsersByRefID(ctx context.Context, db *sql.DB, value string) ([]*JiraUser, error) {
 	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -981,7 +981,7 @@ func FindJiraUsersByRefID(ctx context.Context, db DB, value string) ([]*JiraUser
 }
 
 // FindJiraUsersByRefIDTx will find all JiraUsers by the RefID value using the provided transaction
-func FindJiraUsersByRefIDTx(ctx context.Context, tx Tx, value string) ([]*JiraUser, error) {
+func FindJiraUsersByRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*JiraUser, error) {
 	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1060,28 +1060,28 @@ func (t *JiraUser) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateJiraUserTable will create the JiraUser table
-func DBCreateJiraUserTable(ctx context.Context, db DB) error {
+func DBCreateJiraUserTable(ctx context.Context, db *sql.DB) error {
 	q := "CREATE TABLE `jira_user` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`user_id`VARCHAR(255) NOT NULL,`username` TEXT NOT NULL,`name`TEXT NOT NULL,`email` VARCHAR(255) NOT NULL,`avatar_url`VARCHAR(255) NOT NULL,`url` VARCHAR(255) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,INDEX jira_user_user_id_index (`user_id`),INDEX jira_user_customer_id_index (`customer_id`),INDEX jira_user_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateJiraUserTableTx will create the JiraUser table using the provided transction
-func DBCreateJiraUserTableTx(ctx context.Context, tx Tx) error {
+func DBCreateJiraUserTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "CREATE TABLE `jira_user` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`user_id`VARCHAR(255) NOT NULL,`username` TEXT NOT NULL,`name`TEXT NOT NULL,`email` VARCHAR(255) NOT NULL,`avatar_url`VARCHAR(255) NOT NULL,`url` VARCHAR(255) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,INDEX jira_user_user_id_index (`user_id`),INDEX jira_user_customer_id_index (`customer_id`),INDEX jira_user_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraUserTable will drop the JiraUser table
-func DBDropJiraUserTable(ctx context.Context, db DB) error {
+func DBDropJiraUserTable(ctx context.Context, db *sql.DB) error {
 	q := "DROP TABLE IF EXISTS `jira_user`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropJiraUserTableTx will drop the JiraUser table using the provided transaction
-func DBDropJiraUserTableTx(ctx context.Context, tx Tx) error {
+func DBDropJiraUserTableTx(ctx context.Context, tx *sql.Tx) error {
 	q := "DROP TABLE IF EXISTS `jira_user`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -1103,7 +1103,7 @@ func (t *JiraUser) CalculateChecksum() string {
 }
 
 // DBCreate will create a new JiraUser record in the database
-func (t *JiraUser) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraUser) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_user` (`jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1125,7 +1125,7 @@ func (t *JiraUser) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBCreateTx will create a new JiraUser record in the database using the provided transaction
-func (t *JiraUser) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraUser) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_user` (`jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1147,7 +1147,7 @@ func (t *JiraUser) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBCreateIgnoreDuplicate will upsert the JiraUser record in the database
-func (t *JiraUser) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraUser) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	q := "INSERT INTO `jira_user` (`jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1169,7 +1169,7 @@ func (t *JiraUser) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Resu
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the JiraUser record in the database using the provided transaction
-func (t *JiraUser) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraUser) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	q := "INSERT INTO `jira_user` (`jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1191,7 +1191,7 @@ func (t *JiraUser) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Re
 }
 
 // DeleteAllJiraUsers deletes all JiraUser records in the database with optional filters
-func DeleteAllJiraUsers(ctx context.Context, db DB, _params ...interface{}) error {
+func DeleteAllJiraUsers(ctx context.Context, db *sql.DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraUserTableName),
 	}
@@ -1206,7 +1206,7 @@ func DeleteAllJiraUsers(ctx context.Context, db DB, _params ...interface{}) erro
 }
 
 // DeleteAllJiraUsersTx deletes all JiraUser records in the database with optional filters using the provided transaction
-func DeleteAllJiraUsersTx(ctx context.Context, tx Tx, _params ...interface{}) error {
+func DeleteAllJiraUsersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(JiraUserTableName),
 	}
@@ -1221,7 +1221,7 @@ func DeleteAllJiraUsersTx(ctx context.Context, tx Tx, _params ...interface{}) er
 }
 
 // DBDelete will delete this JiraUser record in the database
-func (t *JiraUser) DBDelete(ctx context.Context, db DB) (bool, error) {
+func (t *JiraUser) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "DELETE FROM `jira_user` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1235,7 +1235,7 @@ func (t *JiraUser) DBDelete(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this JiraUser record in the database using the provided transaction
-func (t *JiraUser) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraUser) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "DELETE FROM `jira_user` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1249,7 +1249,7 @@ func (t *JiraUser) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 }
 
 // DBUpdate will update the JiraUser record in the database
-func (t *JiraUser) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+func (t *JiraUser) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1271,7 +1271,7 @@ func (t *JiraUser) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 }
 
 // DBUpdateTx will update the JiraUser record in the database using the provided transaction
-func (t *JiraUser) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+func (t *JiraUser) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1293,7 +1293,7 @@ func (t *JiraUser) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 }
 
 // DBUpsert will upsert the JiraUser record in the database
-func (t *JiraUser) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraUser) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1328,7 +1328,7 @@ func (t *JiraUser) DBUpsert(ctx context.Context, db DB, conditions ...interface{
 }
 
 // DBUpsertTx will upsert the JiraUser record in the database using the provided transaction
-func (t *JiraUser) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *JiraUser) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1363,7 +1363,7 @@ func (t *JiraUser) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interfac
 }
 
 // DBFindOne will find a JiraUser record in the database with the primary key
-func (t *JiraUser) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+func (t *JiraUser) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
 	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1428,7 +1428,7 @@ func (t *JiraUser) DBFindOne(ctx context.Context, db DB, value string) (bool, er
 }
 
 // DBFindOneTx will find a JiraUser record in the database with the primary key using the provided transaction
-func (t *JiraUser) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+func (t *JiraUser) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
 	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1493,7 +1493,7 @@ func (t *JiraUser) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, 
 }
 
 // FindJiraUsers will find a JiraUser record in the database with the provided parameters
-func FindJiraUsers(ctx context.Context, db DB, _params ...interface{}) ([]*JiraUser, error) {
+func FindJiraUsers(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*JiraUser, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1585,7 +1585,7 @@ func FindJiraUsers(ctx context.Context, db DB, _params ...interface{}) ([]*JiraU
 }
 
 // FindJiraUsersTx will find a JiraUser record in the database with the provided parameters using the provided transaction
-func FindJiraUsersTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*JiraUser, error) {
+func FindJiraUsersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*JiraUser, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1677,7 +1677,7 @@ func FindJiraUsersTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*Jir
 }
 
 // DBFind will find a JiraUser record in the database with the provided parameters
-func (t *JiraUser) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+func (t *JiraUser) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1757,7 +1757,7 @@ func (t *JiraUser) DBFind(ctx context.Context, db DB, _params ...interface{}) (b
 }
 
 // DBFindTx will find a JiraUser record in the database with the provided parameters using the provided transaction
-func (t *JiraUser) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+func (t *JiraUser) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1837,7 +1837,7 @@ func (t *JiraUser) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) 
 }
 
 // CountJiraUsers will find the count of JiraUser records in the database
-func CountJiraUsers(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func CountJiraUsers(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraUserTableName),
@@ -1857,7 +1857,7 @@ func CountJiraUsers(ctx context.Context, db DB, _params ...interface{}) (int64, 
 }
 
 // CountJiraUsersTx will find the count of JiraUser records in the database using the provided transaction
-func CountJiraUsersTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func CountJiraUsersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(JiraUserTableName),
@@ -1877,7 +1877,7 @@ func CountJiraUsersTx(ctx context.Context, tx Tx, _params ...interface{}) (int64
 }
 
 // DBCount will find the count of JiraUser records in the database
-func (t *JiraUser) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+func (t *JiraUser) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraUserTableName),
@@ -1897,7 +1897,7 @@ func (t *JiraUser) DBCount(ctx context.Context, db DB, _params ...interface{}) (
 }
 
 // DBCountTx will find the count of JiraUser records in the database using the provided transaction
-func (t *JiraUser) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+func (t *JiraUser) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(JiraUserTableName),
@@ -1917,7 +1917,7 @@ func (t *JiraUser) DBCountTx(ctx context.Context, tx Tx, _params ...interface{})
 }
 
 // DBExists will return true if the JiraUser record exists in the database
-func (t *JiraUser) DBExists(ctx context.Context, db DB) (bool, error) {
+func (t *JiraUser) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 	q := "SELECT `id` FROM `jira_user` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1928,7 +1928,7 @@ func (t *JiraUser) DBExists(ctx context.Context, db DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the JiraUser record exists in the database using the provided transaction
-func (t *JiraUser) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+func (t *JiraUser) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 	q := "SELECT `id` FROM `jira_user` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
