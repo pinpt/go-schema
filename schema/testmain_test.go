@@ -3,6 +3,7 @@
 package schema
 
 import (
+	"context"
 	"database/sql"
 	"flag"
 	"fmt"
@@ -21,7 +22,7 @@ var (
 	password string
 	hostname string
 	port     int
-	db       *sql.DB
+	db       DB
 	createdb = true
 )
 
@@ -35,7 +36,7 @@ func init() {
 	database = defdb
 }
 
-func GetDatabase() *sql.DB {
+func GetDatabase() DB {
 	return db
 }
 
@@ -43,7 +44,7 @@ func GetDSN(name string) string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", username, password, hostname, port, name)
 }
 
-func openDB(name string) *sql.DB {
+func openDB(name string) DB {
 	dsn := GetDSN(name)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
@@ -55,7 +56,7 @@ func openDB(name string) *sql.DB {
 
 func dropDB() {
 	if createdb {
-		_, err := db.Exec(fmt.Sprintf("drop database %s", database))
+		_, err := db.ExecContext(context.Background(), fmt.Sprintf("drop database %s", database))
 		if err != nil {
 			fmt.Printf("error dropping database named %s\n", database)
 		}
@@ -77,7 +78,7 @@ func TestMain(m *testing.M) {
 	if createdb {
 		// open without a database so we can create a temp one
 		d := openDB("")
-		_, err := d.Exec(fmt.Sprintf("create database %s", database))
+		_, err := d.ExecContext(context.Background(), fmt.Sprintf("create database %s", database))
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

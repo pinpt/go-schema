@@ -261,10 +261,10 @@ func NewExclusionMappingCSVWriterFile(fn string, dedupers ...ExclusionMappingCSV
 	return ch, sdone, nil
 }
 
-type ExclusionMappingDBAction func(ctx context.Context, db *sql.DB, record ExclusionMapping) error
+type ExclusionMappingDBAction func(ctx context.Context, db DB, record ExclusionMapping) error
 
 // NewExclusionMappingDBWriterSize creates a DB writer that will write each issue into the DB
-func NewExclusionMappingDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...ExclusionMappingDBAction) (chan ExclusionMapping, chan bool, error) {
+func NewExclusionMappingDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...ExclusionMappingDBAction) (chan ExclusionMapping, chan bool, error) {
 	ch := make(chan ExclusionMapping, size)
 	done := make(chan bool)
 	var action ExclusionMappingDBAction
@@ -289,7 +289,7 @@ func NewExclusionMappingDBWriterSize(ctx context.Context, db *sql.DB, errors cha
 }
 
 // NewExclusionMappingDBWriter creates a DB writer that will write each issue into the DB
-func NewExclusionMappingDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...ExclusionMappingDBAction) (chan ExclusionMapping, chan bool, error) {
+func NewExclusionMappingDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...ExclusionMappingDBAction) (chan ExclusionMapping, chan bool, error) {
 	return NewExclusionMappingDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -340,7 +340,7 @@ func (t *ExclusionMapping) SetID(v string) {
 }
 
 // FindExclusionMappingByID will find a ExclusionMapping by ID
-func FindExclusionMappingByID(ctx context.Context, db *sql.DB, value string) (*ExclusionMapping, error) {
+func FindExclusionMappingByID(ctx context.Context, db DB, value string) (*ExclusionMapping, error) {
 	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _RefID sql.NullString
@@ -385,7 +385,7 @@ func FindExclusionMappingByID(ctx context.Context, db *sql.DB, value string) (*E
 }
 
 // FindExclusionMappingByIDTx will find a ExclusionMapping by ID using the provided transaction
-func FindExclusionMappingByIDTx(ctx context.Context, tx *sql.Tx, value string) (*ExclusionMapping, error) {
+func FindExclusionMappingByIDTx(ctx context.Context, tx Tx, value string) (*ExclusionMapping, error) {
 	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _RefID sql.NullString
@@ -440,7 +440,7 @@ func (t *ExclusionMapping) SetRefID(v string) {
 }
 
 // FindExclusionMappingsByRefID will find all ExclusionMappings by the RefID value
-func FindExclusionMappingsByRefID(ctx context.Context, db *sql.DB, value string) ([]*ExclusionMapping, error) {
+func FindExclusionMappingsByRefID(ctx context.Context, db DB, value string) ([]*ExclusionMapping, error) {
 	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -494,7 +494,7 @@ func FindExclusionMappingsByRefID(ctx context.Context, db *sql.DB, value string)
 }
 
 // FindExclusionMappingsByRefIDTx will find all ExclusionMappings by the RefID value using the provided transaction
-func FindExclusionMappingsByRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*ExclusionMapping, error) {
+func FindExclusionMappingsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*ExclusionMapping, error) {
 	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -558,7 +558,7 @@ func (t *ExclusionMapping) SetRefType(v string) {
 }
 
 // FindExclusionMappingsByRefType will find all ExclusionMappings by the RefType value
-func FindExclusionMappingsByRefType(ctx context.Context, db *sql.DB, value string) ([]*ExclusionMapping, error) {
+func FindExclusionMappingsByRefType(ctx context.Context, db DB, value string) ([]*ExclusionMapping, error) {
 	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -612,7 +612,7 @@ func FindExclusionMappingsByRefType(ctx context.Context, db *sql.DB, value strin
 }
 
 // FindExclusionMappingsByRefTypeTx will find all ExclusionMappings by the RefType value using the provided transaction
-func FindExclusionMappingsByRefTypeTx(ctx context.Context, tx *sql.Tx, value string) ([]*ExclusionMapping, error) {
+func FindExclusionMappingsByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*ExclusionMapping, error) {
 	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -702,7 +702,7 @@ func (t *ExclusionMapping) SetCustomerID(v string) {
 }
 
 // FindExclusionMappingsByCustomerID will find all ExclusionMappings by the CustomerID value
-func FindExclusionMappingsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*ExclusionMapping, error) {
+func FindExclusionMappingsByCustomerID(ctx context.Context, db DB, value string) ([]*ExclusionMapping, error) {
 	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -756,7 +756,7 @@ func FindExclusionMappingsByCustomerID(ctx context.Context, db *sql.DB, value st
 }
 
 // FindExclusionMappingsByCustomerIDTx will find all ExclusionMappings by the CustomerID value using the provided transaction
-func FindExclusionMappingsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*ExclusionMapping, error) {
+func FindExclusionMappingsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*ExclusionMapping, error) {
 	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -815,35 +815,35 @@ func (t *ExclusionMapping) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateExclusionMappingTable will create the ExclusionMapping table
-func DBCreateExclusionMappingTable(ctx context.Context, db *sql.DB) error {
+func DBCreateExclusionMappingTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `exclusion_mapping` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`ref_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`user_id`VARCHAR(64),`date`BIGINT UNSIGNED,`customer_id` VARCHAR(64) NOT NULL,INDEX exclusion_mapping_ref_id_index (`ref_id`),INDEX exclusion_mapping_ref_type_index (`ref_type`),INDEX exclusion_mapping_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateExclusionMappingTableTx will create the ExclusionMapping table using the provided transction
-func DBCreateExclusionMappingTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateExclusionMappingTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `exclusion_mapping` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`ref_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`user_id`VARCHAR(64),`date`BIGINT UNSIGNED,`customer_id` VARCHAR(64) NOT NULL,INDEX exclusion_mapping_ref_id_index (`ref_id`),INDEX exclusion_mapping_ref_type_index (`ref_type`),INDEX exclusion_mapping_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropExclusionMappingTable will drop the ExclusionMapping table
-func DBDropExclusionMappingTable(ctx context.Context, db *sql.DB) error {
+func DBDropExclusionMappingTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `exclusion_mapping`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropExclusionMappingTableTx will drop the ExclusionMapping table using the provided transaction
-func DBDropExclusionMappingTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropExclusionMappingTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `exclusion_mapping`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreate will create a new ExclusionMapping record in the database
-func (t *ExclusionMapping) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *ExclusionMapping) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `exclusion_mapping` (`exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id`) VALUES (?,?,?,?,?,?)"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -856,7 +856,7 @@ func (t *ExclusionMapping) DBCreate(ctx context.Context, db *sql.DB) (sql.Result
 }
 
 // DBCreateTx will create a new ExclusionMapping record in the database using the provided transaction
-func (t *ExclusionMapping) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *ExclusionMapping) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `exclusion_mapping` (`exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id`) VALUES (?,?,?,?,?,?)"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -869,7 +869,7 @@ func (t *ExclusionMapping) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Resu
 }
 
 // DBCreateIgnoreDuplicate will upsert the ExclusionMapping record in the database
-func (t *ExclusionMapping) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *ExclusionMapping) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `exclusion_mapping` (`exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -882,7 +882,7 @@ func (t *ExclusionMapping) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the ExclusionMapping record in the database using the provided transaction
-func (t *ExclusionMapping) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *ExclusionMapping) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `exclusion_mapping` (`exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -895,7 +895,7 @@ func (t *ExclusionMapping) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sq
 }
 
 // DeleteAllExclusionMappings deletes all ExclusionMapping records in the database with optional filters
-func DeleteAllExclusionMappings(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllExclusionMappings(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(ExclusionMappingTableName),
 	}
@@ -910,7 +910,7 @@ func DeleteAllExclusionMappings(ctx context.Context, db *sql.DB, _params ...inte
 }
 
 // DeleteAllExclusionMappingsTx deletes all ExclusionMapping records in the database with optional filters using the provided transaction
-func DeleteAllExclusionMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllExclusionMappingsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(ExclusionMappingTableName),
 	}
@@ -925,7 +925,7 @@ func DeleteAllExclusionMappingsTx(ctx context.Context, tx *sql.Tx, _params ...in
 }
 
 // DBDelete will delete this ExclusionMapping record in the database
-func (t *ExclusionMapping) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *ExclusionMapping) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `exclusion_mapping` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -939,7 +939,7 @@ func (t *ExclusionMapping) DBDelete(ctx context.Context, db *sql.DB) (bool, erro
 }
 
 // DBDeleteTx will delete this ExclusionMapping record in the database using the provided transaction
-func (t *ExclusionMapping) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *ExclusionMapping) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `exclusion_mapping` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -953,7 +953,7 @@ func (t *ExclusionMapping) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, er
 }
 
 // DBUpdate will update the ExclusionMapping record in the database
-func (t *ExclusionMapping) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *ExclusionMapping) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "UPDATE `exclusion_mapping` SET `ref_id`=?,`ref_type`=?,`user_id`=?,`date`=?,`customer_id`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.RefID),
@@ -966,7 +966,7 @@ func (t *ExclusionMapping) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result
 }
 
 // DBUpdateTx will update the ExclusionMapping record in the database using the provided transaction
-func (t *ExclusionMapping) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *ExclusionMapping) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "UPDATE `exclusion_mapping` SET `ref_id`=?,`ref_type`=?,`user_id`=?,`date`=?,`customer_id`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.RefID),
@@ -979,7 +979,7 @@ func (t *ExclusionMapping) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Resu
 }
 
 // DBUpsert will upsert the ExclusionMapping record in the database
-func (t *ExclusionMapping) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *ExclusionMapping) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
 		q = "INSERT INTO `exclusion_mapping` (`exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
@@ -1005,7 +1005,7 @@ func (t *ExclusionMapping) DBUpsert(ctx context.Context, db *sql.DB, conditions 
 }
 
 // DBUpsertTx will upsert the ExclusionMapping record in the database using the provided transaction
-func (t *ExclusionMapping) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *ExclusionMapping) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
 		q = "INSERT INTO `exclusion_mapping` (`exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
@@ -1031,7 +1031,7 @@ func (t *ExclusionMapping) DBUpsertTx(ctx context.Context, tx *sql.Tx, condition
 }
 
 // DBFindOne will find a ExclusionMapping record in the database with the primary key
-func (t *ExclusionMapping) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *ExclusionMapping) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1076,7 +1076,7 @@ func (t *ExclusionMapping) DBFindOne(ctx context.Context, db *sql.DB, value stri
 }
 
 // DBFindOneTx will find a ExclusionMapping record in the database with the primary key using the provided transaction
-func (t *ExclusionMapping) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *ExclusionMapping) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1121,7 +1121,7 @@ func (t *ExclusionMapping) DBFindOneTx(ctx context.Context, tx *sql.Tx, value st
 }
 
 // FindExclusionMappings will find a ExclusionMapping record in the database with the provided parameters
-func FindExclusionMappings(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*ExclusionMapping, error) {
+func FindExclusionMappings(ctx context.Context, db DB, _params ...interface{}) ([]*ExclusionMapping, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("ref_id"),
@@ -1189,7 +1189,7 @@ func FindExclusionMappings(ctx context.Context, db *sql.DB, _params ...interface
 }
 
 // FindExclusionMappingsTx will find a ExclusionMapping record in the database with the provided parameters using the provided transaction
-func FindExclusionMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*ExclusionMapping, error) {
+func FindExclusionMappingsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*ExclusionMapping, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("ref_id"),
@@ -1257,7 +1257,7 @@ func FindExclusionMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interfa
 }
 
 // DBFind will find a ExclusionMapping record in the database with the provided parameters
-func (t *ExclusionMapping) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *ExclusionMapping) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("ref_id"),
@@ -1313,7 +1313,7 @@ func (t *ExclusionMapping) DBFind(ctx context.Context, db *sql.DB, _params ...in
 }
 
 // DBFindTx will find a ExclusionMapping record in the database with the provided parameters using the provided transaction
-func (t *ExclusionMapping) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *ExclusionMapping) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("ref_id"),
@@ -1369,7 +1369,7 @@ func (t *ExclusionMapping) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...
 }
 
 // CountExclusionMappings will find the count of ExclusionMapping records in the database
-func CountExclusionMappings(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountExclusionMappings(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(ExclusionMappingTableName),
@@ -1389,7 +1389,7 @@ func CountExclusionMappings(ctx context.Context, db *sql.DB, _params ...interfac
 }
 
 // CountExclusionMappingsTx will find the count of ExclusionMapping records in the database using the provided transaction
-func CountExclusionMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountExclusionMappingsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(ExclusionMappingTableName),
@@ -1409,7 +1409,7 @@ func CountExclusionMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interf
 }
 
 // DBCount will find the count of ExclusionMapping records in the database
-func (t *ExclusionMapping) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *ExclusionMapping) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(ExclusionMappingTableName),
@@ -1429,7 +1429,7 @@ func (t *ExclusionMapping) DBCount(ctx context.Context, db *sql.DB, _params ...i
 }
 
 // DBCountTx will find the count of ExclusionMapping records in the database using the provided transaction
-func (t *ExclusionMapping) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *ExclusionMapping) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(ExclusionMappingTableName),
@@ -1449,7 +1449,7 @@ func (t *ExclusionMapping) DBCountTx(ctx context.Context, tx *sql.Tx, _params ..
 }
 
 // DBExists will return true if the ExclusionMapping record exists in the database
-func (t *ExclusionMapping) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *ExclusionMapping) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `exclusion_mapping` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1460,7 +1460,7 @@ func (t *ExclusionMapping) DBExists(ctx context.Context, db *sql.DB) (bool, erro
 }
 
 // DBExistsTx will return true if the ExclusionMapping record exists in the database using the provided transaction
-func (t *ExclusionMapping) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *ExclusionMapping) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `exclusion_mapping` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

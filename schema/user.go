@@ -333,10 +333,10 @@ func NewUserCSVWriterFile(fn string, dedupers ...UserCSVDeduper) (chan User, cha
 	return ch, sdone, nil
 }
 
-type UserDBAction func(ctx context.Context, db *sql.DB, record User) error
+type UserDBAction func(ctx context.Context, db DB, record User) error
 
 // NewUserDBWriterSize creates a DB writer that will write each issue into the DB
-func NewUserDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...UserDBAction) (chan User, chan bool, error) {
+func NewUserDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...UserDBAction) (chan User, chan bool, error) {
 	ch := make(chan User, size)
 	done := make(chan bool)
 	var action UserDBAction
@@ -361,7 +361,7 @@ func NewUserDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, s
 }
 
 // NewUserDBWriter creates a DB writer that will write each issue into the DB
-func NewUserDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...UserDBAction) (chan User, chan bool, error) {
+func NewUserDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...UserDBAction) (chan User, chan bool, error) {
 	return NewUserDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -508,7 +508,7 @@ func (t *User) SetID(v string) {
 }
 
 // FindUserByID will find a User by ID
-func FindUserByID(ctx context.Context, db *sql.DB, value string) (*User, error) {
+func FindUserByID(ctx context.Context, db DB, value string) (*User, error) {
 	q := "SELECT `user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type` FROM `user` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -633,7 +633,7 @@ func FindUserByID(ctx context.Context, db *sql.DB, value string) (*User, error) 
 }
 
 // FindUserByIDTx will find a User by ID using the provided transaction
-func FindUserByIDTx(ctx context.Context, tx *sql.Tx, value string) (*User, error) {
+func FindUserByIDTx(ctx context.Context, tx Tx, value string) (*User, error) {
 	q := "SELECT `user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type` FROM `user` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -794,7 +794,7 @@ func (t *User) SetEmail(v string) {
 }
 
 // FindUsersByEmail will find all Users by the Email value
-func FindUsersByEmail(ctx context.Context, db *sql.DB, value string) ([]*User, error) {
+func FindUsersByEmail(ctx context.Context, db DB, value string) ([]*User, error) {
 	q := "SELECT `user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type` FROM `user` WHERE `email` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -928,7 +928,7 @@ func FindUsersByEmail(ctx context.Context, db *sql.DB, value string) ([]*User, e
 }
 
 // FindUsersByEmailTx will find all Users by the Email value using the provided transaction
-func FindUsersByEmailTx(ctx context.Context, tx *sql.Tx, value string) ([]*User, error) {
+func FindUsersByEmailTx(ctx context.Context, tx Tx, value string) ([]*User, error) {
 	q := "SELECT `user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type` FROM `user` WHERE `email` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1283,28 +1283,28 @@ func (t *User) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateUserTable will create the User table
-func DBCreateUserTable(ctx context.Context, db *sql.DB) error {
+func DBCreateUserTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `user` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`email` VARCHAR(255),`name` TEXT,`username` VARCHAR(100) NOT NULL,`active`BOOL NOT NULL,`autoenrolled`BOOL NOT NULL,`visible` BOOL NOT NULL,`avatar_url` VARCHAR(255) NOT NULL,`employee_id` TEXT,`location` TEXT,`region`TEXT,`department` TEXT,`reports_to_user_id` VARCHAR(64),`title` TEXT,`role` TEXT,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,`metadata` JSON,`ref_id`VARCHAR(64),`ref_type` VARCHAR(20),INDEX user_email_index (`email`),INDEX user_username_customer_id_index (`username`,`customer_id`),INDEX user_email_customer_id_index (`email`,`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateUserTableTx will create the User table using the provided transction
-func DBCreateUserTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateUserTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `user` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`email` VARCHAR(255),`name` TEXT,`username` VARCHAR(100) NOT NULL,`active`BOOL NOT NULL,`autoenrolled`BOOL NOT NULL,`visible` BOOL NOT NULL,`avatar_url` VARCHAR(255) NOT NULL,`employee_id` TEXT,`location` TEXT,`region`TEXT,`department` TEXT,`reports_to_user_id` VARCHAR(64),`title` TEXT,`role` TEXT,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,`metadata` JSON,`ref_id`VARCHAR(64),`ref_type` VARCHAR(20),INDEX user_email_index (`email`),INDEX user_username_customer_id_index (`username`,`customer_id`),INDEX user_email_customer_id_index (`email`,`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropUserTable will drop the User table
-func DBDropUserTable(ctx context.Context, db *sql.DB) error {
+func DBDropUserTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `user`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropUserTableTx will drop the User table using the provided transaction
-func DBDropUserTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropUserTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `user`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -1338,7 +1338,7 @@ func (t *User) CalculateChecksum() string {
 }
 
 // DBCreate will create a new User record in the database
-func (t *User) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *User) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `user` (`user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1372,7 +1372,7 @@ func (t *User) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 }
 
 // DBCreateTx will create a new User record in the database using the provided transaction
-func (t *User) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *User) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `user` (`user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1406,7 +1406,7 @@ func (t *User) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 }
 
 // DBCreateIgnoreDuplicate will upsert the User record in the database
-func (t *User) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *User) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `user` (`user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1440,7 +1440,7 @@ func (t *User) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Res
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the User record in the database using the provided transaction
-func (t *User) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *User) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `user` (`user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1474,7 +1474,7 @@ func (t *User) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.R
 }
 
 // DeleteAllUsers deletes all User records in the database with optional filters
-func DeleteAllUsers(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllUsers(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(UserTableName),
 	}
@@ -1489,7 +1489,7 @@ func DeleteAllUsers(ctx context.Context, db *sql.DB, _params ...interface{}) err
 }
 
 // DeleteAllUsersTx deletes all User records in the database with optional filters using the provided transaction
-func DeleteAllUsersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllUsersTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(UserTableName),
 	}
@@ -1504,7 +1504,7 @@ func DeleteAllUsersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) e
 }
 
 // DBDelete will delete this User record in the database
-func (t *User) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *User) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `user` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1518,7 +1518,7 @@ func (t *User) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this User record in the database using the provided transaction
-func (t *User) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *User) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `user` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1532,7 +1532,7 @@ func (t *User) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 }
 
 // DBUpdate will update the User record in the database
-func (t *User) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *User) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1566,7 +1566,7 @@ func (t *User) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 }
 
 // DBUpdateTx will update the User record in the database using the provided transaction
-func (t *User) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *User) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1600,7 +1600,7 @@ func (t *User) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 }
 
 // DBUpsert will upsert the User record in the database
-func (t *User) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *User) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1647,7 +1647,7 @@ func (t *User) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface
 }
 
 // DBUpsertTx will upsert the User record in the database using the provided transaction
-func (t *User) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *User) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1694,7 +1694,7 @@ func (t *User) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interfa
 }
 
 // DBFindOne will find a User record in the database with the primary key
-func (t *User) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *User) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type` FROM `user` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1819,7 +1819,7 @@ func (t *User) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, e
 }
 
 // DBFindOneTx will find a User record in the database with the primary key using the provided transaction
-func (t *User) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *User) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type` FROM `user` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1944,7 +1944,7 @@ func (t *User) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool,
 }
 
 // FindUsers will find a User record in the database with the provided parameters
-func FindUsers(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*User, error) {
+func FindUsers(ctx context.Context, db DB, _params ...interface{}) ([]*User, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2108,7 +2108,7 @@ func FindUsers(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*User
 }
 
 // FindUsersTx will find a User record in the database with the provided parameters using the provided transaction
-func FindUsersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*User, error) {
+func FindUsersTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*User, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2272,7 +2272,7 @@ func FindUsersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*Us
 }
 
 // DBFind will find a User record in the database with the provided parameters
-func (t *User) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *User) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2424,7 +2424,7 @@ func (t *User) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (
 }
 
 // DBFindTx will find a User record in the database with the provided parameters using the provided transaction
-func (t *User) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *User) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -2576,7 +2576,7 @@ func (t *User) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{})
 }
 
 // CountUsers will find the count of User records in the database
-func CountUsers(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountUsers(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(UserTableName),
@@ -2596,7 +2596,7 @@ func CountUsers(ctx context.Context, db *sql.DB, _params ...interface{}) (int64,
 }
 
 // CountUsersTx will find the count of User records in the database using the provided transaction
-func CountUsersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountUsersTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(UserTableName),
@@ -2616,7 +2616,7 @@ func CountUsersTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int6
 }
 
 // DBCount will find the count of User records in the database
-func (t *User) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *User) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(UserTableName),
@@ -2636,7 +2636,7 @@ func (t *User) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) 
 }
 
 // DBCountTx will find the count of User records in the database using the provided transaction
-func (t *User) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *User) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(UserTableName),
@@ -2656,7 +2656,7 @@ func (t *User) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}
 }
 
 // DBExists will return true if the User record exists in the database
-func (t *User) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *User) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `user` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -2667,7 +2667,7 @@ func (t *User) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the User record exists in the database using the provided transaction
-func (t *User) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *User) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `user` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

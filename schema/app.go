@@ -281,10 +281,10 @@ func NewAppCSVWriterFile(fn string, dedupers ...AppCSVDeduper) (chan App, chan b
 	return ch, sdone, nil
 }
 
-type AppDBAction func(ctx context.Context, db *sql.DB, record App) error
+type AppDBAction func(ctx context.Context, db DB, record App) error
 
 // NewAppDBWriterSize creates a DB writer that will write each issue into the DB
-func NewAppDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...AppDBAction) (chan App, chan bool, error) {
+func NewAppDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...AppDBAction) (chan App, chan bool, error) {
 	ch := make(chan App, size)
 	done := make(chan bool)
 	var action AppDBAction
@@ -309,7 +309,7 @@ func NewAppDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, si
 }
 
 // NewAppDBWriter creates a DB writer that will write each issue into the DB
-func NewAppDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...AppDBAction) (chan App, chan bool, error) {
+func NewAppDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...AppDBAction) (chan App, chan bool, error) {
 	return NewAppDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -378,7 +378,7 @@ func (t *App) SetID(v string) {
 }
 
 // FindAppByID will find a App by ID
-func FindAppByID(ctx context.Context, db *sql.DB, value string) (*App, error) {
+func FindAppByID(ctx context.Context, db DB, value string) (*App, error) {
 	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -438,7 +438,7 @@ func FindAppByID(ctx context.Context, db *sql.DB, value string) (*App, error) {
 }
 
 // FindAppByIDTx will find a App by ID using the provided transaction
-func FindAppByIDTx(ctx context.Context, tx *sql.Tx, value string) (*App, error) {
+func FindAppByIDTx(ctx context.Context, tx Tx, value string) (*App, error) {
 	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -521,7 +521,7 @@ func (t *App) SetName(v string) {
 }
 
 // FindAppsByName will find all Apps by the Name value
-func FindAppsByName(ctx context.Context, db *sql.DB, value string) ([]*App, error) {
+func FindAppsByName(ctx context.Context, db DB, value string) ([]*App, error) {
 	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `name` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -590,7 +590,7 @@ func FindAppsByName(ctx context.Context, db *sql.DB, value string) ([]*App, erro
 }
 
 // FindAppsByNameTx will find all Apps by the Name value using the provided transaction
-func FindAppsByNameTx(ctx context.Context, tx *sql.Tx, value string) ([]*App, error) {
+func FindAppsByNameTx(ctx context.Context, tx Tx, value string) ([]*App, error) {
 	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `name` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -728,7 +728,7 @@ func (t *App) SetCustomerID(v string) {
 }
 
 // FindAppsByCustomerID will find all Apps by the CustomerID value
-func FindAppsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*App, error) {
+func FindAppsByCustomerID(ctx context.Context, db DB, value string) ([]*App, error) {
 	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -797,7 +797,7 @@ func FindAppsByCustomerID(ctx context.Context, db *sql.DB, value string) ([]*App
 }
 
 // FindAppsByCustomerIDTx will find all Apps by the CustomerID value using the provided transaction
-func FindAppsByCustomerIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*App, error) {
+func FindAppsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*App, error) {
 	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -871,28 +871,28 @@ func (t *App) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateAppTable will create the App table
-func DBCreateAppTable(ctx context.Context, db *sql.DB) error {
+func DBCreateAppTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `app` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(255) NOT NULL,`description`TEXT,`active` BOOL NOT NULL,`repo_ids`JSON,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,INDEX app_name_index (`name`),INDEX app_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateAppTableTx will create the App table using the provided transction
-func DBCreateAppTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateAppTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `app` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`checksum`CHAR(64),`name` VARCHAR(255) NOT NULL,`description`TEXT,`active` BOOL NOT NULL,`repo_ids`JSON,`created_at` BIGINT UNSIGNED NOT NULL,`updated_at` BIGINT UNSIGNED,`customer_id`VARCHAR(64) NOT NULL,INDEX app_name_index (`name`),INDEX app_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropAppTable will drop the App table
-func DBDropAppTable(ctx context.Context, db *sql.DB) error {
+func DBDropAppTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `app`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropAppTableTx will drop the App table using the provided transaction
-func DBDropAppTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropAppTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `app`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -913,7 +913,7 @@ func (t *App) CalculateChecksum() string {
 }
 
 // DBCreate will create a new App record in the database
-func (t *App) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *App) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `app` (`app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -934,7 +934,7 @@ func (t *App) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 }
 
 // DBCreateTx will create a new App record in the database using the provided transaction
-func (t *App) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *App) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `app` (`app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -955,7 +955,7 @@ func (t *App) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 }
 
 // DBCreateIgnoreDuplicate will upsert the App record in the database
-func (t *App) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *App) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `app` (`app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -976,7 +976,7 @@ func (t *App) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Resu
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the App record in the database using the provided transaction
-func (t *App) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *App) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `app` (`app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -997,7 +997,7 @@ func (t *App) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Re
 }
 
 // DeleteAllApps deletes all App records in the database with optional filters
-func DeleteAllApps(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllApps(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(AppTableName),
 	}
@@ -1012,7 +1012,7 @@ func DeleteAllApps(ctx context.Context, db *sql.DB, _params ...interface{}) erro
 }
 
 // DeleteAllAppsTx deletes all App records in the database with optional filters using the provided transaction
-func DeleteAllAppsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllAppsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(AppTableName),
 	}
@@ -1027,7 +1027,7 @@ func DeleteAllAppsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) er
 }
 
 // DBDelete will delete this App record in the database
-func (t *App) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *App) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `app` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1041,7 +1041,7 @@ func (t *App) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this App record in the database using the provided transaction
-func (t *App) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *App) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `app` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1055,7 +1055,7 @@ func (t *App) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 }
 
 // DBUpdate will update the App record in the database
-func (t *App) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *App) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1076,7 +1076,7 @@ func (t *App) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
 }
 
 // DBUpdateTx will update the App record in the database using the provided transaction
-func (t *App) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *App) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1097,7 +1097,7 @@ func (t *App) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
 }
 
 // DBUpsert will upsert the App record in the database
-func (t *App) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *App) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1131,7 +1131,7 @@ func (t *App) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{
 }
 
 // DBUpsertTx will upsert the App record in the database using the provided transaction
-func (t *App) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *App) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1165,7 +1165,7 @@ func (t *App) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interfac
 }
 
 // DBFindOne will find a App record in the database with the primary key
-func (t *App) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *App) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1225,7 +1225,7 @@ func (t *App) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, er
 }
 
 // DBFindOneTx will find a App record in the database with the primary key using the provided transaction
-func (t *App) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *App) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1285,7 +1285,7 @@ func (t *App) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, 
 }
 
 // FindApps will find a App record in the database with the provided parameters
-func FindApps(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*App, error) {
+func FindApps(ctx context.Context, db DB, _params ...interface{}) ([]*App, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1371,7 +1371,7 @@ func FindApps(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*App, 
 }
 
 // FindAppsTx will find a App record in the database with the provided parameters using the provided transaction
-func FindAppsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*App, error) {
+func FindAppsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*App, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1457,7 +1457,7 @@ func FindAppsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*App
 }
 
 // DBFind will find a App record in the database with the provided parameters
-func (t *App) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *App) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1531,7 +1531,7 @@ func (t *App) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (b
 }
 
 // DBFindTx will find a App record in the database with the provided parameters using the provided transaction
-func (t *App) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *App) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1605,7 +1605,7 @@ func (t *App) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) 
 }
 
 // CountApps will find the count of App records in the database
-func CountApps(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountApps(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(AppTableName),
@@ -1625,7 +1625,7 @@ func CountApps(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, 
 }
 
 // CountAppsTx will find the count of App records in the database using the provided transaction
-func CountAppsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountAppsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(AppTableName),
@@ -1645,7 +1645,7 @@ func CountAppsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64
 }
 
 // DBCount will find the count of App records in the database
-func (t *App) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *App) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(AppTableName),
@@ -1665,7 +1665,7 @@ func (t *App) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (
 }
 
 // DBCountTx will find the count of App records in the database using the provided transaction
-func (t *App) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *App) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(AppTableName),
@@ -1685,7 +1685,7 @@ func (t *App) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{})
 }
 
 // DBExists will return true if the App record exists in the database
-func (t *App) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *App) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `app` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1696,7 +1696,7 @@ func (t *App) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the App record exists in the database using the provided transaction
-func (t *App) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *App) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `app` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

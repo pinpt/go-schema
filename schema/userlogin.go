@@ -269,10 +269,10 @@ func NewUserLoginCSVWriterFile(fn string, dedupers ...UserLoginCSVDeduper) (chan
 	return ch, sdone, nil
 }
 
-type UserLoginDBAction func(ctx context.Context, db *sql.DB, record UserLogin) error
+type UserLoginDBAction func(ctx context.Context, db DB, record UserLogin) error
 
 // NewUserLoginDBWriterSize creates a DB writer that will write each issue into the DB
-func NewUserLoginDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...UserLoginDBAction) (chan UserLogin, chan bool, error) {
+func NewUserLoginDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...UserLoginDBAction) (chan UserLogin, chan bool, error) {
 	ch := make(chan UserLogin, size)
 	done := make(chan bool)
 	var action UserLoginDBAction
@@ -297,7 +297,7 @@ func NewUserLoginDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- err
 }
 
 // NewUserLoginDBWriter creates a DB writer that will write each issue into the DB
-func NewUserLoginDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...UserLoginDBAction) (chan UserLogin, chan bool, error) {
+func NewUserLoginDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...UserLoginDBAction) (chan UserLogin, chan bool, error) {
 	return NewUserLoginDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -348,7 +348,7 @@ func (t *UserLogin) SetID(v string) {
 }
 
 // FindUserLoginByID will find a UserLogin by ID
-func FindUserLoginByID(ctx context.Context, db *sql.DB, value string) (*UserLogin, error) {
+func FindUserLoginByID(ctx context.Context, db DB, value string) (*UserLogin, error) {
 	q := "SELECT `user_login`.`id`,`user_login`.`checksum`,`user_login`.`customer_id`,`user_login`.`user_id`,`user_login`.`browser`,`user_login`.`date` FROM `user_login` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -393,7 +393,7 @@ func FindUserLoginByID(ctx context.Context, db *sql.DB, value string) (*UserLogi
 }
 
 // FindUserLoginByIDTx will find a UserLogin by ID using the provided transaction
-func FindUserLoginByIDTx(ctx context.Context, tx *sql.Tx, value string) (*UserLogin, error) {
+func FindUserLoginByIDTx(ctx context.Context, tx Tx, value string) (*UserLogin, error) {
 	q := "SELECT `user_login`.`id`,`user_login`.`checksum`,`user_login`.`customer_id`,`user_login`.`user_id`,`user_login`.`browser`,`user_login`.`date` FROM `user_login` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -499,28 +499,28 @@ func (t *UserLogin) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateUserLoginTable will create the UserLogin table
-func DBCreateUserLoginTable(ctx context.Context, db *sql.DB) error {
+func DBCreateUserLoginTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `user_login` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`user_id`VARCHAR(64) NOT NULL,`browser`TEXT,`date`BIGINT UNSIGNED NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateUserLoginTableTx will create the UserLogin table using the provided transction
-func DBCreateUserLoginTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateUserLoginTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `user_login` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`user_id`VARCHAR(64) NOT NULL,`browser`TEXT,`date`BIGINT UNSIGNED NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropUserLoginTable will drop the UserLogin table
-func DBDropUserLoginTable(ctx context.Context, db *sql.DB) error {
+func DBDropUserLoginTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `user_login`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropUserLoginTableTx will drop the UserLogin table using the provided transaction
-func DBDropUserLoginTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropUserLoginTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `user_login`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -538,7 +538,7 @@ func (t *UserLogin) CalculateChecksum() string {
 }
 
 // DBCreate will create a new UserLogin record in the database
-func (t *UserLogin) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *UserLogin) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `user_login` (`user_login`.`id`,`user_login`.`checksum`,`user_login`.`customer_id`,`user_login`.`user_id`,`user_login`.`browser`,`user_login`.`date`) VALUES (?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -556,7 +556,7 @@ func (t *UserLogin) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error
 }
 
 // DBCreateTx will create a new UserLogin record in the database using the provided transaction
-func (t *UserLogin) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *UserLogin) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `user_login` (`user_login`.`id`,`user_login`.`checksum`,`user_login`.`customer_id`,`user_login`.`user_id`,`user_login`.`browser`,`user_login`.`date`) VALUES (?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -574,7 +574,7 @@ func (t *UserLogin) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, err
 }
 
 // DBCreateIgnoreDuplicate will upsert the UserLogin record in the database
-func (t *UserLogin) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *UserLogin) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `user_login` (`user_login`.`id`,`user_login`.`checksum`,`user_login`.`customer_id`,`user_login`.`user_id`,`user_login`.`browser`,`user_login`.`date`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -592,7 +592,7 @@ func (t *UserLogin) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sq
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the UserLogin record in the database using the provided transaction
-func (t *UserLogin) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *UserLogin) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `user_login` (`user_login`.`id`,`user_login`.`checksum`,`user_login`.`customer_id`,`user_login`.`user_id`,`user_login`.`browser`,`user_login`.`date`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -610,7 +610,7 @@ func (t *UserLogin) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (
 }
 
 // DeleteAllUserLogins deletes all UserLogin records in the database with optional filters
-func DeleteAllUserLogins(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllUserLogins(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(UserLoginTableName),
 	}
@@ -625,7 +625,7 @@ func DeleteAllUserLogins(ctx context.Context, db *sql.DB, _params ...interface{}
 }
 
 // DeleteAllUserLoginsTx deletes all UserLogin records in the database with optional filters using the provided transaction
-func DeleteAllUserLoginsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllUserLoginsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(UserLoginTableName),
 	}
@@ -640,7 +640,7 @@ func DeleteAllUserLoginsTx(ctx context.Context, tx *sql.Tx, _params ...interface
 }
 
 // DBDelete will delete this UserLogin record in the database
-func (t *UserLogin) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *UserLogin) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `user_login` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -654,7 +654,7 @@ func (t *UserLogin) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this UserLogin record in the database using the provided transaction
-func (t *UserLogin) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *UserLogin) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `user_login` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -668,7 +668,7 @@ func (t *UserLogin) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
 }
 
 // DBUpdate will update the UserLogin record in the database
-func (t *UserLogin) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *UserLogin) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -686,7 +686,7 @@ func (t *UserLogin) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error
 }
 
 // DBUpdateTx will update the UserLogin record in the database using the provided transaction
-func (t *UserLogin) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *UserLogin) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -704,7 +704,7 @@ func (t *UserLogin) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, err
 }
 
 // DBUpsert will upsert the UserLogin record in the database
-func (t *UserLogin) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *UserLogin) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -735,7 +735,7 @@ func (t *UserLogin) DBUpsert(ctx context.Context, db *sql.DB, conditions ...inte
 }
 
 // DBUpsertTx will upsert the UserLogin record in the database using the provided transaction
-func (t *UserLogin) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *UserLogin) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -766,7 +766,7 @@ func (t *UserLogin) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...in
 }
 
 // DBFindOne will find a UserLogin record in the database with the primary key
-func (t *UserLogin) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *UserLogin) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `user_login`.`id`,`user_login`.`checksum`,`user_login`.`customer_id`,`user_login`.`user_id`,`user_login`.`browser`,`user_login`.`date` FROM `user_login` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -811,7 +811,7 @@ func (t *UserLogin) DBFindOne(ctx context.Context, db *sql.DB, value string) (bo
 }
 
 // DBFindOneTx will find a UserLogin record in the database with the primary key using the provided transaction
-func (t *UserLogin) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *UserLogin) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `user_login`.`id`,`user_login`.`checksum`,`user_login`.`customer_id`,`user_login`.`user_id`,`user_login`.`browser`,`user_login`.`date` FROM `user_login` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -856,7 +856,7 @@ func (t *UserLogin) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (
 }
 
 // FindUserLogins will find a UserLogin record in the database with the provided parameters
-func FindUserLogins(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*UserLogin, error) {
+func FindUserLogins(ctx context.Context, db DB, _params ...interface{}) ([]*UserLogin, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -924,7 +924,7 @@ func FindUserLogins(ctx context.Context, db *sql.DB, _params ...interface{}) ([]
 }
 
 // FindUserLoginsTx will find a UserLogin record in the database with the provided parameters using the provided transaction
-func FindUserLoginsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*UserLogin, error) {
+func FindUserLoginsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*UserLogin, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -992,7 +992,7 @@ func FindUserLoginsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (
 }
 
 // DBFind will find a UserLogin record in the database with the provided parameters
-func (t *UserLogin) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *UserLogin) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1048,7 +1048,7 @@ func (t *UserLogin) DBFind(ctx context.Context, db *sql.DB, _params ...interface
 }
 
 // DBFindTx will find a UserLogin record in the database with the provided parameters using the provided transaction
-func (t *UserLogin) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *UserLogin) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1104,7 +1104,7 @@ func (t *UserLogin) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interfa
 }
 
 // CountUserLogins will find the count of UserLogin records in the database
-func CountUserLogins(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountUserLogins(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(UserLoginTableName),
@@ -1124,7 +1124,7 @@ func CountUserLogins(ctx context.Context, db *sql.DB, _params ...interface{}) (i
 }
 
 // CountUserLoginsTx will find the count of UserLogin records in the database using the provided transaction
-func CountUserLoginsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountUserLoginsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(UserLoginTableName),
@@ -1144,7 +1144,7 @@ func CountUserLoginsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) 
 }
 
 // DBCount will find the count of UserLogin records in the database
-func (t *UserLogin) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *UserLogin) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(UserLoginTableName),
@@ -1164,7 +1164,7 @@ func (t *UserLogin) DBCount(ctx context.Context, db *sql.DB, _params ...interfac
 }
 
 // DBCountTx will find the count of UserLogin records in the database using the provided transaction
-func (t *UserLogin) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *UserLogin) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(UserLoginTableName),
@@ -1184,7 +1184,7 @@ func (t *UserLogin) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interf
 }
 
 // DBExists will return true if the UserLogin record exists in the database
-func (t *UserLogin) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *UserLogin) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `user_login` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1195,7 +1195,7 @@ func (t *UserLogin) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the UserLogin record exists in the database using the provided transaction
-func (t *UserLogin) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *UserLogin) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `user_login` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

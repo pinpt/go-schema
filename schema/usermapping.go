@@ -269,10 +269,10 @@ func NewUserMappingCSVWriterFile(fn string, dedupers ...UserMappingCSVDeduper) (
 	return ch, sdone, nil
 }
 
-type UserMappingDBAction func(ctx context.Context, db *sql.DB, record UserMapping) error
+type UserMappingDBAction func(ctx context.Context, db DB, record UserMapping) error
 
 // NewUserMappingDBWriterSize creates a DB writer that will write each issue into the DB
-func NewUserMappingDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...UserMappingDBAction) (chan UserMapping, chan bool, error) {
+func NewUserMappingDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...UserMappingDBAction) (chan UserMapping, chan bool, error) {
 	ch := make(chan UserMapping, size)
 	done := make(chan bool)
 	var action UserMappingDBAction
@@ -297,7 +297,7 @@ func NewUserMappingDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- e
 }
 
 // NewUserMappingDBWriter creates a DB writer that will write each issue into the DB
-func NewUserMappingDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...UserMappingDBAction) (chan UserMapping, chan bool, error) {
+func NewUserMappingDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...UserMappingDBAction) (chan UserMapping, chan bool, error) {
 	return NewUserMappingDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -348,7 +348,7 @@ func (t *UserMapping) SetID(v string) {
 }
 
 // FindUserMappingByID will find a UserMapping by ID
-func FindUserMappingByID(ctx context.Context, db *sql.DB, value string) (*UserMapping, error) {
+func FindUserMappingByID(ctx context.Context, db DB, value string) (*UserMapping, error) {
 	q := "SELECT `user_mapping`.`id`,`user_mapping`.`checksum`,`user_mapping`.`customer_id`,`user_mapping`.`user_id`,`user_mapping`.`ref_id`,`user_mapping`.`ref_type` FROM `user_mapping` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -393,7 +393,7 @@ func FindUserMappingByID(ctx context.Context, db *sql.DB, value string) (*UserMa
 }
 
 // FindUserMappingByIDTx will find a UserMapping by ID using the provided transaction
-func FindUserMappingByIDTx(ctx context.Context, tx *sql.Tx, value string) (*UserMapping, error) {
+func FindUserMappingByIDTx(ctx context.Context, tx Tx, value string) (*UserMapping, error) {
 	q := "SELECT `user_mapping`.`id`,`user_mapping`.`checksum`,`user_mapping`.`customer_id`,`user_mapping`.`user_id`,`user_mapping`.`ref_id`,`user_mapping`.`ref_type` FROM `user_mapping` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -471,7 +471,7 @@ func (t *UserMapping) SetUserID(v string) {
 }
 
 // FindUserMappingsByUserID will find all UserMappings by the UserID value
-func FindUserMappingsByUserID(ctx context.Context, db *sql.DB, value string) ([]*UserMapping, error) {
+func FindUserMappingsByUserID(ctx context.Context, db DB, value string) ([]*UserMapping, error) {
 	q := "SELECT `user_mapping`.`id`,`user_mapping`.`checksum`,`user_mapping`.`customer_id`,`user_mapping`.`user_id`,`user_mapping`.`ref_id`,`user_mapping`.`ref_type` FROM `user_mapping` WHERE `user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -525,7 +525,7 @@ func FindUserMappingsByUserID(ctx context.Context, db *sql.DB, value string) ([]
 }
 
 // FindUserMappingsByUserIDTx will find all UserMappings by the UserID value using the provided transaction
-func FindUserMappingsByUserIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*UserMapping, error) {
+func FindUserMappingsByUserIDTx(ctx context.Context, tx Tx, value string) ([]*UserMapping, error) {
 	q := "SELECT `user_mapping`.`id`,`user_mapping`.`checksum`,`user_mapping`.`customer_id`,`user_mapping`.`user_id`,`user_mapping`.`ref_id`,`user_mapping`.`ref_type` FROM `user_mapping` WHERE `user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -589,7 +589,7 @@ func (t *UserMapping) SetRefID(v string) {
 }
 
 // FindUserMappingsByRefID will find all UserMappings by the RefID value
-func FindUserMappingsByRefID(ctx context.Context, db *sql.DB, value string) ([]*UserMapping, error) {
+func FindUserMappingsByRefID(ctx context.Context, db DB, value string) ([]*UserMapping, error) {
 	q := "SELECT `user_mapping`.`id`,`user_mapping`.`checksum`,`user_mapping`.`customer_id`,`user_mapping`.`user_id`,`user_mapping`.`ref_id`,`user_mapping`.`ref_type` FROM `user_mapping` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -643,7 +643,7 @@ func FindUserMappingsByRefID(ctx context.Context, db *sql.DB, value string) ([]*
 }
 
 // FindUserMappingsByRefIDTx will find all UserMappings by the RefID value using the provided transaction
-func FindUserMappingsByRefIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*UserMapping, error) {
+func FindUserMappingsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*UserMapping, error) {
 	q := "SELECT `user_mapping`.`id`,`user_mapping`.`checksum`,`user_mapping`.`customer_id`,`user_mapping`.`user_id`,`user_mapping`.`ref_id`,`user_mapping`.`ref_type` FROM `user_mapping` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -712,28 +712,28 @@ func (t *UserMapping) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateUserMappingTable will create the UserMapping table
-func DBCreateUserMappingTable(ctx context.Context, db *sql.DB) error {
+func DBCreateUserMappingTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `user_mapping` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`user_id`VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,INDEX user_mapping_user_id_index (`user_id`),INDEX user_mapping_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateUserMappingTableTx will create the UserMapping table using the provided transction
-func DBCreateUserMappingTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateUserMappingTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `user_mapping` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`user_id`VARCHAR(64) NOT NULL,`ref_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,INDEX user_mapping_user_id_index (`user_id`),INDEX user_mapping_ref_id_index (`ref_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropUserMappingTable will drop the UserMapping table
-func DBDropUserMappingTable(ctx context.Context, db *sql.DB) error {
+func DBDropUserMappingTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `user_mapping`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropUserMappingTableTx will drop the UserMapping table using the provided transaction
-func DBDropUserMappingTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropUserMappingTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `user_mapping`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
@@ -751,7 +751,7 @@ func (t *UserMapping) CalculateChecksum() string {
 }
 
 // DBCreate will create a new UserMapping record in the database
-func (t *UserMapping) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *UserMapping) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `user_mapping` (`user_mapping`.`id`,`user_mapping`.`checksum`,`user_mapping`.`customer_id`,`user_mapping`.`user_id`,`user_mapping`.`ref_id`,`user_mapping`.`ref_type`) VALUES (?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -769,7 +769,7 @@ func (t *UserMapping) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, err
 }
 
 // DBCreateTx will create a new UserMapping record in the database using the provided transaction
-func (t *UserMapping) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *UserMapping) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `user_mapping` (`user_mapping`.`id`,`user_mapping`.`checksum`,`user_mapping`.`customer_id`,`user_mapping`.`user_id`,`user_mapping`.`ref_id`,`user_mapping`.`ref_type`) VALUES (?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -787,7 +787,7 @@ func (t *UserMapping) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, e
 }
 
 // DBCreateIgnoreDuplicate will upsert the UserMapping record in the database
-func (t *UserMapping) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *UserMapping) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `user_mapping` (`user_mapping`.`id`,`user_mapping`.`checksum`,`user_mapping`.`customer_id`,`user_mapping`.`user_id`,`user_mapping`.`ref_id`,`user_mapping`.`ref_type`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -805,7 +805,7 @@ func (t *UserMapping) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the UserMapping record in the database using the provided transaction
-func (t *UserMapping) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *UserMapping) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `user_mapping` (`user_mapping`.`id`,`user_mapping`.`checksum`,`user_mapping`.`customer_id`,`user_mapping`.`user_id`,`user_mapping`.`ref_id`,`user_mapping`.`ref_type`) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -823,7 +823,7 @@ func (t *UserMapping) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx)
 }
 
 // DeleteAllUserMappings deletes all UserMapping records in the database with optional filters
-func DeleteAllUserMappings(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllUserMappings(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(UserMappingTableName),
 	}
@@ -838,7 +838,7 @@ func DeleteAllUserMappings(ctx context.Context, db *sql.DB, _params ...interface
 }
 
 // DeleteAllUserMappingsTx deletes all UserMapping records in the database with optional filters using the provided transaction
-func DeleteAllUserMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllUserMappingsTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(UserMappingTableName),
 	}
@@ -853,7 +853,7 @@ func DeleteAllUserMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interfa
 }
 
 // DBDelete will delete this UserMapping record in the database
-func (t *UserMapping) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *UserMapping) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `user_mapping` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -867,7 +867,7 @@ func (t *UserMapping) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBDeleteTx will delete this UserMapping record in the database using the provided transaction
-func (t *UserMapping) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *UserMapping) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `user_mapping` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -881,7 +881,7 @@ func (t *UserMapping) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) 
 }
 
 // DBUpdate will update the UserMapping record in the database
-func (t *UserMapping) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *UserMapping) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -899,7 +899,7 @@ func (t *UserMapping) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, err
 }
 
 // DBUpdateTx will update the UserMapping record in the database using the provided transaction
-func (t *UserMapping) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *UserMapping) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -917,7 +917,7 @@ func (t *UserMapping) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, e
 }
 
 // DBUpsert will upsert the UserMapping record in the database
-func (t *UserMapping) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *UserMapping) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -948,7 +948,7 @@ func (t *UserMapping) DBUpsert(ctx context.Context, db *sql.DB, conditions ...in
 }
 
 // DBUpsertTx will upsert the UserMapping record in the database using the provided transaction
-func (t *UserMapping) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *UserMapping) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -979,7 +979,7 @@ func (t *UserMapping) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...
 }
 
 // DBFindOne will find a UserMapping record in the database with the primary key
-func (t *UserMapping) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *UserMapping) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `user_mapping`.`id`,`user_mapping`.`checksum`,`user_mapping`.`customer_id`,`user_mapping`.`user_id`,`user_mapping`.`ref_id`,`user_mapping`.`ref_type` FROM `user_mapping` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1024,7 +1024,7 @@ func (t *UserMapping) DBFindOne(ctx context.Context, db *sql.DB, value string) (
 }
 
 // DBFindOneTx will find a UserMapping record in the database with the primary key using the provided transaction
-func (t *UserMapping) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *UserMapping) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `user_mapping`.`id`,`user_mapping`.`checksum`,`user_mapping`.`customer_id`,`user_mapping`.`user_id`,`user_mapping`.`ref_id`,`user_mapping`.`ref_type` FROM `user_mapping` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1069,7 +1069,7 @@ func (t *UserMapping) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string)
 }
 
 // FindUserMappings will find a UserMapping record in the database with the provided parameters
-func FindUserMappings(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*UserMapping, error) {
+func FindUserMappings(ctx context.Context, db DB, _params ...interface{}) ([]*UserMapping, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1137,7 +1137,7 @@ func FindUserMappings(ctx context.Context, db *sql.DB, _params ...interface{}) (
 }
 
 // FindUserMappingsTx will find a UserMapping record in the database with the provided parameters using the provided transaction
-func FindUserMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*UserMapping, error) {
+func FindUserMappingsTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*UserMapping, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1205,7 +1205,7 @@ func FindUserMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interface{})
 }
 
 // DBFind will find a UserMapping record in the database with the provided parameters
-func (t *UserMapping) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *UserMapping) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1261,7 +1261,7 @@ func (t *UserMapping) DBFind(ctx context.Context, db *sql.DB, _params ...interfa
 }
 
 // DBFindTx will find a UserMapping record in the database with the provided parameters using the provided transaction
-func (t *UserMapping) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *UserMapping) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1317,7 +1317,7 @@ func (t *UserMapping) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...inter
 }
 
 // CountUserMappings will find the count of UserMapping records in the database
-func CountUserMappings(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountUserMappings(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(UserMappingTableName),
@@ -1337,7 +1337,7 @@ func CountUserMappings(ctx context.Context, db *sql.DB, _params ...interface{}) 
 }
 
 // CountUserMappingsTx will find the count of UserMapping records in the database using the provided transaction
-func CountUserMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountUserMappingsTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(UserMappingTableName),
@@ -1357,7 +1357,7 @@ func CountUserMappingsTx(ctx context.Context, tx *sql.Tx, _params ...interface{}
 }
 
 // DBCount will find the count of UserMapping records in the database
-func (t *UserMapping) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *UserMapping) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(UserMappingTableName),
@@ -1377,7 +1377,7 @@ func (t *UserMapping) DBCount(ctx context.Context, db *sql.DB, _params ...interf
 }
 
 // DBCountTx will find the count of UserMapping records in the database using the provided transaction
-func (t *UserMapping) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *UserMapping) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(UserMappingTableName),
@@ -1397,7 +1397,7 @@ func (t *UserMapping) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...inte
 }
 
 // DBExists will return true if the UserMapping record exists in the database
-func (t *UserMapping) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *UserMapping) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `user_mapping` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1408,7 +1408,7 @@ func (t *UserMapping) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
 }
 
 // DBExistsTx will return true if the UserMapping record exists in the database using the provided transaction
-func (t *UserMapping) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *UserMapping) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `user_mapping` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

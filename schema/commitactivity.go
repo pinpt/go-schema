@@ -281,10 +281,10 @@ func NewCommitActivityCSVWriterFile(fn string, dedupers ...CommitActivityCSVDedu
 	return ch, sdone, nil
 }
 
-type CommitActivityDBAction func(ctx context.Context, db *sql.DB, record CommitActivity) error
+type CommitActivityDBAction func(ctx context.Context, db DB, record CommitActivity) error
 
 // NewCommitActivityDBWriterSize creates a DB writer that will write each issue into the DB
-func NewCommitActivityDBWriterSize(ctx context.Context, db *sql.DB, errors chan<- error, size int, actions ...CommitActivityDBAction) (chan CommitActivity, chan bool, error) {
+func NewCommitActivityDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...CommitActivityDBAction) (chan CommitActivity, chan bool, error) {
 	ch := make(chan CommitActivity, size)
 	done := make(chan bool)
 	var action CommitActivityDBAction
@@ -309,7 +309,7 @@ func NewCommitActivityDBWriterSize(ctx context.Context, db *sql.DB, errors chan<
 }
 
 // NewCommitActivityDBWriter creates a DB writer that will write each issue into the DB
-func NewCommitActivityDBWriter(ctx context.Context, db *sql.DB, errors chan<- error, actions ...CommitActivityDBAction) (chan CommitActivity, chan bool, error) {
+func NewCommitActivityDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...CommitActivityDBAction) (chan CommitActivity, chan bool, error) {
 	return NewCommitActivityDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
@@ -390,7 +390,7 @@ func (t *CommitActivity) SetID(v string) {
 }
 
 // FindCommitActivityByID will find a CommitActivity by ID
-func FindCommitActivityByID(ctx context.Context, db *sql.DB, value string) (*CommitActivity, error) {
+func FindCommitActivityByID(ctx context.Context, db DB, value string) (*CommitActivity, error) {
 	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Date sql.NullInt64
@@ -460,7 +460,7 @@ func FindCommitActivityByID(ctx context.Context, db *sql.DB, value string) (*Com
 }
 
 // FindCommitActivityByIDTx will find a CommitActivity by ID using the provided transaction
-func FindCommitActivityByIDTx(ctx context.Context, tx *sql.Tx, value string) (*CommitActivity, error) {
+func FindCommitActivityByIDTx(ctx context.Context, tx Tx, value string) (*CommitActivity, error) {
 	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Date sql.NullInt64
@@ -550,7 +550,7 @@ func (t *CommitActivity) SetSha(v string) {
 }
 
 // FindCommitActivitiesBySha will find all CommitActivitys by the Sha value
-func FindCommitActivitiesBySha(ctx context.Context, db *sql.DB, value string) ([]*CommitActivity, error) {
+func FindCommitActivitiesBySha(ctx context.Context, db DB, value string) ([]*CommitActivity, error) {
 	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `sha` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -629,7 +629,7 @@ func FindCommitActivitiesBySha(ctx context.Context, db *sql.DB, value string) ([
 }
 
 // FindCommitActivitiesByShaTx will find all CommitActivitys by the Sha value using the provided transaction
-func FindCommitActivitiesByShaTx(ctx context.Context, tx *sql.Tx, value string) ([]*CommitActivity, error) {
+func FindCommitActivitiesByShaTx(ctx context.Context, tx Tx, value string) ([]*CommitActivity, error) {
 	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `sha` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -718,7 +718,7 @@ func (t *CommitActivity) SetUserID(v string) {
 }
 
 // FindCommitActivitiesByUserID will find all CommitActivitys by the UserID value
-func FindCommitActivitiesByUserID(ctx context.Context, db *sql.DB, value string) ([]*CommitActivity, error) {
+func FindCommitActivitiesByUserID(ctx context.Context, db DB, value string) ([]*CommitActivity, error) {
 	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -797,7 +797,7 @@ func FindCommitActivitiesByUserID(ctx context.Context, db *sql.DB, value string)
 }
 
 // FindCommitActivitiesByUserIDTx will find all CommitActivitys by the UserID value using the provided transaction
-func FindCommitActivitiesByUserIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*CommitActivity, error) {
+func FindCommitActivitiesByUserIDTx(ctx context.Context, tx Tx, value string) ([]*CommitActivity, error) {
 	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -886,7 +886,7 @@ func (t *CommitActivity) SetRepoID(v string) {
 }
 
 // FindCommitActivitiesByRepoID will find all CommitActivitys by the RepoID value
-func FindCommitActivitiesByRepoID(ctx context.Context, db *sql.DB, value string) ([]*CommitActivity, error) {
+func FindCommitActivitiesByRepoID(ctx context.Context, db DB, value string) ([]*CommitActivity, error) {
 	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -965,7 +965,7 @@ func FindCommitActivitiesByRepoID(ctx context.Context, db *sql.DB, value string)
 }
 
 // FindCommitActivitiesByRepoIDTx will find all CommitActivitys by the RepoID value using the provided transaction
-func FindCommitActivitiesByRepoIDTx(ctx context.Context, tx *sql.Tx, value string) ([]*CommitActivity, error) {
+func FindCommitActivitiesByRepoIDTx(ctx context.Context, tx Tx, value string) ([]*CommitActivity, error) {
 	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1054,7 +1054,7 @@ func (t *CommitActivity) SetFilename(v string) {
 }
 
 // FindCommitActivitiesByFilename will find all CommitActivitys by the Filename value
-func FindCommitActivitiesByFilename(ctx context.Context, db *sql.DB, value string) ([]*CommitActivity, error) {
+func FindCommitActivitiesByFilename(ctx context.Context, db DB, value string) ([]*CommitActivity, error) {
 	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `filename` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1133,7 +1133,7 @@ func FindCommitActivitiesByFilename(ctx context.Context, db *sql.DB, value strin
 }
 
 // FindCommitActivitiesByFilenameTx will find all CommitActivitys by the Filename value using the provided transaction
-func FindCommitActivitiesByFilenameTx(ctx context.Context, tx *sql.Tx, value string) ([]*CommitActivity, error) {
+func FindCommitActivitiesByFilenameTx(ctx context.Context, tx Tx, value string) ([]*CommitActivity, error) {
 	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `filename` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -1267,35 +1267,35 @@ func (t *CommitActivity) toTimestamp(value time.Time) *timestamp.Timestamp {
 }
 
 // DBCreateCommitActivityTable will create the CommitActivity table
-func DBCreateCommitActivityTable(ctx context.Context, db *sql.DB) error {
+func DBCreateCommitActivityTable(ctx context.Context, db DB) error {
 	q := "CREATE TABLE `commit_activity` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`date` BIGINT UNSIGNED NOT NULL,`sha` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`filename`VARCHAR(700) NOT NULL,`ordinal` BIGINT UNSIGNED NOT NULL,`loc` INT NOT NULL DEFAULT 0,`sloc` INT NOT NULL DEFAULT 0,`blanks` INT NOT NULL DEFAULT 0,`comments`INT NOT NULL DEFAULT 0,INDEX commit_activity_sha_index (`sha`),INDEX commit_activity_user_id_index (`user_id`),INDEX commit_activity_repo_id_index (`repo_id`),INDEX commit_activity_filename_index (`filename`),INDEX commit_activity_filename_repo_id_date_ordinal_index (`filename`,`repo_id`,`date`,`ordinal`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateCommitActivityTableTx will create the CommitActivity table using the provided transction
-func DBCreateCommitActivityTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBCreateCommitActivityTableTx(ctx context.Context, tx Tx) error {
 	q := "CREATE TABLE `commit_activity` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`date` BIGINT UNSIGNED NOT NULL,`sha` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`filename`VARCHAR(700) NOT NULL,`ordinal` BIGINT UNSIGNED NOT NULL,`loc` INT NOT NULL DEFAULT 0,`sloc` INT NOT NULL DEFAULT 0,`blanks` INT NOT NULL DEFAULT 0,`comments`INT NOT NULL DEFAULT 0,INDEX commit_activity_sha_index (`sha`),INDEX commit_activity_user_id_index (`user_id`),INDEX commit_activity_repo_id_index (`repo_id`),INDEX commit_activity_filename_index (`filename`),INDEX commit_activity_filename_repo_id_date_ordinal_index (`filename`,`repo_id`,`date`,`ordinal`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropCommitActivityTable will drop the CommitActivity table
-func DBDropCommitActivityTable(ctx context.Context, db *sql.DB) error {
+func DBDropCommitActivityTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `commit_activity`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBDropCommitActivityTableTx will drop the CommitActivity table using the provided transaction
-func DBDropCommitActivityTableTx(ctx context.Context, tx *sql.Tx) error {
+func DBDropCommitActivityTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `commit_activity`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreate will create a new CommitActivity record in the database
-func (t *CommitActivity) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *CommitActivity) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1313,7 +1313,7 @@ func (t *CommitActivity) DBCreate(ctx context.Context, db *sql.DB) (sql.Result, 
 }
 
 // DBCreateTx will create a new CommitActivity record in the database using the provided transaction
-func (t *CommitActivity) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *CommitActivity) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1331,7 +1331,7 @@ func (t *CommitActivity) DBCreateTx(ctx context.Context, tx *sql.Tx) (sql.Result
 }
 
 // DBCreateIgnoreDuplicate will upsert the CommitActivity record in the database
-func (t *CommitActivity) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *CommitActivity) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1349,7 +1349,7 @@ func (t *CommitActivity) DBCreateIgnoreDuplicate(ctx context.Context, db *sql.DB
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the CommitActivity record in the database using the provided transaction
-func (t *CommitActivity) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *CommitActivity) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1367,7 +1367,7 @@ func (t *CommitActivity) DBCreateIgnoreDuplicateTx(ctx context.Context, tx *sql.
 }
 
 // DeleteAllCommitActivities deletes all CommitActivity records in the database with optional filters
-func DeleteAllCommitActivities(ctx context.Context, db *sql.DB, _params ...interface{}) error {
+func DeleteAllCommitActivities(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(CommitActivityTableName),
 	}
@@ -1382,7 +1382,7 @@ func DeleteAllCommitActivities(ctx context.Context, db *sql.DB, _params ...inter
 }
 
 // DeleteAllCommitActivitiesTx deletes all CommitActivity records in the database with optional filters using the provided transaction
-func DeleteAllCommitActivitiesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) error {
+func DeleteAllCommitActivitiesTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
 		orm.Table(CommitActivityTableName),
 	}
@@ -1397,7 +1397,7 @@ func DeleteAllCommitActivitiesTx(ctx context.Context, tx *sql.Tx, _params ...int
 }
 
 // DBDelete will delete this CommitActivity record in the database
-func (t *CommitActivity) DBDelete(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *CommitActivity) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `commit_activity` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1411,7 +1411,7 @@ func (t *CommitActivity) DBDelete(ctx context.Context, db *sql.DB) (bool, error)
 }
 
 // DBDeleteTx will delete this CommitActivity record in the database using the provided transaction
-func (t *CommitActivity) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *CommitActivity) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `commit_activity` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1425,7 +1425,7 @@ func (t *CommitActivity) DBDeleteTx(ctx context.Context, tx *sql.Tx) (bool, erro
 }
 
 // DBUpdate will update the CommitActivity record in the database
-func (t *CommitActivity) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, error) {
+func (t *CommitActivity) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "UPDATE `commit_activity` SET `date`=?,`sha`=?,`user_id`=?,`repo_id`=?,`filename`=?,`ordinal`=?,`loc`=?,`sloc`=?,`blanks`=?,`comments`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLInt64(t.Date),
@@ -1443,7 +1443,7 @@ func (t *CommitActivity) DBUpdate(ctx context.Context, db *sql.DB) (sql.Result, 
 }
 
 // DBUpdateTx will update the CommitActivity record in the database using the provided transaction
-func (t *CommitActivity) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result, error) {
+func (t *CommitActivity) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "UPDATE `commit_activity` SET `date`=?,`sha`=?,`user_id`=?,`repo_id`=?,`filename`=?,`ordinal`=?,`loc`=?,`sloc`=?,`blanks`=?,`comments`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLInt64(t.Date),
@@ -1461,7 +1461,7 @@ func (t *CommitActivity) DBUpdateTx(ctx context.Context, tx *sql.Tx) (sql.Result
 }
 
 // DBUpsert will upsert the CommitActivity record in the database
-func (t *CommitActivity) DBUpsert(ctx context.Context, db *sql.DB, conditions ...interface{}) (bool, bool, error) {
+func (t *CommitActivity) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
 		q = "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
@@ -1492,7 +1492,7 @@ func (t *CommitActivity) DBUpsert(ctx context.Context, db *sql.DB, conditions ..
 }
 
 // DBUpsertTx will upsert the CommitActivity record in the database using the provided transaction
-func (t *CommitActivity) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions ...interface{}) (bool, bool, error) {
+func (t *CommitActivity) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
 		q = "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
@@ -1523,7 +1523,7 @@ func (t *CommitActivity) DBUpsertTx(ctx context.Context, tx *sql.Tx, conditions 
 }
 
 // DBFindOne will find a CommitActivity record in the database with the primary key
-func (t *CommitActivity) DBFindOne(ctx context.Context, db *sql.DB, value string) (bool, error) {
+func (t *CommitActivity) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1593,7 +1593,7 @@ func (t *CommitActivity) DBFindOne(ctx context.Context, db *sql.DB, value string
 }
 
 // DBFindOneTx will find a CommitActivity record in the database with the primary key using the provided transaction
-func (t *CommitActivity) DBFindOneTx(ctx context.Context, tx *sql.Tx, value string) (bool, error) {
+func (t *CommitActivity) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1663,7 +1663,7 @@ func (t *CommitActivity) DBFindOneTx(ctx context.Context, tx *sql.Tx, value stri
 }
 
 // FindCommitActivities will find a CommitActivity record in the database with the provided parameters
-func FindCommitActivities(ctx context.Context, db *sql.DB, _params ...interface{}) ([]*CommitActivity, error) {
+func FindCommitActivities(ctx context.Context, db DB, _params ...interface{}) ([]*CommitActivity, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("date"),
@@ -1761,7 +1761,7 @@ func FindCommitActivities(ctx context.Context, db *sql.DB, _params ...interface{
 }
 
 // FindCommitActivitiesTx will find a CommitActivity record in the database with the provided parameters using the provided transaction
-func FindCommitActivitiesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) ([]*CommitActivity, error) {
+func FindCommitActivitiesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*CommitActivity, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("date"),
@@ -1859,7 +1859,7 @@ func FindCommitActivitiesTx(ctx context.Context, tx *sql.Tx, _params ...interfac
 }
 
 // DBFind will find a CommitActivity record in the database with the provided parameters
-func (t *CommitActivity) DBFind(ctx context.Context, db *sql.DB, _params ...interface{}) (bool, error) {
+func (t *CommitActivity) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("date"),
@@ -1945,7 +1945,7 @@ func (t *CommitActivity) DBFind(ctx context.Context, db *sql.DB, _params ...inte
 }
 
 // DBFindTx will find a CommitActivity record in the database with the provided parameters using the provided transaction
-func (t *CommitActivity) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (bool, error) {
+func (t *CommitActivity) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("date"),
@@ -2031,7 +2031,7 @@ func (t *CommitActivity) DBFindTx(ctx context.Context, tx *sql.Tx, _params ...in
 }
 
 // CountCommitActivities will find the count of CommitActivity records in the database
-func CountCommitActivities(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func CountCommitActivities(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(CommitActivityTableName),
@@ -2051,7 +2051,7 @@ func CountCommitActivities(ctx context.Context, db *sql.DB, _params ...interface
 }
 
 // CountCommitActivitiesTx will find the count of CommitActivity records in the database using the provided transaction
-func CountCommitActivitiesTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func CountCommitActivitiesTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
 		orm.Table(CommitActivityTableName),
@@ -2071,7 +2071,7 @@ func CountCommitActivitiesTx(ctx context.Context, tx *sql.Tx, _params ...interfa
 }
 
 // DBCount will find the count of CommitActivity records in the database
-func (t *CommitActivity) DBCount(ctx context.Context, db *sql.DB, _params ...interface{}) (int64, error) {
+func (t *CommitActivity) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(CommitActivityTableName),
@@ -2091,7 +2091,7 @@ func (t *CommitActivity) DBCount(ctx context.Context, db *sql.DB, _params ...int
 }
 
 // DBCountTx will find the count of CommitActivity records in the database using the provided transaction
-func (t *CommitActivity) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...interface{}) (int64, error) {
+func (t *CommitActivity) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
 		orm.Table(CommitActivityTableName),
@@ -2111,7 +2111,7 @@ func (t *CommitActivity) DBCountTx(ctx context.Context, tx *sql.Tx, _params ...i
 }
 
 // DBExists will return true if the CommitActivity record exists in the database
-func (t *CommitActivity) DBExists(ctx context.Context, db *sql.DB) (bool, error) {
+func (t *CommitActivity) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `commit_activity` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -2122,7 +2122,7 @@ func (t *CommitActivity) DBExists(ctx context.Context, db *sql.DB) (bool, error)
 }
 
 // DBExistsTx will return true if the CommitActivity record exists in the database using the provided transaction
-func (t *CommitActivity) DBExistsTx(ctx context.Context, tx *sql.Tx) (bool, error) {
+func (t *CommitActivity) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `commit_activity` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)

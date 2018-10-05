@@ -395,36 +395,6 @@ CREATE TABLE `issue_summary` (
 	INDEX issue_summary_customer_id_top_level_issue_type_id_priority_id_in (`customer_id`,`top_level`,`issue_type_id`,`priority_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---  JenkinsBuild is the build on Jenkins. Jobs contains builds.
-CREATE TABLE `jenkins_build` (
-	`id`                   VARCHAR(64) NOT NULL PRIMARY KEY,
-	`checksum`             CHAR(64),
-	`customer_id`          VARCHAR(64) NOT NULL,
-	`jenkins_build_number` BIGINT NOT NULL,
-	`job_id`               VARCHAR(64) NOT NULL,
-	`result`               ENUM('result_unknown','success','failure','aborted') NOT NULL,
-	`created_at`           BIGINT UNSIGNED NOT NULL,
-	`finished_at`          BIGINT UNSIGNED,
-	`sha`                  VARCHAR(255),
-	`branch`               VARCHAR(255),
-	`url`                  VARCHAR(255) NOT NULL,
-	INDEX jenkins_build_customer_id_index (`customer_id`),
-	INDEX jenkins_build_jenkins_build_number_index (`jenkins_build_number`),
-	INDEX jenkins_build_job_id_index (`job_id`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---  JenkinsJob is a job defined on Jenkins. Normally corresponds to a project and contains builds.
-CREATE TABLE `jenkins_job` (
-	`id`           VARCHAR(64) NOT NULL PRIMARY KEY,
-	`checksum`     CHAR(64),
-	`customer_id`  VARCHAR(64) NOT NULL,
-	`name`         VARCHAR(255) NOT NULL,
-	`git_repo`     VARCHAR(255),
-	`url`          VARCHAR(255) NOT NULL,
-	INDEX jenkins_job_customer_id_index (`customer_id`),
-	INDEX jenkins_job_name_index (`name`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 --  JiraCustomField is a table which contains the unique custom fields found across all jira projects
 CREATE TABLE `jira_custom_field` (
 	`id`               VARCHAR(64) NOT NULL PRIMARY KEY,
@@ -703,144 +673,6 @@ CREATE TABLE `mockapi_deployment` (
 	INDEX mockapi_deployment_application_ext_id_id_index (`application_ext_id_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `newrelic_alerts_condition` (
-	`id`            VARCHAR(64) NOT NULL PRIMARY KEY,
-	`checksum`      CHAR(64),
-	`customer_id`   VARCHAR(64) NOT NULL,
-	`policy_ext_id` BIGINT NOT NULL,
-	`policy_id`     VARCHAR(64) NOT NULL,
-	`ext_id`        BIGINT NOT NULL,
-	`type`          TEXT NOT NULL,
-	`name`          TEXT NOT NULL,
-	`enabled`       BOOL NOT NULL,
-	`metric`        TEXT NOT NULL,
-	`terms`         JSON NOT NULL,
-	INDEX newrelic_alerts_condition_customer_id_index (`customer_id`),
-	INDEX newrelic_alerts_condition_policy_ext_id_index (`policy_ext_id`),
-	INDEX newrelic_alerts_condition_policy_id_index (`policy_id`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE `newrelic_alerts_incident` (
-	`id`                   VARCHAR(64) NOT NULL PRIMARY KEY,
-	`checksum`             CHAR(64),
-	`customer_id`          VARCHAR(64) NOT NULL,
-	`ext_id`               BIGINT NOT NULL,
-	`opened_at`            BIGINT NOT NULL,
-	`closed_at`            BIGINT,
-	`incident_preference`  TEXT NOT NULL,
-	`violation_ext_ids`    JSON NOT NULL,
-	`violation_ids`        JSON NOT NULL,
-	`policy_ext_id`        BIGINT,
-	`policy_id`            VARCHAR(64),
-	INDEX newrelic_alerts_incident_customer_id_index (`customer_id`),
-	INDEX newrelic_alerts_incident_policy_ext_id_index (`policy_ext_id`),
-	INDEX newrelic_alerts_incident_policy_id_index (`policy_id`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE `newrelic_alerts_policy` (
-	`id`                   VARCHAR(64) NOT NULL PRIMARY KEY,
-	`checksum`             CHAR(64),
-	`customer_id`          VARCHAR(64) NOT NULL,
-	`ext_id`               BIGINT NOT NULL,
-	`incident_preference`  TEXT NOT NULL,
-	`name`                 TEXT NOT NULL,
-	`created_at`           BIGINT NOT NULL,
-	`updated_at`           BIGINT NOT NULL,
-	INDEX newrelic_alerts_policy_customer_id_index (`customer_id`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE `newrelic_alerts_violation` (
-	`id`               VARCHAR(64) NOT NULL PRIMARY KEY,
-	`checksum`         CHAR(64),
-	`customer_id`      VARCHAR(64) NOT NULL,
-	`ext_id`           BIGINT NOT NULL,
-	`duration`         BIGINT NOT NULL,
-	`policy_name`      TEXT NOT NULL,
-	`condition_name`   TEXT NOT NULL,
-	`priority`         TEXT NOT NULL,
-	`opened_at`        BIGINT NOT NULL,
-	`entity_product`   TEXT NOT NULL,
-	`entity_type`      TEXT NOT NULL,
-	`entity_group_id`  BIGINT NOT NULL,
-	`entity_id`        BIGINT NOT NULL,
-	`entity_name`      TEXT NOT NULL,
-	`policy_ext_id`    BIGINT NOT NULL,
-	`policy_id`        VARCHAR(64) NOT NULL,
-	`condition_ext_id` BIGINT NOT NULL,
-	`condition_id`     VARCHAR(64) NOT NULL,
-	INDEX newrelic_alerts_violation_customer_id_index (`customer_id`),
-	INDEX newrelic_alerts_violation_policy_ext_id_index (`policy_ext_id`),
-	INDEX newrelic_alerts_violation_policy_id_index (`policy_id`),
-	INDEX newrelic_alerts_violation_condition_ext_id_index (`condition_ext_id`),
-	INDEX newrelic_alerts_violation_condition_id_index (`condition_id`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE `newrelic_application` (
-	`id`             VARCHAR(64) NOT NULL PRIMARY KEY,
-	`checksum`       CHAR(64),
-	`customer_id`    VARCHAR(64) NOT NULL,
-	`ext_id`         BIGINT NOT NULL,
-	`name`           TEXT NOT NULL,
-	`health_status`  TEXT,
-	`reporting`      BOOL NOT NULL,
-	INDEX newrelic_application_customer_id_index (`customer_id`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE `newrelic_deployment` (
-	`id`                 VARCHAR(64) NOT NULL PRIMARY KEY,
-	`checksum`           CHAR(64),
-	`customer_id`        VARCHAR(64) NOT NULL,
-	`application_ext_id` BIGINT NOT NULL,
-	`application_id`     VARCHAR(64) NOT NULL,
-	`ext_id`             BIGINT NOT NULL,
-	`revision`           TEXT NOT NULL,
-	`changelog`          TEXT,
-	`description`        TEXT,
-	`user`               TEXT NOT NULL,
-	`timestamp`          BIGINT NOT NULL,
-	INDEX newrelic_deployment_customer_id_index (`customer_id`),
-	INDEX newrelic_deployment_application_ext_id_index (`application_ext_id`),
-	INDEX newrelic_deployment_application_id_index (`application_id`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE `newrelic_metric` (
-	`id`                 VARCHAR(64) NOT NULL PRIMARY KEY,
-	`checksum`           CHAR(64),
-	`customer_id`        VARCHAR(64) NOT NULL,
-	`application_ext_id` BIGINT NOT NULL,
-	`application_id`     VARCHAR(64) NOT NULL,
-	`name`               TEXT NOT NULL,
-	`value_name`         TEXT NOT NULL,
-	`start`              BIGINT NOT NULL,
-	`duration_sec`       BIGINT NOT NULL,
-	`value`              DOUBLE NOT NULL,
-	INDEX newrelic_metric_customer_id_index (`customer_id`),
-	INDEX newrelic_metric_application_ext_id_index (`application_ext_id`),
-	INDEX newrelic_metric_application_id_index (`application_id`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE `newrelic_server` (
-	`id`                       VARCHAR(64) NOT NULL PRIMARY KEY,
-	`checksum`                 CHAR(64),
-	`customer_id`              VARCHAR(64) NOT NULL,
-	`ext_id`                   BIGINT NOT NULL,
-	`account_id`               BIGINT NOT NULL,
-	`name`                     TEXT NOT NULL,
-	`host`                     TEXT NOT NULL,
-	`health_status`            TEXT,
-	`reporting`                BOOL NOT NULL,
-	`last_reported_at`         BIGINT NOT NULL,
-	`summary_cpu`              DOUBLE,
-	`summary_cpu_stolen`       DOUBLE,
-	`summary_disk_io`          DOUBLE,
-	`summary_memory`           DOUBLE,
-	`summary_memory_used`      BIGINT,
-	`summary_memory_total`     BIGINT,
-	`summary_fullest_disk`     DOUBLE,
-	`summary_fullest_disk_free` BIGINT,
-	INDEX newrelic_server_customer_id_index (`customer_id`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 --  Processing Error is used to track errors during processing
 CREATE TABLE `processing_error` (
 	`id`           VARCHAR(64) NOT NULL PRIMARY KEY,
@@ -1029,8 +861,6 @@ DROP TABLE IF EXISTS `issue`;
 DROP TABLE IF EXISTS `issue_comment`;
 DROP TABLE IF EXISTS `issue_project`;
 DROP TABLE IF EXISTS `issue_summary`;
-DROP TABLE IF EXISTS `jenkins_build`;
-DROP TABLE IF EXISTS `jenkins_job`;
 DROP TABLE IF EXISTS `jira_custom_field`;
 DROP TABLE IF EXISTS `jira_custom_field_value`;
 DROP TABLE IF EXISTS `jira_issue`;
@@ -1047,14 +877,6 @@ DROP TABLE IF EXISTS `jira_project_status`;
 DROP TABLE IF EXISTS `jira_user`;
 DROP TABLE IF EXISTS `mockapi_application`;
 DROP TABLE IF EXISTS `mockapi_deployment`;
-DROP TABLE IF EXISTS `newrelic_alerts_condition`;
-DROP TABLE IF EXISTS `newrelic_alerts_incident`;
-DROP TABLE IF EXISTS `newrelic_alerts_policy`;
-DROP TABLE IF EXISTS `newrelic_alerts_violation`;
-DROP TABLE IF EXISTS `newrelic_application`;
-DROP TABLE IF EXISTS `newrelic_deployment`;
-DROP TABLE IF EXISTS `newrelic_metric`;
-DROP TABLE IF EXISTS `newrelic_server`;
 DROP TABLE IF EXISTS `processing_error`;
 DROP TABLE IF EXISTS `repo`;
 DROP TABLE IF EXISTS `repo_mapping`;
