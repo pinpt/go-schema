@@ -257,6 +257,8 @@ message JiraIssueProgress {
 	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
 	// reference to the generic issue id
 	proto.UID ref_id = 101 [(proto.column).notnull=true,(proto.column).index=true];
+
+	option (proto.table).index={fields:"user_id, customer_id, start_date"};
 }
 
 // JiraCustomField is a table which contains the unique custom fields found across all jira projects
@@ -314,4 +316,6 @@ message JiraIssueComment {
 	option (proto.table).has_one2={table:"user",pk:"user_id",fk:"id",name:"user"};
 	option (proto.table).has_one3={table:"jira_project",pk:"project_id",fk:"id",name:"project"};
 	option (proto.table).belongs_to={table:"jira_issue",pk:"issue_id",fk:"id",name:"issue"};
+
+	option (proto.table).index={fields:"customer_id, project_id, user_id, updated_at"};
 }
