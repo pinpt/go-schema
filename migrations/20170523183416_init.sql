@@ -297,7 +297,8 @@ CREATE TABLE `issue` (
 	INDEX issue_ref_type_state_created_at_project_id_customer_id_index (`ref_type`,`state`,`created_at`,`project_id`,`customer_id`),
 	INDEX issue_state_customer_id_project_id_index (`state`,`customer_id`,`project_id`),
 	INDEX issue_state_ref_id_closed_at_index (`state`,`ref_id`,`closed_at`),
-	INDEX issue_state_customer_id_closed_at_ref_id_type_index (`state`,`customer_id`,`closed_at`,`ref_id`,`type`)
+	INDEX issue_state_customer_id_closed_at_ref_id_type_index (`state`,`customer_id`,`closed_at`,`ref_id`,`type`),
+	INDEX issue_customer_id_project_id_created_at_index (`customer_id`,`project_id`,`created_at`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --  Issue Comment is a generic table which describes a comment for a issue
@@ -505,7 +506,8 @@ CREATE TABLE `jira_issue_comment` (
 	INDEX jira_issue_comment_project_id_index (`project_id`),
 	INDEX jira_issue_comment_user_id_index (`user_id`),
 	INDEX jira_issue_comment_customer_id_index (`customer_id`),
-	INDEX jira_issue_comment_ref_id_index (`ref_id`)
+	INDEX jira_issue_comment_ref_id_index (`ref_id`),
+	INDEX jira_issue_comment_customer_id_project_id_user_id_updated_at_ind (`customer_id`,`project_id`,`user_id`,`updated_at`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --  JIRA Issue Label is a unique label for a given project
@@ -544,7 +546,8 @@ CREATE TABLE `jira_issue_progress` (
 	INDEX jira_issue_progress_user_id_index (`user_id`),
 	INDEX jira_issue_progress_issue_id_index (`issue_id`),
 	INDEX jira_issue_progress_customer_id_index (`customer_id`),
-	INDEX jira_issue_progress_ref_id_index (`ref_id`)
+	INDEX jira_issue_progress_ref_id_index (`ref_id`),
+	INDEX jira_issue_progress_user_id_customer_id_start_date_index (`user_id`,`customer_id`,`start_date`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `jira_issue_type` (
