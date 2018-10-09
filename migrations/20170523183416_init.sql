@@ -115,6 +115,7 @@ CREATE TABLE `commit_activity` (
 	`user_id`    VARCHAR(64) NOT NULL,
 	`repo_id`    VARCHAR(64) NOT NULL,
 	`filename`   VARCHAR(700) NOT NULL,
+	`language`   VARCHAR(100) NOT NULL DEFAULT "unknown",
 	`ordinal`    BIGINT UNSIGNED NOT NULL,
 	`loc`        INT NOT NULL DEFAULT 0,
 	`sloc`       INT NOT NULL DEFAULT 0,
