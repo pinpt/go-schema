@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/jhaynie/go-gator/orm"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
 )
