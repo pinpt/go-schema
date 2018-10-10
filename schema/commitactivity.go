@@ -47,18 +47,18 @@ var CommitActivityColumns = []string{
 
 // CommitActivity table
 type CommitActivity struct {
-	Blanks   int32  `json:"blanks"`
-	Comments int32  `json:"comments"`
-	Date     int64  `json:"date"`
-	Filename string `json:"filename"`
-	ID       string `json:"id"`
-	Language string `json:"language"`
-	Loc      int32  `json:"loc"`
-	Ordinal  int64  `json:"ordinal"`
-	RepoID   string `json:"repo_id"`
-	Sha      string `json:"sha"`
-	Sloc     int32  `json:"sloc"`
-	UserID   string `json:"user_id"`
+	Blanks   int32   `json:"blanks"`
+	Comments int32   `json:"comments"`
+	Date     int64   `json:"date"`
+	Filename string  `json:"filename"`
+	ID       string  `json:"id"`
+	Language *string `json:"language,omitempty"`
+	Loc      int32   `json:"loc"`
+	Ordinal  int64   `json:"ordinal"`
+	RepoID   string  `json:"repo_id"`
+	Sha      string  `json:"sha"`
+	Sloc     int32   `json:"sloc"`
+	UserID   string  `json:"user_id"`
 }
 
 // TableName returns the SQL table name for CommitActivity and satifies the Model interface
@@ -75,7 +75,7 @@ func (t *CommitActivity) ToCSV() []string {
 		t.UserID,
 		t.RepoID,
 		t.Filename,
-		t.Language,
+		toCSVString(t.Language),
 		toCSVString(t.Ordinal),
 		toCSVString(t.Loc),
 		toCSVString(t.Sloc),
@@ -148,7 +148,7 @@ func NewCSVCommitActivityReader(r io.Reader, ch chan<- CommitActivity) error {
 			UserID:   record[3],
 			RepoID:   record[4],
 			Filename: record[5],
-			Language: record[6],
+			Language: fromStringPointer(record[6]),
 			Ordinal:  fromCSVInt64(record[7]),
 			Loc:      fromCSVInt32(record[8]),
 			Sloc:     fromCSVInt32(record[9]),
@@ -401,7 +401,7 @@ func (t *CommitActivity) SetID(v string) {
 
 // FindCommitActivityByID will find a CommitActivity by ID
 func FindCommitActivityByID(ctx context.Context, db DB, value string) (*CommitActivity, error) {
-	q := "SELECT * FROM `commit_activity` WHERE `id` = ?"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Date sql.NullInt64
 	var _Sha sql.NullString
@@ -476,7 +476,7 @@ func FindCommitActivityByID(ctx context.Context, db DB, value string) (*CommitAc
 
 // FindCommitActivityByIDTx will find a CommitActivity by ID using the provided transaction
 func FindCommitActivityByIDTx(ctx context.Context, tx Tx, value string) (*CommitActivity, error) {
-	q := "SELECT * FROM `commit_activity` WHERE `id` = ?"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Date sql.NullInt64
 	var _Sha sql.NullString
@@ -571,7 +571,7 @@ func (t *CommitActivity) SetSha(v string) {
 
 // FindCommitActivitiesBySha will find all CommitActivitys by the Sha value
 func FindCommitActivitiesBySha(ctx context.Context, db DB, value string) ([]*CommitActivity, error) {
-	q := "SELECT * FROM `commit_activity` WHERE `sha` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `sha` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -655,7 +655,7 @@ func FindCommitActivitiesBySha(ctx context.Context, db DB, value string) ([]*Com
 
 // FindCommitActivitiesByShaTx will find all CommitActivitys by the Sha value using the provided transaction
 func FindCommitActivitiesByShaTx(ctx context.Context, tx Tx, value string) ([]*CommitActivity, error) {
-	q := "SELECT * FROM `commit_activity` WHERE `sha` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `sha` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -749,7 +749,7 @@ func (t *CommitActivity) SetUserID(v string) {
 
 // FindCommitActivitiesByUserID will find all CommitActivitys by the UserID value
 func FindCommitActivitiesByUserID(ctx context.Context, db DB, value string) ([]*CommitActivity, error) {
-	q := "SELECT * FROM `commit_activity` WHERE `user_id` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -833,7 +833,7 @@ func FindCommitActivitiesByUserID(ctx context.Context, db DB, value string) ([]*
 
 // FindCommitActivitiesByUserIDTx will find all CommitActivitys by the UserID value using the provided transaction
 func FindCommitActivitiesByUserIDTx(ctx context.Context, tx Tx, value string) ([]*CommitActivity, error) {
-	q := "SELECT * FROM `commit_activity` WHERE `user_id` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -927,7 +927,7 @@ func (t *CommitActivity) SetRepoID(v string) {
 
 // FindCommitActivitiesByRepoID will find all CommitActivitys by the RepoID value
 func FindCommitActivitiesByRepoID(ctx context.Context, db DB, value string) ([]*CommitActivity, error) {
-	q := "SELECT * FROM `commit_activity` WHERE `repo_id` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1011,7 +1011,7 @@ func FindCommitActivitiesByRepoID(ctx context.Context, db DB, value string) ([]*
 
 // FindCommitActivitiesByRepoIDTx will find all CommitActivitys by the RepoID value using the provided transaction
 func FindCommitActivitiesByRepoIDTx(ctx context.Context, tx Tx, value string) ([]*CommitActivity, error) {
-	q := "SELECT * FROM `commit_activity` WHERE `repo_id` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1105,7 +1105,7 @@ func (t *CommitActivity) SetFilename(v string) {
 
 // FindCommitActivitiesByFilename will find all CommitActivitys by the Filename value
 func FindCommitActivitiesByFilename(ctx context.Context, db DB, value string) ([]*CommitActivity, error) {
-	q := "SELECT * FROM `commit_activity` WHERE `filename` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `filename` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1189,7 +1189,7 @@ func FindCommitActivitiesByFilename(ctx context.Context, db DB, value string) ([
 
 // FindCommitActivitiesByFilenameTx will find all CommitActivitys by the Filename value using the provided transaction
 func FindCommitActivitiesByFilenameTx(ctx context.Context, tx Tx, value string) ([]*CommitActivity, error) {
-	q := "SELECT * FROM `commit_activity` WHERE `filename` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `filename` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1273,12 +1273,15 @@ func FindCommitActivitiesByFilenameTx(ctx context.Context, tx Tx, value string) 
 
 // GetLanguage will return the CommitActivity Language value
 func (t *CommitActivity) GetLanguage() string {
-	return t.Language
+	if t.Language == nil {
+		return ""
+	}
+	return *t.Language
 }
 
 // SetLanguage will set the CommitActivity Language value
 func (t *CommitActivity) SetLanguage(v string) {
-	t.Language = v
+	t.Language = &v
 }
 
 // GetOrdinal will return the CommitActivity Ordinal value
@@ -1338,14 +1341,14 @@ func (t *CommitActivity) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateCommitActivityTable will create the CommitActivity table
 func DBCreateCommitActivityTable(ctx context.Context, db DB) error {
-	q := "CREATE TABLE `commit_activity` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`date` BIGINT UNSIGNED NOT NULL,`sha` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`filename`VARCHAR(700) NOT NULL,`language`VARCHAR(100) NOT NULL DEFAULT \"unknown\",`ordinal` BIGINT UNSIGNED NOT NULL,`loc` INT NOT NULL DEFAULT 0,`sloc` INT NOT NULL DEFAULT 0,`blanks` INT NOT NULL DEFAULT 0,`comments`INT NOT NULL DEFAULT 0,INDEX commit_activity_sha_index (`sha`),INDEX commit_activity_user_id_index (`user_id`),INDEX commit_activity_repo_id_index (`repo_id`),INDEX commit_activity_filename_index (`filename`),INDEX commit_activity_filename_repo_id_date_ordinal_index (`filename`,`repo_id`,`date`,`ordinal`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `commit_activity` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`date` BIGINT UNSIGNED NOT NULL,`sha` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`filename`VARCHAR(700) NOT NULL,`language`VARCHAR(100) DEFAULT \"unknown\",`ordinal` BIGINT UNSIGNED NOT NULL,`loc` INT NOT NULL DEFAULT 0,`sloc` INT NOT NULL DEFAULT 0,`blanks` INT NOT NULL DEFAULT 0,`comments`INT NOT NULL DEFAULT 0,INDEX commit_activity_sha_index (`sha`),INDEX commit_activity_user_id_index (`user_id`),INDEX commit_activity_repo_id_index (`repo_id`),INDEX commit_activity_filename_index (`filename`),INDEX commit_activity_filename_repo_id_date_ordinal_index (`filename`,`repo_id`,`date`,`ordinal`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateCommitActivityTableTx will create the CommitActivity table using the provided transction
 func DBCreateCommitActivityTableTx(ctx context.Context, tx Tx) error {
-	q := "CREATE TABLE `commit_activity` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`date` BIGINT UNSIGNED NOT NULL,`sha` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`filename`VARCHAR(700) NOT NULL,`language`VARCHAR(100) NOT NULL DEFAULT \"unknown\",`ordinal` BIGINT UNSIGNED NOT NULL,`loc` INT NOT NULL DEFAULT 0,`sloc` INT NOT NULL DEFAULT 0,`blanks` INT NOT NULL DEFAULT 0,`comments`INT NOT NULL DEFAULT 0,INDEX commit_activity_sha_index (`sha`),INDEX commit_activity_user_id_index (`user_id`),INDEX commit_activity_repo_id_index (`repo_id`),INDEX commit_activity_filename_index (`filename`),INDEX commit_activity_filename_repo_id_date_ordinal_index (`filename`,`repo_id`,`date`,`ordinal`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `commit_activity` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`date` BIGINT UNSIGNED NOT NULL,`sha` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`filename`VARCHAR(700) NOT NULL,`language`VARCHAR(100) DEFAULT \"unknown\",`ordinal` BIGINT UNSIGNED NOT NULL,`loc` INT NOT NULL DEFAULT 0,`sloc` INT NOT NULL DEFAULT 0,`blanks` INT NOT NULL DEFAULT 0,`comments`INT NOT NULL DEFAULT 0,INDEX commit_activity_sha_index (`sha`),INDEX commit_activity_user_id_index (`user_id`),INDEX commit_activity_repo_id_index (`repo_id`),INDEX commit_activity_filename_index (`filename`),INDEX commit_activity_filename_repo_id_date_ordinal_index (`filename`,`repo_id`,`date`,`ordinal`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
@@ -1602,7 +1605,7 @@ func (t *CommitActivity) DBUpsertTx(ctx context.Context, tx Tx, conditions ...in
 
 // DBFindOne will find a CommitActivity record in the database with the primary key
 func (t *CommitActivity) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `commit_activity` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Date sql.NullInt64
@@ -1677,7 +1680,7 @@ func (t *CommitActivity) DBFindOne(ctx context.Context, db DB, value string) (bo
 
 // DBFindOneTx will find a CommitActivity record in the database with the primary key using the provided transaction
 func (t *CommitActivity) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `commit_activity` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Date sql.NullInt64
@@ -2224,7 +2227,7 @@ func (t *CommitActivity) DBCountTx(ctx context.Context, tx Tx, _params ...interf
 
 // DBExists will return true if the CommitActivity record exists in the database
 func (t *CommitActivity) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `commit_activity` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `commit_activity` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -2235,7 +2238,7 @@ func (t *CommitActivity) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the CommitActivity record exists in the database using the provided transaction
 func (t *CommitActivity) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `commit_activity` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `commit_activity` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
