@@ -321,7 +321,7 @@ func (t *GooseDbVersion) SetID(v int32) {
 
 // FindGooseDbVersionByID will find a GooseDbVersion by ID
 func FindGooseDbVersionByID(ctx context.Context, db DB, value int32) (*GooseDbVersion, error) {
-	q := "SELECT `goose_db_version`.`id`,`goose_db_version`.`version_id`,`goose_db_version`.`is_applied`,`goose_db_version`.`tstamp` FROM `goose_db_version` WHERE `id` = ?"
+	q := "SELECT * FROM `goose_db_version` WHERE `id` = ?"
 	var _ID sql.NullInt64
 	var _VersionID sql.NullInt64
 	var _IsApplied sql.NullBool
@@ -356,7 +356,7 @@ func FindGooseDbVersionByID(ctx context.Context, db DB, value int32) (*GooseDbVe
 
 // FindGooseDbVersionByIDTx will find a GooseDbVersion by ID using the provided transaction
 func FindGooseDbVersionByIDTx(ctx context.Context, tx Tx, value int32) (*GooseDbVersion, error) {
-	q := "SELECT `goose_db_version`.`id`,`goose_db_version`.`version_id`,`goose_db_version`.`is_applied`,`goose_db_version`.`tstamp` FROM `goose_db_version` WHERE `id` = ?"
+	q := "SELECT * FROM `goose_db_version` WHERE `id` = ?"
 	var _ID sql.NullInt64
 	var _VersionID sql.NullInt64
 	var _IsApplied sql.NullBool
@@ -626,7 +626,7 @@ func (t *GooseDbVersion) DBUpsertTx(ctx context.Context, tx Tx, conditions ...in
 
 // DBFindOne will find a GooseDbVersion record in the database with the primary key
 func (t *GooseDbVersion) DBFindOne(ctx context.Context, db DB, value int32) (bool, error) {
-	q := "SELECT `goose_db_version`.`id`,`goose_db_version`.`version_id`,`goose_db_version`.`is_applied`,`goose_db_version`.`tstamp` FROM `goose_db_version` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `goose_db_version` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLInt64(value))
 	var _ID sql.NullInt64
 	var _VersionID sql.NullInt64
@@ -661,7 +661,7 @@ func (t *GooseDbVersion) DBFindOne(ctx context.Context, db DB, value int32) (boo
 
 // DBFindOneTx will find a GooseDbVersion record in the database with the primary key using the provided transaction
 func (t *GooseDbVersion) DBFindOneTx(ctx context.Context, tx Tx, value int32) (bool, error) {
-	q := "SELECT `goose_db_version`.`id`,`goose_db_version`.`version_id`,`goose_db_version`.`is_applied`,`goose_db_version`.`tstamp` FROM `goose_db_version` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `goose_db_version` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLInt64(value))
 	var _ID sql.NullInt64
 	var _VersionID sql.NullInt64
@@ -976,7 +976,7 @@ func (t *GooseDbVersion) DBCountTx(ctx context.Context, tx Tx, _params ...interf
 
 // DBExists will return true if the GooseDbVersion record exists in the database
 func (t *GooseDbVersion) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `goose_db_version` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `goose_db_version` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLInt64(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -987,7 +987,7 @@ func (t *GooseDbVersion) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the GooseDbVersion record exists in the database using the provided transaction
 func (t *GooseDbVersion) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `goose_db_version` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `goose_db_version` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLInt64(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

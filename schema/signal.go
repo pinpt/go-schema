@@ -371,7 +371,7 @@ func (t *Signal) SetID(v string) {
 
 // FindSignalByID will find a Signal by ID
 func FindSignalByID(ctx context.Context, db DB, value string) (*Signal, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `id` = ?"
+	q := "SELECT * FROM `signal` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Name sql.NullString
 	var _Value sql.NullFloat64
@@ -431,7 +431,7 @@ func FindSignalByID(ctx context.Context, db DB, value string) (*Signal, error) {
 
 // FindSignalByIDTx will find a Signal by ID using the provided transaction
 func FindSignalByIDTx(ctx context.Context, tx Tx, value string) (*Signal, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `id` = ?"
+	q := "SELECT * FROM `signal` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Name sql.NullString
 	var _Value sql.NullFloat64
@@ -501,7 +501,7 @@ func (t *Signal) SetName(v string) {
 
 // FindSignalsByName will find all Signals by the Name value
 func FindSignalsByName(ctx context.Context, db DB, value string) ([]*Signal, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `name` = ? LIMIT 1"
+	q := "SELECT * FROM `signal` WHERE `name` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -570,7 +570,7 @@ func FindSignalsByName(ctx context.Context, db DB, value string) ([]*Signal, err
 
 // FindSignalsByNameTx will find all Signals by the Name value using the provided transaction
 func FindSignalsByNameTx(ctx context.Context, tx Tx, value string) ([]*Signal, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `name` = ? LIMIT 1"
+	q := "SELECT * FROM `signal` WHERE `name` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -692,7 +692,7 @@ func (t *Signal) SetCustomerID(v string) {
 
 // FindSignalsByCustomerID will find all Signals by the CustomerID value
 func FindSignalsByCustomerID(ctx context.Context, db DB, value string) ([]*Signal, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `signal` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -761,7 +761,7 @@ func FindSignalsByCustomerID(ctx context.Context, db DB, value string) ([]*Signa
 
 // FindSignalsByCustomerIDTx will find all Signals by the CustomerID value using the provided transaction
 func FindSignalsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*Signal, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `signal` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -843,7 +843,7 @@ func (t *Signal) SetRefType(v string) {
 
 // FindSignalsByRefType will find all Signals by the RefType value
 func FindSignalsByRefType(ctx context.Context, db DB, value string) ([]*Signal, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT * FROM `signal` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -912,7 +912,7 @@ func FindSignalsByRefType(ctx context.Context, db DB, value string) ([]*Signal, 
 
 // FindSignalsByRefTypeTx will find all Signals by the RefType value using the provided transaction
 func FindSignalsByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*Signal, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT * FROM `signal` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -994,7 +994,7 @@ func (t *Signal) SetRefID(v string) {
 
 // FindSignalsByRefID will find all Signals by the RefID value
 func FindSignalsByRefID(ctx context.Context, db DB, value string) ([]*Signal, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT * FROM `signal` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1063,7 +1063,7 @@ func FindSignalsByRefID(ctx context.Context, db DB, value string) ([]*Signal, er
 
 // FindSignalsByRefIDTx will find all Signals by the RefID value using the provided transaction
 func FindSignalsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*Signal, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT * FROM `signal` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1377,7 +1377,7 @@ func (t *Signal) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{
 
 // DBFindOne will find a Signal record in the database with the primary key
 func (t *Signal) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `signal` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Name sql.NullString
@@ -1437,7 +1437,7 @@ func (t *Signal) DBFindOne(ctx context.Context, db DB, value string) (bool, erro
 
 // DBFindOneTx will find a Signal record in the database with the primary key using the provided transaction
 func (t *Signal) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `signal`.`id`,`signal`.`name`,`signal`.`value`,`signal`.`timeunit`,`signal`.`date`,`signal`.`metadata`,`signal`.`customer_id`,`signal`.`ref_type`,`signal`.`ref_id` FROM `signal` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `signal` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Name sql.NullString
@@ -1897,7 +1897,7 @@ func (t *Signal) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (
 
 // DBExists will return true if the Signal record exists in the database
 func (t *Signal) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `signal` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `signal` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1908,7 +1908,7 @@ func (t *Signal) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the Signal record exists in the database using the provided transaction
 func (t *Signal) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `signal` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `signal` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

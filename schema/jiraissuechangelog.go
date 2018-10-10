@@ -431,7 +431,7 @@ func (t *JiraIssueChangeLog) SetID(v string) {
 
 // FindJiraIssueChangeLogByID will find a JiraIssueChangeLog by ID
 func FindJiraIssueChangeLogByID(ctx context.Context, db DB, value string) (*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `id` = ?"
+	q := "SELECT * FROM `jira_issue_change_log` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _UserID sql.NullString
 	var _AssigneeID sql.NullString
@@ -521,7 +521,7 @@ func FindJiraIssueChangeLogByID(ctx context.Context, db DB, value string) (*Jira
 
 // FindJiraIssueChangeLogByIDTx will find a JiraIssueChangeLog by ID using the provided transaction
 func FindJiraIssueChangeLogByIDTx(ctx context.Context, tx Tx, value string) (*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `id` = ?"
+	q := "SELECT * FROM `jira_issue_change_log` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _UserID sql.NullString
 	var _AssigneeID sql.NullString
@@ -660,7 +660,7 @@ func (t *JiraIssueChangeLog) SetField(v string) {
 
 // FindJiraIssueChangeLogsByField will find all JiraIssueChangeLogs by the Field value
 func FindJiraIssueChangeLogsByField(ctx context.Context, db DB, value string) ([]*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `field` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_change_log` WHERE `field` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -759,7 +759,7 @@ func FindJiraIssueChangeLogsByField(ctx context.Context, db DB, value string) ([
 
 // FindJiraIssueChangeLogsByFieldTx will find all JiraIssueChangeLogs by the Field value using the provided transaction
 func FindJiraIssueChangeLogsByFieldTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `field` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_change_log` WHERE `field` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -943,7 +943,7 @@ func (t *JiraIssueChangeLog) SetCustomerID(v string) {
 
 // FindJiraIssueChangeLogsByCustomerID will find all JiraIssueChangeLogs by the CustomerID value
 func FindJiraIssueChangeLogsByCustomerID(ctx context.Context, db DB, value string) ([]*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_change_log` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1042,7 +1042,7 @@ func FindJiraIssueChangeLogsByCustomerID(ctx context.Context, db DB, value strin
 
 // FindJiraIssueChangeLogsByCustomerIDTx will find all JiraIssueChangeLogs by the CustomerID value using the provided transaction
 func FindJiraIssueChangeLogsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_change_log` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1151,7 +1151,7 @@ func (t *JiraIssueChangeLog) SetIssueID(v string) {
 
 // FindJiraIssueChangeLogsByIssueID will find all JiraIssueChangeLogs by the IssueID value
 func FindJiraIssueChangeLogsByIssueID(ctx context.Context, db DB, value string) ([]*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `issue_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_change_log` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1250,7 +1250,7 @@ func FindJiraIssueChangeLogsByIssueID(ctx context.Context, db DB, value string) 
 
 // FindJiraIssueChangeLogsByIssueIDTx will find all JiraIssueChangeLogs by the IssueID value using the provided transaction
 func FindJiraIssueChangeLogsByIssueIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueChangeLog, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `issue_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_change_log` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1662,7 +1662,7 @@ func (t *JiraIssueChangeLog) DBUpsertTx(ctx context.Context, tx Tx, conditions .
 
 // DBFindOne will find a JiraIssueChangeLog record in the database with the primary key
 func (t *JiraIssueChangeLog) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_change_log` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _UserID sql.NullString
@@ -1752,7 +1752,7 @@ func (t *JiraIssueChangeLog) DBFindOne(ctx context.Context, db DB, value string)
 
 // DBFindOneTx will find a JiraIssueChangeLog record in the database with the primary key using the provided transaction
 func (t *JiraIssueChangeLog) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `jira_issue_change_log`.`id`,`jira_issue_change_log`.`user_id`,`jira_issue_change_log`.`assignee_id`,`jira_issue_change_log`.`created_at`,`jira_issue_change_log`.`field`,`jira_issue_change_log`.`field_type`,`jira_issue_change_log`.`from`,`jira_issue_change_log`.`from_string`,`jira_issue_change_log`.`to`,`jira_issue_change_log`.`to_string`,`jira_issue_change_log`.`ref_id`,`jira_issue_change_log`.`customer_id`,`jira_issue_change_log`.`issue_id`,`jira_issue_change_log`.`project_id`,`jira_issue_change_log`.`ordinal` FROM `jira_issue_change_log` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_change_log` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _UserID sql.NullString
@@ -2386,7 +2386,7 @@ func (t *JiraIssueChangeLog) DBCountTx(ctx context.Context, tx Tx, _params ...in
 
 // DBExists will return true if the JiraIssueChangeLog record exists in the database
 func (t *JiraIssueChangeLog) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `jira_issue_change_log` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_change_log` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -2397,7 +2397,7 @@ func (t *JiraIssueChangeLog) DBExists(ctx context.Context, db DB) (bool, error) 
 
 // DBExistsTx will return true if the JiraIssueChangeLog record exists in the database using the provided transaction
 func (t *JiraIssueChangeLog) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `jira_issue_change_log` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_change_log` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

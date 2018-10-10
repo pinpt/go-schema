@@ -389,7 +389,7 @@ func (t *JiraUser) SetID(v string) {
 
 // FindJiraUserByID will find a JiraUser by ID
 func FindJiraUserByID(ctx context.Context, db DB, value string) (*JiraUser, error) {
-	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `id` = ?"
+	q := "SELECT * FROM `jira_user` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _UserID sql.NullString
@@ -454,7 +454,7 @@ func FindJiraUserByID(ctx context.Context, db DB, value string) (*JiraUser, erro
 
 // FindJiraUserByIDTx will find a JiraUser by ID using the provided transaction
 func FindJiraUserByIDTx(ctx context.Context, tx Tx, value string) (*JiraUser, error) {
-	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `id` = ?"
+	q := "SELECT * FROM `jira_user` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _UserID sql.NullString
@@ -542,7 +542,7 @@ func (t *JiraUser) SetUserID(v string) {
 
 // FindJiraUsersByUserID will find all JiraUsers by the UserID value
 func FindJiraUsersByUserID(ctx context.Context, db DB, value string) ([]*JiraUser, error) {
-	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `user_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_user` WHERE `user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -616,7 +616,7 @@ func FindJiraUsersByUserID(ctx context.Context, db DB, value string) ([]*JiraUse
 
 // FindJiraUsersByUserIDTx will find all JiraUsers by the UserID value using the provided transaction
 func FindJiraUsersByUserIDTx(ctx context.Context, tx Tx, value string) ([]*JiraUser, error) {
-	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `user_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_user` WHERE `user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -750,7 +750,7 @@ func (t *JiraUser) SetCustomerID(v string) {
 
 // FindJiraUsersByCustomerID will find all JiraUsers by the CustomerID value
 func FindJiraUsersByCustomerID(ctx context.Context, db DB, value string) ([]*JiraUser, error) {
-	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_user` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -824,7 +824,7 @@ func FindJiraUsersByCustomerID(ctx context.Context, db DB, value string) ([]*Jir
 
 // FindJiraUsersByCustomerIDTx will find all JiraUsers by the CustomerID value using the provided transaction
 func FindJiraUsersByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraUser, error) {
-	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_user` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -908,7 +908,7 @@ func (t *JiraUser) SetRefID(v string) {
 
 // FindJiraUsersByRefID will find all JiraUsers by the RefID value
 func FindJiraUsersByRefID(ctx context.Context, db DB, value string) ([]*JiraUser, error) {
-	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_user` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -982,7 +982,7 @@ func FindJiraUsersByRefID(ctx context.Context, db DB, value string) ([]*JiraUser
 
 // FindJiraUsersByRefIDTx will find all JiraUsers by the RefID value using the provided transaction
 func FindJiraUsersByRefIDTx(ctx context.Context, tx Tx, value string) ([]*JiraUser, error) {
-	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_user` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1364,7 +1364,7 @@ func (t *JiraUser) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interfac
 
 // DBFindOne will find a JiraUser record in the database with the primary key
 func (t *JiraUser) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_user` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1429,7 +1429,7 @@ func (t *JiraUser) DBFindOne(ctx context.Context, db DB, value string) (bool, er
 
 // DBFindOneTx will find a JiraUser record in the database with the primary key using the provided transaction
 func (t *JiraUser) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `jira_user`.`id`,`jira_user`.`checksum`,`jira_user`.`user_id`,`jira_user`.`username`,`jira_user`.`name`,`jira_user`.`email`,`jira_user`.`avatar_url`,`jira_user`.`url`,`jira_user`.`customer_id`,`jira_user`.`ref_id` FROM `jira_user` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_user` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1918,7 +1918,7 @@ func (t *JiraUser) DBCountTx(ctx context.Context, tx Tx, _params ...interface{})
 
 // DBExists will return true if the JiraUser record exists in the database
 func (t *JiraUser) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `jira_user` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_user` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1929,7 +1929,7 @@ func (t *JiraUser) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the JiraUser record exists in the database using the provided transaction
 func (t *JiraUser) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `jira_user` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_user` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
