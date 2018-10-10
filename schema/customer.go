@@ -341,7 +341,7 @@ func (t *Customer) SetID(v string) {
 
 // FindCustomerByID will find a Customer by ID
 func FindCustomerByID(ctx context.Context, db DB, value string) (*Customer, error) {
-	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata` FROM `customer` WHERE `id` = ?"
+	q := "SELECT * FROM `customer` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Name sql.NullString
 	var _Active sql.NullBool
@@ -386,7 +386,7 @@ func FindCustomerByID(ctx context.Context, db DB, value string) (*Customer, erro
 
 // FindCustomerByIDTx will find a Customer by ID using the provided transaction
 func FindCustomerByIDTx(ctx context.Context, tx Tx, value string) (*Customer, error) {
-	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata` FROM `customer` WHERE `id` = ?"
+	q := "SELECT * FROM `customer` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Name sql.NullString
 	var _Active sql.NullBool
@@ -708,7 +708,7 @@ func (t *Customer) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interfac
 
 // DBFindOne will find a Customer record in the database with the primary key
 func (t *Customer) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata` FROM `customer` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `customer` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Name sql.NullString
@@ -753,7 +753,7 @@ func (t *Customer) DBFindOne(ctx context.Context, db DB, value string) (bool, er
 
 // DBFindOneTx will find a Customer record in the database with the primary key using the provided transaction
 func (t *Customer) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `customer`.`id`,`customer`.`name`,`customer`.`active`,`customer`.`created_at`,`customer`.`updated_at`,`customer`.`metadata` FROM `customer` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `customer` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Name sql.NullString
@@ -1126,7 +1126,7 @@ func (t *Customer) DBCountTx(ctx context.Context, tx Tx, _params ...interface{})
 
 // DBExists will return true if the Customer record exists in the database
 func (t *Customer) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `customer` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `customer` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1137,7 +1137,7 @@ func (t *Customer) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the Customer record exists in the database using the provided transaction
 func (t *Customer) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `customer` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `customer` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

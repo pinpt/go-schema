@@ -339,7 +339,7 @@ func (t *MockapiApplication) SetID(v string) {
 
 // FindMockapiApplicationByID will find a MockapiApplication by ID
 func FindMockapiApplicationByID(ctx context.Context, db DB, value string) (*MockapiApplication, error) {
-	q := "SELECT `mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name` FROM `mockapi_application` WHERE `id` = ?"
+	q := "SELECT * FROM `mockapi_application` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -379,7 +379,7 @@ func FindMockapiApplicationByID(ctx context.Context, db DB, value string) (*Mock
 
 // FindMockapiApplicationByIDTx will find a MockapiApplication by ID using the provided transaction
 func FindMockapiApplicationByIDTx(ctx context.Context, tx Tx, value string) (*MockapiApplication, error) {
-	q := "SELECT `mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name` FROM `mockapi_application` WHERE `id` = ?"
+	q := "SELECT * FROM `mockapi_application` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -442,7 +442,7 @@ func (t *MockapiApplication) SetCustomerID(v string) {
 
 // FindMockapiApplicationsByCustomerID will find all MockapiApplications by the CustomerID value
 func FindMockapiApplicationsByCustomerID(ctx context.Context, db DB, value string) ([]*MockapiApplication, error) {
-	q := "SELECT `mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name` FROM `mockapi_application` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `mockapi_application` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -491,7 +491,7 @@ func FindMockapiApplicationsByCustomerID(ctx context.Context, db DB, value strin
 
 // FindMockapiApplicationsByCustomerIDTx will find all MockapiApplications by the CustomerID value using the provided transaction
 func FindMockapiApplicationsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*MockapiApplication, error) {
-	q := "SELECT `mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name` FROM `mockapi_application` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `mockapi_application` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -823,7 +823,7 @@ func (t *MockapiApplication) DBUpsertTx(ctx context.Context, tx Tx, conditions .
 
 // DBFindOne will find a MockapiApplication record in the database with the primary key
 func (t *MockapiApplication) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name` FROM `mockapi_application` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `mockapi_application` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -863,7 +863,7 @@ func (t *MockapiApplication) DBFindOne(ctx context.Context, db DB, value string)
 
 // DBFindOneTx will find a MockapiApplication record in the database with the primary key using the provided transaction
 func (t *MockapiApplication) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `mockapi_application`.`id`,`mockapi_application`.`checksum`,`mockapi_application`.`customer_id`,`mockapi_application`.`ext_id`,`mockapi_application`.`name` FROM `mockapi_application` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `mockapi_application` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1207,7 +1207,7 @@ func (t *MockapiApplication) DBCountTx(ctx context.Context, tx Tx, _params ...in
 
 // DBExists will return true if the MockapiApplication record exists in the database
 func (t *MockapiApplication) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `mockapi_application` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `mockapi_application` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1218,7 +1218,7 @@ func (t *MockapiApplication) DBExists(ctx context.Context, db DB) (bool, error) 
 
 // DBExistsTx will return true if the MockapiApplication record exists in the database using the provided transaction
 func (t *MockapiApplication) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `mockapi_application` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `mockapi_application` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

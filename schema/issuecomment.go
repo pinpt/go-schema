@@ -449,7 +449,7 @@ func (t *IssueComment) SetID(v string) {
 
 // FindIssueCommentByID will find a IssueComment by ID
 func FindIssueCommentByID(ctx context.Context, db DB, value string) (*IssueComment, error) {
-	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `id` = ?"
+	q := "SELECT * FROM `issue_comment` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _IssueID sql.NullString
@@ -544,7 +544,7 @@ func FindIssueCommentByID(ctx context.Context, db DB, value string) (*IssueComme
 
 // FindIssueCommentByIDTx will find a IssueComment by ID using the provided transaction
 func FindIssueCommentByIDTx(ctx context.Context, tx Tx, value string) (*IssueComment, error) {
-	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `id` = ?"
+	q := "SELECT * FROM `issue_comment` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _IssueID sql.NullString
@@ -662,7 +662,7 @@ func (t *IssueComment) SetIssueID(v string) {
 
 // FindIssueCommentsByIssueID will find all IssueComments by the IssueID value
 func FindIssueCommentsByIssueID(ctx context.Context, db DB, value string) ([]*IssueComment, error) {
-	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `issue_id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_comment` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -766,7 +766,7 @@ func FindIssueCommentsByIssueID(ctx context.Context, db DB, value string) ([]*Is
 
 // FindIssueCommentsByIssueIDTx will find all IssueComments by the IssueID value using the provided transaction
 func FindIssueCommentsByIssueIDTx(ctx context.Context, tx Tx, value string) ([]*IssueComment, error) {
-	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `issue_id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_comment` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -883,7 +883,7 @@ func (t *IssueComment) SetUserID(v string) {
 
 // FindIssueCommentsByUserID will find all IssueComments by the UserID value
 func FindIssueCommentsByUserID(ctx context.Context, db DB, value string) ([]*IssueComment, error) {
-	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `user_id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_comment` WHERE `user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -987,7 +987,7 @@ func FindIssueCommentsByUserID(ctx context.Context, db DB, value string) ([]*Iss
 
 // FindIssueCommentsByUserIDTx will find all IssueComments by the UserID value using the provided transaction
 func FindIssueCommentsByUserIDTx(ctx context.Context, tx Tx, value string) ([]*IssueComment, error) {
-	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `user_id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_comment` WHERE `user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1190,7 +1190,7 @@ func (t *IssueComment) SetCustomerID(v string) {
 
 // FindIssueCommentsByCustomerID will find all IssueComments by the CustomerID value
 func FindIssueCommentsByCustomerID(ctx context.Context, db DB, value string) ([]*IssueComment, error) {
-	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_comment` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1294,7 +1294,7 @@ func FindIssueCommentsByCustomerID(ctx context.Context, db DB, value string) ([]
 
 // FindIssueCommentsByCustomerIDTx will find all IssueComments by the CustomerID value using the provided transaction
 func FindIssueCommentsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*IssueComment, error) {
-	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_comment` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1408,7 +1408,7 @@ func (t *IssueComment) SetRefType(v string) {
 
 // FindIssueCommentsByRefType will find all IssueComments by the RefType value
 func FindIssueCommentsByRefType(ctx context.Context, db DB, value string) ([]*IssueComment, error) {
-	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_comment` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1512,7 +1512,7 @@ func FindIssueCommentsByRefType(ctx context.Context, db DB, value string) ([]*Is
 
 // FindIssueCommentsByRefTypeTx will find all IssueComments by the RefType value using the provided transaction
 func FindIssueCommentsByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*IssueComment, error) {
-	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_comment` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1626,7 +1626,7 @@ func (t *IssueComment) SetRefID(v string) {
 
 // FindIssueCommentsByRefID will find all IssueComments by the RefID value
 func FindIssueCommentsByRefID(ctx context.Context, db DB, value string) ([]*IssueComment, error) {
-	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_comment` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1730,7 +1730,7 @@ func FindIssueCommentsByRefID(ctx context.Context, db DB, value string) ([]*Issu
 
 // FindIssueCommentsByRefIDTx will find all IssueComments by the RefID value using the provided transaction
 func FindIssueCommentsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*IssueComment, error) {
-	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_comment` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2209,7 +2209,7 @@ func (t *IssueComment) DBUpsertTx(ctx context.Context, tx Tx, conditions ...inte
 
 // DBFindOne will find a IssueComment record in the database with the primary key
 func (t *IssueComment) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_comment` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -2304,7 +2304,7 @@ func (t *IssueComment) DBFindOne(ctx context.Context, db DB, value string) (bool
 
 // DBFindOneTx will find a IssueComment record in the database with the primary key using the provided transaction
 func (t *IssueComment) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `issue_comment`.`id`,`issue_comment`.`checksum`,`issue_comment`.`issue_id`,`issue_comment`.`user_id`,`issue_comment`.`project_id`,`issue_comment`.`body`,`issue_comment`.`deleted`,`issue_comment`.`deleted_user_id`,`issue_comment`.`created_at`,`issue_comment`.`updated_at`,`issue_comment`.`deleted_at`,`issue_comment`.`url`,`issue_comment`.`customer_id`,`issue_comment`.`ref_type`,`issue_comment`.`ref_id`,`issue_comment`.`metadata` FROM `issue_comment` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_comment` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -2967,7 +2967,7 @@ func (t *IssueComment) DBCountTx(ctx context.Context, tx Tx, _params ...interfac
 
 // DBExists will return true if the IssueComment record exists in the database
 func (t *IssueComment) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `issue_comment` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_comment` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -2978,7 +2978,7 @@ func (t *IssueComment) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the IssueComment record exists in the database using the provided transaction
 func (t *IssueComment) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `issue_comment` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_comment` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

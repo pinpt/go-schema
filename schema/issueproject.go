@@ -379,7 +379,7 @@ func (t *IssueProject) SetID(v string) {
 
 // FindIssueProjectByID will find a IssueProject by ID
 func FindIssueProjectByID(ctx context.Context, db DB, value string) (*IssueProject, error) {
-	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `id` = ?"
+	q := "SELECT * FROM `issue_project` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _Name sql.NullString
@@ -439,7 +439,7 @@ func FindIssueProjectByID(ctx context.Context, db DB, value string) (*IssueProje
 
 // FindIssueProjectByIDTx will find a IssueProject by ID using the provided transaction
 func FindIssueProjectByIDTx(ctx context.Context, tx Tx, value string) (*IssueProject, error) {
-	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `id` = ?"
+	q := "SELECT * FROM `issue_project` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _Name sql.NullString
@@ -552,7 +552,7 @@ func (t *IssueProject) SetCustomerID(v string) {
 
 // FindIssueProjectsByCustomerID will find all IssueProjects by the CustomerID value
 func FindIssueProjectsByCustomerID(ctx context.Context, db DB, value string) ([]*IssueProject, error) {
-	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_project` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -621,7 +621,7 @@ func FindIssueProjectsByCustomerID(ctx context.Context, db DB, value string) ([]
 
 // FindIssueProjectsByCustomerIDTx will find all IssueProjects by the CustomerID value using the provided transaction
 func FindIssueProjectsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*IssueProject, error) {
-	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_project` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -700,7 +700,7 @@ func (t *IssueProject) SetRefType(v string) {
 
 // FindIssueProjectsByRefType will find all IssueProjects by the RefType value
 func FindIssueProjectsByRefType(ctx context.Context, db DB, value string) ([]*IssueProject, error) {
-	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_project` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -769,7 +769,7 @@ func FindIssueProjectsByRefType(ctx context.Context, db DB, value string) ([]*Is
 
 // FindIssueProjectsByRefTypeTx will find all IssueProjects by the RefType value using the provided transaction
 func FindIssueProjectsByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*IssueProject, error) {
-	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_project` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -848,7 +848,7 @@ func (t *IssueProject) SetRefID(v string) {
 
 // FindIssueProjectsByRefID will find all IssueProjects by the RefID value
 func FindIssueProjectsByRefID(ctx context.Context, db DB, value string) ([]*IssueProject, error) {
-	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_project` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -917,7 +917,7 @@ func FindIssueProjectsByRefID(ctx context.Context, db DB, value string) ([]*Issu
 
 // FindIssueProjectsByRefIDTx will find all IssueProjects by the RefID value using the provided transaction
 func FindIssueProjectsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*IssueProject, error) {
-	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_project` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1298,7 +1298,7 @@ func (t *IssueProject) DBUpsertTx(ctx context.Context, tx Tx, conditions ...inte
 
 // DBFindOne will find a IssueProject record in the database with the primary key
 func (t *IssueProject) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_project` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1358,7 +1358,7 @@ func (t *IssueProject) DBFindOne(ctx context.Context, db DB, value string) (bool
 
 // DBFindOneTx will find a IssueProject record in the database with the primary key using the provided transaction
 func (t *IssueProject) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `issue_project`.`id`,`issue_project`.`checksum`,`issue_project`.`name`,`issue_project`.`url`,`issue_project`.`created_at`,`issue_project`.`customer_id`,`issue_project`.`ref_type`,`issue_project`.`ref_id`,`issue_project`.`metadata` FROM `issue_project` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_project` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1818,7 +1818,7 @@ func (t *IssueProject) DBCountTx(ctx context.Context, tx Tx, _params ...interfac
 
 // DBExists will return true if the IssueProject record exists in the database
 func (t *IssueProject) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `issue_project` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_project` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1829,7 +1829,7 @@ func (t *IssueProject) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the IssueProject record exists in the database using the provided transaction
 func (t *IssueProject) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `issue_project` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `issue_project` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

@@ -369,7 +369,7 @@ func (t *JiraProject) SetID(v string) {
 
 // FindJiraProjectByID will find a JiraProject by ID
 func FindJiraProjectByID(ctx context.Context, db DB, value string) (*JiraProject, error) {
-	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `id` = ?"
+	q := "SELECT * FROM `jira_project` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _ProjectID sql.NullString
@@ -424,7 +424,7 @@ func FindJiraProjectByID(ctx context.Context, db DB, value string) (*JiraProject
 
 // FindJiraProjectByIDTx will find a JiraProject by ID using the provided transaction
 func FindJiraProjectByIDTx(ctx context.Context, tx Tx, value string) (*JiraProject, error) {
-	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `id` = ?"
+	q := "SELECT * FROM `jira_project` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _ProjectID sql.NullString
@@ -502,7 +502,7 @@ func (t *JiraProject) SetProjectID(v string) {
 
 // FindJiraProjectsByProjectID will find all JiraProjects by the ProjectID value
 func FindJiraProjectsByProjectID(ctx context.Context, db DB, value string) ([]*JiraProject, error) {
-	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `project_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project` WHERE `project_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -566,7 +566,7 @@ func FindJiraProjectsByProjectID(ctx context.Context, db DB, value string) ([]*J
 
 // FindJiraProjectsByProjectIDTx will find all JiraProjects by the ProjectID value using the provided transaction
 func FindJiraProjectsByProjectIDTx(ctx context.Context, tx Tx, value string) ([]*JiraProject, error) {
-	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `project_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project` WHERE `project_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -673,7 +673,7 @@ func (t *JiraProject) SetCustomerID(v string) {
 
 // FindJiraProjectsByCustomerID will find all JiraProjects by the CustomerID value
 func FindJiraProjectsByCustomerID(ctx context.Context, db DB, value string) ([]*JiraProject, error) {
-	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -737,7 +737,7 @@ func FindJiraProjectsByCustomerID(ctx context.Context, db DB, value string) ([]*
 
 // FindJiraProjectsByCustomerIDTx will find all JiraProjects by the CustomerID value using the provided transaction
 func FindJiraProjectsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraProject, error) {
-	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -811,7 +811,7 @@ func (t *JiraProject) SetRefID(v string) {
 
 // FindJiraProjectsByRefID will find all JiraProjects by the RefID value
 func FindJiraProjectsByRefID(ctx context.Context, db DB, value string) ([]*JiraProject, error) {
-	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -875,7 +875,7 @@ func FindJiraProjectsByRefID(ctx context.Context, db DB, value string) ([]*JiraP
 
 // FindJiraProjectsByRefIDTx will find all JiraProjects by the RefID value using the provided transaction
 func FindJiraProjectsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*JiraProject, error) {
-	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1229,7 +1229,7 @@ func (t *JiraProject) DBUpsertTx(ctx context.Context, tx Tx, conditions ...inter
 
 // DBFindOne will find a JiraProject record in the database with the primary key
 func (t *JiraProject) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1284,7 +1284,7 @@ func (t *JiraProject) DBFindOne(ctx context.Context, db DB, value string) (bool,
 
 // DBFindOneTx will find a JiraProject record in the database with the primary key using the provided transaction
 func (t *JiraProject) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `jira_project`.`id`,`jira_project`.`checksum`,`jira_project`.`project_id`,`jira_project`.`key`,`jira_project`.`avatar_url`,`jira_project`.`category_id`,`jira_project`.`customer_id`,`jira_project`.`ref_id` FROM `jira_project` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1715,7 +1715,7 @@ func (t *JiraProject) DBCountTx(ctx context.Context, tx Tx, _params ...interface
 
 // DBExists will return true if the JiraProject record exists in the database
 func (t *JiraProject) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `jira_project` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1726,7 +1726,7 @@ func (t *JiraProject) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the JiraProject record exists in the database using the provided transaction
 func (t *JiraProject) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `jira_project` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

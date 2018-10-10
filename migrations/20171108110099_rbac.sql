@@ -1,9 +1,9 @@
 -- +goose Up
 -- SQL in section 'Up' is executed when this migration is applied
 
-INSERT INTO `acl_role` (`id`,`name`,`description`,`created_at`) VALUES ("1f15a4c9d4798230","admin","Administrative role",1539004813942);
-INSERT INTO `acl_role` (`id`,`name`,`description`,`created_at`) VALUES ("3ae149a8dc444bce","executive","Executive role",1539004813942);
-INSERT INTO `acl_role` (`id`,`name`,`description`,`created_at`) VALUES ("455511f8e362deb9","manager","Manager role",1539004813942);
+INSERT INTO `acl_role` (`id`,`name`,`description`,`created_at`) VALUES ("1f15a4c9d4798230","admin","Administrative role",1539187169392);
+INSERT INTO `acl_role` (`id`,`name`,`description`,`created_at`) VALUES ("3ae149a8dc444bce","executive","Executive role",1539187169392);
+INSERT INTO `acl_role` (`id`,`name`,`description`,`created_at`) VALUES ("455511f8e362deb9","manager","Manager role",1539187169392);
 
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back

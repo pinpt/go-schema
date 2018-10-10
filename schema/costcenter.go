@@ -507,7 +507,7 @@ func (t *CostCenter) SetID(v string) {
 
 // FindCostCenterByID will find a CostCenter by ID
 func FindCostCenterByID(ctx context.Context, db DB, value string) (*CostCenter, error) {
-	q := "SELECT `cost_center`.`id`,`cost_center`.`checksum`,`cost_center`.`customer_id`,`cost_center`.`name`,`cost_center`.`description`,`cost_center`.`identifier`,`cost_center`.`unit_cost`,`cost_center`.`value_type`,`cost_center`.`unit_type`,`cost_center`.`unit_currency`,`cost_center`.`allocation`,`cost_center`.`created_at`,`cost_center`.`updated_at` FROM `cost_center` WHERE `id` = ?"
+	q := "SELECT * FROM `cost_center` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -587,7 +587,7 @@ func FindCostCenterByID(ctx context.Context, db DB, value string) (*CostCenter, 
 
 // FindCostCenterByIDTx will find a CostCenter by ID using the provided transaction
 func FindCostCenterByIDTx(ctx context.Context, tx Tx, value string) (*CostCenter, error) {
-	q := "SELECT `cost_center`.`id`,`cost_center`.`checksum`,`cost_center`.`customer_id`,`cost_center`.`name`,`cost_center`.`description`,`cost_center`.`identifier`,`cost_center`.`unit_cost`,`cost_center`.`value_type`,`cost_center`.`unit_type`,`cost_center`.`unit_currency`,`cost_center`.`allocation`,`cost_center`.`created_at`,`cost_center`.`updated_at` FROM `cost_center` WHERE `id` = ?"
+	q := "SELECT * FROM `cost_center` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -1160,7 +1160,7 @@ func (t *CostCenter) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interf
 
 // DBFindOne will find a CostCenter record in the database with the primary key
 func (t *CostCenter) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `cost_center`.`id`,`cost_center`.`checksum`,`cost_center`.`customer_id`,`cost_center`.`name`,`cost_center`.`description`,`cost_center`.`identifier`,`cost_center`.`unit_cost`,`cost_center`.`value_type`,`cost_center`.`unit_type`,`cost_center`.`unit_currency`,`cost_center`.`allocation`,`cost_center`.`created_at`,`cost_center`.`updated_at` FROM `cost_center` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `cost_center` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1240,7 +1240,7 @@ func (t *CostCenter) DBFindOne(ctx context.Context, db DB, value string) (bool, 
 
 // DBFindOneTx will find a CostCenter record in the database with the primary key using the provided transaction
 func (t *CostCenter) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `cost_center`.`id`,`cost_center`.`checksum`,`cost_center`.`customer_id`,`cost_center`.`name`,`cost_center`.`description`,`cost_center`.`identifier`,`cost_center`.`unit_cost`,`cost_center`.`value_type`,`cost_center`.`unit_type`,`cost_center`.`unit_currency`,`cost_center`.`allocation`,`cost_center`.`created_at`,`cost_center`.`updated_at` FROM `cost_center` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `cost_center` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1816,7 +1816,7 @@ func (t *CostCenter) DBCountTx(ctx context.Context, tx Tx, _params ...interface{
 
 // DBExists will return true if the CostCenter record exists in the database
 func (t *CostCenter) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `cost_center` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `cost_center` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1827,7 +1827,7 @@ func (t *CostCenter) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the CostCenter record exists in the database using the provided transaction
 func (t *CostCenter) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `cost_center` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `cost_center` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

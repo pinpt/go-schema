@@ -14,7 +14,6 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/jhaynie/go-gator/orm"
 )
 
 // NullTime taken from

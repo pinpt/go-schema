@@ -419,7 +419,7 @@ func (t *JiraProjectStatus) SetID(v string) {
 
 // FindJiraProjectStatusByID will find a JiraProjectStatus by ID
 func FindJiraProjectStatusByID(ctx context.Context, db DB, value string) (*JiraProjectStatus, error) {
-	q := "SELECT `jira_project_status`.`id`,`jira_project_status`.`checksum`,`jira_project_status`.`status_id`,`jira_project_status`.`project_id`,`jira_project_status`.`name`,`jira_project_status`.`description`,`jira_project_status`.`icon_url`,`jira_project_status`.`category`,`jira_project_status`.`category_key`,`jira_project_status`.`category_color`,`jira_project_status`.`category_id`,`jira_project_status`.`issue_type_id`,`jira_project_status`.`customer_id` FROM `jira_project_status` WHERE `id` = ?"
+	q := "SELECT * FROM `jira_project_status` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _StatusID sql.NullString
@@ -499,7 +499,7 @@ func FindJiraProjectStatusByID(ctx context.Context, db DB, value string) (*JiraP
 
 // FindJiraProjectStatusByIDTx will find a JiraProjectStatus by ID using the provided transaction
 func FindJiraProjectStatusByIDTx(ctx context.Context, tx Tx, value string) (*JiraProjectStatus, error) {
-	q := "SELECT `jira_project_status`.`id`,`jira_project_status`.`checksum`,`jira_project_status`.`status_id`,`jira_project_status`.`project_id`,`jira_project_status`.`name`,`jira_project_status`.`description`,`jira_project_status`.`icon_url`,`jira_project_status`.`category`,`jira_project_status`.`category_key`,`jira_project_status`.`category_color`,`jira_project_status`.`category_id`,`jira_project_status`.`issue_type_id`,`jira_project_status`.`customer_id` FROM `jira_project_status` WHERE `id` = ?"
+	q := "SELECT * FROM `jira_project_status` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _StatusID sql.NullString
@@ -612,7 +612,7 @@ func (t *JiraProjectStatus) SetProjectID(v string) {
 
 // FindJiraProjectStatusesByProjectID will find all JiraProjectStatuss by the ProjectID value
 func FindJiraProjectStatusesByProjectID(ctx context.Context, db DB, value string) ([]*JiraProjectStatus, error) {
-	q := "SELECT `jira_project_status`.`id`,`jira_project_status`.`checksum`,`jira_project_status`.`status_id`,`jira_project_status`.`project_id`,`jira_project_status`.`name`,`jira_project_status`.`description`,`jira_project_status`.`icon_url`,`jira_project_status`.`category`,`jira_project_status`.`category_key`,`jira_project_status`.`category_color`,`jira_project_status`.`category_id`,`jira_project_status`.`issue_type_id`,`jira_project_status`.`customer_id` FROM `jira_project_status` WHERE `project_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project_status` WHERE `project_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -701,7 +701,7 @@ func FindJiraProjectStatusesByProjectID(ctx context.Context, db DB, value string
 
 // FindJiraProjectStatusesByProjectIDTx will find all JiraProjectStatuss by the ProjectID value using the provided transaction
 func FindJiraProjectStatusesByProjectIDTx(ctx context.Context, tx Tx, value string) ([]*JiraProjectStatus, error) {
-	q := "SELECT `jira_project_status`.`id`,`jira_project_status`.`checksum`,`jira_project_status`.`status_id`,`jira_project_status`.`project_id`,`jira_project_status`.`name`,`jira_project_status`.`description`,`jira_project_status`.`icon_url`,`jira_project_status`.`category`,`jira_project_status`.`category_key`,`jira_project_status`.`category_color`,`jira_project_status`.`category_id`,`jira_project_status`.`issue_type_id`,`jira_project_status`.`customer_id` FROM `jira_project_status` WHERE `project_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project_status` WHERE `project_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -800,7 +800,7 @@ func (t *JiraProjectStatus) SetName(v string) {
 
 // FindJiraProjectStatusesByName will find all JiraProjectStatuss by the Name value
 func FindJiraProjectStatusesByName(ctx context.Context, db DB, value string) ([]*JiraProjectStatus, error) {
-	q := "SELECT `jira_project_status`.`id`,`jira_project_status`.`checksum`,`jira_project_status`.`status_id`,`jira_project_status`.`project_id`,`jira_project_status`.`name`,`jira_project_status`.`description`,`jira_project_status`.`icon_url`,`jira_project_status`.`category`,`jira_project_status`.`category_key`,`jira_project_status`.`category_color`,`jira_project_status`.`category_id`,`jira_project_status`.`issue_type_id`,`jira_project_status`.`customer_id` FROM `jira_project_status` WHERE `name` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project_status` WHERE `name` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -889,7 +889,7 @@ func FindJiraProjectStatusesByName(ctx context.Context, db DB, value string) ([]
 
 // FindJiraProjectStatusesByNameTx will find all JiraProjectStatuss by the Name value using the provided transaction
 func FindJiraProjectStatusesByNameTx(ctx context.Context, tx Tx, value string) ([]*JiraProjectStatus, error) {
-	q := "SELECT `jira_project_status`.`id`,`jira_project_status`.`checksum`,`jira_project_status`.`status_id`,`jira_project_status`.`project_id`,`jira_project_status`.`name`,`jira_project_status`.`description`,`jira_project_status`.`icon_url`,`jira_project_status`.`category`,`jira_project_status`.`category_key`,`jira_project_status`.`category_color`,`jira_project_status`.`category_id`,`jira_project_status`.`issue_type_id`,`jira_project_status`.`customer_id` FROM `jira_project_status` WHERE `name` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project_status` WHERE `name` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1076,7 +1076,7 @@ func (t *JiraProjectStatus) SetCustomerID(v string) {
 
 // FindJiraProjectStatusesByCustomerID will find all JiraProjectStatuss by the CustomerID value
 func FindJiraProjectStatusesByCustomerID(ctx context.Context, db DB, value string) ([]*JiraProjectStatus, error) {
-	q := "SELECT `jira_project_status`.`id`,`jira_project_status`.`checksum`,`jira_project_status`.`status_id`,`jira_project_status`.`project_id`,`jira_project_status`.`name`,`jira_project_status`.`description`,`jira_project_status`.`icon_url`,`jira_project_status`.`category`,`jira_project_status`.`category_key`,`jira_project_status`.`category_color`,`jira_project_status`.`category_id`,`jira_project_status`.`issue_type_id`,`jira_project_status`.`customer_id` FROM `jira_project_status` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project_status` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1165,7 +1165,7 @@ func FindJiraProjectStatusesByCustomerID(ctx context.Context, db DB, value strin
 
 // FindJiraProjectStatusesByCustomerIDTx will find all JiraProjectStatuss by the CustomerID value using the provided transaction
 func FindJiraProjectStatusesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraProjectStatus, error) {
-	q := "SELECT `jira_project_status`.`id`,`jira_project_status`.`checksum`,`jira_project_status`.`status_id`,`jira_project_status`.`project_id`,`jira_project_status`.`name`,`jira_project_status`.`description`,`jira_project_status`.`icon_url`,`jira_project_status`.`category`,`jira_project_status`.`category_key`,`jira_project_status`.`category_color`,`jira_project_status`.`category_id`,`jira_project_status`.`issue_type_id`,`jira_project_status`.`customer_id` FROM `jira_project_status` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project_status` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1589,7 +1589,7 @@ func (t *JiraProjectStatus) DBUpsertTx(ctx context.Context, tx Tx, conditions ..
 
 // DBFindOne will find a JiraProjectStatus record in the database with the primary key
 func (t *JiraProjectStatus) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `jira_project_status`.`id`,`jira_project_status`.`checksum`,`jira_project_status`.`status_id`,`jira_project_status`.`project_id`,`jira_project_status`.`name`,`jira_project_status`.`description`,`jira_project_status`.`icon_url`,`jira_project_status`.`category`,`jira_project_status`.`category_key`,`jira_project_status`.`category_color`,`jira_project_status`.`category_id`,`jira_project_status`.`issue_type_id`,`jira_project_status`.`customer_id` FROM `jira_project_status` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project_status` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1669,7 +1669,7 @@ func (t *JiraProjectStatus) DBFindOne(ctx context.Context, db DB, value string) 
 
 // DBFindOneTx will find a JiraProjectStatus record in the database with the primary key using the provided transaction
 func (t *JiraProjectStatus) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `jira_project_status`.`id`,`jira_project_status`.`checksum`,`jira_project_status`.`status_id`,`jira_project_status`.`project_id`,`jira_project_status`.`name`,`jira_project_status`.`description`,`jira_project_status`.`icon_url`,`jira_project_status`.`category`,`jira_project_status`.`category_key`,`jira_project_status`.`category_color`,`jira_project_status`.`category_id`,`jira_project_status`.`issue_type_id`,`jira_project_status`.`customer_id` FROM `jira_project_status` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project_status` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -2245,7 +2245,7 @@ func (t *JiraProjectStatus) DBCountTx(ctx context.Context, tx Tx, _params ...int
 
 // DBExists will return true if the JiraProjectStatus record exists in the database
 func (t *JiraProjectStatus) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `jira_project_status` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project_status` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -2256,7 +2256,7 @@ func (t *JiraProjectStatus) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the JiraProjectStatus record exists in the database using the provided transaction
 func (t *JiraProjectStatus) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `jira_project_status` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_project_status` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

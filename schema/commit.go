@@ -469,7 +469,7 @@ func (t *Commit) SetID(v string) {
 
 // FindCommitByID will find a Commit by ID
 func FindCommitByID(ctx context.Context, db DB, value string) (*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `id` = ?"
+	q := "SELECT * FROM `commit` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _RepoID sql.NullString
@@ -574,7 +574,7 @@ func FindCommitByID(ctx context.Context, db DB, value string) (*Commit, error) {
 
 // FindCommitByIDTx will find a Commit by ID using the provided transaction
 func FindCommitByIDTx(ctx context.Context, tx Tx, value string) (*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `id` = ?"
+	q := "SELECT * FROM `commit` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _RepoID sql.NullString
@@ -702,7 +702,7 @@ func (t *Commit) SetRepoID(v string) {
 
 // FindCommitsByRepoID will find all Commits by the RepoID value
 func FindCommitsByRepoID(ctx context.Context, db DB, value string) ([]*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `repo_id` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -816,7 +816,7 @@ func FindCommitsByRepoID(ctx context.Context, db DB, value string) ([]*Commit, e
 
 // FindCommitsByRepoIDTx will find all Commits by the RepoID value using the provided transaction
 func FindCommitsByRepoIDTx(ctx context.Context, tx Tx, value string) ([]*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `repo_id` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -940,7 +940,7 @@ func (t *Commit) SetSha(v string) {
 
 // FindCommitsBySha will find all Commits by the Sha value
 func FindCommitsBySha(ctx context.Context, db DB, value string) ([]*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `sha` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `sha` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1054,7 +1054,7 @@ func FindCommitsBySha(ctx context.Context, db DB, value string) ([]*Commit, erro
 
 // FindCommitsByShaTx will find all Commits by the Sha value using the provided transaction
 func FindCommitsByShaTx(ctx context.Context, tx Tx, value string) ([]*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `sha` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `sha` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1266,7 +1266,7 @@ func (t *Commit) SetAuthorUserID(v string) {
 
 // FindCommitsByAuthorUserID will find all Commits by the AuthorUserID value
 func FindCommitsByAuthorUserID(ctx context.Context, db DB, value string) ([]*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `author_user_id` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `author_user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1380,7 +1380,7 @@ func FindCommitsByAuthorUserID(ctx context.Context, db DB, value string) ([]*Com
 
 // FindCommitsByAuthorUserIDTx will find all Commits by the AuthorUserID value using the provided transaction
 func FindCommitsByAuthorUserIDTx(ctx context.Context, tx Tx, value string) ([]*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `author_user_id` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `author_user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1504,7 +1504,7 @@ func (t *Commit) SetCommitterUserID(v string) {
 
 // FindCommitsByCommitterUserID will find all Commits by the CommitterUserID value
 func FindCommitsByCommitterUserID(ctx context.Context, db DB, value string) ([]*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `committer_user_id` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `committer_user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1618,7 +1618,7 @@ func FindCommitsByCommitterUserID(ctx context.Context, db DB, value string) ([]*
 
 // FindCommitsByCommitterUserIDTx will find all Commits by the CommitterUserID value using the provided transaction
 func FindCommitsByCommitterUserIDTx(ctx context.Context, tx Tx, value string) ([]*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `committer_user_id` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `committer_user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1755,7 +1755,7 @@ func (t *Commit) SetCustomerID(v string) {
 
 // FindCommitsByCustomerID will find all Commits by the CustomerID value
 func FindCommitsByCustomerID(ctx context.Context, db DB, value string) ([]*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1869,7 +1869,7 @@ func FindCommitsByCustomerID(ctx context.Context, db DB, value string) ([]*Commi
 
 // FindCommitsByCustomerIDTx will find all Commits by the CustomerID value using the provided transaction
 func FindCommitsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1993,7 +1993,7 @@ func (t *Commit) SetRefType(v string) {
 
 // FindCommitsByRefType will find all Commits by the RefType value
 func FindCommitsByRefType(ctx context.Context, db DB, value string) ([]*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2107,7 +2107,7 @@ func FindCommitsByRefType(ctx context.Context, db DB, value string) ([]*Commit, 
 
 // FindCommitsByRefTypeTx will find all Commits by the RefType value using the provided transaction
 func FindCommitsByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2231,7 +2231,7 @@ func (t *Commit) SetRefID(v string) {
 
 // FindCommitsByRefID will find all Commits by the RefID value
 func FindCommitsByRefID(ctx context.Context, db DB, value string) ([]*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2345,7 +2345,7 @@ func FindCommitsByRefID(ctx context.Context, db DB, value string) ([]*Commit, er
 
 // FindCommitsByRefIDTx will find all Commits by the RefID value using the provided transaction
 func FindCommitsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*Commit, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2852,7 +2852,7 @@ func (t *Commit) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{
 
 // DBFindOne will find a Commit record in the database with the primary key
 func (t *Commit) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -2957,7 +2957,7 @@ func (t *Commit) DBFindOne(ctx context.Context, db DB, value string) (bool, erro
 
 // DBFindOneTx will find a Commit record in the database with the primary key using the provided transaction
 func (t *Commit) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `commit`.`id`,`commit`.`checksum`,`commit`.`repo_id`,`commit`.`sha`,`commit`.`branch`,`commit`.`message`,`commit`.`mergecommit`,`commit`.`excluded`,`commit`.`parent`,`commit`.`parent_id`,`commit`.`date`,`commit`.`author_user_id`,`commit`.`committer_user_id`,`commit`.`ordinal`,`commit`.`customer_id`,`commit`.`ref_type`,`commit`.`ref_id`,`commit`.`metadata` FROM `commit` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -3678,7 +3678,7 @@ func (t *Commit) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (
 
 // DBExists will return true if the Commit record exists in the database
 func (t *Commit) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `commit` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -3689,7 +3689,7 @@ func (t *Commit) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the Commit record exists in the database using the provided transaction
 func (t *Commit) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `commit` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `commit` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

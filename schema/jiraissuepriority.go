@@ -349,7 +349,7 @@ func (t *JiraIssuePriority) SetID(v string) {
 
 // FindJiraIssuePriorityByID will find a JiraIssuePriority by ID
 func FindJiraIssuePriorityByID(ctx context.Context, db DB, value string) (*JiraIssuePriority, error) {
-	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `id` = ?"
+	q := "SELECT * FROM `jira_issue_priority` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _IssuePriorityID sql.NullString
@@ -394,7 +394,7 @@ func FindJiraIssuePriorityByID(ctx context.Context, db DB, value string) (*JiraI
 
 // FindJiraIssuePriorityByIDTx will find a JiraIssuePriority by ID using the provided transaction
 func FindJiraIssuePriorityByIDTx(ctx context.Context, tx Tx, value string) (*JiraIssuePriority, error) {
-	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `id` = ?"
+	q := "SELECT * FROM `jira_issue_priority` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _IssuePriorityID sql.NullString
@@ -462,7 +462,7 @@ func (t *JiraIssuePriority) SetIssuePriorityID(v string) {
 
 // FindJiraIssuePrioritiesByIssuePriorityID will find all JiraIssuePrioritys by the IssuePriorityID value
 func FindJiraIssuePrioritiesByIssuePriorityID(ctx context.Context, db DB, value string) ([]*JiraIssuePriority, error) {
-	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `issue_priority_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_priority` WHERE `issue_priority_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -516,7 +516,7 @@ func FindJiraIssuePrioritiesByIssuePriorityID(ctx context.Context, db DB, value 
 
 // FindJiraIssuePrioritiesByIssuePriorityIDTx will find all JiraIssuePrioritys by the IssuePriorityID value using the provided transaction
 func FindJiraIssuePrioritiesByIssuePriorityIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssuePriority, error) {
-	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `issue_priority_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_priority` WHERE `issue_priority_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -600,7 +600,7 @@ func (t *JiraIssuePriority) SetCustomerID(v string) {
 
 // FindJiraIssuePrioritiesByCustomerID will find all JiraIssuePrioritys by the CustomerID value
 func FindJiraIssuePrioritiesByCustomerID(ctx context.Context, db DB, value string) ([]*JiraIssuePriority, error) {
-	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_priority` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -654,7 +654,7 @@ func FindJiraIssuePrioritiesByCustomerID(ctx context.Context, db DB, value strin
 
 // FindJiraIssuePrioritiesByCustomerIDTx will find all JiraIssuePrioritys by the CustomerID value using the provided transaction
 func FindJiraIssuePrioritiesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssuePriority, error) {
-	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_priority` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -980,7 +980,7 @@ func (t *JiraIssuePriority) DBUpsertTx(ctx context.Context, tx Tx, conditions ..
 
 // DBFindOne will find a JiraIssuePriority record in the database with the primary key
 func (t *JiraIssuePriority) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_priority` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1025,7 +1025,7 @@ func (t *JiraIssuePriority) DBFindOne(ctx context.Context, db DB, value string) 
 
 // DBFindOneTx will find a JiraIssuePriority record in the database with the primary key using the provided transaction
 func (t *JiraIssuePriority) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `jira_issue_priority`.`id`,`jira_issue_priority`.`checksum`,`jira_issue_priority`.`issue_priority_id`,`jira_issue_priority`.`name`,`jira_issue_priority`.`icon_url`,`jira_issue_priority`.`customer_id` FROM `jira_issue_priority` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_priority` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1398,7 +1398,7 @@ func (t *JiraIssuePriority) DBCountTx(ctx context.Context, tx Tx, _params ...int
 
 // DBExists will return true if the JiraIssuePriority record exists in the database
 func (t *JiraIssuePriority) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `jira_issue_priority` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_priority` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1409,7 +1409,7 @@ func (t *JiraIssuePriority) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the JiraIssuePriority record exists in the database using the provided transaction
 func (t *JiraIssuePriority) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `jira_issue_priority` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `jira_issue_priority` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

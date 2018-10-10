@@ -369,7 +369,7 @@ func (t *ACLUserRole) SetID(v string) {
 
 // FindACLUserRoleByID will find a ACLUserRole by ID
 func FindACLUserRoleByID(ctx context.Context, db DB, value string) (*ACLUserRole, error) {
-	q := "SELECT `acl_user_role`.`id`,`acl_user_role`.`checksum`,`acl_user_role`.`user_id`,`acl_user_role`.`role_id`,`acl_user_role`.`customer_id`,`acl_user_role`.`admin_user_id`,`acl_user_role`.`created_at`,`acl_user_role`.`updated_at` FROM `acl_user_role` WHERE `id` = ?"
+	q := "SELECT * FROM `acl_user_role` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _UserID sql.NullString
@@ -424,7 +424,7 @@ func FindACLUserRoleByID(ctx context.Context, db DB, value string) (*ACLUserRole
 
 // FindACLUserRoleByIDTx will find a ACLUserRole by ID using the provided transaction
 func FindACLUserRoleByIDTx(ctx context.Context, tx Tx, value string) (*ACLUserRole, error) {
-	q := "SELECT `acl_user_role`.`id`,`acl_user_role`.`checksum`,`acl_user_role`.`user_id`,`acl_user_role`.`role_id`,`acl_user_role`.`customer_id`,`acl_user_role`.`admin_user_id`,`acl_user_role`.`created_at`,`acl_user_role`.`updated_at` FROM `acl_user_role` WHERE `id` = ?"
+	q := "SELECT * FROM `acl_user_role` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _UserID sql.NullString
@@ -502,7 +502,7 @@ func (t *ACLUserRole) SetUserID(v string) {
 
 // FindACLUserRolesByUserID will find all ACLUserRoles by the UserID value
 func FindACLUserRolesByUserID(ctx context.Context, db DB, value string) ([]*ACLUserRole, error) {
-	q := "SELECT `acl_user_role`.`id`,`acl_user_role`.`checksum`,`acl_user_role`.`user_id`,`acl_user_role`.`role_id`,`acl_user_role`.`customer_id`,`acl_user_role`.`admin_user_id`,`acl_user_role`.`created_at`,`acl_user_role`.`updated_at` FROM `acl_user_role` WHERE `user_id` = ? LIMIT 1"
+	q := "SELECT * FROM `acl_user_role` WHERE `user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -566,7 +566,7 @@ func FindACLUserRolesByUserID(ctx context.Context, db DB, value string) ([]*ACLU
 
 // FindACLUserRolesByUserIDTx will find all ACLUserRoles by the UserID value using the provided transaction
 func FindACLUserRolesByUserIDTx(ctx context.Context, tx Tx, value string) ([]*ACLUserRole, error) {
-	q := "SELECT `acl_user_role`.`id`,`acl_user_role`.`checksum`,`acl_user_role`.`user_id`,`acl_user_role`.`role_id`,`acl_user_role`.`customer_id`,`acl_user_role`.`admin_user_id`,`acl_user_role`.`created_at`,`acl_user_role`.`updated_at` FROM `acl_user_role` WHERE `user_id` = ? LIMIT 1"
+	q := "SELECT * FROM `acl_user_role` WHERE `user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -640,7 +640,7 @@ func (t *ACLUserRole) SetRoleID(v string) {
 
 // FindACLUserRolesByRoleID will find all ACLUserRoles by the RoleID value
 func FindACLUserRolesByRoleID(ctx context.Context, db DB, value string) ([]*ACLUserRole, error) {
-	q := "SELECT `acl_user_role`.`id`,`acl_user_role`.`checksum`,`acl_user_role`.`user_id`,`acl_user_role`.`role_id`,`acl_user_role`.`customer_id`,`acl_user_role`.`admin_user_id`,`acl_user_role`.`created_at`,`acl_user_role`.`updated_at` FROM `acl_user_role` WHERE `role_id` = ? LIMIT 1"
+	q := "SELECT * FROM `acl_user_role` WHERE `role_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -704,7 +704,7 @@ func FindACLUserRolesByRoleID(ctx context.Context, db DB, value string) ([]*ACLU
 
 // FindACLUserRolesByRoleIDTx will find all ACLUserRoles by the RoleID value using the provided transaction
 func FindACLUserRolesByRoleIDTx(ctx context.Context, tx Tx, value string) ([]*ACLUserRole, error) {
-	q := "SELECT `acl_user_role`.`id`,`acl_user_role`.`checksum`,`acl_user_role`.`user_id`,`acl_user_role`.`role_id`,`acl_user_role`.`customer_id`,`acl_user_role`.`admin_user_id`,`acl_user_role`.`created_at`,`acl_user_role`.`updated_at` FROM `acl_user_role` WHERE `role_id` = ? LIMIT 1"
+	q := "SELECT * FROM `acl_user_role` WHERE `role_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -778,7 +778,7 @@ func (t *ACLUserRole) SetCustomerID(v string) {
 
 // FindACLUserRolesByCustomerID will find all ACLUserRoles by the CustomerID value
 func FindACLUserRolesByCustomerID(ctx context.Context, db DB, value string) ([]*ACLUserRole, error) {
-	q := "SELECT `acl_user_role`.`id`,`acl_user_role`.`checksum`,`acl_user_role`.`user_id`,`acl_user_role`.`role_id`,`acl_user_role`.`customer_id`,`acl_user_role`.`admin_user_id`,`acl_user_role`.`created_at`,`acl_user_role`.`updated_at` FROM `acl_user_role` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `acl_user_role` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -842,7 +842,7 @@ func FindACLUserRolesByCustomerID(ctx context.Context, db DB, value string) ([]*
 
 // FindACLUserRolesByCustomerIDTx will find all ACLUserRoles by the CustomerID value using the provided transaction
 func FindACLUserRolesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*ACLUserRole, error) {
-	q := "SELECT `acl_user_role`.`id`,`acl_user_role`.`checksum`,`acl_user_role`.`user_id`,`acl_user_role`.`role_id`,`acl_user_role`.`customer_id`,`acl_user_role`.`admin_user_id`,`acl_user_role`.`created_at`,`acl_user_role`.`updated_at` FROM `acl_user_role` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `acl_user_role` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1229,7 +1229,7 @@ func (t *ACLUserRole) DBUpsertTx(ctx context.Context, tx Tx, conditions ...inter
 
 // DBFindOne will find a ACLUserRole record in the database with the primary key
 func (t *ACLUserRole) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `acl_user_role`.`id`,`acl_user_role`.`checksum`,`acl_user_role`.`user_id`,`acl_user_role`.`role_id`,`acl_user_role`.`customer_id`,`acl_user_role`.`admin_user_id`,`acl_user_role`.`created_at`,`acl_user_role`.`updated_at` FROM `acl_user_role` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `acl_user_role` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1284,7 +1284,7 @@ func (t *ACLUserRole) DBFindOne(ctx context.Context, db DB, value string) (bool,
 
 // DBFindOneTx will find a ACLUserRole record in the database with the primary key using the provided transaction
 func (t *ACLUserRole) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `acl_user_role`.`id`,`acl_user_role`.`checksum`,`acl_user_role`.`user_id`,`acl_user_role`.`role_id`,`acl_user_role`.`customer_id`,`acl_user_role`.`admin_user_id`,`acl_user_role`.`created_at`,`acl_user_role`.`updated_at` FROM `acl_user_role` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `acl_user_role` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1715,7 +1715,7 @@ func (t *ACLUserRole) DBCountTx(ctx context.Context, tx Tx, _params ...interface
 
 // DBExists will return true if the ACLUserRole record exists in the database
 func (t *ACLUserRole) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `acl_user_role` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `acl_user_role` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1726,7 +1726,7 @@ func (t *ACLUserRole) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the ACLUserRole record exists in the database using the provided transaction
 func (t *ACLUserRole) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `acl_user_role` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `acl_user_role` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

@@ -349,7 +349,7 @@ func (t *SonarqubeProject) SetID(v string) {
 
 // FindSonarqubeProjectByID will find a SonarqubeProject by ID
 func FindSonarqubeProjectByID(ctx context.Context, db DB, value string) (*SonarqubeProject, error) {
-	q := "SELECT `sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name` FROM `sonarqube_project` WHERE `id` = ?"
+	q := "SELECT * FROM `sonarqube_project` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -394,7 +394,7 @@ func FindSonarqubeProjectByID(ctx context.Context, db DB, value string) (*Sonarq
 
 // FindSonarqubeProjectByIDTx will find a SonarqubeProject by ID using the provided transaction
 func FindSonarqubeProjectByIDTx(ctx context.Context, tx Tx, value string) (*SonarqubeProject, error) {
-	q := "SELECT `sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name` FROM `sonarqube_project` WHERE `id` = ?"
+	q := "SELECT * FROM `sonarqube_project` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -462,7 +462,7 @@ func (t *SonarqubeProject) SetCustomerID(v string) {
 
 // FindSonarqubeProjectsByCustomerID will find all SonarqubeProjects by the CustomerID value
 func FindSonarqubeProjectsByCustomerID(ctx context.Context, db DB, value string) ([]*SonarqubeProject, error) {
-	q := "SELECT `sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name` FROM `sonarqube_project` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `sonarqube_project` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -516,7 +516,7 @@ func FindSonarqubeProjectsByCustomerID(ctx context.Context, db DB, value string)
 
 // FindSonarqubeProjectsByCustomerIDTx will find all SonarqubeProjects by the CustomerID value using the provided transaction
 func FindSonarqubeProjectsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*SonarqubeProject, error) {
-	q := "SELECT `sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name` FROM `sonarqube_project` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT * FROM `sonarqube_project` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -872,7 +872,7 @@ func (t *SonarqubeProject) DBUpsertTx(ctx context.Context, tx Tx, conditions ...
 
 // DBFindOne will find a SonarqubeProject record in the database with the primary key
 func (t *SonarqubeProject) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name` FROM `sonarqube_project` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `sonarqube_project` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -917,7 +917,7 @@ func (t *SonarqubeProject) DBFindOne(ctx context.Context, db DB, value string) (
 
 // DBFindOneTx will find a SonarqubeProject record in the database with the primary key using the provided transaction
 func (t *SonarqubeProject) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `sonarqube_project`.`id`,`sonarqube_project`.`checksum`,`sonarqube_project`.`customer_id`,`sonarqube_project`.`ext_id`,`sonarqube_project`.`key`,`sonarqube_project`.`name` FROM `sonarqube_project` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `sonarqube_project` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1290,7 +1290,7 @@ func (t *SonarqubeProject) DBCountTx(ctx context.Context, tx Tx, _params ...inte
 
 // DBExists will return true if the SonarqubeProject record exists in the database
 func (t *SonarqubeProject) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT `id` FROM `sonarqube_project` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `sonarqube_project` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1301,7 +1301,7 @@ func (t *SonarqubeProject) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the SonarqubeProject record exists in the database using the provided transaction
 func (t *SonarqubeProject) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT `id` FROM `sonarqube_project` WHERE `id` = ? LIMIT 1"
+	q := "SELECT * FROM `sonarqube_project` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
