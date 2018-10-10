@@ -147,6 +147,7 @@ message CommitActivity {
 	proto.UID user_id = 5 [(proto.column).notnull=true,(proto.column).index=true];
 	proto.UID repo_id = 6 [(proto.column).notnull=true,(proto.column).index=true];
 	string filename = 7 [(proto.column).notnull=true,(proto.column).type="VARCHAR(700)",(proto.column).index=true];
+	string language = 15 [(proto.column).type="VARCHAR(100)",(proto.column).default="unknown"];
 	int64 ordinal = 8 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
 	int32 loc = 11 [(proto.column).default="0",(proto.column).notnull=true];
 	int32 sloc = 12 [(proto.column).default="0",(proto.column).notnull=true];
