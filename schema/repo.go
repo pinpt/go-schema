@@ -429,7 +429,7 @@ func (t *Repo) SetID(v string) {
 
 // FindRepoByID will find a Repo by ID
 func FindRepoByID(ctx context.Context, db DB, value string) (*Repo, error) {
-	q := "SELECT * FROM `repo` WHERE `id` = ?"
+	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _Name sql.NullString
@@ -514,7 +514,7 @@ func FindRepoByID(ctx context.Context, db DB, value string) (*Repo, error) {
 
 // FindRepoByIDTx will find a Repo by ID using the provided transaction
 func FindRepoByIDTx(ctx context.Context, tx Tx, value string) (*Repo, error) {
-	q := "SELECT * FROM `repo` WHERE `id` = ?"
+	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _Name sql.NullString
@@ -622,7 +622,7 @@ func (t *Repo) SetName(v string) {
 
 // FindReposByName will find all Repos by the Name value
 func FindReposByName(ctx context.Context, db DB, value string) ([]*Repo, error) {
-	q := "SELECT * FROM `repo` WHERE `name` = ? LIMIT 1"
+	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `name` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -716,7 +716,7 @@ func FindReposByName(ctx context.Context, db DB, value string) ([]*Repo, error) 
 
 // FindReposByNameTx will find all Repos by the Name value using the provided transaction
 func FindReposByNameTx(ctx context.Context, tx Tx, value string) ([]*Repo, error) {
-	q := "SELECT * FROM `repo` WHERE `name` = ? LIMIT 1"
+	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `name` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -899,7 +899,7 @@ func (t *Repo) SetCustomerID(v string) {
 
 // FindReposByCustomerID will find all Repos by the CustomerID value
 func FindReposByCustomerID(ctx context.Context, db DB, value string) ([]*Repo, error) {
-	q := "SELECT * FROM `repo` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -993,7 +993,7 @@ func FindReposByCustomerID(ctx context.Context, db DB, value string) ([]*Repo, e
 
 // FindReposByCustomerIDTx will find all Repos by the CustomerID value using the provided transaction
 func FindReposByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*Repo, error) {
-	q := "SELECT * FROM `repo` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1097,7 +1097,7 @@ func (t *Repo) SetRefType(v string) {
 
 // FindReposByRefType will find all Repos by the RefType value
 func FindReposByRefType(ctx context.Context, db DB, value string) ([]*Repo, error) {
-	q := "SELECT * FROM `repo` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1191,7 +1191,7 @@ func FindReposByRefType(ctx context.Context, db DB, value string) ([]*Repo, erro
 
 // FindReposByRefTypeTx will find all Repos by the RefType value using the provided transaction
 func FindReposByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*Repo, error) {
-	q := "SELECT * FROM `repo` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1295,7 +1295,7 @@ func (t *Repo) SetRefID(v string) {
 
 // FindReposByRefID will find all Repos by the RefID value
 func FindReposByRefID(ctx context.Context, db DB, value string) ([]*Repo, error) {
-	q := "SELECT * FROM `repo` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1389,7 +1389,7 @@ func FindReposByRefID(ctx context.Context, db DB, value string) ([]*Repo, error)
 
 // FindReposByRefIDTx will find all Repos by the RefID value using the provided transaction
 func FindReposByRefIDTx(ctx context.Context, tx Tx, value string) ([]*Repo, error) {
-	q := "SELECT * FROM `repo` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1840,7 +1840,7 @@ func (t *Repo) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{})
 
 // DBFindOne will find a Repo record in the database with the primary key
 func (t *Repo) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `repo` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1925,7 +1925,7 @@ func (t *Repo) DBFindOne(ctx context.Context, db DB, value string) (bool, error)
 
 // DBFindOneTx will find a Repo record in the database with the primary key using the provided transaction
 func (t *Repo) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `repo` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `repo`.`id`,`repo`.`checksum`,`repo`.`name`,`repo`.`url`,`repo`.`active`,`repo`.`fork`,`repo`.`parent_id`,`repo`.`description`,`repo`.`created_at`,`repo`.`updated_at`,`repo`.`customer_id`,`repo`.`ref_type`,`repo`.`ref_id`,`repo`.`metadata` FROM `repo` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -2530,7 +2530,7 @@ func (t *Repo) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (in
 
 // DBExists will return true if the Repo record exists in the database
 func (t *Repo) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `repo` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `repo` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -2541,7 +2541,7 @@ func (t *Repo) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the Repo record exists in the database using the provided transaction
 func (t *Repo) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `repo` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `repo` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

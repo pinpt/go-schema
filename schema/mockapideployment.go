@@ -359,7 +359,7 @@ func (t *MockapiDeployment) SetID(v string) {
 
 // FindMockapiDeploymentByID will find a MockapiDeployment by ID
 func FindMockapiDeploymentByID(ctx context.Context, db DB, value string) (*MockapiDeployment, error) {
-	q := "SELECT * FROM `mockapi_deployment` WHERE `id` = ?"
+	q := "SELECT `mockapi_deployment`.`id`,`mockapi_deployment`.`checksum`,`mockapi_deployment`.`customer_id`,`mockapi_deployment`.`application_ext_id_ext_id`,`mockapi_deployment`.`application_ext_id_id`,`mockapi_deployment`.`ext_id`,`mockapi_deployment`.`name` FROM `mockapi_deployment` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -409,7 +409,7 @@ func FindMockapiDeploymentByID(ctx context.Context, db DB, value string) (*Mocka
 
 // FindMockapiDeploymentByIDTx will find a MockapiDeployment by ID using the provided transaction
 func FindMockapiDeploymentByIDTx(ctx context.Context, tx Tx, value string) (*MockapiDeployment, error) {
-	q := "SELECT * FROM `mockapi_deployment` WHERE `id` = ?"
+	q := "SELECT `mockapi_deployment`.`id`,`mockapi_deployment`.`checksum`,`mockapi_deployment`.`customer_id`,`mockapi_deployment`.`application_ext_id_ext_id`,`mockapi_deployment`.`application_ext_id_id`,`mockapi_deployment`.`ext_id`,`mockapi_deployment`.`name` FROM `mockapi_deployment` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -482,7 +482,7 @@ func (t *MockapiDeployment) SetCustomerID(v string) {
 
 // FindMockapiDeploymentsByCustomerID will find all MockapiDeployments by the CustomerID value
 func FindMockapiDeploymentsByCustomerID(ctx context.Context, db DB, value string) ([]*MockapiDeployment, error) {
-	q := "SELECT * FROM `mockapi_deployment` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `mockapi_deployment`.`id`,`mockapi_deployment`.`checksum`,`mockapi_deployment`.`customer_id`,`mockapi_deployment`.`application_ext_id_ext_id`,`mockapi_deployment`.`application_ext_id_id`,`mockapi_deployment`.`ext_id`,`mockapi_deployment`.`name` FROM `mockapi_deployment` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -541,7 +541,7 @@ func FindMockapiDeploymentsByCustomerID(ctx context.Context, db DB, value string
 
 // FindMockapiDeploymentsByCustomerIDTx will find all MockapiDeployments by the CustomerID value using the provided transaction
 func FindMockapiDeploymentsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*MockapiDeployment, error) {
-	q := "SELECT * FROM `mockapi_deployment` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `mockapi_deployment`.`id`,`mockapi_deployment`.`checksum`,`mockapi_deployment`.`customer_id`,`mockapi_deployment`.`application_ext_id_ext_id`,`mockapi_deployment`.`application_ext_id_id`,`mockapi_deployment`.`ext_id`,`mockapi_deployment`.`name` FROM `mockapi_deployment` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -610,7 +610,7 @@ func (t *MockapiDeployment) SetApplicationExtIDExtID(v int64) {
 
 // FindMockapiDeploymentsByApplicationExtIDExtID will find all MockapiDeployments by the ApplicationExtIDExtID value
 func FindMockapiDeploymentsByApplicationExtIDExtID(ctx context.Context, db DB, value int64) ([]*MockapiDeployment, error) {
-	q := "SELECT * FROM `mockapi_deployment` WHERE `application_ext_id_ext_id` = ? LIMIT 1"
+	q := "SELECT `mockapi_deployment`.`id`,`mockapi_deployment`.`checksum`,`mockapi_deployment`.`customer_id`,`mockapi_deployment`.`application_ext_id_ext_id`,`mockapi_deployment`.`application_ext_id_id`,`mockapi_deployment`.`ext_id`,`mockapi_deployment`.`name` FROM `mockapi_deployment` WHERE `application_ext_id_ext_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -669,7 +669,7 @@ func FindMockapiDeploymentsByApplicationExtIDExtID(ctx context.Context, db DB, v
 
 // FindMockapiDeploymentsByApplicationExtIDExtIDTx will find all MockapiDeployments by the ApplicationExtIDExtID value using the provided transaction
 func FindMockapiDeploymentsByApplicationExtIDExtIDTx(ctx context.Context, tx Tx, value int64) ([]*MockapiDeployment, error) {
-	q := "SELECT * FROM `mockapi_deployment` WHERE `application_ext_id_ext_id` = ? LIMIT 1"
+	q := "SELECT `mockapi_deployment`.`id`,`mockapi_deployment`.`checksum`,`mockapi_deployment`.`customer_id`,`mockapi_deployment`.`application_ext_id_ext_id`,`mockapi_deployment`.`application_ext_id_id`,`mockapi_deployment`.`ext_id`,`mockapi_deployment`.`name` FROM `mockapi_deployment` WHERE `application_ext_id_ext_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -738,7 +738,7 @@ func (t *MockapiDeployment) SetApplicationExtIDID(v string) {
 
 // FindMockapiDeploymentsByApplicationExtIDID will find all MockapiDeployments by the ApplicationExtIDID value
 func FindMockapiDeploymentsByApplicationExtIDID(ctx context.Context, db DB, value string) ([]*MockapiDeployment, error) {
-	q := "SELECT * FROM `mockapi_deployment` WHERE `application_ext_id_id` = ? LIMIT 1"
+	q := "SELECT `mockapi_deployment`.`id`,`mockapi_deployment`.`checksum`,`mockapi_deployment`.`customer_id`,`mockapi_deployment`.`application_ext_id_ext_id`,`mockapi_deployment`.`application_ext_id_id`,`mockapi_deployment`.`ext_id`,`mockapi_deployment`.`name` FROM `mockapi_deployment` WHERE `application_ext_id_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -797,7 +797,7 @@ func FindMockapiDeploymentsByApplicationExtIDID(ctx context.Context, db DB, valu
 
 // FindMockapiDeploymentsByApplicationExtIDIDTx will find all MockapiDeployments by the ApplicationExtIDID value using the provided transaction
 func FindMockapiDeploymentsByApplicationExtIDIDTx(ctx context.Context, tx Tx, value string) ([]*MockapiDeployment, error) {
-	q := "SELECT * FROM `mockapi_deployment` WHERE `application_ext_id_id` = ? LIMIT 1"
+	q := "SELECT `mockapi_deployment`.`id`,`mockapi_deployment`.`checksum`,`mockapi_deployment`.`customer_id`,`mockapi_deployment`.`application_ext_id_ext_id`,`mockapi_deployment`.`application_ext_id_id`,`mockapi_deployment`.`ext_id`,`mockapi_deployment`.`name` FROM `mockapi_deployment` WHERE `application_ext_id_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1157,7 +1157,7 @@ func (t *MockapiDeployment) DBUpsertTx(ctx context.Context, tx Tx, conditions ..
 
 // DBFindOne will find a MockapiDeployment record in the database with the primary key
 func (t *MockapiDeployment) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `mockapi_deployment` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `mockapi_deployment`.`id`,`mockapi_deployment`.`checksum`,`mockapi_deployment`.`customer_id`,`mockapi_deployment`.`application_ext_id_ext_id`,`mockapi_deployment`.`application_ext_id_id`,`mockapi_deployment`.`ext_id`,`mockapi_deployment`.`name` FROM `mockapi_deployment` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1207,7 +1207,7 @@ func (t *MockapiDeployment) DBFindOne(ctx context.Context, db DB, value string) 
 
 // DBFindOneTx will find a MockapiDeployment record in the database with the primary key using the provided transaction
 func (t *MockapiDeployment) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `mockapi_deployment` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `mockapi_deployment`.`id`,`mockapi_deployment`.`checksum`,`mockapi_deployment`.`customer_id`,`mockapi_deployment`.`application_ext_id_ext_id`,`mockapi_deployment`.`application_ext_id_id`,`mockapi_deployment`.`ext_id`,`mockapi_deployment`.`name` FROM `mockapi_deployment` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1609,7 +1609,7 @@ func (t *MockapiDeployment) DBCountTx(ctx context.Context, tx Tx, _params ...int
 
 // DBExists will return true if the MockapiDeployment record exists in the database
 func (t *MockapiDeployment) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `mockapi_deployment` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `mockapi_deployment` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1620,7 +1620,7 @@ func (t *MockapiDeployment) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the MockapiDeployment record exists in the database using the provided transaction
 func (t *MockapiDeployment) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `mockapi_deployment` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `mockapi_deployment` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

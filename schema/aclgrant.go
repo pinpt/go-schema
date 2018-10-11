@@ -420,7 +420,7 @@ func (t *ACLGrant) SetID(v string) {
 
 // FindACLGrantByID will find a ACLGrant by ID
 func FindACLGrantByID(ctx context.Context, db DB, value string) (*ACLGrant, error) {
-	q := "SELECT * FROM `acl_grant` WHERE `id` = ?"
+	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _ResourceID sql.NullString
@@ -480,7 +480,7 @@ func FindACLGrantByID(ctx context.Context, db DB, value string) (*ACLGrant, erro
 
 // FindACLGrantByIDTx will find a ACLGrant by ID using the provided transaction
 func FindACLGrantByIDTx(ctx context.Context, tx Tx, value string) (*ACLGrant, error) {
-	q := "SELECT * FROM `acl_grant` WHERE `id` = ?"
+	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _ResourceID sql.NullString
@@ -563,7 +563,7 @@ func (t *ACLGrant) SetResourceID(v string) {
 
 // FindACLGrantsByResourceID will find all ACLGrants by the ResourceID value
 func FindACLGrantsByResourceID(ctx context.Context, db DB, value string) ([]*ACLGrant, error) {
-	q := "SELECT * FROM `acl_grant` WHERE `resource_id` = ? LIMIT 1"
+	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `resource_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -632,7 +632,7 @@ func FindACLGrantsByResourceID(ctx context.Context, db DB, value string) ([]*ACL
 
 // FindACLGrantsByResourceIDTx will find all ACLGrants by the ResourceID value using the provided transaction
 func FindACLGrantsByResourceIDTx(ctx context.Context, tx Tx, value string) ([]*ACLGrant, error) {
-	q := "SELECT * FROM `acl_grant` WHERE `resource_id` = ? LIMIT 1"
+	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `resource_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -711,7 +711,7 @@ func (t *ACLGrant) SetRoleID(v string) {
 
 // FindACLGrantsByRoleID will find all ACLGrants by the RoleID value
 func FindACLGrantsByRoleID(ctx context.Context, db DB, value string) ([]*ACLGrant, error) {
-	q := "SELECT * FROM `acl_grant` WHERE `role_id` = ? LIMIT 1"
+	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `role_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -780,7 +780,7 @@ func FindACLGrantsByRoleID(ctx context.Context, db DB, value string) ([]*ACLGran
 
 // FindACLGrantsByRoleIDTx will find all ACLGrants by the RoleID value using the provided transaction
 func FindACLGrantsByRoleIDTx(ctx context.Context, tx Tx, value string) ([]*ACLGrant, error) {
-	q := "SELECT * FROM `acl_grant` WHERE `role_id` = ? LIMIT 1"
+	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `role_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -892,7 +892,7 @@ func (t *ACLGrant) SetCustomerID(v string) {
 
 // FindACLGrantsByCustomerID will find all ACLGrants by the CustomerID value
 func FindACLGrantsByCustomerID(ctx context.Context, db DB, value string) ([]*ACLGrant, error) {
-	q := "SELECT * FROM `acl_grant` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -961,7 +961,7 @@ func FindACLGrantsByCustomerID(ctx context.Context, db DB, value string) ([]*ACL
 
 // FindACLGrantsByCustomerIDTx will find all ACLGrants by the CustomerID value using the provided transaction
 func FindACLGrantsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*ACLGrant, error) {
-	q := "SELECT * FROM `acl_grant` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1352,7 +1352,7 @@ func (t *ACLGrant) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interfac
 
 // DBFindOne will find a ACLGrant record in the database with the primary key
 func (t *ACLGrant) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `acl_grant` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1412,7 +1412,7 @@ func (t *ACLGrant) DBFindOne(ctx context.Context, db DB, value string) (bool, er
 
 // DBFindOneTx will find a ACLGrant record in the database with the primary key using the provided transaction
 func (t *ACLGrant) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `acl_grant` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `acl_grant`.`id`,`acl_grant`.`checksum`,`acl_grant`.`resource_id`,`acl_grant`.`role_id`,`acl_grant`.`permission`,`acl_grant`.`admin_user_id`,`acl_grant`.`customer_id`,`acl_grant`.`created_at`,`acl_grant`.`updated_at` FROM `acl_grant` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1872,7 +1872,7 @@ func (t *ACLGrant) DBCountTx(ctx context.Context, tx Tx, _params ...interface{})
 
 // DBExists will return true if the ACLGrant record exists in the database
 func (t *ACLGrant) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `acl_grant` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `acl_grant` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1883,7 +1883,7 @@ func (t *ACLGrant) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the ACLGrant record exists in the database using the provided transaction
 func (t *ACLGrant) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `acl_grant` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `acl_grant` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

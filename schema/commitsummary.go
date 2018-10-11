@@ -411,7 +411,7 @@ func (t *CommitSummary) SetID(v string) {
 
 // FindCommitSummaryByID will find a CommitSummary by ID
 func FindCommitSummaryByID(ctx context.Context, db DB, value string) (*CommitSummary, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `id` = ?"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _CommitID sql.NullString
 	var _RepoID sql.NullString
@@ -491,7 +491,7 @@ func FindCommitSummaryByID(ctx context.Context, db DB, value string) (*CommitSum
 
 // FindCommitSummaryByIDTx will find a CommitSummary by ID using the provided transaction
 func FindCommitSummaryByIDTx(ctx context.Context, tx Tx, value string) (*CommitSummary, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `id` = ?"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _CommitID sql.NullString
 	var _RepoID sql.NullString
@@ -581,7 +581,7 @@ func (t *CommitSummary) SetCommitID(v string) {
 
 // FindCommitSummariesByCommitID will find all CommitSummarys by the CommitID value
 func FindCommitSummariesByCommitID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `commit_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `commit_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -670,7 +670,7 @@ func FindCommitSummariesByCommitID(ctx context.Context, db DB, value string) ([]
 
 // FindCommitSummariesByCommitIDTx will find all CommitSummarys by the CommitID value using the provided transaction
 func FindCommitSummariesByCommitIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `commit_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `commit_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -769,7 +769,7 @@ func (t *CommitSummary) SetRepoID(v string) {
 
 // FindCommitSummariesByRepoID will find all CommitSummarys by the RepoID value
 func FindCommitSummariesByRepoID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `repo_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -858,7 +858,7 @@ func FindCommitSummariesByRepoID(ctx context.Context, db DB, value string) ([]*C
 
 // FindCommitSummariesByRepoIDTx will find all CommitSummarys by the RepoID value using the provided transaction
 func FindCommitSummariesByRepoIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `repo_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -957,7 +957,7 @@ func (t *CommitSummary) SetAuthorUserID(v string) {
 
 // FindCommitSummariesByAuthorUserID will find all CommitSummarys by the AuthorUserID value
 func FindCommitSummariesByAuthorUserID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `author_user_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `author_user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1046,7 +1046,7 @@ func FindCommitSummariesByAuthorUserID(ctx context.Context, db DB, value string)
 
 // FindCommitSummariesByAuthorUserIDTx will find all CommitSummarys by the AuthorUserID value using the provided transaction
 func FindCommitSummariesByAuthorUserIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `author_user_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `author_user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1145,7 +1145,7 @@ func (t *CommitSummary) SetCustomerID(v string) {
 
 // FindCommitSummariesByCustomerID will find all CommitSummarys by the CustomerID value
 func FindCommitSummariesByCustomerID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1234,7 +1234,7 @@ func FindCommitSummariesByCustomerID(ctx context.Context, db DB, value string) (
 
 // FindCommitSummariesByCustomerIDTx will find all CommitSummarys by the CustomerID value using the provided transaction
 func FindCommitSummariesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1333,7 +1333,7 @@ func (t *CommitSummary) SetRefType(v string) {
 
 // FindCommitSummariesByRefType will find all CommitSummarys by the RefType value
 func FindCommitSummariesByRefType(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1422,7 +1422,7 @@ func FindCommitSummariesByRefType(ctx context.Context, db DB, value string) ([]*
 
 // FindCommitSummariesByRefTypeTx will find all CommitSummarys by the RefType value using the provided transaction
 func FindCommitSummariesByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1864,7 +1864,7 @@ func (t *CommitSummary) DBUpsertTx(ctx context.Context, tx Tx, conditions ...int
 
 // DBFindOne will find a CommitSummary record in the database with the primary key
 func (t *CommitSummary) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _CommitID sql.NullString
@@ -1944,7 +1944,7 @@ func (t *CommitSummary) DBFindOne(ctx context.Context, db DB, value string) (boo
 
 // DBFindOneTx will find a CommitSummary record in the database with the primary key using the provided transaction
 func (t *CommitSummary) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _CommitID sql.NullString
@@ -2520,7 +2520,7 @@ func (t *CommitSummary) DBCountTx(ctx context.Context, tx Tx, _params ...interfa
 
 // DBExists will return true if the CommitSummary record exists in the database
 func (t *CommitSummary) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `commit_summary` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -2531,7 +2531,7 @@ func (t *CommitSummary) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the CommitSummary record exists in the database using the provided transaction
 func (t *CommitSummary) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `commit_summary` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `commit_summary` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

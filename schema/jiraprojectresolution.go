@@ -359,7 +359,7 @@ func (t *JiraProjectResolution) SetID(v string) {
 
 // FindJiraProjectResolutionByID will find a JiraProjectResolution by ID
 func FindJiraProjectResolutionByID(ctx context.Context, db DB, value string) (*JiraProjectResolution, error) {
-	q := "SELECT * FROM `jira_project_resolution` WHERE `id` = ?"
+	q := "SELECT `jira_project_resolution`.`id`,`jira_project_resolution`.`checksum`,`jira_project_resolution`.`resolution_id`,`jira_project_resolution`.`project_id`,`jira_project_resolution`.`name`,`jira_project_resolution`.`description`,`jira_project_resolution`.`customer_id` FROM `jira_project_resolution` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _ResolutionID sql.NullString
@@ -409,7 +409,7 @@ func FindJiraProjectResolutionByID(ctx context.Context, db DB, value string) (*J
 
 // FindJiraProjectResolutionByIDTx will find a JiraProjectResolution by ID using the provided transaction
 func FindJiraProjectResolutionByIDTx(ctx context.Context, tx Tx, value string) (*JiraProjectResolution, error) {
-	q := "SELECT * FROM `jira_project_resolution` WHERE `id` = ?"
+	q := "SELECT `jira_project_resolution`.`id`,`jira_project_resolution`.`checksum`,`jira_project_resolution`.`resolution_id`,`jira_project_resolution`.`project_id`,`jira_project_resolution`.`name`,`jira_project_resolution`.`description`,`jira_project_resolution`.`customer_id` FROM `jira_project_resolution` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _ResolutionID sql.NullString
@@ -492,7 +492,7 @@ func (t *JiraProjectResolution) SetProjectID(v string) {
 
 // FindJiraProjectResolutionsByProjectID will find all JiraProjectResolutions by the ProjectID value
 func FindJiraProjectResolutionsByProjectID(ctx context.Context, db DB, value string) ([]*JiraProjectResolution, error) {
-	q := "SELECT * FROM `jira_project_resolution` WHERE `project_id` = ? LIMIT 1"
+	q := "SELECT `jira_project_resolution`.`id`,`jira_project_resolution`.`checksum`,`jira_project_resolution`.`resolution_id`,`jira_project_resolution`.`project_id`,`jira_project_resolution`.`name`,`jira_project_resolution`.`description`,`jira_project_resolution`.`customer_id` FROM `jira_project_resolution` WHERE `project_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -551,7 +551,7 @@ func FindJiraProjectResolutionsByProjectID(ctx context.Context, db DB, value str
 
 // FindJiraProjectResolutionsByProjectIDTx will find all JiraProjectResolutions by the ProjectID value using the provided transaction
 func FindJiraProjectResolutionsByProjectIDTx(ctx context.Context, tx Tx, value string) ([]*JiraProjectResolution, error) {
-	q := "SELECT * FROM `jira_project_resolution` WHERE `project_id` = ? LIMIT 1"
+	q := "SELECT `jira_project_resolution`.`id`,`jira_project_resolution`.`checksum`,`jira_project_resolution`.`resolution_id`,`jira_project_resolution`.`project_id`,`jira_project_resolution`.`name`,`jira_project_resolution`.`description`,`jira_project_resolution`.`customer_id` FROM `jira_project_resolution` WHERE `project_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -620,7 +620,7 @@ func (t *JiraProjectResolution) SetName(v string) {
 
 // FindJiraProjectResolutionsByName will find all JiraProjectResolutions by the Name value
 func FindJiraProjectResolutionsByName(ctx context.Context, db DB, value string) ([]*JiraProjectResolution, error) {
-	q := "SELECT * FROM `jira_project_resolution` WHERE `name` = ? LIMIT 1"
+	q := "SELECT `jira_project_resolution`.`id`,`jira_project_resolution`.`checksum`,`jira_project_resolution`.`resolution_id`,`jira_project_resolution`.`project_id`,`jira_project_resolution`.`name`,`jira_project_resolution`.`description`,`jira_project_resolution`.`customer_id` FROM `jira_project_resolution` WHERE `name` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -679,7 +679,7 @@ func FindJiraProjectResolutionsByName(ctx context.Context, db DB, value string) 
 
 // FindJiraProjectResolutionsByNameTx will find all JiraProjectResolutions by the Name value using the provided transaction
 func FindJiraProjectResolutionsByNameTx(ctx context.Context, tx Tx, value string) ([]*JiraProjectResolution, error) {
-	q := "SELECT * FROM `jira_project_resolution` WHERE `name` = ? LIMIT 1"
+	q := "SELECT `jira_project_resolution`.`id`,`jira_project_resolution`.`checksum`,`jira_project_resolution`.`resolution_id`,`jira_project_resolution`.`project_id`,`jira_project_resolution`.`name`,`jira_project_resolution`.`description`,`jira_project_resolution`.`customer_id` FROM `jira_project_resolution` WHERE `name` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -761,7 +761,7 @@ func (t *JiraProjectResolution) SetCustomerID(v string) {
 
 // FindJiraProjectResolutionsByCustomerID will find all JiraProjectResolutions by the CustomerID value
 func FindJiraProjectResolutionsByCustomerID(ctx context.Context, db DB, value string) ([]*JiraProjectResolution, error) {
-	q := "SELECT * FROM `jira_project_resolution` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `jira_project_resolution`.`id`,`jira_project_resolution`.`checksum`,`jira_project_resolution`.`resolution_id`,`jira_project_resolution`.`project_id`,`jira_project_resolution`.`name`,`jira_project_resolution`.`description`,`jira_project_resolution`.`customer_id` FROM `jira_project_resolution` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -820,7 +820,7 @@ func FindJiraProjectResolutionsByCustomerID(ctx context.Context, db DB, value st
 
 // FindJiraProjectResolutionsByCustomerIDTx will find all JiraProjectResolutions by the CustomerID value using the provided transaction
 func FindJiraProjectResolutionsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraProjectResolution, error) {
-	q := "SELECT * FROM `jira_project_resolution` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `jira_project_resolution`.`id`,`jira_project_resolution`.`checksum`,`jira_project_resolution`.`resolution_id`,`jira_project_resolution`.`project_id`,`jira_project_resolution`.`name`,`jira_project_resolution`.`description`,`jira_project_resolution`.`customer_id` FROM `jira_project_resolution` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1160,7 +1160,7 @@ func (t *JiraProjectResolution) DBUpsertTx(ctx context.Context, tx Tx, condition
 
 // DBFindOne will find a JiraProjectResolution record in the database with the primary key
 func (t *JiraProjectResolution) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `jira_project_resolution` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `jira_project_resolution`.`id`,`jira_project_resolution`.`checksum`,`jira_project_resolution`.`resolution_id`,`jira_project_resolution`.`project_id`,`jira_project_resolution`.`name`,`jira_project_resolution`.`description`,`jira_project_resolution`.`customer_id` FROM `jira_project_resolution` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1210,7 +1210,7 @@ func (t *JiraProjectResolution) DBFindOne(ctx context.Context, db DB, value stri
 
 // DBFindOneTx will find a JiraProjectResolution record in the database with the primary key using the provided transaction
 func (t *JiraProjectResolution) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `jira_project_resolution` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `jira_project_resolution`.`id`,`jira_project_resolution`.`checksum`,`jira_project_resolution`.`resolution_id`,`jira_project_resolution`.`project_id`,`jira_project_resolution`.`name`,`jira_project_resolution`.`description`,`jira_project_resolution`.`customer_id` FROM `jira_project_resolution` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1612,7 +1612,7 @@ func (t *JiraProjectResolution) DBCountTx(ctx context.Context, tx Tx, _params ..
 
 // DBExists will return true if the JiraProjectResolution record exists in the database
 func (t *JiraProjectResolution) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `jira_project_resolution` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `jira_project_resolution` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1623,7 +1623,7 @@ func (t *JiraProjectResolution) DBExists(ctx context.Context, db DB) (bool, erro
 
 // DBExistsTx will return true if the JiraProjectResolution record exists in the database using the provided transaction
 func (t *JiraProjectResolution) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `jira_project_resolution` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `jira_project_resolution` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

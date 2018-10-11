@@ -439,7 +439,7 @@ func (t *CommitIssue) SetID(v string) {
 
 // FindCommitIssueByID will find a CommitIssue by ID
 func FindCommitIssueByID(ctx context.Context, db DB, value string) (*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `id` = ?"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CommitID sql.NullString
@@ -529,7 +529,7 @@ func FindCommitIssueByID(ctx context.Context, db DB, value string) (*CommitIssue
 
 // FindCommitIssueByIDTx will find a CommitIssue by ID using the provided transaction
 func FindCommitIssueByIDTx(ctx context.Context, tx Tx, value string) (*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `id` = ?"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CommitID sql.NullString
@@ -642,7 +642,7 @@ func (t *CommitIssue) SetCommitID(v string) {
 
 // FindCommitIssuesByCommitID will find all CommitIssues by the CommitID value
 func FindCommitIssuesByCommitID(ctx context.Context, db DB, value string) ([]*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `commit_id` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `commit_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -741,7 +741,7 @@ func FindCommitIssuesByCommitID(ctx context.Context, db DB, value string) ([]*Co
 
 // FindCommitIssuesByCommitIDTx will find all CommitIssues by the CommitID value using the provided transaction
 func FindCommitIssuesByCommitIDTx(ctx context.Context, tx Tx, value string) ([]*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `commit_id` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `commit_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -900,7 +900,7 @@ func (t *CommitIssue) SetCustomerID(v string) {
 
 // FindCommitIssuesByCustomerID will find all CommitIssues by the CustomerID value
 func FindCommitIssuesByCustomerID(ctx context.Context, db DB, value string) ([]*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -999,7 +999,7 @@ func FindCommitIssuesByCustomerID(ctx context.Context, db DB, value string) ([]*
 
 // FindCommitIssuesByCustomerIDTx will find all CommitIssues by the CustomerID value using the provided transaction
 func FindCommitIssuesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1108,7 +1108,7 @@ func (t *CommitIssue) SetRefType(v string) {
 
 // FindCommitIssuesByRefType will find all CommitIssues by the RefType value
 func FindCommitIssuesByRefType(ctx context.Context, db DB, value string) ([]*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1207,7 +1207,7 @@ func FindCommitIssuesByRefType(ctx context.Context, db DB, value string) ([]*Com
 
 // FindCommitIssuesByRefTypeTx will find all CommitIssues by the RefType value using the provided transaction
 func FindCommitIssuesByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1316,7 +1316,7 @@ func (t *CommitIssue) SetRefCommitID(v string) {
 
 // FindCommitIssuesByRefCommitID will find all CommitIssues by the RefCommitID value
 func FindCommitIssuesByRefCommitID(ctx context.Context, db DB, value string) ([]*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `ref_commit_id` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_commit_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1415,7 +1415,7 @@ func FindCommitIssuesByRefCommitID(ctx context.Context, db DB, value string) ([]
 
 // FindCommitIssuesByRefCommitIDTx will find all CommitIssues by the RefCommitID value using the provided transaction
 func FindCommitIssuesByRefCommitIDTx(ctx context.Context, tx Tx, value string) ([]*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `ref_commit_id` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_commit_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1524,7 +1524,7 @@ func (t *CommitIssue) SetRefRepoID(v string) {
 
 // FindCommitIssuesByRefRepoID will find all CommitIssues by the RefRepoID value
 func FindCommitIssuesByRefRepoID(ctx context.Context, db DB, value string) ([]*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `ref_repo_id` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_repo_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1623,7 +1623,7 @@ func FindCommitIssuesByRefRepoID(ctx context.Context, db DB, value string) ([]*C
 
 // FindCommitIssuesByRefRepoIDTx will find all CommitIssues by the RefRepoID value using the provided transaction
 func FindCommitIssuesByRefRepoIDTx(ctx context.Context, tx Tx, value string) ([]*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `ref_repo_id` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_repo_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1732,7 +1732,7 @@ func (t *CommitIssue) SetRefIssueType(v string) {
 
 // FindCommitIssuesByRefIssueType will find all CommitIssues by the RefIssueType value
 func FindCommitIssuesByRefIssueType(ctx context.Context, db DB, value string) ([]*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `ref_issue_type` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_issue_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1831,7 +1831,7 @@ func FindCommitIssuesByRefIssueType(ctx context.Context, db DB, value string) ([
 
 // FindCommitIssuesByRefIssueTypeTx will find all CommitIssues by the RefIssueType value using the provided transaction
 func FindCommitIssuesByRefIssueTypeTx(ctx context.Context, tx Tx, value string) ([]*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `ref_issue_type` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_issue_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1940,7 +1940,7 @@ func (t *CommitIssue) SetRefIssueID(v string) {
 
 // FindCommitIssuesByRefIssueID will find all CommitIssues by the RefIssueID value
 func FindCommitIssuesByRefIssueID(ctx context.Context, db DB, value string) ([]*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `ref_issue_id` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_issue_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2039,7 +2039,7 @@ func FindCommitIssuesByRefIssueID(ctx context.Context, db DB, value string) ([]*
 
 // FindCommitIssuesByRefIssueIDTx will find all CommitIssues by the RefIssueID value using the provided transaction
 func FindCommitIssuesByRefIssueIDTx(ctx context.Context, tx Tx, value string) ([]*CommitIssue, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `ref_issue_id` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `ref_issue_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2504,7 +2504,7 @@ func (t *CommitIssue) DBUpsertTx(ctx context.Context, tx Tx, conditions ...inter
 
 // DBFindOne will find a CommitIssue record in the database with the primary key
 func (t *CommitIssue) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -2594,7 +2594,7 @@ func (t *CommitIssue) DBFindOne(ctx context.Context, db DB, value string) (bool,
 
 // DBFindOneTx will find a CommitIssue record in the database with the primary key using the provided transaction
 func (t *CommitIssue) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `commit_issue`.`id`,`commit_issue`.`checksum`,`commit_issue`.`commit_id`,`commit_issue`.`branch`,`commit_issue`.`user_id`,`commit_issue`.`repo_id`,`commit_issue`.`issue_id`,`commit_issue`.`date`,`commit_issue`.`customer_id`,`commit_issue`.`ref_type`,`commit_issue`.`ref_commit_id`,`commit_issue`.`ref_repo_id`,`commit_issue`.`ref_issue_type`,`commit_issue`.`ref_issue_id`,`commit_issue`.`metadata` FROM `commit_issue` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -3228,7 +3228,7 @@ func (t *CommitIssue) DBCountTx(ctx context.Context, tx Tx, _params ...interface
 
 // DBExists will return true if the CommitIssue record exists in the database
 func (t *CommitIssue) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `commit_issue` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -3239,7 +3239,7 @@ func (t *CommitIssue) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the CommitIssue record exists in the database using the provided transaction
 func (t *CommitIssue) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `commit_issue` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `commit_issue` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

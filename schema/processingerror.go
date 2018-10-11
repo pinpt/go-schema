@@ -359,7 +359,7 @@ func (t *ProcessingError) SetID(v string) {
 
 // FindProcessingErrorByID will find a ProcessingError by ID
 func FindProcessingErrorByID(ctx context.Context, db DB, value string) (*ProcessingError, error) {
-	q := "SELECT * FROM `processing_error` WHERE `id` = ?"
+	q := "SELECT `processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id` FROM `processing_error` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CreatedAt sql.NullInt64
@@ -409,7 +409,7 @@ func FindProcessingErrorByID(ctx context.Context, db DB, value string) (*Process
 
 // FindProcessingErrorByIDTx will find a ProcessingError by ID using the provided transaction
 func FindProcessingErrorByIDTx(ctx context.Context, tx Tx, value string) (*ProcessingError, error) {
-	q := "SELECT * FROM `processing_error` WHERE `id` = ?"
+	q := "SELECT `processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id` FROM `processing_error` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CreatedAt sql.NullInt64
@@ -522,7 +522,7 @@ func (t *ProcessingError) SetCustomerID(v string) {
 
 // FindProcessingErrorsByCustomerID will find all ProcessingErrors by the CustomerID value
 func FindProcessingErrorsByCustomerID(ctx context.Context, db DB, value string) ([]*ProcessingError, error) {
-	q := "SELECT * FROM `processing_error` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id` FROM `processing_error` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -581,7 +581,7 @@ func FindProcessingErrorsByCustomerID(ctx context.Context, db DB, value string) 
 
 // FindProcessingErrorsByCustomerIDTx will find all ProcessingErrors by the CustomerID value using the provided transaction
 func FindProcessingErrorsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*ProcessingError, error) {
-	q := "SELECT * FROM `processing_error` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id` FROM `processing_error` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -921,7 +921,7 @@ func (t *ProcessingError) DBUpsertTx(ctx context.Context, tx Tx, conditions ...i
 
 // DBFindOne will find a ProcessingError record in the database with the primary key
 func (t *ProcessingError) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `processing_error` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id` FROM `processing_error` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -971,7 +971,7 @@ func (t *ProcessingError) DBFindOne(ctx context.Context, db DB, value string) (b
 
 // DBFindOneTx will find a ProcessingError record in the database with the primary key using the provided transaction
 func (t *ProcessingError) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `processing_error` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `processing_error`.`id`,`processing_error`.`checksum`,`processing_error`.`created_at`,`processing_error`.`type`,`processing_error`.`message`,`processing_error`.`fatal`,`processing_error`.`customer_id` FROM `processing_error` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1373,7 +1373,7 @@ func (t *ProcessingError) DBCountTx(ctx context.Context, tx Tx, _params ...inter
 
 // DBExists will return true if the ProcessingError record exists in the database
 func (t *ProcessingError) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `processing_error` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `processing_error` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1384,7 +1384,7 @@ func (t *ProcessingError) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the ProcessingError record exists in the database using the provided transaction
 func (t *ProcessingError) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `processing_error` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `processing_error` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
