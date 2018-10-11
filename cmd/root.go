@@ -9,7 +9,7 @@ import (
 )
 
 // Code Generation Targets:
-//
+// w
 // generate: Generate all code gen related files.
 // schema:   Generate database schema files from protobuf model definitions.
 // bindata:  Generate static data into go source files.
