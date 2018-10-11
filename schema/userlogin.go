@@ -349,7 +349,7 @@ func (t *UserLogin) SetID(v string) {
 
 // FindUserLoginByID will find a UserLogin by ID
 func FindUserLoginByID(ctx context.Context, db DB, value string) (*UserLogin, error) {
-	q := "SELECT * FROM `user_login` WHERE `id` = ?"
+	q := "SELECT `user_login`.`id`,`user_login`.`checksum`,`user_login`.`customer_id`,`user_login`.`user_id`,`user_login`.`browser`,`user_login`.`date` FROM `user_login` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -394,7 +394,7 @@ func FindUserLoginByID(ctx context.Context, db DB, value string) (*UserLogin, er
 
 // FindUserLoginByIDTx will find a UserLogin by ID using the provided transaction
 func FindUserLoginByIDTx(ctx context.Context, tx Tx, value string) (*UserLogin, error) {
-	q := "SELECT * FROM `user_login` WHERE `id` = ?"
+	q := "SELECT `user_login`.`id`,`user_login`.`checksum`,`user_login`.`customer_id`,`user_login`.`user_id`,`user_login`.`browser`,`user_login`.`date` FROM `user_login` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -767,7 +767,7 @@ func (t *UserLogin) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interfa
 
 // DBFindOne will find a UserLogin record in the database with the primary key
 func (t *UserLogin) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `user_login` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `user_login`.`id`,`user_login`.`checksum`,`user_login`.`customer_id`,`user_login`.`user_id`,`user_login`.`browser`,`user_login`.`date` FROM `user_login` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -812,7 +812,7 @@ func (t *UserLogin) DBFindOne(ctx context.Context, db DB, value string) (bool, e
 
 // DBFindOneTx will find a UserLogin record in the database with the primary key using the provided transaction
 func (t *UserLogin) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `user_login` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `user_login`.`id`,`user_login`.`checksum`,`user_login`.`customer_id`,`user_login`.`user_id`,`user_login`.`browser`,`user_login`.`date` FROM `user_login` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1185,7 +1185,7 @@ func (t *UserLogin) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}
 
 // DBExists will return true if the UserLogin record exists in the database
 func (t *UserLogin) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `user_login` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `user_login` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1196,7 +1196,7 @@ func (t *UserLogin) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the UserLogin record exists in the database using the provided transaction
 func (t *UserLogin) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `user_login` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `user_login` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

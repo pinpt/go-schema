@@ -349,7 +349,7 @@ func (t *RepoMapping) SetID(v string) {
 
 // FindRepoMappingByID will find a RepoMapping by ID
 func FindRepoMappingByID(ctx context.Context, db DB, value string) (*RepoMapping, error) {
-	q := "SELECT * FROM `repo_mapping` WHERE `id` = ?"
+	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -394,7 +394,7 @@ func FindRepoMappingByID(ctx context.Context, db DB, value string) (*RepoMapping
 
 // FindRepoMappingByIDTx will find a RepoMapping by ID using the provided transaction
 func FindRepoMappingByIDTx(ctx context.Context, tx Tx, value string) (*RepoMapping, error) {
-	q := "SELECT * FROM `repo_mapping` WHERE `id` = ?"
+	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -472,7 +472,7 @@ func (t *RepoMapping) SetRepoID(v string) {
 
 // FindRepoMappingsByRepoID will find all RepoMappings by the RepoID value
 func FindRepoMappingsByRepoID(ctx context.Context, db DB, value string) ([]*RepoMapping, error) {
-	q := "SELECT * FROM `repo_mapping` WHERE `repo_id` = ? LIMIT 1"
+	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -526,7 +526,7 @@ func FindRepoMappingsByRepoID(ctx context.Context, db DB, value string) ([]*Repo
 
 // FindRepoMappingsByRepoIDTx will find all RepoMappings by the RepoID value using the provided transaction
 func FindRepoMappingsByRepoIDTx(ctx context.Context, tx Tx, value string) ([]*RepoMapping, error) {
-	q := "SELECT * FROM `repo_mapping` WHERE `repo_id` = ? LIMIT 1"
+	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -590,7 +590,7 @@ func (t *RepoMapping) SetRefID(v string) {
 
 // FindRepoMappingsByRefID will find all RepoMappings by the RefID value
 func FindRepoMappingsByRefID(ctx context.Context, db DB, value string) ([]*RepoMapping, error) {
-	q := "SELECT * FROM `repo_mapping` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -644,7 +644,7 @@ func FindRepoMappingsByRefID(ctx context.Context, db DB, value string) ([]*RepoM
 
 // FindRepoMappingsByRefIDTx will find all RepoMappings by the RefID value using the provided transaction
 func FindRepoMappingsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*RepoMapping, error) {
-	q := "SELECT * FROM `repo_mapping` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -980,7 +980,7 @@ func (t *RepoMapping) DBUpsertTx(ctx context.Context, tx Tx, conditions ...inter
 
 // DBFindOne will find a RepoMapping record in the database with the primary key
 func (t *RepoMapping) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `repo_mapping` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1025,7 +1025,7 @@ func (t *RepoMapping) DBFindOne(ctx context.Context, db DB, value string) (bool,
 
 // DBFindOneTx will find a RepoMapping record in the database with the primary key using the provided transaction
 func (t *RepoMapping) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `repo_mapping` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `repo_mapping`.`id`,`repo_mapping`.`checksum`,`repo_mapping`.`customer_id`,`repo_mapping`.`repo_id`,`repo_mapping`.`ref_id`,`repo_mapping`.`ref_type` FROM `repo_mapping` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1398,7 +1398,7 @@ func (t *RepoMapping) DBCountTx(ctx context.Context, tx Tx, _params ...interface
 
 // DBExists will return true if the RepoMapping record exists in the database
 func (t *RepoMapping) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `repo_mapping` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `repo_mapping` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1409,7 +1409,7 @@ func (t *RepoMapping) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the RepoMapping record exists in the database using the provided transaction
 func (t *RepoMapping) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `repo_mapping` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `repo_mapping` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

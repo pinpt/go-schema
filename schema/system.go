@@ -349,7 +349,7 @@ func (t *System) SetID(v string) {
 
 // FindSystemByID will find a System by ID
 func FindSystemByID(ctx context.Context, db DB, value string) (*System, error) {
-	q := "SELECT * FROM `system` WHERE `id` = ?"
+	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _RepoID sql.NullString
@@ -394,7 +394,7 @@ func FindSystemByID(ctx context.Context, db DB, value string) (*System, error) {
 
 // FindSystemByIDTx will find a System by ID using the provided transaction
 func FindSystemByIDTx(ctx context.Context, tx Tx, value string) (*System, error) {
-	q := "SELECT * FROM `system` WHERE `id` = ?"
+	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _RepoID sql.NullString
@@ -462,7 +462,7 @@ func (t *System) SetRepoID(v string) {
 
 // FindSystemsByRepoID will find all Systems by the RepoID value
 func FindSystemsByRepoID(ctx context.Context, db DB, value string) ([]*System, error) {
-	q := "SELECT * FROM `system` WHERE `repo_id` = ? LIMIT 1"
+	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -516,7 +516,7 @@ func FindSystemsByRepoID(ctx context.Context, db DB, value string) ([]*System, e
 
 // FindSystemsByRepoIDTx will find all Systems by the RepoID value using the provided transaction
 func FindSystemsByRepoIDTx(ctx context.Context, tx Tx, value string) ([]*System, error) {
-	q := "SELECT * FROM `system` WHERE `repo_id` = ? LIMIT 1"
+	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -600,7 +600,7 @@ func (t *System) SetCustomerID(v string) {
 
 // FindSystemsByCustomerID will find all Systems by the CustomerID value
 func FindSystemsByCustomerID(ctx context.Context, db DB, value string) ([]*System, error) {
-	q := "SELECT * FROM `system` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -654,7 +654,7 @@ func FindSystemsByCustomerID(ctx context.Context, db DB, value string) ([]*Syste
 
 // FindSystemsByCustomerIDTx will find all Systems by the CustomerID value using the provided transaction
 func FindSystemsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*System, error) {
-	q := "SELECT * FROM `system` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -980,7 +980,7 @@ func (t *System) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{
 
 // DBFindOne will find a System record in the database with the primary key
 func (t *System) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `system` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1025,7 +1025,7 @@ func (t *System) DBFindOne(ctx context.Context, db DB, value string) (bool, erro
 
 // DBFindOneTx will find a System record in the database with the primary key using the provided transaction
 func (t *System) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `system` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `system`.`id`,`system`.`checksum`,`system`.`repo_id`,`system`.`ref_id`,`system`.`ref_type`,`system`.`customer_id` FROM `system` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1398,7 +1398,7 @@ func (t *System) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (
 
 // DBExists will return true if the System record exists in the database
 func (t *System) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `system` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `system` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1409,7 +1409,7 @@ func (t *System) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the System record exists in the database using the provided transaction
 func (t *System) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `system` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `system` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

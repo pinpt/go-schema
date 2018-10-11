@@ -379,7 +379,7 @@ func (t *JiraIssueProgress) SetID(v string) {
 
 // FindJiraIssueProgressByID will find a JiraIssueProgress by ID
 func FindJiraIssueProgressByID(ctx context.Context, db DB, value string) (*JiraIssueProgress, error) {
-	q := "SELECT * FROM `jira_issue_progress` WHERE `id` = ?"
+	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _UserID sql.NullString
@@ -439,7 +439,7 @@ func FindJiraIssueProgressByID(ctx context.Context, db DB, value string) (*JiraI
 
 // FindJiraIssueProgressByIDTx will find a JiraIssueProgress by ID using the provided transaction
 func FindJiraIssueProgressByIDTx(ctx context.Context, tx Tx, value string) (*JiraIssueProgress, error) {
-	q := "SELECT * FROM `jira_issue_progress` WHERE `id` = ?"
+	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _UserID sql.NullString
@@ -525,7 +525,7 @@ func (t *JiraIssueProgress) SetUserID(v string) {
 
 // FindJiraIssueProgressesByUserID will find all JiraIssueProgresss by the UserID value
 func FindJiraIssueProgressesByUserID(ctx context.Context, db DB, value string) ([]*JiraIssueProgress, error) {
-	q := "SELECT * FROM `jira_issue_progress` WHERE `user_id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -594,7 +594,7 @@ func FindJiraIssueProgressesByUserID(ctx context.Context, db DB, value string) (
 
 // FindJiraIssueProgressesByUserIDTx will find all JiraIssueProgresss by the UserID value using the provided transaction
 func FindJiraIssueProgressesByUserIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueProgress, error) {
-	q := "SELECT * FROM `jira_issue_progress` WHERE `user_id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -673,7 +673,7 @@ func (t *JiraIssueProgress) SetIssueID(v string) {
 
 // FindJiraIssueProgressesByIssueID will find all JiraIssueProgresss by the IssueID value
 func FindJiraIssueProgressesByIssueID(ctx context.Context, db DB, value string) ([]*JiraIssueProgress, error) {
-	q := "SELECT * FROM `jira_issue_progress` WHERE `issue_id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -742,7 +742,7 @@ func FindJiraIssueProgressesByIssueID(ctx context.Context, db DB, value string) 
 
 // FindJiraIssueProgressesByIssueIDTx will find all JiraIssueProgresss by the IssueID value using the provided transaction
 func FindJiraIssueProgressesByIssueIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueProgress, error) {
-	q := "SELECT * FROM `jira_issue_progress` WHERE `issue_id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -860,7 +860,7 @@ func (t *JiraIssueProgress) SetCustomerID(v string) {
 
 // FindJiraIssueProgressesByCustomerID will find all JiraIssueProgresss by the CustomerID value
 func FindJiraIssueProgressesByCustomerID(ctx context.Context, db DB, value string) ([]*JiraIssueProgress, error) {
-	q := "SELECT * FROM `jira_issue_progress` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -929,7 +929,7 @@ func FindJiraIssueProgressesByCustomerID(ctx context.Context, db DB, value strin
 
 // FindJiraIssueProgressesByCustomerIDTx will find all JiraIssueProgresss by the CustomerID value using the provided transaction
 func FindJiraIssueProgressesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueProgress, error) {
-	q := "SELECT * FROM `jira_issue_progress` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1008,7 +1008,7 @@ func (t *JiraIssueProgress) SetRefID(v string) {
 
 // FindJiraIssueProgressesByRefID will find all JiraIssueProgresss by the RefID value
 func FindJiraIssueProgressesByRefID(ctx context.Context, db DB, value string) ([]*JiraIssueProgress, error) {
-	q := "SELECT * FROM `jira_issue_progress` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1077,7 +1077,7 @@ func FindJiraIssueProgressesByRefID(ctx context.Context, db DB, value string) ([
 
 // FindJiraIssueProgressesByRefIDTx will find all JiraIssueProgresss by the RefID value using the provided transaction
 func FindJiraIssueProgressesByRefIDTx(ctx context.Context, tx Tx, value string) ([]*JiraIssueProgress, error) {
-	q := "SELECT * FROM `jira_issue_progress` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1445,7 +1445,7 @@ func (t *JiraIssueProgress) DBUpsertTx(ctx context.Context, tx Tx, conditions ..
 
 // DBFindOne will find a JiraIssueProgress record in the database with the primary key
 func (t *JiraIssueProgress) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `jira_issue_progress` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1505,7 +1505,7 @@ func (t *JiraIssueProgress) DBFindOne(ctx context.Context, db DB, value string) 
 
 // DBFindOneTx will find a JiraIssueProgress record in the database with the primary key using the provided transaction
 func (t *JiraIssueProgress) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `jira_issue_progress` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `jira_issue_progress`.`id`,`jira_issue_progress`.`checksum`,`jira_issue_progress`.`user_id`,`jira_issue_progress`.`issue_id`,`jira_issue_progress`.`start_date`,`jira_issue_progress`.`end_date`,`jira_issue_progress`.`duration`,`jira_issue_progress`.`customer_id`,`jira_issue_progress`.`ref_id` FROM `jira_issue_progress` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1965,7 +1965,7 @@ func (t *JiraIssueProgress) DBCountTx(ctx context.Context, tx Tx, _params ...int
 
 // DBExists will return true if the JiraIssueProgress record exists in the database
 func (t *JiraIssueProgress) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `jira_issue_progress` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `jira_issue_progress` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1976,7 +1976,7 @@ func (t *JiraIssueProgress) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the JiraIssueProgress record exists in the database using the provided transaction
 func (t *JiraIssueProgress) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `jira_issue_progress` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `jira_issue_progress` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

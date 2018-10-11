@@ -399,7 +399,7 @@ func (t *DataGroup) SetID(v string) {
 
 // FindDataGroupByID will find a DataGroup by ID
 func FindDataGroupByID(ctx context.Context, db DB, value string) (*DataGroup, error) {
-	q := "SELECT * FROM `data_group` WHERE `id` = ?"
+	q := "SELECT `data_group`.`id`,`data_group`.`checksum`,`data_group`.`customer_id`,`data_group`.`name`,`data_group`.`description`,`data_group`.`parent_id`,`data_group`.`issue_project_ids`,`data_group`.`user_ids`,`data_group`.`repo_ids`,`data_group`.`created_at`,`data_group`.`updated_at` FROM `data_group` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -469,7 +469,7 @@ func FindDataGroupByID(ctx context.Context, db DB, value string) (*DataGroup, er
 
 // FindDataGroupByIDTx will find a DataGroup by ID using the provided transaction
 func FindDataGroupByIDTx(ctx context.Context, tx Tx, value string) (*DataGroup, error) {
-	q := "SELECT * FROM `data_group` WHERE `id` = ?"
+	q := "SELECT `data_group`.`id`,`data_group`.`checksum`,`data_group`.`customer_id`,`data_group`.`name`,`data_group`.`description`,`data_group`.`parent_id`,`data_group`.`issue_project_ids`,`data_group`.`user_ids`,`data_group`.`repo_ids`,`data_group`.`created_at`,`data_group`.`updated_at` FROM `data_group` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -977,7 +977,7 @@ func (t *DataGroup) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interfa
 
 // DBFindOne will find a DataGroup record in the database with the primary key
 func (t *DataGroup) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `data_group` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `data_group`.`id`,`data_group`.`checksum`,`data_group`.`customer_id`,`data_group`.`name`,`data_group`.`description`,`data_group`.`parent_id`,`data_group`.`issue_project_ids`,`data_group`.`user_ids`,`data_group`.`repo_ids`,`data_group`.`created_at`,`data_group`.`updated_at` FROM `data_group` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1047,7 +1047,7 @@ func (t *DataGroup) DBFindOne(ctx context.Context, db DB, value string) (bool, e
 
 // DBFindOneTx will find a DataGroup record in the database with the primary key using the provided transaction
 func (t *DataGroup) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `data_group` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `data_group`.`id`,`data_group`.`checksum`,`data_group`.`customer_id`,`data_group`.`name`,`data_group`.`description`,`data_group`.`parent_id`,`data_group`.`issue_project_ids`,`data_group`.`user_ids`,`data_group`.`repo_ids`,`data_group`.`created_at`,`data_group`.`updated_at` FROM `data_group` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1565,7 +1565,7 @@ func (t *DataGroup) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}
 
 // DBExists will return true if the DataGroup record exists in the database
 func (t *DataGroup) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `data_group` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `data_group` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1576,7 +1576,7 @@ func (t *DataGroup) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the DataGroup record exists in the database using the provided transaction
 func (t *DataGroup) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `data_group` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `data_group` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

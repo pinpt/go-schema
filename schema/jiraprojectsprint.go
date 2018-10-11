@@ -499,7 +499,7 @@ func (t *JiraProjectSprint) SetID(v string) {
 
 // FindJiraProjectSprintByID will find a JiraProjectSprint by ID
 func FindJiraProjectSprintByID(ctx context.Context, db DB, value string) (*JiraProjectSprint, error) {
-	q := "SELECT * FROM `jira_project_sprint` WHERE `id` = ?"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _ProjectID sql.NullString
@@ -619,7 +619,7 @@ func FindJiraProjectSprintByID(ctx context.Context, db DB, value string) (*JiraP
 
 // FindJiraProjectSprintByIDTx will find a JiraProjectSprint by ID using the provided transaction
 func FindJiraProjectSprintByIDTx(ctx context.Context, tx Tx, value string) (*JiraProjectSprint, error) {
-	q := "SELECT * FROM `jira_project_sprint` WHERE `id` = ?"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _ProjectID sql.NullString
@@ -762,7 +762,7 @@ func (t *JiraProjectSprint) SetProjectID(v string) {
 
 // FindJiraProjectSprintsByProjectID will find all JiraProjectSprints by the ProjectID value
 func FindJiraProjectSprintsByProjectID(ctx context.Context, db DB, value string) ([]*JiraProjectSprint, error) {
-	q := "SELECT * FROM `jira_project_sprint` WHERE `project_id` = ? LIMIT 1"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `project_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -891,7 +891,7 @@ func FindJiraProjectSprintsByProjectID(ctx context.Context, db DB, value string)
 
 // FindJiraProjectSprintsByProjectIDTx will find all JiraProjectSprints by the ProjectID value using the provided transaction
 func FindJiraProjectSprintsByProjectIDTx(ctx context.Context, tx Tx, value string) ([]*JiraProjectSprint, error) {
-	q := "SELECT * FROM `jira_project_sprint` WHERE `project_id` = ? LIMIT 1"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `project_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1050,7 +1050,7 @@ func (t *JiraProjectSprint) SetCustomerID(v string) {
 
 // FindJiraProjectSprintsByCustomerID will find all JiraProjectSprints by the CustomerID value
 func FindJiraProjectSprintsByCustomerID(ctx context.Context, db DB, value string) ([]*JiraProjectSprint, error) {
-	q := "SELECT * FROM `jira_project_sprint` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1179,7 +1179,7 @@ func FindJiraProjectSprintsByCustomerID(ctx context.Context, db DB, value string
 
 // FindJiraProjectSprintsByCustomerIDTx will find all JiraProjectSprints by the CustomerID value using the provided transaction
 func FindJiraProjectSprintsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraProjectSprint, error) {
-	q := "SELECT * FROM `jira_project_sprint` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1889,7 +1889,7 @@ func (t *JiraProjectSprint) DBUpsertTx(ctx context.Context, tx Tx, conditions ..
 
 // DBFindOne will find a JiraProjectSprint record in the database with the primary key
 func (t *JiraProjectSprint) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -2009,7 +2009,7 @@ func (t *JiraProjectSprint) DBFindOne(ctx context.Context, db DB, value string) 
 
 // DBFindOneTx will find a JiraProjectSprint record in the database with the primary key using the provided transaction
 func (t *JiraProjectSprint) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `jira_project_sprint`.`id`,`jira_project_sprint`.`checksum`,`jira_project_sprint`.`project_id`,`jira_project_sprint`.`sprint_id`,`jira_project_sprint`.`name`,`jira_project_sprint`.`customer_id`,`jira_project_sprint`.`complete_date`,`jira_project_sprint`.`end_date`,`jira_project_sprint`.`start_date`,`jira_project_sprint`.`state`,`jira_project_sprint`.`goal`,`jira_project_sprint`.`initial_issue_ids`,`jira_project_sprint`.`final_issue_ids`,`jira_project_sprint`.`final_closed_issue_ids`,`jira_project_sprint`.`initial_issue_count`,`jira_project_sprint`.`final_issue_count`,`jira_project_sprint`.`closed_issue_count`,`jira_project_sprint`.`added_issue_count`,`jira_project_sprint`.`removed_issue_count`,`jira_project_sprint`.`initial_issues_closed`,`jira_project_sprint`.`initial_issues_in_final_count` FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -2817,7 +2817,7 @@ func (t *JiraProjectSprint) DBCountTx(ctx context.Context, tx Tx, _params ...int
 
 // DBExists will return true if the JiraProjectSprint record exists in the database
 func (t *JiraProjectSprint) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -2828,7 +2828,7 @@ func (t *JiraProjectSprint) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the JiraProjectSprint record exists in the database using the provided transaction
 func (t *JiraProjectSprint) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `jira_project_sprint` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

@@ -341,7 +341,7 @@ func (t *ExclusionMapping) SetID(v string) {
 
 // FindExclusionMappingByID will find a ExclusionMapping by ID
 func FindExclusionMappingByID(ctx context.Context, db DB, value string) (*ExclusionMapping, error) {
-	q := "SELECT * FROM `exclusion_mapping` WHERE `id` = ?"
+	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _RefID sql.NullString
 	var _RefType sql.NullString
@@ -386,7 +386,7 @@ func FindExclusionMappingByID(ctx context.Context, db DB, value string) (*Exclus
 
 // FindExclusionMappingByIDTx will find a ExclusionMapping by ID using the provided transaction
 func FindExclusionMappingByIDTx(ctx context.Context, tx Tx, value string) (*ExclusionMapping, error) {
-	q := "SELECT * FROM `exclusion_mapping` WHERE `id` = ?"
+	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _RefID sql.NullString
 	var _RefType sql.NullString
@@ -441,7 +441,7 @@ func (t *ExclusionMapping) SetRefID(v string) {
 
 // FindExclusionMappingsByRefID will find all ExclusionMappings by the RefID value
 func FindExclusionMappingsByRefID(ctx context.Context, db DB, value string) ([]*ExclusionMapping, error) {
-	q := "SELECT * FROM `exclusion_mapping` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -495,7 +495,7 @@ func FindExclusionMappingsByRefID(ctx context.Context, db DB, value string) ([]*
 
 // FindExclusionMappingsByRefIDTx will find all ExclusionMappings by the RefID value using the provided transaction
 func FindExclusionMappingsByRefIDTx(ctx context.Context, tx Tx, value string) ([]*ExclusionMapping, error) {
-	q := "SELECT * FROM `exclusion_mapping` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -559,7 +559,7 @@ func (t *ExclusionMapping) SetRefType(v string) {
 
 // FindExclusionMappingsByRefType will find all ExclusionMappings by the RefType value
 func FindExclusionMappingsByRefType(ctx context.Context, db DB, value string) ([]*ExclusionMapping, error) {
-	q := "SELECT * FROM `exclusion_mapping` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -613,7 +613,7 @@ func FindExclusionMappingsByRefType(ctx context.Context, db DB, value string) ([
 
 // FindExclusionMappingsByRefTypeTx will find all ExclusionMappings by the RefType value using the provided transaction
 func FindExclusionMappingsByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*ExclusionMapping, error) {
-	q := "SELECT * FROM `exclusion_mapping` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -703,7 +703,7 @@ func (t *ExclusionMapping) SetCustomerID(v string) {
 
 // FindExclusionMappingsByCustomerID will find all ExclusionMappings by the CustomerID value
 func FindExclusionMappingsByCustomerID(ctx context.Context, db DB, value string) ([]*ExclusionMapping, error) {
-	q := "SELECT * FROM `exclusion_mapping` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -757,7 +757,7 @@ func FindExclusionMappingsByCustomerID(ctx context.Context, db DB, value string)
 
 // FindExclusionMappingsByCustomerIDTx will find all ExclusionMappings by the CustomerID value using the provided transaction
 func FindExclusionMappingsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*ExclusionMapping, error) {
-	q := "SELECT * FROM `exclusion_mapping` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1032,7 +1032,7 @@ func (t *ExclusionMapping) DBUpsertTx(ctx context.Context, tx Tx, conditions ...
 
 // DBFindOne will find a ExclusionMapping record in the database with the primary key
 func (t *ExclusionMapping) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `exclusion_mapping` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _RefID sql.NullString
@@ -1077,7 +1077,7 @@ func (t *ExclusionMapping) DBFindOne(ctx context.Context, db DB, value string) (
 
 // DBFindOneTx will find a ExclusionMapping record in the database with the primary key using the provided transaction
 func (t *ExclusionMapping) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `exclusion_mapping` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `exclusion_mapping`.`id`,`exclusion_mapping`.`ref_id`,`exclusion_mapping`.`ref_type`,`exclusion_mapping`.`user_id`,`exclusion_mapping`.`date`,`exclusion_mapping`.`customer_id` FROM `exclusion_mapping` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _RefID sql.NullString
@@ -1450,7 +1450,7 @@ func (t *ExclusionMapping) DBCountTx(ctx context.Context, tx Tx, _params ...inte
 
 // DBExists will return true if the ExclusionMapping record exists in the database
 func (t *ExclusionMapping) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `exclusion_mapping` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `exclusion_mapping` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1461,7 +1461,7 @@ func (t *ExclusionMapping) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the ExclusionMapping record exists in the database using the provided transaction
 func (t *ExclusionMapping) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `exclusion_mapping` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `exclusion_mapping` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

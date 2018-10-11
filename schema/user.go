@@ -509,7 +509,7 @@ func (t *User) SetID(v string) {
 
 // FindUserByID will find a User by ID
 func FindUserByID(ctx context.Context, db DB, value string) (*User, error) {
-	q := "SELECT * FROM `user` WHERE `id` = ?"
+	q := "SELECT `user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type` FROM `user` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -634,7 +634,7 @@ func FindUserByID(ctx context.Context, db DB, value string) (*User, error) {
 
 // FindUserByIDTx will find a User by ID using the provided transaction
 func FindUserByIDTx(ctx context.Context, tx Tx, value string) (*User, error) {
-	q := "SELECT * FROM `user` WHERE `id` = ?"
+	q := "SELECT `user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type` FROM `user` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CustomerID sql.NullString
@@ -795,7 +795,7 @@ func (t *User) SetEmail(v string) {
 
 // FindUsersByEmail will find all Users by the Email value
 func FindUsersByEmail(ctx context.Context, db DB, value string) ([]*User, error) {
-	q := "SELECT * FROM `user` WHERE `email` = ? LIMIT 1"
+	q := "SELECT `user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type` FROM `user` WHERE `email` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -929,7 +929,7 @@ func FindUsersByEmail(ctx context.Context, db DB, value string) ([]*User, error)
 
 // FindUsersByEmailTx will find all Users by the Email value using the provided transaction
 func FindUsersByEmailTx(ctx context.Context, tx Tx, value string) ([]*User, error) {
-	q := "SELECT * FROM `user` WHERE `email` = ? LIMIT 1"
+	q := "SELECT `user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type` FROM `user` WHERE `email` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1695,7 +1695,7 @@ func (t *User) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{})
 
 // DBFindOne will find a User record in the database with the primary key
 func (t *User) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `user` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type` FROM `user` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1820,7 +1820,7 @@ func (t *User) DBFindOne(ctx context.Context, db DB, value string) (bool, error)
 
 // DBFindOneTx will find a User record in the database with the primary key using the provided transaction
 func (t *User) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `user` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `user`.`id`,`user`.`checksum`,`user`.`customer_id`,`user`.`email`,`user`.`name`,`user`.`username`,`user`.`active`,`user`.`autoenrolled`,`user`.`visible`,`user`.`avatar_url`,`user`.`employee_id`,`user`.`location`,`user`.`region`,`user`.`department`,`user`.`reports_to_user_id`,`user`.`title`,`user`.`role`,`user`.`created_at`,`user`.`updated_at`,`user`.`metadata`,`user`.`ref_id`,`user`.`ref_type` FROM `user` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -2657,7 +2657,7 @@ func (t *User) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (in
 
 // DBExists will return true if the User record exists in the database
 func (t *User) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `user` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `user` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -2668,7 +2668,7 @@ func (t *User) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the User record exists in the database using the provided transaction
 func (t *User) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `user` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `user` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

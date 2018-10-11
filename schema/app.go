@@ -379,7 +379,7 @@ func (t *App) SetID(v string) {
 
 // FindAppByID will find a App by ID
 func FindAppByID(ctx context.Context, db DB, value string) (*App, error) {
-	q := "SELECT * FROM `app` WHERE `id` = ?"
+	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _Name sql.NullString
@@ -439,7 +439,7 @@ func FindAppByID(ctx context.Context, db DB, value string) (*App, error) {
 
 // FindAppByIDTx will find a App by ID using the provided transaction
 func FindAppByIDTx(ctx context.Context, tx Tx, value string) (*App, error) {
-	q := "SELECT * FROM `app` WHERE `id` = ?"
+	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _Name sql.NullString
@@ -522,7 +522,7 @@ func (t *App) SetName(v string) {
 
 // FindAppsByName will find all Apps by the Name value
 func FindAppsByName(ctx context.Context, db DB, value string) ([]*App, error) {
-	q := "SELECT * FROM `app` WHERE `name` = ? LIMIT 1"
+	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `name` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -591,7 +591,7 @@ func FindAppsByName(ctx context.Context, db DB, value string) ([]*App, error) {
 
 // FindAppsByNameTx will find all Apps by the Name value using the provided transaction
 func FindAppsByNameTx(ctx context.Context, tx Tx, value string) ([]*App, error) {
-	q := "SELECT * FROM `app` WHERE `name` = ? LIMIT 1"
+	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `name` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -729,7 +729,7 @@ func (t *App) SetCustomerID(v string) {
 
 // FindAppsByCustomerID will find all Apps by the CustomerID value
 func FindAppsByCustomerID(ctx context.Context, db DB, value string) ([]*App, error) {
-	q := "SELECT * FROM `app` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -798,7 +798,7 @@ func FindAppsByCustomerID(ctx context.Context, db DB, value string) ([]*App, err
 
 // FindAppsByCustomerIDTx will find all Apps by the CustomerID value using the provided transaction
 func FindAppsByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*App, error) {
-	q := "SELECT * FROM `app` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1166,7 +1166,7 @@ func (t *App) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) 
 
 // DBFindOne will find a App record in the database with the primary key
 func (t *App) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `app` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1226,7 +1226,7 @@ func (t *App) DBFindOne(ctx context.Context, db DB, value string) (bool, error) 
 
 // DBFindOneTx will find a App record in the database with the primary key using the provided transaction
 func (t *App) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `app` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `app`.`id`,`app`.`checksum`,`app`.`name`,`app`.`description`,`app`.`active`,`app`.`repo_ids`,`app`.`created_at`,`app`.`updated_at`,`app`.`customer_id` FROM `app` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1686,7 +1686,7 @@ func (t *App) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int
 
 // DBExists will return true if the App record exists in the database
 func (t *App) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `app` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `app` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1697,7 +1697,7 @@ func (t *App) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the App record exists in the database using the provided transaction
 func (t *App) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `app` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `app` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

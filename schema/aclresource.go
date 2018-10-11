@@ -389,7 +389,7 @@ func (t *ACLResource) SetID(v string) {
 
 // FindACLResourceByID will find a ACLResource by ID
 func FindACLResourceByID(ctx context.Context, db DB, value string) (*ACLResource, error) {
-	q := "SELECT * FROM `acl_resource` WHERE `id` = ?"
+	q := "SELECT `acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at` FROM `acl_resource` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _Urn sql.NullString
@@ -454,7 +454,7 @@ func FindACLResourceByID(ctx context.Context, db DB, value string) (*ACLResource
 
 // FindACLResourceByIDTx will find a ACLResource by ID using the provided transaction
 func FindACLResourceByIDTx(ctx context.Context, tx Tx, value string) (*ACLResource, error) {
-	q := "SELECT * FROM `acl_resource` WHERE `id` = ?"
+	q := "SELECT `acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at` FROM `acl_resource` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _Urn sql.NullString
@@ -542,7 +542,7 @@ func (t *ACLResource) SetUrn(v string) {
 
 // FindACLResourcesByUrn will find all ACLResources by the Urn value
 func FindACLResourcesByUrn(ctx context.Context, db DB, value string) ([]*ACLResource, error) {
-	q := "SELECT * FROM `acl_resource` WHERE `urn` = ? LIMIT 1"
+	q := "SELECT `acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at` FROM `acl_resource` WHERE `urn` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -616,7 +616,7 @@ func FindACLResourcesByUrn(ctx context.Context, db DB, value string) ([]*ACLReso
 
 // FindACLResourcesByUrnTx will find all ACLResources by the Urn value using the provided transaction
 func FindACLResourcesByUrnTx(ctx context.Context, tx Tx, value string) ([]*ACLResource, error) {
-	q := "SELECT * FROM `acl_resource` WHERE `urn` = ? LIMIT 1"
+	q := "SELECT `acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at` FROM `acl_resource` WHERE `urn` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1077,7 +1077,7 @@ func (t *ACLResource) DBUpsertTx(ctx context.Context, tx Tx, conditions ...inter
 
 // DBFindOne will find a ACLResource record in the database with the primary key
 func (t *ACLResource) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `acl_resource` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at` FROM `acl_resource` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1142,7 +1142,7 @@ func (t *ACLResource) DBFindOne(ctx context.Context, db DB, value string) (bool,
 
 // DBFindOneTx will find a ACLResource record in the database with the primary key using the provided transaction
 func (t *ACLResource) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `acl_resource` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `acl_resource`.`id`,`acl_resource`.`checksum`,`acl_resource`.`urn`,`acl_resource`.`description`,`acl_resource`.`title`,`acl_resource`.`public`,`acl_resource`.`hidden`,`acl_resource`.`admin`,`acl_resource`.`created_at`,`acl_resource`.`updated_at` FROM `acl_resource` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1631,7 +1631,7 @@ func (t *ACLResource) DBCountTx(ctx context.Context, tx Tx, _params ...interface
 
 // DBExists will return true if the ACLResource record exists in the database
 func (t *ACLResource) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `acl_resource` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `acl_resource` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1642,7 +1642,7 @@ func (t *ACLResource) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the ACLResource record exists in the database using the provided transaction
 func (t *ACLResource) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `acl_resource` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `acl_resource` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

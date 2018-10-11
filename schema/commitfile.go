@@ -620,7 +620,7 @@ func (t *CommitFile) SetID(v string) {
 
 // FindCommitFileByID will find a CommitFile by ID
 func FindCommitFileByID(ctx context.Context, db DB, value string) (*CommitFile, error) {
-	q := "SELECT * FROM `commit_file` WHERE `id` = ?"
+	q := "SELECT `commit_file`.`id`,`commit_file`.`checksum`,`commit_file`.`commit_id`,`commit_file`.`repo_id`,`commit_file`.`author_user_id`,`commit_file`.`committer_user_id`,`commit_file`.`filename`,`commit_file`.`language`,`commit_file`.`additions`,`commit_file`.`deletions`,`commit_file`.`size`,`commit_file`.`abinary`,`commit_file`.`date`,`commit_file`.`branch`,`commit_file`.`mergecommit`,`commit_file`.`excluded`,`commit_file`.`loc`,`commit_file`.`sloc`,`commit_file`.`comments`,`commit_file`.`blanks`,`commit_file`.`variance`,`commit_file`.`status`,`commit_file`.`renamed`,`commit_file`.`renamed_from`,`commit_file`.`renamed_to`,`commit_file`.`customer_id`,`commit_file`.`ref_type`,`commit_file`.`ref_id`,`commit_file`.`metadata` FROM `commit_file` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CommitID sql.NullString
@@ -780,7 +780,7 @@ func FindCommitFileByID(ctx context.Context, db DB, value string) (*CommitFile, 
 
 // FindCommitFileByIDTx will find a CommitFile by ID using the provided transaction
 func FindCommitFileByIDTx(ctx context.Context, tx Tx, value string) (*CommitFile, error) {
-	q := "SELECT * FROM `commit_file` WHERE `id` = ?"
+	q := "SELECT `commit_file`.`id`,`commit_file`.`checksum`,`commit_file`.`commit_id`,`commit_file`.`repo_id`,`commit_file`.`author_user_id`,`commit_file`.`committer_user_id`,`commit_file`.`filename`,`commit_file`.`language`,`commit_file`.`additions`,`commit_file`.`deletions`,`commit_file`.`size`,`commit_file`.`abinary`,`commit_file`.`date`,`commit_file`.`branch`,`commit_file`.`mergecommit`,`commit_file`.`excluded`,`commit_file`.`loc`,`commit_file`.`sloc`,`commit_file`.`comments`,`commit_file`.`blanks`,`commit_file`.`variance`,`commit_file`.`status`,`commit_file`.`renamed`,`commit_file`.`renamed_from`,`commit_file`.`renamed_to`,`commit_file`.`customer_id`,`commit_file`.`ref_type`,`commit_file`.`ref_id`,`commit_file`.`metadata` FROM `commit_file` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _CommitID sql.NullString
@@ -963,7 +963,7 @@ func (t *CommitFile) SetCommitID(v string) {
 
 // FindCommitFilesByCommitID will find all CommitFiles by the CommitID value
 func FindCommitFilesByCommitID(ctx context.Context, db DB, value string) ([]*CommitFile, error) {
-	q := "SELECT * FROM `commit_file` WHERE `commit_id` = ? LIMIT 1"
+	q := "SELECT `commit_file`.`id`,`commit_file`.`checksum`,`commit_file`.`commit_id`,`commit_file`.`repo_id`,`commit_file`.`author_user_id`,`commit_file`.`committer_user_id`,`commit_file`.`filename`,`commit_file`.`language`,`commit_file`.`additions`,`commit_file`.`deletions`,`commit_file`.`size`,`commit_file`.`abinary`,`commit_file`.`date`,`commit_file`.`branch`,`commit_file`.`mergecommit`,`commit_file`.`excluded`,`commit_file`.`loc`,`commit_file`.`sloc`,`commit_file`.`comments`,`commit_file`.`blanks`,`commit_file`.`variance`,`commit_file`.`status`,`commit_file`.`renamed`,`commit_file`.`renamed_from`,`commit_file`.`renamed_to`,`commit_file`.`customer_id`,`commit_file`.`ref_type`,`commit_file`.`ref_id`,`commit_file`.`metadata` FROM `commit_file` WHERE `commit_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1132,7 +1132,7 @@ func FindCommitFilesByCommitID(ctx context.Context, db DB, value string) ([]*Com
 
 // FindCommitFilesByCommitIDTx will find all CommitFiles by the CommitID value using the provided transaction
 func FindCommitFilesByCommitIDTx(ctx context.Context, tx Tx, value string) ([]*CommitFile, error) {
-	q := "SELECT * FROM `commit_file` WHERE `commit_id` = ? LIMIT 1"
+	q := "SELECT `commit_file`.`id`,`commit_file`.`checksum`,`commit_file`.`commit_id`,`commit_file`.`repo_id`,`commit_file`.`author_user_id`,`commit_file`.`committer_user_id`,`commit_file`.`filename`,`commit_file`.`language`,`commit_file`.`additions`,`commit_file`.`deletions`,`commit_file`.`size`,`commit_file`.`abinary`,`commit_file`.`date`,`commit_file`.`branch`,`commit_file`.`mergecommit`,`commit_file`.`excluded`,`commit_file`.`loc`,`commit_file`.`sloc`,`commit_file`.`comments`,`commit_file`.`blanks`,`commit_file`.`variance`,`commit_file`.`status`,`commit_file`.`renamed`,`commit_file`.`renamed_from`,`commit_file`.`renamed_to`,`commit_file`.`customer_id`,`commit_file`.`ref_type`,`commit_file`.`ref_id`,`commit_file`.`metadata` FROM `commit_file` WHERE `commit_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1550,7 +1550,7 @@ func (t *CommitFile) SetCustomerID(v string) {
 
 // FindCommitFilesByCustomerID will find all CommitFiles by the CustomerID value
 func FindCommitFilesByCustomerID(ctx context.Context, db DB, value string) ([]*CommitFile, error) {
-	q := "SELECT * FROM `commit_file` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `commit_file`.`id`,`commit_file`.`checksum`,`commit_file`.`commit_id`,`commit_file`.`repo_id`,`commit_file`.`author_user_id`,`commit_file`.`committer_user_id`,`commit_file`.`filename`,`commit_file`.`language`,`commit_file`.`additions`,`commit_file`.`deletions`,`commit_file`.`size`,`commit_file`.`abinary`,`commit_file`.`date`,`commit_file`.`branch`,`commit_file`.`mergecommit`,`commit_file`.`excluded`,`commit_file`.`loc`,`commit_file`.`sloc`,`commit_file`.`comments`,`commit_file`.`blanks`,`commit_file`.`variance`,`commit_file`.`status`,`commit_file`.`renamed`,`commit_file`.`renamed_from`,`commit_file`.`renamed_to`,`commit_file`.`customer_id`,`commit_file`.`ref_type`,`commit_file`.`ref_id`,`commit_file`.`metadata` FROM `commit_file` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1719,7 +1719,7 @@ func FindCommitFilesByCustomerID(ctx context.Context, db DB, value string) ([]*C
 
 // FindCommitFilesByCustomerIDTx will find all CommitFiles by the CustomerID value using the provided transaction
 func FindCommitFilesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*CommitFile, error) {
-	q := "SELECT * FROM `commit_file` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `commit_file`.`id`,`commit_file`.`checksum`,`commit_file`.`commit_id`,`commit_file`.`repo_id`,`commit_file`.`author_user_id`,`commit_file`.`committer_user_id`,`commit_file`.`filename`,`commit_file`.`language`,`commit_file`.`additions`,`commit_file`.`deletions`,`commit_file`.`size`,`commit_file`.`abinary`,`commit_file`.`date`,`commit_file`.`branch`,`commit_file`.`mergecommit`,`commit_file`.`excluded`,`commit_file`.`loc`,`commit_file`.`sloc`,`commit_file`.`comments`,`commit_file`.`blanks`,`commit_file`.`variance`,`commit_file`.`status`,`commit_file`.`renamed`,`commit_file`.`renamed_from`,`commit_file`.`renamed_to`,`commit_file`.`customer_id`,`commit_file`.`ref_type`,`commit_file`.`ref_id`,`commit_file`.`metadata` FROM `commit_file` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1898,7 +1898,7 @@ func (t *CommitFile) SetRefType(v string) {
 
 // FindCommitFilesByRefType will find all CommitFiles by the RefType value
 func FindCommitFilesByRefType(ctx context.Context, db DB, value string) ([]*CommitFile, error) {
-	q := "SELECT * FROM `commit_file` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `commit_file`.`id`,`commit_file`.`checksum`,`commit_file`.`commit_id`,`commit_file`.`repo_id`,`commit_file`.`author_user_id`,`commit_file`.`committer_user_id`,`commit_file`.`filename`,`commit_file`.`language`,`commit_file`.`additions`,`commit_file`.`deletions`,`commit_file`.`size`,`commit_file`.`abinary`,`commit_file`.`date`,`commit_file`.`branch`,`commit_file`.`mergecommit`,`commit_file`.`excluded`,`commit_file`.`loc`,`commit_file`.`sloc`,`commit_file`.`comments`,`commit_file`.`blanks`,`commit_file`.`variance`,`commit_file`.`status`,`commit_file`.`renamed`,`commit_file`.`renamed_from`,`commit_file`.`renamed_to`,`commit_file`.`customer_id`,`commit_file`.`ref_type`,`commit_file`.`ref_id`,`commit_file`.`metadata` FROM `commit_file` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2067,7 +2067,7 @@ func FindCommitFilesByRefType(ctx context.Context, db DB, value string) ([]*Comm
 
 // FindCommitFilesByRefTypeTx will find all CommitFiles by the RefType value using the provided transaction
 func FindCommitFilesByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*CommitFile, error) {
-	q := "SELECT * FROM `commit_file` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `commit_file`.`id`,`commit_file`.`checksum`,`commit_file`.`commit_id`,`commit_file`.`repo_id`,`commit_file`.`author_user_id`,`commit_file`.`committer_user_id`,`commit_file`.`filename`,`commit_file`.`language`,`commit_file`.`additions`,`commit_file`.`deletions`,`commit_file`.`size`,`commit_file`.`abinary`,`commit_file`.`date`,`commit_file`.`branch`,`commit_file`.`mergecommit`,`commit_file`.`excluded`,`commit_file`.`loc`,`commit_file`.`sloc`,`commit_file`.`comments`,`commit_file`.`blanks`,`commit_file`.`variance`,`commit_file`.`status`,`commit_file`.`renamed`,`commit_file`.`renamed_from`,`commit_file`.`renamed_to`,`commit_file`.`customer_id`,`commit_file`.`ref_type`,`commit_file`.`ref_id`,`commit_file`.`metadata` FROM `commit_file` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2246,7 +2246,7 @@ func (t *CommitFile) SetRefID(v string) {
 
 // FindCommitFilesByRefID will find all CommitFiles by the RefID value
 func FindCommitFilesByRefID(ctx context.Context, db DB, value string) ([]*CommitFile, error) {
-	q := "SELECT * FROM `commit_file` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT `commit_file`.`id`,`commit_file`.`checksum`,`commit_file`.`commit_id`,`commit_file`.`repo_id`,`commit_file`.`author_user_id`,`commit_file`.`committer_user_id`,`commit_file`.`filename`,`commit_file`.`language`,`commit_file`.`additions`,`commit_file`.`deletions`,`commit_file`.`size`,`commit_file`.`abinary`,`commit_file`.`date`,`commit_file`.`branch`,`commit_file`.`mergecommit`,`commit_file`.`excluded`,`commit_file`.`loc`,`commit_file`.`sloc`,`commit_file`.`comments`,`commit_file`.`blanks`,`commit_file`.`variance`,`commit_file`.`status`,`commit_file`.`renamed`,`commit_file`.`renamed_from`,`commit_file`.`renamed_to`,`commit_file`.`customer_id`,`commit_file`.`ref_type`,`commit_file`.`ref_id`,`commit_file`.`metadata` FROM `commit_file` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2415,7 +2415,7 @@ func FindCommitFilesByRefID(ctx context.Context, db DB, value string) ([]*Commit
 
 // FindCommitFilesByRefIDTx will find all CommitFiles by the RefID value using the provided transaction
 func FindCommitFilesByRefIDTx(ctx context.Context, tx Tx, value string) ([]*CommitFile, error) {
-	q := "SELECT * FROM `commit_file` WHERE `ref_id` = ? LIMIT 1"
+	q := "SELECT `commit_file`.`id`,`commit_file`.`checksum`,`commit_file`.`commit_id`,`commit_file`.`repo_id`,`commit_file`.`author_user_id`,`commit_file`.`committer_user_id`,`commit_file`.`filename`,`commit_file`.`language`,`commit_file`.`additions`,`commit_file`.`deletions`,`commit_file`.`size`,`commit_file`.`abinary`,`commit_file`.`date`,`commit_file`.`branch`,`commit_file`.`mergecommit`,`commit_file`.`excluded`,`commit_file`.`loc`,`commit_file`.`sloc`,`commit_file`.`comments`,`commit_file`.`blanks`,`commit_file`.`variance`,`commit_file`.`status`,`commit_file`.`renamed`,`commit_file`.`renamed_from`,`commit_file`.`renamed_to`,`commit_file`.`customer_id`,`commit_file`.`ref_type`,`commit_file`.`ref_id`,`commit_file`.`metadata` FROM `commit_file` WHERE `ref_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -3076,7 +3076,7 @@ func (t *CommitFile) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interf
 
 // DBFindOne will find a CommitFile record in the database with the primary key
 func (t *CommitFile) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `commit_file` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `commit_file`.`id`,`commit_file`.`checksum`,`commit_file`.`commit_id`,`commit_file`.`repo_id`,`commit_file`.`author_user_id`,`commit_file`.`committer_user_id`,`commit_file`.`filename`,`commit_file`.`language`,`commit_file`.`additions`,`commit_file`.`deletions`,`commit_file`.`size`,`commit_file`.`abinary`,`commit_file`.`date`,`commit_file`.`branch`,`commit_file`.`mergecommit`,`commit_file`.`excluded`,`commit_file`.`loc`,`commit_file`.`sloc`,`commit_file`.`comments`,`commit_file`.`blanks`,`commit_file`.`variance`,`commit_file`.`status`,`commit_file`.`renamed`,`commit_file`.`renamed_from`,`commit_file`.`renamed_to`,`commit_file`.`customer_id`,`commit_file`.`ref_type`,`commit_file`.`ref_id`,`commit_file`.`metadata` FROM `commit_file` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -3236,7 +3236,7 @@ func (t *CommitFile) DBFindOne(ctx context.Context, db DB, value string) (bool, 
 
 // DBFindOneTx will find a CommitFile record in the database with the primary key using the provided transaction
 func (t *CommitFile) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `commit_file` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `commit_file`.`id`,`commit_file`.`checksum`,`commit_file`.`commit_id`,`commit_file`.`repo_id`,`commit_file`.`author_user_id`,`commit_file`.`committer_user_id`,`commit_file`.`filename`,`commit_file`.`language`,`commit_file`.`additions`,`commit_file`.`deletions`,`commit_file`.`size`,`commit_file`.`abinary`,`commit_file`.`date`,`commit_file`.`branch`,`commit_file`.`mergecommit`,`commit_file`.`excluded`,`commit_file`.`loc`,`commit_file`.`sloc`,`commit_file`.`comments`,`commit_file`.`blanks`,`commit_file`.`variance`,`commit_file`.`status`,`commit_file`.`renamed`,`commit_file`.`renamed_from`,`commit_file`.`renamed_to`,`commit_file`.`customer_id`,`commit_file`.`ref_type`,`commit_file`.`ref_id`,`commit_file`.`metadata` FROM `commit_file` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -4276,7 +4276,7 @@ func (t *CommitFile) DBCountTx(ctx context.Context, tx Tx, _params ...interface{
 
 // DBExists will return true if the CommitFile record exists in the database
 func (t *CommitFile) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `commit_file` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `commit_file` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -4287,7 +4287,7 @@ func (t *CommitFile) DBExists(ctx context.Context, db DB) (bool, error) {
 
 // DBExistsTx will return true if the CommitFile record exists in the database using the provided transaction
 func (t *CommitFile) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `commit_file` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `commit_file` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {

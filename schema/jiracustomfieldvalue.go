@@ -349,7 +349,7 @@ func (t *JiraCustomFieldValue) SetID(v string) {
 
 // FindJiraCustomFieldValueByID will find a JiraCustomFieldValue by ID
 func FindJiraCustomFieldValueByID(ctx context.Context, db DB, value string) (*JiraCustomFieldValue, error) {
-	q := "SELECT * FROM `jira_custom_field_value` WHERE `id` = ?"
+	q := "SELECT `jira_custom_field_value`.`id`,`jira_custom_field_value`.`checksum`,`jira_custom_field_value`.`schema_type`,`jira_custom_field_value`.`value`,`jira_custom_field_value`.`custom_field_id`,`jira_custom_field_value`.`customer_id` FROM `jira_custom_field_value` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _SchemaType sql.NullString
@@ -394,7 +394,7 @@ func FindJiraCustomFieldValueByID(ctx context.Context, db DB, value string) (*Ji
 
 // FindJiraCustomFieldValueByIDTx will find a JiraCustomFieldValue by ID using the provided transaction
 func FindJiraCustomFieldValueByIDTx(ctx context.Context, tx Tx, value string) (*JiraCustomFieldValue, error) {
-	q := "SELECT * FROM `jira_custom_field_value` WHERE `id` = ?"
+	q := "SELECT `jira_custom_field_value`.`id`,`jira_custom_field_value`.`checksum`,`jira_custom_field_value`.`schema_type`,`jira_custom_field_value`.`value`,`jira_custom_field_value`.`custom_field_id`,`jira_custom_field_value`.`customer_id` FROM `jira_custom_field_value` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
 	var _SchemaType sql.NullString
@@ -482,7 +482,7 @@ func (t *JiraCustomFieldValue) SetCustomFieldID(v string) {
 
 // FindJiraCustomFieldValuesByCustomFieldID will find all JiraCustomFieldValues by the CustomFieldID value
 func FindJiraCustomFieldValuesByCustomFieldID(ctx context.Context, db DB, value string) ([]*JiraCustomFieldValue, error) {
-	q := "SELECT * FROM `jira_custom_field_value` WHERE `custom_field_id` = ? LIMIT 1"
+	q := "SELECT `jira_custom_field_value`.`id`,`jira_custom_field_value`.`checksum`,`jira_custom_field_value`.`schema_type`,`jira_custom_field_value`.`value`,`jira_custom_field_value`.`custom_field_id`,`jira_custom_field_value`.`customer_id` FROM `jira_custom_field_value` WHERE `custom_field_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -536,7 +536,7 @@ func FindJiraCustomFieldValuesByCustomFieldID(ctx context.Context, db DB, value 
 
 // FindJiraCustomFieldValuesByCustomFieldIDTx will find all JiraCustomFieldValues by the CustomFieldID value using the provided transaction
 func FindJiraCustomFieldValuesByCustomFieldIDTx(ctx context.Context, tx Tx, value string) ([]*JiraCustomFieldValue, error) {
-	q := "SELECT * FROM `jira_custom_field_value` WHERE `custom_field_id` = ? LIMIT 1"
+	q := "SELECT `jira_custom_field_value`.`id`,`jira_custom_field_value`.`checksum`,`jira_custom_field_value`.`schema_type`,`jira_custom_field_value`.`value`,`jira_custom_field_value`.`custom_field_id`,`jira_custom_field_value`.`customer_id` FROM `jira_custom_field_value` WHERE `custom_field_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -600,7 +600,7 @@ func (t *JiraCustomFieldValue) SetCustomerID(v string) {
 
 // FindJiraCustomFieldValuesByCustomerID will find all JiraCustomFieldValues by the CustomerID value
 func FindJiraCustomFieldValuesByCustomerID(ctx context.Context, db DB, value string) ([]*JiraCustomFieldValue, error) {
-	q := "SELECT * FROM `jira_custom_field_value` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `jira_custom_field_value`.`id`,`jira_custom_field_value`.`checksum`,`jira_custom_field_value`.`schema_type`,`jira_custom_field_value`.`value`,`jira_custom_field_value`.`custom_field_id`,`jira_custom_field_value`.`customer_id` FROM `jira_custom_field_value` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -654,7 +654,7 @@ func FindJiraCustomFieldValuesByCustomerID(ctx context.Context, db DB, value str
 
 // FindJiraCustomFieldValuesByCustomerIDTx will find all JiraCustomFieldValues by the CustomerID value using the provided transaction
 func FindJiraCustomFieldValuesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*JiraCustomFieldValue, error) {
-	q := "SELECT * FROM `jira_custom_field_value` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `jira_custom_field_value`.`id`,`jira_custom_field_value`.`checksum`,`jira_custom_field_value`.`schema_type`,`jira_custom_field_value`.`value`,`jira_custom_field_value`.`custom_field_id`,`jira_custom_field_value`.`customer_id` FROM `jira_custom_field_value` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -980,7 +980,7 @@ func (t *JiraCustomFieldValue) DBUpsertTx(ctx context.Context, tx Tx, conditions
 
 // DBFindOne will find a JiraCustomFieldValue record in the database with the primary key
 func (t *JiraCustomFieldValue) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT * FROM `jira_custom_field_value` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `jira_custom_field_value`.`id`,`jira_custom_field_value`.`checksum`,`jira_custom_field_value`.`schema_type`,`jira_custom_field_value`.`value`,`jira_custom_field_value`.`custom_field_id`,`jira_custom_field_value`.`customer_id` FROM `jira_custom_field_value` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1025,7 +1025,7 @@ func (t *JiraCustomFieldValue) DBFindOne(ctx context.Context, db DB, value strin
 
 // DBFindOneTx will find a JiraCustomFieldValue record in the database with the primary key using the provided transaction
 func (t *JiraCustomFieldValue) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT * FROM `jira_custom_field_value` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `jira_custom_field_value`.`id`,`jira_custom_field_value`.`checksum`,`jira_custom_field_value`.`schema_type`,`jira_custom_field_value`.`value`,`jira_custom_field_value`.`custom_field_id`,`jira_custom_field_value`.`customer_id` FROM `jira_custom_field_value` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -1398,7 +1398,7 @@ func (t *JiraCustomFieldValue) DBCountTx(ctx context.Context, tx Tx, _params ...
 
 // DBExists will return true if the JiraCustomFieldValue record exists in the database
 func (t *JiraCustomFieldValue) DBExists(ctx context.Context, db DB) (bool, error) {
-	q := "SELECT * FROM `jira_custom_field_value` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `jira_custom_field_value` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
@@ -1409,7 +1409,7 @@ func (t *JiraCustomFieldValue) DBExists(ctx context.Context, db DB) (bool, error
 
 // DBExistsTx will return true if the JiraCustomFieldValue record exists in the database using the provided transaction
 func (t *JiraCustomFieldValue) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
-	q := "SELECT * FROM `jira_custom_field_value` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `id` FROM `jira_custom_field_value` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
 	if err != nil && err != sql.ErrNoRows {
