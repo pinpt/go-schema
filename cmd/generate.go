@@ -42,23 +42,22 @@ func runGenerateCmd(dir string) error {
 		return fmt.Errorf("cannot find " + dir)
 	}
 
-	routes := []*acl.Route{}
-
-	if err := generateSQL(routes); err != nil {
+	routes, err := generateRoutesGoFile(dir)
+	if err != nil {
 		return err
 	}
-	if err := generateRoutesGoFile(routes, dir); err != nil {
+	if err := generateSQL(routes); err != nil {
 		return err
 	}
 	return nil
 }
 
-func generateRoutesGoFile(routes []*acl.Route, dir string) error {
+func generateRoutesGoFile(dir string) ([]*acl.Route, error) {
 	routefn := filepath.Join(dir, "src", "routes.json")
 	if !fileutil.FileExists(routefn) {
 		routefn = path.Join(dir, "routes.json")
 		if !fileutil.FileExists(routefn) {
-			return fmt.Errorf("cannot find %v", routefn)
+			return nil, fmt.Errorf("cannot find %v", routefn)
 		}
 	}
 
@@ -66,7 +65,7 @@ func generateRoutesGoFile(routes []*acl.Route, dir string) error {
 	fn := filepath.Join(cwd, "acl", "routes.go")
 	f, err := os.Create(fn)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer f.Close()
 
@@ -98,6 +97,7 @@ func generateRoutesGoFile(routes []*acl.Route, dir string) error {
 		Admin:         false,
 	}
 
+	routes := make([]*acl.Route, 0)
 	pubRoutes := make([]*acl.Route, 0)
 	for k, r := range proutes.Routes {
 		r.Name = k
@@ -124,7 +124,7 @@ func generateRoutesGoFile(routes []*acl.Route, dir string) error {
 		PublicRoutes: pubRoutes,
 	})
 
-	return err
+	return routes, err
 }
 
 func generateSQL(routes []*acl.Route) error {
