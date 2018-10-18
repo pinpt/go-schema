@@ -596,7 +596,8 @@ CREATE TABLE `jira_project_resolution` (
 CREATE TABLE `jira_project_sprint` (
 	`id`                          VARCHAR(64) NOT NULL PRIMARY KEY,
 	`checksum`                    CHAR(64),
-	`project_id`                  VARCHAR(64) NOT NULL,
+	`datagroup_id`                VARCHAR(64) NOT NULL,
+	`project_ids`                 JSON NOT NULL,
 	`sprint_id`                   TEXT NOT NULL,
 	`name`                        TEXT NOT NULL,
 	`customer_id`                 VARCHAR(64) NOT NULL,
@@ -615,7 +616,7 @@ CREATE TABLE `jira_project_sprint` (
 	`removed_issue_count`         INT NOT NULL,
 	`initial_issues_closed`       INT NOT NULL,
 	`initial_issues_in_final_count` INT NOT NULL,
-	INDEX jira_project_sprint_project_id_index (`project_id`),
+	INDEX jira_project_sprint_datagroup_id_index (`datagroup_id`),
 	INDEX jira_project_sprint_customer_id_index (`customer_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
