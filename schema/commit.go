@@ -54,24 +54,25 @@ var CommitColumns = []string{
 
 // Commit table
 type Commit struct {
-	AuthorUserID    string  `json:"author_user_id"`
-	Branch          *string `json:"branch,omitempty"`
-	Checksum        *string `json:"checksum,omitempty"`
-	CommitterUserID string  `json:"committer_user_id"`
-	CustomerID      string  `json:"customer_id"`
-	Date            int64   `json:"date"`
-	Excluded        *bool   `json:"excluded,omitempty"`
-	ID              string  `json:"id"`
-	Mergecommit     *bool   `json:"mergecommit,omitempty"`
-	Message         *string `json:"message,omitempty"`
-	Metadata        *string `json:"metadata,omitempty"`
-	Ordinal         *int32  `json:"ordinal,omitempty"`
-	Parent          *string `json:"parent,omitempty"`
-	ParentID        *string `json:"parent_id,omitempty"`
-	RefID           string  `json:"ref_id"`
-	RefType         string  `json:"ref_type"`
-	RepoID          string  `json:"repo_id"`
-	Sha             string  `json:"sha"`
+	AuthorUserID    string       `json:"author_user_id"`
+	Branch          *string      `json:"branch,omitempty"`
+	Checksum        *string      `json:"checksum,omitempty"`
+	CommitterUserID string       `json:"committer_user_id"`
+	CustomerID      string       `json:"customer_id"`
+	Date            int64        `json:"date"`
+	Excluded        *bool        `json:"excluded,omitempty"`
+	ID              string       `json:"id"`
+	Mergecommit     *bool        `json:"mergecommit,omitempty"`
+	Message         *string      `json:"message,omitempty"`
+	Metadata        *string      `json:"metadata,omitempty"`
+	Ordinal         *int32       `json:"ordinal,omitempty"`
+	Parent          *string      `json:"parent,omitempty"`
+	ParentID        *string      `json:"parent_id,omitempty"`
+	RefID           string       `json:"ref_id"`
+	RefType         string       `json:"ref_type"`
+	RepoID          string       `json:"repo_id"`
+	Sha             string       `json:"sha"`
+	Files           []CommitFile `json:"files"`
 }
 
 // TableName returns the SQL table name for Commit and satifies the Model interface
