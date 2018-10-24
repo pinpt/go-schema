@@ -59,6 +59,20 @@ func TestCreateIssueSummaryDelete(t *testing.T) {
 		TopLevel:                  true,
 		IsLeaf:                    true,
 		Path:                      "02acd163487bcc55",
+		InProgressDuration:        int64(64),
+		VerificationDuration:      int64(64),
+		InProgressCount:           int32(32),
+		ReopenCount:               int32(32),
+		MappedType:                "958efdd335b319af",
+		StrategicParentID:         nil,
+		SprintID:                  "ffe2ab6e2a5afe25",
+		Name:                      "7d3112ef7c974c06",
+		Users:                     nil,
+		InitialStartDate:          int64(64),
+		TotalDuration:             int64(64),
+		CreatedAt:                 nil,
+		ClosedAt:                  nil,
+		PlannedEndDate:            nil,
 		CustomerID:                "7e0e01202491f425",
 		RefType:                   "13cf4b36049dfe2d",
 		RefID:                     "1d293261eb293454",
@@ -158,6 +172,24 @@ func TestCreateIssueSummaryDelete(t *testing.T) {
 
 	r.SetPath("1cdbbacbdd05c738")
 
+	r.SetInProgressDuration(int64(640))
+
+	r.SetVerificationDuration(int64(640))
+
+	r.SetInProgressCount(int32(320))
+
+	r.SetReopenCount(int32(320))
+
+	r.SetMappedType("499e6c5529670287")
+
+	r.SetSprintID("56bf1a04e92eef87")
+
+	r.SetName("fee7bfb52e21ae56")
+
+	r.SetInitialStartDate(int64(640))
+
+	r.SetTotalDuration(int64(640))
+
 	r.SetCustomerID("21b82b783819469c")
 
 	r.SetRefType("2edf32c7c3242e46")
@@ -229,6 +261,20 @@ func TestCreateIssueSummaryDeleteTx(t *testing.T) {
 		TopLevel:                  true,
 		IsLeaf:                    true,
 		Path:                      "02acd163487bcc55",
+		InProgressDuration:        int64(64),
+		VerificationDuration:      int64(64),
+		InProgressCount:           int32(32),
+		ReopenCount:               int32(32),
+		MappedType:                "958efdd335b319af",
+		StrategicParentID:         nil,
+		SprintID:                  "ffe2ab6e2a5afe25",
+		Name:                      "7d3112ef7c974c06",
+		Users:                     nil,
+		InitialStartDate:          int64(64),
+		TotalDuration:             int64(64),
+		CreatedAt:                 nil,
+		ClosedAt:                  nil,
+		PlannedEndDate:            nil,
 		CustomerID:                "7e0e01202491f425",
 		RefType:                   "13cf4b36049dfe2d",
 		RefID:                     "1d293261eb293454",
@@ -331,6 +377,24 @@ func TestCreateIssueSummaryDeleteTx(t *testing.T) {
 	r.SetIsLeaf(false)
 
 	r.SetPath("1cdbbacbdd05c738")
+
+	r.SetInProgressDuration(int64(640))
+
+	r.SetVerificationDuration(int64(640))
+
+	r.SetInProgressCount(int32(320))
+
+	r.SetReopenCount(int32(320))
+
+	r.SetMappedType("499e6c5529670287")
+
+	r.SetSprintID("56bf1a04e92eef87")
+
+	r.SetName("fee7bfb52e21ae56")
+
+	r.SetInitialStartDate(int64(640))
+
+	r.SetTotalDuration(int64(640))
 
 	r.SetCustomerID("21b82b783819469c")
 

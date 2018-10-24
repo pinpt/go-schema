@@ -149,6 +149,25 @@ message IssueSummary {
 	bool is_leaf = 30 [(proto.column).notnull=true,(proto.column).type="TINYINT UNSIGNED"];
 	string path = 31 [(proto.column).notnull=true,(proto.column).type="VARCHAR(1024)"];
 
+	int64 in_progress_duration = 32 [(proto.column).notnull=true];
+    int64 verification_duration = 33 [(proto.column).notnull=true];
+    int32 in_progress_count = 34 [(proto.column).notnull=true];
+    int32 reopen_count = 35 [(proto.column).notnull=true];
+    // (name and _id)
+    string mapped_type = 36 [(proto.column).notnull=true,(proto.column).type="VARCHAR(75)"];
+    proto.UID strategic_parent_id = 37 [(proto.column).index=true];
+    // id(s)
+    string sprint_id = 38 [(proto.column).notnull=true];
+    string name = 39 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+    // (name and ids) - all users on issue including issue.user_id, issue.closedby_user_id, jira_issue_progress.user_id
+    string users = 40 [(proto.column).type="JSON"];
+    int64 initial_start_date = 41 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+    int64 total_duration = 42 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+    // move out of metadata
+    int64 created_at = 43 [(proto.column).type="BIGINT UNSIGNED"];
+    int64 closed_at = 44 [(proto.column).type="BIGINT UNSIGNED"];
+    int64 planned_end_date = 45 [(proto.column).type="BIGINT UNSIGNED"]; 
+
 	// customer which owns this issue
 	proto.UID customer_id = 100 [(proto.column).notnull=true,(proto.column).index=true];
 	// ref_type is the name type of the specialized issue type (such as github, gitlab, etc)
