@@ -157,8 +157,8 @@ message IssueSummary {
     string mapped_type = 36 [(proto.column).notnull=true,(proto.column).type="VARCHAR(75)"];
     proto.UID strategic_parent_id = 37 [(proto.column).index=true];
     // id(s)
-    string sprint_id = 38 [(proto.column).notnull=true];
-    string name = 39 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
+    string sprint_id = 38 [(proto.column).type="JSON",(proto.column).notnull=true];
+    string issue_project_name = 39 [(proto.column).notnull=true,(proto.column).type="VARCHAR(255)"];
     // (name and ids) - all users on issue including issue.user_id, issue.closedby_user_id, jira_issue_progress.user_id
     string users = 40 [(proto.column).type="JSON"];
     int64 initial_start_date = 41 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
