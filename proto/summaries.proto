@@ -27,7 +27,7 @@ message RepoSummary {
 	string		name				= 2		[(proto.column).type="VARCHAR(255)",	(proto.column).notnull=true,(proto.column).index=true];
 	string		description			= 3		[(proto.column).type="TEXT"];
 	string		ref_type			= 4		[(proto.column).type="VARCHAR(20)",		(proto.column).notnull=true,(proto.column).index=true];
-	string 		data_group_id 		= 6		[(proto.column).type="VARCHAR(20)",		(proto.column).notnull=true,(proto.column).index=true];
+	string 		data_group_id 		= 6		[(proto.column).type="VARCHAR(20)",									(proto.column).index=true];
 	string 		user_ids			= 7		[(proto.column).type="JSON",			(proto.column).notnull=true];
 	int64		commits				= 8		[(proto.column).type="BIGINT UNSIGNED",	(proto.column).notnull=true];
 	int64		additions			= 9		[(proto.column).type="BIGINT UNSIGNED",	(proto.column).notnull=true];

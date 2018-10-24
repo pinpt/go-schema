@@ -743,7 +743,7 @@ CREATE TABLE `repo_summary` (
 	`name`               VARCHAR(255) NOT NULL,
 	`description`        TEXT,
 	`ref_type`           VARCHAR(20) NOT NULL,
-	`data_group_id`      VARCHAR(20) NOT NULL,
+	`data_group_id`      VARCHAR(20),
 	`user_ids`           JSON NOT NULL,
 	`commits`            BIGINT UNSIGNED NOT NULL,
 	`additions`          BIGINT UNSIGNED NOT NULL,

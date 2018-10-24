@@ -47,7 +47,7 @@ var RepoSummaryColumns = []string{
 type RepoSummary struct {
 	Additions        int64   `json:"additions"`
 	Commits          int64   `json:"commits"`
-	DataGroupID      string  `json:"data_group_id"`
+	DataGroupID      *string `json:"data_group_id,omitempty"`
 	Deletions        int64   `json:"deletions"`
 	Description      *string `json:"description,omitempty"`
 	ID               string  `json:"id"`
@@ -69,7 +69,7 @@ func (t *RepoSummary) ToCSV() []string {
 		t.Name,
 		toCSVString(t.Description),
 		t.RefType,
-		t.DataGroupID,
+		toCSVString(t.DataGroupID),
 		t.UserIds,
 		toCSVString(t.Commits),
 		toCSVString(t.Additions),
@@ -140,7 +140,7 @@ func NewCSVRepoSummaryReader(r io.Reader, ch chan<- RepoSummary) error {
 			Name:             record[1],
 			Description:      fromStringPointer(record[2]),
 			RefType:          record[3],
-			DataGroupID:      record[4],
+			DataGroupID:      fromStringPointer(record[4]),
 			UserIds:          record[5],
 			Commits:          fromCSVInt64(record[6]),
 			Additions:        fromCSVInt64(record[7]),
@@ -840,12 +840,15 @@ func FindRepoSummariesByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*
 
 // GetDataGroupID will return the RepoSummary DataGroupID value
 func (t *RepoSummary) GetDataGroupID() string {
-	return t.DataGroupID
+	if t.DataGroupID == nil {
+		return ""
+	}
+	return *t.DataGroupID
 }
 
 // SetDataGroupID will set the RepoSummary DataGroupID value
 func (t *RepoSummary) SetDataGroupID(v string) {
-	t.DataGroupID = v
+	t.DataGroupID = &v
 }
 
 // FindRepoSummariesByDataGroupID will find all RepoSummarys by the DataGroupID value
@@ -1053,14 +1056,14 @@ func (t *RepoSummary) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateRepoSummaryTable will create the RepoSummary table
 func DBCreateRepoSummaryTable(ctx context.Context, db DB) error {
-	q := "CREATE TABLE `repo_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`VARCHAR(255) NOT NULL,`description` TEXT,`ref_type` VARCHAR(20) NOT NULL,`data_group_id`VARCHAR(20) NOT NULL,`user_ids` JSON NOT NULL,`commits`BIGINT UNSIGNED NOT NULL,`additions` BIGINT UNSIGNED NOT NULL,`deletions` BIGINT UNSIGNED NOT NULL,`latest_commit_date` BIGINT UNSIGNED NOT NULL,INDEX repo_summary_name_index (`name`),INDEX repo_summary_ref_type_index (`ref_type`),INDEX repo_summary_data_group_id_index (`data_group_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `repo_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`VARCHAR(255) NOT NULL,`description` TEXT,`ref_type` VARCHAR(20) NOT NULL,`data_group_id`VARCHAR(20),`user_ids` JSON NOT NULL,`commits`BIGINT UNSIGNED NOT NULL,`additions` BIGINT UNSIGNED NOT NULL,`deletions` BIGINT UNSIGNED NOT NULL,`latest_commit_date` BIGINT UNSIGNED NOT NULL,INDEX repo_summary_name_index (`name`),INDEX repo_summary_ref_type_index (`ref_type`),INDEX repo_summary_data_group_id_index (`data_group_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateRepoSummaryTableTx will create the RepoSummary table using the provided transction
 func DBCreateRepoSummaryTableTx(ctx context.Context, tx Tx) error {
-	q := "CREATE TABLE `repo_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`VARCHAR(255) NOT NULL,`description` TEXT,`ref_type` VARCHAR(20) NOT NULL,`data_group_id`VARCHAR(20) NOT NULL,`user_ids` JSON NOT NULL,`commits`BIGINT UNSIGNED NOT NULL,`additions` BIGINT UNSIGNED NOT NULL,`deletions` BIGINT UNSIGNED NOT NULL,`latest_commit_date` BIGINT UNSIGNED NOT NULL,INDEX repo_summary_name_index (`name`),INDEX repo_summary_ref_type_index (`ref_type`),INDEX repo_summary_data_group_id_index (`data_group_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `repo_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`VARCHAR(255) NOT NULL,`description` TEXT,`ref_type` VARCHAR(20) NOT NULL,`data_group_id`VARCHAR(20),`user_ids` JSON NOT NULL,`commits`BIGINT UNSIGNED NOT NULL,`additions` BIGINT UNSIGNED NOT NULL,`deletions` BIGINT UNSIGNED NOT NULL,`latest_commit_date` BIGINT UNSIGNED NOT NULL,INDEX repo_summary_name_index (`name`),INDEX repo_summary_ref_type_index (`ref_type`),INDEX repo_summary_data_group_id_index (`data_group_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
