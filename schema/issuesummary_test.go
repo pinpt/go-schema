@@ -65,7 +65,7 @@ func TestCreateIssueSummaryDelete(t *testing.T) {
 		ReopenCount:               int32(32),
 		MappedType:                "958efdd335b319af",
 		StrategicParentID:         nil,
-		SprintID:                  "{}",
+		SprintID:                  nil,
 		IssueProjectName:          "a0d3e41b208b8436",
 		Users:                     nil,
 		InitialStartDate:          int64(64),
@@ -182,8 +182,6 @@ func TestCreateIssueSummaryDelete(t *testing.T) {
 
 	r.SetMappedType("499e6c5529670287")
 
-	r.SetSprintID("{}")
-
 	r.SetIssueProjectName("26594eda04a886ec")
 
 	r.SetInitialStartDate(int64(640))
@@ -267,7 +265,7 @@ func TestCreateIssueSummaryDeleteTx(t *testing.T) {
 		ReopenCount:               int32(32),
 		MappedType:                "958efdd335b319af",
 		StrategicParentID:         nil,
-		SprintID:                  "{}",
+		SprintID:                  nil,
 		IssueProjectName:          "a0d3e41b208b8436",
 		Users:                     nil,
 		InitialStartDate:          int64(64),
@@ -387,8 +385,6 @@ func TestCreateIssueSummaryDeleteTx(t *testing.T) {
 	r.SetReopenCount(int32(320))
 
 	r.SetMappedType("499e6c5529670287")
-
-	r.SetSprintID("{}")
 
 	r.SetIssueProjectName("26594eda04a886ec")
 

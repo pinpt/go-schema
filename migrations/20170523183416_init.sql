@@ -383,7 +383,7 @@ CREATE TABLE `issue_summary` (
 	`reopen_count`                INT NOT NULL,
 	`mapped_type`                 VARCHAR(75) NOT NULL,
 	`strategic_parent_id`         VARCHAR(64),
-	`sprint_id`                   JSON NOT NULL,
+	`sprint_id`                   JSON,
 	`issue_project_name`          VARCHAR(255) NOT NULL,
 	`users`                       JSON,
 	`initial_start_date`          BIGINT UNSIGNED NOT NULL,
