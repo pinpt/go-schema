@@ -20,3 +20,17 @@ message Signal {
 	option (proto.table).index={fields:"name, timeunit, customer_id"};
 	option (proto.table).index2={fields:"name, timeunit, customer_id, date"};
 }
+
+// RepoSummary table stores a summary for each repository
+message RepoSummary {
+	proto.ID	id					= 1;
+	string		name				= 2		[(proto.column).type="VARCHAR(255)",	(proto.column).notnull=true,(proto.column).index=true];
+	string		description			= 3		[(proto.column).type="TEXT"];
+	string		ref_type			= 4		[(proto.column).type="VARCHAR(20)",		(proto.column).notnull=true,(proto.column).index=true];
+	string 		data_group_id 		= 6		[(proto.column).type="VARCHAR(20)",									(proto.column).index=true];
+	string 		user_ids			= 7		[(proto.column).type="JSON",			(proto.column).notnull=true];
+	int64		commits				= 8		[(proto.column).type="BIGINT UNSIGNED",	(proto.column).notnull=true];
+	int64		additions			= 9		[(proto.column).type="BIGINT UNSIGNED",	(proto.column).notnull=true];
+	int64		deletions			= 10	[(proto.column).type="BIGINT UNSIGNED",	(proto.column).notnull=true];
+	int64		latest_commit_date	= 11	[(proto.column).type="BIGINT UNSIGNED",	(proto.column).notnull=true];
+}

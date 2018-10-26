@@ -377,6 +377,20 @@ CREATE TABLE `issue_summary` (
 	`top_level`                   TINYINT UNSIGNED NOT NULL,
 	`is_leaf`                     TINYINT UNSIGNED NOT NULL,
 	`path`                        VARCHAR(1024) NOT NULL,
+	`in_progress_duration`        BIGINT NOT NULL,
+	`verification_duration`       BIGINT NOT NULL,
+	`in_progress_count`           INT NOT NULL,
+	`reopen_count`                INT NOT NULL,
+	`mapped_type`                 VARCHAR(75) NOT NULL,
+	`strategic_parent_id`         VARCHAR(64),
+	`sprint_id`                   JSON,
+	`issue_project_name`          VARCHAR(255) NOT NULL,
+	`users`                       JSON,
+	`initial_start_date`          BIGINT UNSIGNED NOT NULL,
+	`total_duration`              BIGINT UNSIGNED NOT NULL,
+	`created_at`                  BIGINT UNSIGNED,
+	`closed_at`                   BIGINT UNSIGNED,
+	`planned_end_date`            BIGINT UNSIGNED,
 	`customer_id`                 VARCHAR(64) NOT NULL,
 	`ref_type`                    VARCHAR(20) NOT NULL,
 	`ref_id`                      VARCHAR(64) NOT NULL,
@@ -389,6 +403,7 @@ CREATE TABLE `issue_summary` (
 	INDEX issue_summary_parent_issue_id_index (`parent_issue_id`),
 	INDEX issue_summary_project_id_index (`project_id`),
 	INDEX issue_summary_top_level_index (`top_level`),
+	INDEX issue_summary_strategic_parent_id_index (`strategic_parent_id`),
 	INDEX issue_summary_customer_id_index (`customer_id`),
 	INDEX issue_summary_ref_id_index (`ref_id`),
 	INDEX issue_summary_customer_id_parent_issue_id_index (`customer_id`,`parent_issue_id`),
@@ -722,6 +737,23 @@ CREATE TABLE `repo_mapping` (
 	INDEX repo_mapping_ref_id_index (`ref_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--  RepoSummary table stores a summary for each repository
+CREATE TABLE `repo_summary` (
+	`id`                 VARCHAR(64) NOT NULL PRIMARY KEY,
+	`name`               VARCHAR(255) NOT NULL,
+	`description`        TEXT,
+	`ref_type`           VARCHAR(20) NOT NULL,
+	`data_group_id`      VARCHAR(20),
+	`user_ids`           JSON NOT NULL,
+	`commits`            BIGINT UNSIGNED NOT NULL,
+	`additions`          BIGINT UNSIGNED NOT NULL,
+	`deletions`          BIGINT UNSIGNED NOT NULL,
+	`latest_commit_date` BIGINT UNSIGNED NOT NULL,
+	INDEX repo_summary_name_index (`name`),
+	INDEX repo_summary_ref_type_index (`ref_type`),
+	INDEX repo_summary_data_group_id_index (`data_group_id`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --  Signal table is a generic set of signals that are calculated behind the scenes
 CREATE TABLE `signal` (
 	`id`           VARCHAR(64) NOT NULL PRIMARY KEY,
@@ -884,6 +916,7 @@ DROP TABLE IF EXISTS `mockapi_deployment`;
 DROP TABLE IF EXISTS `processing_error`;
 DROP TABLE IF EXISTS `repo`;
 DROP TABLE IF EXISTS `repo_mapping`;
+DROP TABLE IF EXISTS `repo_summary`;
 DROP TABLE IF EXISTS `signal`;
 DROP TABLE IF EXISTS `sonarqube_metric`;
 DROP TABLE IF EXISTS `sonarqube_project`;

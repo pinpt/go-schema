@@ -37,33 +37,47 @@ func TestCreateIssueSummaryDelete(t *testing.T) {
 		Closed30Days:              int32(32),
 		EstimatedWorkMonths:       float64(6.4),
 		EstimatedWorkMonths30Days: float64(6.4),
-		Title:           "00f4a631851d85fe",
-		URL:             nil,
-		Priority:        nil,
-		PriorityID:      nil,
-		Status:          nil,
-		StatusID:        nil,
-		IssueType:       "c3ec5ef2557f6a5f",
-		IssueTypeID:     nil,
-		Resolution:      nil,
-		ResolutionID:    nil,
-		State:           "20b2753657",
-		CustomFieldIds:  nil,
-		Teams:           nil,
-		ParentIssueID:   nil,
-		ParentsIssueIds: nil,
-		Metadata:        nil,
-		ProjectID:       "f4662184b65cb607",
-		Sprints:         nil,
-		Labels:          nil,
-		TopLevel:        true,
-		IsLeaf:          true,
-		Path:            "02acd163487bcc55",
-		CustomerID:      "7e0e01202491f425",
-		RefType:         "13cf4b36049dfe2d",
-		RefID:           "1d293261eb293454",
-		CustomFieldIdsVirtual: nil,
-		ReleaseDuration:       int64(64),
+		Title:                     "00f4a631851d85fe",
+		URL:                       nil,
+		Priority:                  nil,
+		PriorityID:                nil,
+		Status:                    nil,
+		StatusID:                  nil,
+		IssueType:                 "c3ec5ef2557f6a5f",
+		IssueTypeID:               nil,
+		Resolution:                nil,
+		ResolutionID:              nil,
+		State:                     "20b2753657",
+		CustomFieldIds:            nil,
+		Teams:                     nil,
+		ParentIssueID:             nil,
+		ParentsIssueIds:           nil,
+		Metadata:                  nil,
+		ProjectID:                 "f4662184b65cb607",
+		Sprints:                   nil,
+		Labels:                    nil,
+		TopLevel:                  true,
+		IsLeaf:                    true,
+		Path:                      "02acd163487bcc55",
+		InProgressDuration:        int64(64),
+		VerificationDuration:      int64(64),
+		InProgressCount:           int32(32),
+		ReopenCount:               int32(32),
+		MappedType:                "958efdd335b319af",
+		StrategicParentID:         nil,
+		SprintID:                  nil,
+		IssueProjectName:          "a0d3e41b208b8436",
+		Users:                     nil,
+		InitialStartDate:          int64(64),
+		TotalDuration:             int64(64),
+		CreatedAt:                 nil,
+		ClosedAt:                  nil,
+		PlannedEndDate:            nil,
+		CustomerID:                "7e0e01202491f425",
+		RefType:                   "13cf4b36049dfe2d",
+		RefID:                     "1d293261eb293454",
+		CustomFieldIdsVirtual:     nil,
+		ReleaseDuration:           int64(64),
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -158,6 +172,22 @@ func TestCreateIssueSummaryDelete(t *testing.T) {
 
 	r.SetPath("1cdbbacbdd05c738")
 
+	r.SetInProgressDuration(int64(640))
+
+	r.SetVerificationDuration(int64(640))
+
+	r.SetInProgressCount(int32(320))
+
+	r.SetReopenCount(int32(320))
+
+	r.SetMappedType("499e6c5529670287")
+
+	r.SetIssueProjectName("26594eda04a886ec")
+
+	r.SetInitialStartDate(int64(640))
+
+	r.SetTotalDuration(int64(640))
+
 	r.SetCustomerID("21b82b783819469c")
 
 	r.SetRefType("2edf32c7c3242e46")
@@ -207,33 +237,47 @@ func TestCreateIssueSummaryDeleteTx(t *testing.T) {
 		Closed30Days:              int32(32),
 		EstimatedWorkMonths:       float64(6.4),
 		EstimatedWorkMonths30Days: float64(6.4),
-		Title:           "00f4a631851d85fe",
-		URL:             nil,
-		Priority:        nil,
-		PriorityID:      nil,
-		Status:          nil,
-		StatusID:        nil,
-		IssueType:       "c3ec5ef2557f6a5f",
-		IssueTypeID:     nil,
-		Resolution:      nil,
-		ResolutionID:    nil,
-		State:           "20b2753657",
-		CustomFieldIds:  nil,
-		Teams:           nil,
-		ParentIssueID:   nil,
-		ParentsIssueIds: nil,
-		Metadata:        nil,
-		ProjectID:       "f4662184b65cb607",
-		Sprints:         nil,
-		Labels:          nil,
-		TopLevel:        true,
-		IsLeaf:          true,
-		Path:            "02acd163487bcc55",
-		CustomerID:      "7e0e01202491f425",
-		RefType:         "13cf4b36049dfe2d",
-		RefID:           "1d293261eb293454",
-		CustomFieldIdsVirtual: nil,
-		ReleaseDuration:       int64(64),
+		Title:                     "00f4a631851d85fe",
+		URL:                       nil,
+		Priority:                  nil,
+		PriorityID:                nil,
+		Status:                    nil,
+		StatusID:                  nil,
+		IssueType:                 "c3ec5ef2557f6a5f",
+		IssueTypeID:               nil,
+		Resolution:                nil,
+		ResolutionID:              nil,
+		State:                     "20b2753657",
+		CustomFieldIds:            nil,
+		Teams:                     nil,
+		ParentIssueID:             nil,
+		ParentsIssueIds:           nil,
+		Metadata:                  nil,
+		ProjectID:                 "f4662184b65cb607",
+		Sprints:                   nil,
+		Labels:                    nil,
+		TopLevel:                  true,
+		IsLeaf:                    true,
+		Path:                      "02acd163487bcc55",
+		InProgressDuration:        int64(64),
+		VerificationDuration:      int64(64),
+		InProgressCount:           int32(32),
+		ReopenCount:               int32(32),
+		MappedType:                "958efdd335b319af",
+		StrategicParentID:         nil,
+		SprintID:                  nil,
+		IssueProjectName:          "a0d3e41b208b8436",
+		Users:                     nil,
+		InitialStartDate:          int64(64),
+		TotalDuration:             int64(64),
+		CreatedAt:                 nil,
+		ClosedAt:                  nil,
+		PlannedEndDate:            nil,
+		CustomerID:                "7e0e01202491f425",
+		RefType:                   "13cf4b36049dfe2d",
+		RefID:                     "1d293261eb293454",
+		CustomFieldIdsVirtual:     nil,
+		ReleaseDuration:           int64(64),
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -331,6 +375,22 @@ func TestCreateIssueSummaryDeleteTx(t *testing.T) {
 	r.SetIsLeaf(false)
 
 	r.SetPath("1cdbbacbdd05c738")
+
+	r.SetInProgressDuration(int64(640))
+
+	r.SetVerificationDuration(int64(640))
+
+	r.SetInProgressCount(int32(320))
+
+	r.SetReopenCount(int32(320))
+
+	r.SetMappedType("499e6c5529670287")
+
+	r.SetIssueProjectName("26594eda04a886ec")
+
+	r.SetInitialStartDate(int64(640))
+
+	r.SetTotalDuration(int64(640))
 
 	r.SetCustomerID("21b82b783819469c")
 
