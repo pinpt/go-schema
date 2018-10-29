@@ -396,6 +396,8 @@ CREATE TABLE `issue_summary` (
 	`ref_id`                      VARCHAR(64) NOT NULL,
 	`custom_field_ids_virtual`    TEXT,
 	`release_duration`            BIGINT NOT NULL,
+	`completed`                   BOOL NOT NULL,
+	`completed_date`              BIGINT UNSIGNED,
 	INDEX issue_summary_issue_id_index (`issue_id`),
 	INDEX issue_summary_priority_id_index (`priority_id`),
 	INDEX issue_summary_issue_type_id_index (`issue_type_id`),

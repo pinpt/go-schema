@@ -176,6 +176,8 @@ message IssueSummary {
 	proto.UID ref_id = 102 [(proto.column).notnull=true,(proto.column).index=true];
 	string custom_field_ids_virtual = 110 [(proto.column).notnull=false];
 	int64 release_duration = 63 [(proto.column).notnull=true];
+	bool completed = 46 [(proto.column).notnull=true];
+	int64 completed_date = 47 [(proto.column).type="BIGINT UNSIGNED"]; 
 	
 	option (proto.table).index={fields:"customer_id, parent_issue_id"};
 	option (proto.table).index2={fields:"customer_id, top_level"};

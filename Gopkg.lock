@@ -120,6 +120,9 @@
   analyzer-version = 1
   input-imports = [
     "github.com/fatih/color",
+    "github.com/golang/protobuf/ptypes",
+    "github.com/golang/protobuf/ptypes/timestamp",
+    "github.com/jhaynie/go-gator/orm",
     "github.com/pinpt/go-common/datetime",
     "github.com/pinpt/go-common/fileutil",
     "github.com/pinpt/go-common/hash",
