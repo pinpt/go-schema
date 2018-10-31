@@ -34,7 +34,7 @@ func init() {
 		{{- end }}
 	}
 	// sort the routes by path to be consistent
-	sort.Slice(routes, func(i, j int) bool {
+	sort.SliceStable(routes, func(i, j int) bool {
 		return routes[i].Name {{ noescape "<" }} routes[j].Name
 	})
 	// initialize the route data
