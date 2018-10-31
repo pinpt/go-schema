@@ -751,9 +751,12 @@ CREATE TABLE `repo_summary` (
 	`additions`          BIGINT UNSIGNED NOT NULL,
 	`deletions`          BIGINT UNSIGNED NOT NULL,
 	`latest_commit_date` BIGINT UNSIGNED NOT NULL,
-	INDEX repo_summary_name_index (`name`),
+	`repo_id`            VARCHAR(64) NOT NULL,
+	`customer_id`        VARCHAR(64) NOT NULL,
 	INDEX repo_summary_ref_type_index (`ref_type`),
-	INDEX repo_summary_data_group_id_index (`data_group_id`)
+	INDEX repo_summary_data_group_id_index (`data_group_id`),
+	INDEX repo_summary_repo_id_index (`repo_id`),
+	INDEX repo_summary_customer_id_index (`customer_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --  Signal table is a generic set of signals that are calculated behind the scenes
