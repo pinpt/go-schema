@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -111,6 +112,10 @@ func generateRoutesGoFile(dir string) ([]*acl.Route, error) {
 		}
 		routes = append(routes, r)
 	}
+
+	sort.SliceStable(routes, func(i, j int) bool {
+		return routes[i].Name < routes[j].Name
+	})
 
 	err = PackageTemplate.Execute(f, struct {
 		Timestamp    time.Time
