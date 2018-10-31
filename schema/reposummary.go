@@ -41,12 +41,15 @@ var RepoSummaryColumns = []string{
 	"additions",
 	"deletions",
 	"latest_commit_date",
+	"repo_id",
+	"customer_id",
 }
 
 // RepoSummary table
 type RepoSummary struct {
 	Additions        int64   `json:"additions"`
 	Commits          int64   `json:"commits"`
+	CustomerID       string  `json:"customer_id"`
 	DataGroupID      *string `json:"data_group_id,omitempty"`
 	Deletions        int64   `json:"deletions"`
 	Description      *string `json:"description,omitempty"`
@@ -54,6 +57,7 @@ type RepoSummary struct {
 	LatestCommitDate int64   `json:"latest_commit_date"`
 	Name             string  `json:"name"`
 	RefType          string  `json:"ref_type"`
+	RepoID           string  `json:"repo_id"`
 	UserIds          string  `json:"user_ids"`
 }
 
@@ -75,6 +79,8 @@ func (t *RepoSummary) ToCSV() []string {
 		toCSVString(t.Additions),
 		toCSVString(t.Deletions),
 		toCSVString(t.LatestCommitDate),
+		t.RepoID,
+		t.CustomerID,
 	}
 }
 
@@ -146,6 +152,8 @@ func NewCSVRepoSummaryReader(r io.Reader, ch chan<- RepoSummary) error {
 			Additions:        fromCSVInt64(record[7]),
 			Deletions:        fromCSVInt64(record[8]),
 			LatestCommitDate: fromCSVInt64(record[9]),
+			RepoID:           record[10],
+			CustomerID:       record[11],
 		}
 	}
 	return nil
@@ -369,6 +377,18 @@ const RepoSummaryColumnLatestCommitDate = "latest_commit_date"
 // RepoSummaryEscapedColumnLatestCommitDate is the escaped LatestCommitDate SQL column name for the RepoSummary table
 const RepoSummaryEscapedColumnLatestCommitDate = "`latest_commit_date`"
 
+// RepoSummaryColumnRepoID is the RepoID SQL column name for the RepoSummary table
+const RepoSummaryColumnRepoID = "repo_id"
+
+// RepoSummaryEscapedColumnRepoID is the escaped RepoID SQL column name for the RepoSummary table
+const RepoSummaryEscapedColumnRepoID = "`repo_id`"
+
+// RepoSummaryColumnCustomerID is the CustomerID SQL column name for the RepoSummary table
+const RepoSummaryColumnCustomerID = "customer_id"
+
+// RepoSummaryEscapedColumnCustomerID is the escaped CustomerID SQL column name for the RepoSummary table
+const RepoSummaryEscapedColumnCustomerID = "`customer_id`"
+
 // GetID will return the RepoSummary ID value
 func (t *RepoSummary) GetID() string {
 	return t.ID
@@ -381,7 +401,7 @@ func (t *RepoSummary) SetID(v string) {
 
 // FindRepoSummaryByID will find a RepoSummary by ID
 func FindRepoSummaryByID(ctx context.Context, db DB, value string) (*RepoSummary, error) {
-	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date` FROM `repo_summary` WHERE `id` = ?"
+	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id` FROM `repo_summary` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Name sql.NullString
 	var _Description sql.NullString
@@ -392,6 +412,8 @@ func FindRepoSummaryByID(ctx context.Context, db DB, value string) (*RepoSummary
 	var _Additions sql.NullInt64
 	var _Deletions sql.NullInt64
 	var _LatestCommitDate sql.NullInt64
+	var _RepoID sql.NullString
+	var _CustomerID sql.NullString
 	err := db.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_Name,
@@ -403,6 +425,8 @@ func FindRepoSummaryByID(ctx context.Context, db DB, value string) (*RepoSummary
 		&_Additions,
 		&_Deletions,
 		&_LatestCommitDate,
+		&_RepoID,
+		&_CustomerID,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -441,12 +465,18 @@ func FindRepoSummaryByID(ctx context.Context, db DB, value string) (*RepoSummary
 	if _LatestCommitDate.Valid {
 		t.SetLatestCommitDate(_LatestCommitDate.Int64)
 	}
+	if _RepoID.Valid {
+		t.SetRepoID(_RepoID.String)
+	}
+	if _CustomerID.Valid {
+		t.SetCustomerID(_CustomerID.String)
+	}
 	return t, nil
 }
 
 // FindRepoSummaryByIDTx will find a RepoSummary by ID using the provided transaction
 func FindRepoSummaryByIDTx(ctx context.Context, tx Tx, value string) (*RepoSummary, error) {
-	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date` FROM `repo_summary` WHERE `id` = ?"
+	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id` FROM `repo_summary` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Name sql.NullString
 	var _Description sql.NullString
@@ -457,6 +487,8 @@ func FindRepoSummaryByIDTx(ctx context.Context, tx Tx, value string) (*RepoSumma
 	var _Additions sql.NullInt64
 	var _Deletions sql.NullInt64
 	var _LatestCommitDate sql.NullInt64
+	var _RepoID sql.NullString
+	var _CustomerID sql.NullString
 	err := tx.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_Name,
@@ -468,6 +500,8 @@ func FindRepoSummaryByIDTx(ctx context.Context, tx Tx, value string) (*RepoSumma
 		&_Additions,
 		&_Deletions,
 		&_LatestCommitDate,
+		&_RepoID,
+		&_CustomerID,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -505,6 +539,12 @@ func FindRepoSummaryByIDTx(ctx context.Context, tx Tx, value string) (*RepoSumma
 	}
 	if _LatestCommitDate.Valid {
 		t.SetLatestCommitDate(_LatestCommitDate.Int64)
+	}
+	if _RepoID.Valid {
+		t.SetRepoID(_RepoID.String)
+	}
+	if _CustomerID.Valid {
+		t.SetCustomerID(_CustomerID.String)
 	}
 	return t, nil
 }
@@ -517,154 +557,6 @@ func (t *RepoSummary) GetName() string {
 // SetName will set the RepoSummary Name value
 func (t *RepoSummary) SetName(v string) {
 	t.Name = v
-}
-
-// FindRepoSummariesByName will find all RepoSummarys by the Name value
-func FindRepoSummariesByName(ctx context.Context, db DB, value string) ([]*RepoSummary, error) {
-	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date` FROM `repo_summary` WHERE `name` = ? LIMIT 1"
-	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	results := make([]*RepoSummary, 0)
-	for rows.Next() {
-		var _ID sql.NullString
-		var _Name sql.NullString
-		var _Description sql.NullString
-		var _RefType sql.NullString
-		var _DataGroupID sql.NullString
-		var _UserIds sql.NullString
-		var _Commits sql.NullInt64
-		var _Additions sql.NullInt64
-		var _Deletions sql.NullInt64
-		var _LatestCommitDate sql.NullInt64
-		err := rows.Scan(
-			&_ID,
-			&_Name,
-			&_Description,
-			&_RefType,
-			&_DataGroupID,
-			&_UserIds,
-			&_Commits,
-			&_Additions,
-			&_Deletions,
-			&_LatestCommitDate,
-		)
-		if err != nil {
-			return nil, err
-		}
-		t := &RepoSummary{}
-		if _ID.Valid {
-			t.SetID(_ID.String)
-		}
-		if _Name.Valid {
-			t.SetName(_Name.String)
-		}
-		if _Description.Valid {
-			t.SetDescription(_Description.String)
-		}
-		if _RefType.Valid {
-			t.SetRefType(_RefType.String)
-		}
-		if _DataGroupID.Valid {
-			t.SetDataGroupID(_DataGroupID.String)
-		}
-		if _UserIds.Valid {
-			t.SetUserIds(_UserIds.String)
-		}
-		if _Commits.Valid {
-			t.SetCommits(_Commits.Int64)
-		}
-		if _Additions.Valid {
-			t.SetAdditions(_Additions.Int64)
-		}
-		if _Deletions.Valid {
-			t.SetDeletions(_Deletions.Int64)
-		}
-		if _LatestCommitDate.Valid {
-			t.SetLatestCommitDate(_LatestCommitDate.Int64)
-		}
-		results = append(results, t)
-	}
-	return results, nil
-}
-
-// FindRepoSummariesByNameTx will find all RepoSummarys by the Name value using the provided transaction
-func FindRepoSummariesByNameTx(ctx context.Context, tx Tx, value string) ([]*RepoSummary, error) {
-	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date` FROM `repo_summary` WHERE `name` = ? LIMIT 1"
-	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	results := make([]*RepoSummary, 0)
-	for rows.Next() {
-		var _ID sql.NullString
-		var _Name sql.NullString
-		var _Description sql.NullString
-		var _RefType sql.NullString
-		var _DataGroupID sql.NullString
-		var _UserIds sql.NullString
-		var _Commits sql.NullInt64
-		var _Additions sql.NullInt64
-		var _Deletions sql.NullInt64
-		var _LatestCommitDate sql.NullInt64
-		err := rows.Scan(
-			&_ID,
-			&_Name,
-			&_Description,
-			&_RefType,
-			&_DataGroupID,
-			&_UserIds,
-			&_Commits,
-			&_Additions,
-			&_Deletions,
-			&_LatestCommitDate,
-		)
-		if err != nil {
-			return nil, err
-		}
-		t := &RepoSummary{}
-		if _ID.Valid {
-			t.SetID(_ID.String)
-		}
-		if _Name.Valid {
-			t.SetName(_Name.String)
-		}
-		if _Description.Valid {
-			t.SetDescription(_Description.String)
-		}
-		if _RefType.Valid {
-			t.SetRefType(_RefType.String)
-		}
-		if _DataGroupID.Valid {
-			t.SetDataGroupID(_DataGroupID.String)
-		}
-		if _UserIds.Valid {
-			t.SetUserIds(_UserIds.String)
-		}
-		if _Commits.Valid {
-			t.SetCommits(_Commits.Int64)
-		}
-		if _Additions.Valid {
-			t.SetAdditions(_Additions.Int64)
-		}
-		if _Deletions.Valid {
-			t.SetDeletions(_Deletions.Int64)
-		}
-		if _LatestCommitDate.Valid {
-			t.SetLatestCommitDate(_LatestCommitDate.Int64)
-		}
-		results = append(results, t)
-	}
-	return results, nil
 }
 
 // GetDescription will return the RepoSummary Description value
@@ -692,7 +584,7 @@ func (t *RepoSummary) SetRefType(v string) {
 
 // FindRepoSummariesByRefType will find all RepoSummarys by the RefType value
 func FindRepoSummariesByRefType(ctx context.Context, db DB, value string) ([]*RepoSummary, error) {
-	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date` FROM `repo_summary` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id` FROM `repo_summary` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -713,6 +605,8 @@ func FindRepoSummariesByRefType(ctx context.Context, db DB, value string) ([]*Re
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
 		var _LatestCommitDate sql.NullInt64
+		var _RepoID sql.NullString
+		var _CustomerID sql.NullString
 		err := rows.Scan(
 			&_ID,
 			&_Name,
@@ -724,6 +618,8 @@ func FindRepoSummariesByRefType(ctx context.Context, db DB, value string) ([]*Re
 			&_Additions,
 			&_Deletions,
 			&_LatestCommitDate,
+			&_RepoID,
+			&_CustomerID,
 		)
 		if err != nil {
 			return nil, err
@@ -759,6 +655,12 @@ func FindRepoSummariesByRefType(ctx context.Context, db DB, value string) ([]*Re
 		if _LatestCommitDate.Valid {
 			t.SetLatestCommitDate(_LatestCommitDate.Int64)
 		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -766,7 +668,7 @@ func FindRepoSummariesByRefType(ctx context.Context, db DB, value string) ([]*Re
 
 // FindRepoSummariesByRefTypeTx will find all RepoSummarys by the RefType value using the provided transaction
 func FindRepoSummariesByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*RepoSummary, error) {
-	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date` FROM `repo_summary` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id` FROM `repo_summary` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -787,6 +689,8 @@ func FindRepoSummariesByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
 		var _LatestCommitDate sql.NullInt64
+		var _RepoID sql.NullString
+		var _CustomerID sql.NullString
 		err := rows.Scan(
 			&_ID,
 			&_Name,
@@ -798,6 +702,8 @@ func FindRepoSummariesByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*
 			&_Additions,
 			&_Deletions,
 			&_LatestCommitDate,
+			&_RepoID,
+			&_CustomerID,
 		)
 		if err != nil {
 			return nil, err
@@ -832,6 +738,12 @@ func FindRepoSummariesByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*
 		}
 		if _LatestCommitDate.Valid {
 			t.SetLatestCommitDate(_LatestCommitDate.Int64)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
 		}
 		results = append(results, t)
 	}
@@ -853,7 +765,7 @@ func (t *RepoSummary) SetDataGroupID(v string) {
 
 // FindRepoSummariesByDataGroupID will find all RepoSummarys by the DataGroupID value
 func FindRepoSummariesByDataGroupID(ctx context.Context, db DB, value string) ([]*RepoSummary, error) {
-	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date` FROM `repo_summary` WHERE `data_group_id` = ? LIMIT 1"
+	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id` FROM `repo_summary` WHERE `data_group_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -874,6 +786,8 @@ func FindRepoSummariesByDataGroupID(ctx context.Context, db DB, value string) ([
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
 		var _LatestCommitDate sql.NullInt64
+		var _RepoID sql.NullString
+		var _CustomerID sql.NullString
 		err := rows.Scan(
 			&_ID,
 			&_Name,
@@ -885,6 +799,8 @@ func FindRepoSummariesByDataGroupID(ctx context.Context, db DB, value string) ([
 			&_Additions,
 			&_Deletions,
 			&_LatestCommitDate,
+			&_RepoID,
+			&_CustomerID,
 		)
 		if err != nil {
 			return nil, err
@@ -920,6 +836,12 @@ func FindRepoSummariesByDataGroupID(ctx context.Context, db DB, value string) ([
 		if _LatestCommitDate.Valid {
 			t.SetLatestCommitDate(_LatestCommitDate.Int64)
 		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -927,7 +849,7 @@ func FindRepoSummariesByDataGroupID(ctx context.Context, db DB, value string) ([
 
 // FindRepoSummariesByDataGroupIDTx will find all RepoSummarys by the DataGroupID value using the provided transaction
 func FindRepoSummariesByDataGroupIDTx(ctx context.Context, tx Tx, value string) ([]*RepoSummary, error) {
-	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date` FROM `repo_summary` WHERE `data_group_id` = ? LIMIT 1"
+	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id` FROM `repo_summary` WHERE `data_group_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -948,6 +870,8 @@ func FindRepoSummariesByDataGroupIDTx(ctx context.Context, tx Tx, value string) 
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
 		var _LatestCommitDate sql.NullInt64
+		var _RepoID sql.NullString
+		var _CustomerID sql.NullString
 		err := rows.Scan(
 			&_ID,
 			&_Name,
@@ -959,6 +883,8 @@ func FindRepoSummariesByDataGroupIDTx(ctx context.Context, tx Tx, value string) 
 			&_Additions,
 			&_Deletions,
 			&_LatestCommitDate,
+			&_RepoID,
+			&_CustomerID,
 		)
 		if err != nil {
 			return nil, err
@@ -993,6 +919,12 @@ func FindRepoSummariesByDataGroupIDTx(ctx context.Context, tx Tx, value string) 
 		}
 		if _LatestCommitDate.Valid {
 			t.SetLatestCommitDate(_LatestCommitDate.Int64)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
 		}
 		results = append(results, t)
 	}
@@ -1049,6 +981,362 @@ func (t *RepoSummary) SetLatestCommitDate(v int64) {
 	t.LatestCommitDate = v
 }
 
+// GetRepoID will return the RepoSummary RepoID value
+func (t *RepoSummary) GetRepoID() string {
+	return t.RepoID
+}
+
+// SetRepoID will set the RepoSummary RepoID value
+func (t *RepoSummary) SetRepoID(v string) {
+	t.RepoID = v
+}
+
+// FindRepoSummariesByRepoID will find all RepoSummarys by the RepoID value
+func FindRepoSummariesByRepoID(ctx context.Context, db DB, value string) ([]*RepoSummary, error) {
+	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id` FROM `repo_summary` WHERE `repo_id` = ? LIMIT 1"
+	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	results := make([]*RepoSummary, 0)
+	for rows.Next() {
+		var _ID sql.NullString
+		var _Name sql.NullString
+		var _Description sql.NullString
+		var _RefType sql.NullString
+		var _DataGroupID sql.NullString
+		var _UserIds sql.NullString
+		var _Commits sql.NullInt64
+		var _Additions sql.NullInt64
+		var _Deletions sql.NullInt64
+		var _LatestCommitDate sql.NullInt64
+		var _RepoID sql.NullString
+		var _CustomerID sql.NullString
+		err := rows.Scan(
+			&_ID,
+			&_Name,
+			&_Description,
+			&_RefType,
+			&_DataGroupID,
+			&_UserIds,
+			&_Commits,
+			&_Additions,
+			&_Deletions,
+			&_LatestCommitDate,
+			&_RepoID,
+			&_CustomerID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		t := &RepoSummary{}
+		if _ID.Valid {
+			t.SetID(_ID.String)
+		}
+		if _Name.Valid {
+			t.SetName(_Name.String)
+		}
+		if _Description.Valid {
+			t.SetDescription(_Description.String)
+		}
+		if _RefType.Valid {
+			t.SetRefType(_RefType.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _UserIds.Valid {
+			t.SetUserIds(_UserIds.String)
+		}
+		if _Commits.Valid {
+			t.SetCommits(_Commits.Int64)
+		}
+		if _Additions.Valid {
+			t.SetAdditions(_Additions.Int64)
+		}
+		if _Deletions.Valid {
+			t.SetDeletions(_Deletions.Int64)
+		}
+		if _LatestCommitDate.Valid {
+			t.SetLatestCommitDate(_LatestCommitDate.Int64)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
+		results = append(results, t)
+	}
+	return results, nil
+}
+
+// FindRepoSummariesByRepoIDTx will find all RepoSummarys by the RepoID value using the provided transaction
+func FindRepoSummariesByRepoIDTx(ctx context.Context, tx Tx, value string) ([]*RepoSummary, error) {
+	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id` FROM `repo_summary` WHERE `repo_id` = ? LIMIT 1"
+	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	results := make([]*RepoSummary, 0)
+	for rows.Next() {
+		var _ID sql.NullString
+		var _Name sql.NullString
+		var _Description sql.NullString
+		var _RefType sql.NullString
+		var _DataGroupID sql.NullString
+		var _UserIds sql.NullString
+		var _Commits sql.NullInt64
+		var _Additions sql.NullInt64
+		var _Deletions sql.NullInt64
+		var _LatestCommitDate sql.NullInt64
+		var _RepoID sql.NullString
+		var _CustomerID sql.NullString
+		err := rows.Scan(
+			&_ID,
+			&_Name,
+			&_Description,
+			&_RefType,
+			&_DataGroupID,
+			&_UserIds,
+			&_Commits,
+			&_Additions,
+			&_Deletions,
+			&_LatestCommitDate,
+			&_RepoID,
+			&_CustomerID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		t := &RepoSummary{}
+		if _ID.Valid {
+			t.SetID(_ID.String)
+		}
+		if _Name.Valid {
+			t.SetName(_Name.String)
+		}
+		if _Description.Valid {
+			t.SetDescription(_Description.String)
+		}
+		if _RefType.Valid {
+			t.SetRefType(_RefType.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _UserIds.Valid {
+			t.SetUserIds(_UserIds.String)
+		}
+		if _Commits.Valid {
+			t.SetCommits(_Commits.Int64)
+		}
+		if _Additions.Valid {
+			t.SetAdditions(_Additions.Int64)
+		}
+		if _Deletions.Valid {
+			t.SetDeletions(_Deletions.Int64)
+		}
+		if _LatestCommitDate.Valid {
+			t.SetLatestCommitDate(_LatestCommitDate.Int64)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
+		results = append(results, t)
+	}
+	return results, nil
+}
+
+// GetCustomerID will return the RepoSummary CustomerID value
+func (t *RepoSummary) GetCustomerID() string {
+	return t.CustomerID
+}
+
+// SetCustomerID will set the RepoSummary CustomerID value
+func (t *RepoSummary) SetCustomerID(v string) {
+	t.CustomerID = v
+}
+
+// FindRepoSummariesByCustomerID will find all RepoSummarys by the CustomerID value
+func FindRepoSummariesByCustomerID(ctx context.Context, db DB, value string) ([]*RepoSummary, error) {
+	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id` FROM `repo_summary` WHERE `customer_id` = ? LIMIT 1"
+	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	results := make([]*RepoSummary, 0)
+	for rows.Next() {
+		var _ID sql.NullString
+		var _Name sql.NullString
+		var _Description sql.NullString
+		var _RefType sql.NullString
+		var _DataGroupID sql.NullString
+		var _UserIds sql.NullString
+		var _Commits sql.NullInt64
+		var _Additions sql.NullInt64
+		var _Deletions sql.NullInt64
+		var _LatestCommitDate sql.NullInt64
+		var _RepoID sql.NullString
+		var _CustomerID sql.NullString
+		err := rows.Scan(
+			&_ID,
+			&_Name,
+			&_Description,
+			&_RefType,
+			&_DataGroupID,
+			&_UserIds,
+			&_Commits,
+			&_Additions,
+			&_Deletions,
+			&_LatestCommitDate,
+			&_RepoID,
+			&_CustomerID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		t := &RepoSummary{}
+		if _ID.Valid {
+			t.SetID(_ID.String)
+		}
+		if _Name.Valid {
+			t.SetName(_Name.String)
+		}
+		if _Description.Valid {
+			t.SetDescription(_Description.String)
+		}
+		if _RefType.Valid {
+			t.SetRefType(_RefType.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _UserIds.Valid {
+			t.SetUserIds(_UserIds.String)
+		}
+		if _Commits.Valid {
+			t.SetCommits(_Commits.Int64)
+		}
+		if _Additions.Valid {
+			t.SetAdditions(_Additions.Int64)
+		}
+		if _Deletions.Valid {
+			t.SetDeletions(_Deletions.Int64)
+		}
+		if _LatestCommitDate.Valid {
+			t.SetLatestCommitDate(_LatestCommitDate.Int64)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
+		results = append(results, t)
+	}
+	return results, nil
+}
+
+// FindRepoSummariesByCustomerIDTx will find all RepoSummarys by the CustomerID value using the provided transaction
+func FindRepoSummariesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*RepoSummary, error) {
+	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id` FROM `repo_summary` WHERE `customer_id` = ? LIMIT 1"
+	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	results := make([]*RepoSummary, 0)
+	for rows.Next() {
+		var _ID sql.NullString
+		var _Name sql.NullString
+		var _Description sql.NullString
+		var _RefType sql.NullString
+		var _DataGroupID sql.NullString
+		var _UserIds sql.NullString
+		var _Commits sql.NullInt64
+		var _Additions sql.NullInt64
+		var _Deletions sql.NullInt64
+		var _LatestCommitDate sql.NullInt64
+		var _RepoID sql.NullString
+		var _CustomerID sql.NullString
+		err := rows.Scan(
+			&_ID,
+			&_Name,
+			&_Description,
+			&_RefType,
+			&_DataGroupID,
+			&_UserIds,
+			&_Commits,
+			&_Additions,
+			&_Deletions,
+			&_LatestCommitDate,
+			&_RepoID,
+			&_CustomerID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		t := &RepoSummary{}
+		if _ID.Valid {
+			t.SetID(_ID.String)
+		}
+		if _Name.Valid {
+			t.SetName(_Name.String)
+		}
+		if _Description.Valid {
+			t.SetDescription(_Description.String)
+		}
+		if _RefType.Valid {
+			t.SetRefType(_RefType.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _UserIds.Valid {
+			t.SetUserIds(_UserIds.String)
+		}
+		if _Commits.Valid {
+			t.SetCommits(_Commits.Int64)
+		}
+		if _Additions.Valid {
+			t.SetAdditions(_Additions.Int64)
+		}
+		if _Deletions.Valid {
+			t.SetDeletions(_Deletions.Int64)
+		}
+		if _LatestCommitDate.Valid {
+			t.SetLatestCommitDate(_LatestCommitDate.Int64)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
+		results = append(results, t)
+	}
+	return results, nil
+}
+
 func (t *RepoSummary) toTimestamp(value time.Time) *timestamp.Timestamp {
 	ts, _ := ptypes.TimestampProto(value)
 	return ts
@@ -1056,14 +1344,14 @@ func (t *RepoSummary) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateRepoSummaryTable will create the RepoSummary table
 func DBCreateRepoSummaryTable(ctx context.Context, db DB) error {
-	q := "CREATE TABLE `repo_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`VARCHAR(255) NOT NULL,`description` TEXT,`ref_type` VARCHAR(20) NOT NULL,`data_group_id`VARCHAR(20),`user_ids` JSON NOT NULL,`commits`BIGINT UNSIGNED NOT NULL,`additions` BIGINT UNSIGNED NOT NULL,`deletions` BIGINT UNSIGNED NOT NULL,`latest_commit_date` BIGINT UNSIGNED NOT NULL,INDEX repo_summary_name_index (`name`),INDEX repo_summary_ref_type_index (`ref_type`),INDEX repo_summary_data_group_id_index (`data_group_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `repo_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`VARCHAR(255) NOT NULL,`description` TEXT,`ref_type` VARCHAR(20) NOT NULL,`data_group_id`VARCHAR(20),`user_ids` JSON NOT NULL,`commits`BIGINT UNSIGNED NOT NULL,`additions` BIGINT UNSIGNED NOT NULL,`deletions` BIGINT UNSIGNED NOT NULL,`latest_commit_date` BIGINT UNSIGNED NOT NULL,`repo_id`VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,INDEX repo_summary_ref_type_index (`ref_type`),INDEX repo_summary_data_group_id_index (`data_group_id`),INDEX repo_summary_repo_id_index (`repo_id`),INDEX repo_summary_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateRepoSummaryTableTx will create the RepoSummary table using the provided transction
 func DBCreateRepoSummaryTableTx(ctx context.Context, tx Tx) error {
-	q := "CREATE TABLE `repo_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`VARCHAR(255) NOT NULL,`description` TEXT,`ref_type` VARCHAR(20) NOT NULL,`data_group_id`VARCHAR(20),`user_ids` JSON NOT NULL,`commits`BIGINT UNSIGNED NOT NULL,`additions` BIGINT UNSIGNED NOT NULL,`deletions` BIGINT UNSIGNED NOT NULL,`latest_commit_date` BIGINT UNSIGNED NOT NULL,INDEX repo_summary_name_index (`name`),INDEX repo_summary_ref_type_index (`ref_type`),INDEX repo_summary_data_group_id_index (`data_group_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `repo_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`name`VARCHAR(255) NOT NULL,`description` TEXT,`ref_type` VARCHAR(20) NOT NULL,`data_group_id`VARCHAR(20),`user_ids` JSON NOT NULL,`commits`BIGINT UNSIGNED NOT NULL,`additions` BIGINT UNSIGNED NOT NULL,`deletions` BIGINT UNSIGNED NOT NULL,`latest_commit_date` BIGINT UNSIGNED NOT NULL,`repo_id`VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,INDEX repo_summary_ref_type_index (`ref_type`),INDEX repo_summary_data_group_id_index (`data_group_id`),INDEX repo_summary_repo_id_index (`repo_id`),INDEX repo_summary_customer_id_index (`customer_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
@@ -1084,7 +1372,7 @@ func DBDropRepoSummaryTableTx(ctx context.Context, tx Tx) error {
 
 // DBCreate will create a new RepoSummary record in the database
 func (t *RepoSummary) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
-	q := "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`) VALUES (?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.Name),
@@ -1096,12 +1384,14 @@ func (t *RepoSummary) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
 		orm.ToSQLInt64(t.LatestCommitDate),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.CustomerID),
 	)
 }
 
 // DBCreateTx will create a new RepoSummary record in the database using the provided transaction
 func (t *RepoSummary) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
-	q := "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`) VALUES (?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.Name),
@@ -1113,12 +1403,14 @@ func (t *RepoSummary) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error)
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
 		orm.ToSQLInt64(t.LatestCommitDate),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.CustomerID),
 	)
 }
 
 // DBCreateIgnoreDuplicate will upsert the RepoSummary record in the database
 func (t *RepoSummary) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
-	q := "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.Name),
@@ -1130,12 +1422,14 @@ func (t *RepoSummary) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.R
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
 		orm.ToSQLInt64(t.LatestCommitDate),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.CustomerID),
 	)
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the RepoSummary record in the database using the provided transaction
 func (t *RepoSummary) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
-	q := "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.Name),
@@ -1147,6 +1441,8 @@ func (t *RepoSummary) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
 		orm.ToSQLInt64(t.LatestCommitDate),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.CustomerID),
 	)
 }
 
@@ -1210,7 +1506,7 @@ func (t *RepoSummary) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 
 // DBUpdate will update the RepoSummary record in the database
 func (t *RepoSummary) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
-	q := "UPDATE `repo_summary` SET `name`=?,`description`=?,`ref_type`=?,`data_group_id`=?,`user_ids`=?,`commits`=?,`additions`=?,`deletions`=?,`latest_commit_date`=? WHERE `id`=?"
+	q := "UPDATE `repo_summary` SET `name`=?,`description`=?,`ref_type`=?,`data_group_id`=?,`user_ids`=?,`commits`=?,`additions`=?,`deletions`=?,`latest_commit_date`=?,`repo_id`=?,`customer_id`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.Name),
 		orm.ToSQLString(t.Description),
@@ -1221,13 +1517,15 @@ func (t *RepoSummary) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
 		orm.ToSQLInt64(t.LatestCommitDate),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.ID),
 	)
 }
 
 // DBUpdateTx will update the RepoSummary record in the database using the provided transaction
 func (t *RepoSummary) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
-	q := "UPDATE `repo_summary` SET `name`=?,`description`=?,`ref_type`=?,`data_group_id`=?,`user_ids`=?,`commits`=?,`additions`=?,`deletions`=?,`latest_commit_date`=? WHERE `id`=?"
+	q := "UPDATE `repo_summary` SET `name`=?,`description`=?,`ref_type`=?,`data_group_id`=?,`user_ids`=?,`commits`=?,`additions`=?,`deletions`=?,`latest_commit_date`=?,`repo_id`=?,`customer_id`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.Name),
 		orm.ToSQLString(t.Description),
@@ -1238,6 +1536,8 @@ func (t *RepoSummary) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error)
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
 		orm.ToSQLInt64(t.LatestCommitDate),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.CustomerID),
 		orm.ToSQLString(t.ID),
 	)
 }
@@ -1246,12 +1546,12 @@ func (t *RepoSummary) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error)
 func (t *RepoSummary) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `name`=VALUES(`name`),`description`=VALUES(`description`),`ref_type`=VALUES(`ref_type`),`data_group_id`=VALUES(`data_group_id`),`user_ids`=VALUES(`user_ids`),`commits`=VALUES(`commits`),`additions`=VALUES(`additions`),`deletions`=VALUES(`deletions`),`latest_commit_date`=VALUES(`latest_commit_date`)"
+		q = "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `name`=VALUES(`name`),`description`=VALUES(`description`),`ref_type`=VALUES(`ref_type`),`data_group_id`=VALUES(`data_group_id`),`user_ids`=VALUES(`user_ids`),`commits`=VALUES(`commits`),`additions`=VALUES(`additions`),`deletions`=VALUES(`deletions`),`latest_commit_date`=VALUES(`latest_commit_date`),`repo_id`=VALUES(`repo_id`),`customer_id`=VALUES(`customer_id`)"
 	}
 	r, err := db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1264,6 +1564,8 @@ func (t *RepoSummary) DBUpsert(ctx context.Context, db DB, conditions ...interfa
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
 		orm.ToSQLInt64(t.LatestCommitDate),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.CustomerID),
 	)
 	if err != nil {
 		return false, false, err
@@ -1276,12 +1578,12 @@ func (t *RepoSummary) DBUpsert(ctx context.Context, db DB, conditions ...interfa
 func (t *RepoSummary) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`) VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `name`=VALUES(`name`),`description`=VALUES(`description`),`ref_type`=VALUES(`ref_type`),`data_group_id`=VALUES(`data_group_id`),`user_ids`=VALUES(`user_ids`),`commits`=VALUES(`commits`),`additions`=VALUES(`additions`),`deletions`=VALUES(`deletions`),`latest_commit_date`=VALUES(`latest_commit_date`)"
+		q = "INSERT INTO `repo_summary` (`repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `name`=VALUES(`name`),`description`=VALUES(`description`),`ref_type`=VALUES(`ref_type`),`data_group_id`=VALUES(`data_group_id`),`user_ids`=VALUES(`user_ids`),`commits`=VALUES(`commits`),`additions`=VALUES(`additions`),`deletions`=VALUES(`deletions`),`latest_commit_date`=VALUES(`latest_commit_date`),`repo_id`=VALUES(`repo_id`),`customer_id`=VALUES(`customer_id`)"
 	}
 	r, err := tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1294,6 +1596,8 @@ func (t *RepoSummary) DBUpsertTx(ctx context.Context, tx Tx, conditions ...inter
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
 		orm.ToSQLInt64(t.LatestCommitDate),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.CustomerID),
 	)
 	if err != nil {
 		return false, false, err
@@ -1304,7 +1608,7 @@ func (t *RepoSummary) DBUpsertTx(ctx context.Context, tx Tx, conditions ...inter
 
 // DBFindOne will find a RepoSummary record in the database with the primary key
 func (t *RepoSummary) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date` FROM `repo_summary` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id` FROM `repo_summary` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Name sql.NullString
@@ -1316,6 +1620,8 @@ func (t *RepoSummary) DBFindOne(ctx context.Context, db DB, value string) (bool,
 	var _Additions sql.NullInt64
 	var _Deletions sql.NullInt64
 	var _LatestCommitDate sql.NullInt64
+	var _RepoID sql.NullString
+	var _CustomerID sql.NullString
 	err := row.Scan(
 		&_ID,
 		&_Name,
@@ -1327,6 +1633,8 @@ func (t *RepoSummary) DBFindOne(ctx context.Context, db DB, value string) (bool,
 		&_Additions,
 		&_Deletions,
 		&_LatestCommitDate,
+		&_RepoID,
+		&_CustomerID,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -1364,12 +1672,18 @@ func (t *RepoSummary) DBFindOne(ctx context.Context, db DB, value string) (bool,
 	if _LatestCommitDate.Valid {
 		t.SetLatestCommitDate(_LatestCommitDate.Int64)
 	}
+	if _RepoID.Valid {
+		t.SetRepoID(_RepoID.String)
+	}
+	if _CustomerID.Valid {
+		t.SetCustomerID(_CustomerID.String)
+	}
 	return true, nil
 }
 
 // DBFindOneTx will find a RepoSummary record in the database with the primary key using the provided transaction
 func (t *RepoSummary) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date` FROM `repo_summary` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `repo_summary`.`id`,`repo_summary`.`name`,`repo_summary`.`description`,`repo_summary`.`ref_type`,`repo_summary`.`data_group_id`,`repo_summary`.`user_ids`,`repo_summary`.`commits`,`repo_summary`.`additions`,`repo_summary`.`deletions`,`repo_summary`.`latest_commit_date`,`repo_summary`.`repo_id`,`repo_summary`.`customer_id` FROM `repo_summary` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Name sql.NullString
@@ -1381,6 +1695,8 @@ func (t *RepoSummary) DBFindOneTx(ctx context.Context, tx Tx, value string) (boo
 	var _Additions sql.NullInt64
 	var _Deletions sql.NullInt64
 	var _LatestCommitDate sql.NullInt64
+	var _RepoID sql.NullString
+	var _CustomerID sql.NullString
 	err := row.Scan(
 		&_ID,
 		&_Name,
@@ -1392,6 +1708,8 @@ func (t *RepoSummary) DBFindOneTx(ctx context.Context, tx Tx, value string) (boo
 		&_Additions,
 		&_Deletions,
 		&_LatestCommitDate,
+		&_RepoID,
+		&_CustomerID,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -1428,6 +1746,12 @@ func (t *RepoSummary) DBFindOneTx(ctx context.Context, tx Tx, value string) (boo
 	}
 	if _LatestCommitDate.Valid {
 		t.SetLatestCommitDate(_LatestCommitDate.Int64)
+	}
+	if _RepoID.Valid {
+		t.SetRepoID(_RepoID.String)
+	}
+	if _CustomerID.Valid {
+		t.SetCustomerID(_CustomerID.String)
 	}
 	return true, nil
 }
@@ -1445,6 +1769,8 @@ func FindRepoSummaries(ctx context.Context, db DB, _params ...interface{}) ([]*R
 		orm.Column("additions"),
 		orm.Column("deletions"),
 		orm.Column("latest_commit_date"),
+		orm.Column("repo_id"),
+		orm.Column("customer_id"),
 		orm.Table(RepoSummaryTableName),
 	}
 	if len(_params) > 0 {
@@ -1473,6 +1799,8 @@ func FindRepoSummaries(ctx context.Context, db DB, _params ...interface{}) ([]*R
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
 		var _LatestCommitDate sql.NullInt64
+		var _RepoID sql.NullString
+		var _CustomerID sql.NullString
 		err := rows.Scan(
 			&_ID,
 			&_Name,
@@ -1484,6 +1812,8 @@ func FindRepoSummaries(ctx context.Context, db DB, _params ...interface{}) ([]*R
 			&_Additions,
 			&_Deletions,
 			&_LatestCommitDate,
+			&_RepoID,
+			&_CustomerID,
 		)
 		if err != nil {
 			return nil, err
@@ -1519,6 +1849,12 @@ func FindRepoSummaries(ctx context.Context, db DB, _params ...interface{}) ([]*R
 		if _LatestCommitDate.Valid {
 			t.SetLatestCommitDate(_LatestCommitDate.Int64)
 		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -1537,6 +1873,8 @@ func FindRepoSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]
 		orm.Column("additions"),
 		orm.Column("deletions"),
 		orm.Column("latest_commit_date"),
+		orm.Column("repo_id"),
+		orm.Column("customer_id"),
 		orm.Table(RepoSummaryTableName),
 	}
 	if len(_params) > 0 {
@@ -1565,6 +1903,8 @@ func FindRepoSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
 		var _LatestCommitDate sql.NullInt64
+		var _RepoID sql.NullString
+		var _CustomerID sql.NullString
 		err := rows.Scan(
 			&_ID,
 			&_Name,
@@ -1576,6 +1916,8 @@ func FindRepoSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]
 			&_Additions,
 			&_Deletions,
 			&_LatestCommitDate,
+			&_RepoID,
+			&_CustomerID,
 		)
 		if err != nil {
 			return nil, err
@@ -1611,6 +1953,12 @@ func FindRepoSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]
 		if _LatestCommitDate.Valid {
 			t.SetLatestCommitDate(_LatestCommitDate.Int64)
 		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -1629,6 +1977,8 @@ func (t *RepoSummary) DBFind(ctx context.Context, db DB, _params ...interface{})
 		orm.Column("additions"),
 		orm.Column("deletions"),
 		orm.Column("latest_commit_date"),
+		orm.Column("repo_id"),
+		orm.Column("customer_id"),
 		orm.Table(RepoSummaryTableName),
 	}
 	if len(_params) > 0 {
@@ -1648,6 +1998,8 @@ func (t *RepoSummary) DBFind(ctx context.Context, db DB, _params ...interface{})
 	var _Additions sql.NullInt64
 	var _Deletions sql.NullInt64
 	var _LatestCommitDate sql.NullInt64
+	var _RepoID sql.NullString
+	var _CustomerID sql.NullString
 	err := row.Scan(
 		&_ID,
 		&_Name,
@@ -1659,6 +2011,8 @@ func (t *RepoSummary) DBFind(ctx context.Context, db DB, _params ...interface{})
 		&_Additions,
 		&_Deletions,
 		&_LatestCommitDate,
+		&_RepoID,
+		&_CustomerID,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -1693,6 +2047,12 @@ func (t *RepoSummary) DBFind(ctx context.Context, db DB, _params ...interface{})
 	if _LatestCommitDate.Valid {
 		t.SetLatestCommitDate(_LatestCommitDate.Int64)
 	}
+	if _RepoID.Valid {
+		t.SetRepoID(_RepoID.String)
+	}
+	if _CustomerID.Valid {
+		t.SetCustomerID(_CustomerID.String)
+	}
 	return true, nil
 }
 
@@ -1709,6 +2069,8 @@ func (t *RepoSummary) DBFindTx(ctx context.Context, tx Tx, _params ...interface{
 		orm.Column("additions"),
 		orm.Column("deletions"),
 		orm.Column("latest_commit_date"),
+		orm.Column("repo_id"),
+		orm.Column("customer_id"),
 		orm.Table(RepoSummaryTableName),
 	}
 	if len(_params) > 0 {
@@ -1728,6 +2090,8 @@ func (t *RepoSummary) DBFindTx(ctx context.Context, tx Tx, _params ...interface{
 	var _Additions sql.NullInt64
 	var _Deletions sql.NullInt64
 	var _LatestCommitDate sql.NullInt64
+	var _RepoID sql.NullString
+	var _CustomerID sql.NullString
 	err := row.Scan(
 		&_ID,
 		&_Name,
@@ -1739,6 +2103,8 @@ func (t *RepoSummary) DBFindTx(ctx context.Context, tx Tx, _params ...interface{
 		&_Additions,
 		&_Deletions,
 		&_LatestCommitDate,
+		&_RepoID,
+		&_CustomerID,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -1772,6 +2138,12 @@ func (t *RepoSummary) DBFindTx(ctx context.Context, tx Tx, _params ...interface{
 	}
 	if _LatestCommitDate.Valid {
 		t.SetLatestCommitDate(_LatestCommitDate.Int64)
+	}
+	if _RepoID.Valid {
+		t.SetRepoID(_RepoID.String)
+	}
+	if _CustomerID.Valid {
+		t.SetCustomerID(_CustomerID.String)
 	}
 	return true, nil
 }

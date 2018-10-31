@@ -24,7 +24,7 @@ message Signal {
 // RepoSummary table stores a summary for each repository
 message RepoSummary {
 	proto.ID	id					= 1;
-	string		name				= 2		[(proto.column).type="VARCHAR(255)",	(proto.column).notnull=true,(proto.column).index=true];
+	string		name				= 2		[(proto.column).type="VARCHAR(255)",	(proto.column).notnull=true];
 	string		description			= 3		[(proto.column).type="TEXT"];
 	string		ref_type			= 4		[(proto.column).type="VARCHAR(20)",		(proto.column).notnull=true,(proto.column).index=true];
 	string 		data_group_id 		= 6		[(proto.column).type="VARCHAR(20)",									(proto.column).index=true];
@@ -33,4 +33,7 @@ message RepoSummary {
 	int64		additions			= 9		[(proto.column).type="BIGINT UNSIGNED",	(proto.column).notnull=true];
 	int64		deletions			= 10	[(proto.column).type="BIGINT UNSIGNED",	(proto.column).notnull=true];
 	int64		latest_commit_date	= 11	[(proto.column).type="BIGINT UNSIGNED",	(proto.column).notnull=true];
+	string		repo_id  			= 12	[(proto.column).type="VARCHAR(64)",	(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID   customer_id 		= 13    [(proto.column).notnull=true,(proto.column).index=true];
+
 }

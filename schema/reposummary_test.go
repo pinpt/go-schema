@@ -38,6 +38,8 @@ func TestCreateRepoSummaryDelete(t *testing.T) {
 		Additions:        int64(64),
 		Deletions:        int64(64),
 		LatestCommitDate: int64(64),
+		RepoID:           "8babdd2915bdae08",
+		CustomerID:       "24c290c16b4681d6",
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -126,6 +128,8 @@ func TestCreateRepoSummaryDeleteTx(t *testing.T) {
 		Additions:        int64(64),
 		Deletions:        int64(64),
 		LatestCommitDate: int64(64),
+		RepoID:           "8babdd2915bdae08",
+		CustomerID:       "24c290c16b4681d6",
 	}
 	ctx := context.Background()
 	db := GetDatabase()
