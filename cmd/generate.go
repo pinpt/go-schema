@@ -53,6 +53,10 @@ func runGenerateCmd(dir string) error {
 	return nil
 }
 
+// keep the date the same so that subsequent generations will always use the same
+// date and the diff will not change if the routes are the same
+var timeConst = time.Unix(1541002044312, 0)
+
 func generateRoutesGoFile(dir string) ([]*acl.Route, error) {
 	routefn := filepath.Join(dir, "src", "routes.json")
 	if !fileutil.FileExists(routefn) {
@@ -123,7 +127,7 @@ func generateRoutesGoFile(dir string) ([]*acl.Route, error) {
 		Routes       []*acl.Route
 		PublicRoutes []*acl.Route
 	}{
-		Timestamp:    time.Now(),
+		Timestamp:    timeConst,
 		Dir:          dir,
 		Routes:       routes,
 		PublicRoutes: pubRoutes,
