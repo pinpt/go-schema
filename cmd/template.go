@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/pinpt/go-schema/acl"
@@ -40,6 +41,9 @@ func init() {
 			// if no path, we need to just return some non-sensical value which will cause the regexp to fail
 			return template.HTML("0238450923850923835902834lkjsdfdlkajskdfjklasdfa")
 		}
+		sort.SliceStable(parts, func(i, j int) bool {
+			return parts[i] < parts[j]
+		})
 		return template.HTML(strings.Join(parts, "|"))
 	}
 	noescape := func(str string) template.HTML {
