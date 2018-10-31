@@ -184,3 +184,25 @@ message IssueSummary {
 	option (proto.table).index3={fields:"customer_id, top_level, issue_type_id"};
 	option (proto.table).index4={fields:"customer_id, top_level, issue_type_id, priority_id"};
 }
+
+message issueReworkSummary {
+	// hash of customer_id, project_id, user_id, issue_id, path, date
+	proto.ID id = 1;
+	proto.Checksum Checksum = 2;	
+
+	// customer which owns this issue
+	proto.UID customer_id = 3 [(proto.column).notnull=true,(proto.column).index=true];
+	// issue project id
+	proto.UID project_id = 4 [(proto.column).notnull=true,(proto.column).index=true];
+	// user who is assigned the rework
+	proto.UID user_id = 5 [(proto.column).index=true];
+	// issue with rework
+	proto.UID issue_id = 6 [(proto.column).notnull=true,(proto.column).index=true];
+	// an array of statuses for the issue at the point "re-work" was triggered
+	string path = 7 [(proto.column).notnull=true,(proto.column).type="VARCHAR(1024)"];
+	// date rework triggered
+	int64 date = 8 [(proto.column).type="BIGINT UNSIGNED"];
+	
+	option (proto.table).index={fields:"customer_id, project_id, user_id"};
+	option (proto.table).index2={fields:"customer_id, user_id, path"};
+}

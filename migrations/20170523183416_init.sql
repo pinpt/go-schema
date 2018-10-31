@@ -877,6 +877,23 @@ CREATE TABLE `user_mapping` (
 	INDEX user_mapping_ref_id_index (`ref_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE `issue_rework_summary` (
+	`id`           VARCHAR(64) NOT NULL PRIMARY KEY,
+	`checksum`     CHAR(64),
+	`customer_id`  VARCHAR(64) NOT NULL,
+	`project_id`   VARCHAR(64) NOT NULL,
+	`user_id`      VARCHAR(64),
+	`issue_id`     VARCHAR(64) NOT NULL,
+	`path`         VARCHAR(1024) NOT NULL,
+	`date`         BIGINT UNSIGNED,
+	INDEX issue_rework_summary_customer_id_index (`customer_id`),
+	INDEX issue_rework_summary_project_id_index (`project_id`),
+	INDEX issue_rework_summary_user_id_index (`user_id`),
+	INDEX issue_rework_summary_issue_id_index (`issue_id`),
+	INDEX issue_rework_summary_customer_id_project_id_user_id_index (`customer_id`,`project_id`,`user_id`),
+	INDEX issue_rework_summary_customer_id_user_id_path_index (`customer_id`,`user_id`,`path`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back
@@ -927,3 +944,4 @@ DROP TABLE IF EXISTS `user`;
 DROP TABLE IF EXISTS `user_cost_center`;
 DROP TABLE IF EXISTS `user_login`;
 DROP TABLE IF EXISTS `user_mapping`;
+DROP TABLE IF EXISTS `issue_rework_summary`;
