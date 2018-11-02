@@ -298,8 +298,7 @@ CREATE TABLE `issue` (
 	INDEX issue_ref_type_state_created_at_project_id_customer_id_index (`ref_type`,`state`,`created_at`,`project_id`,`customer_id`),
 	INDEX issue_state_customer_id_project_id_index (`state`,`customer_id`,`project_id`),
 	INDEX issue_state_ref_id_closed_at_index (`state`,`ref_id`,`closed_at`),
-	INDEX issue_state_customer_id_closed_at_ref_id_type_index (`state`,`customer_id`,`closed_at`,`ref_id`,`type`),
-	INDEX issue_customer_id_project_id_created_at_index (`customer_id`,`project_id`,`created_at`)
+	INDEX issue_state_customer_id_closed_at_ref_id_type_index (`state`,`customer_id`,`closed_at`,`ref_id`,`type`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --  Issue Comment is a generic table which describes a comment for a issue
@@ -887,7 +886,7 @@ CREATE TABLE `issue_rework_summary` (
 	`project_id`   VARCHAR(64) NOT NULL,
 	`user_id`      VARCHAR(64),
 	`issue_id`     VARCHAR(64) NOT NULL,
-	`path`         VARCHAR(1024) NOT NULL,
+	`path`         VARCHAR(615) NOT NULL,
 	`date`         BIGINT UNSIGNED,
 	INDEX issue_rework_summary_customer_id_index (`customer_id`),
 	INDEX issue_rework_summary_project_id_index (`project_id`),

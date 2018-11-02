@@ -199,7 +199,7 @@ message issueReworkSummary {
 	// issue with rework
 	proto.UID issue_id = 6 [(proto.column).notnull=true,(proto.column).index=true];
 	// an array of statuses for the issue at the point "re-work" was triggered
-	string path = 7 [(proto.column).notnull=true,(proto.column).type="VARCHAR(1024)"];
+	string path = 7 [(proto.column).notnull=true,(proto.column).type="VARCHAR(615)"];
 	// date rework triggered
 	int64 date = 8 [(proto.column).type="BIGINT UNSIGNED"];
 	
