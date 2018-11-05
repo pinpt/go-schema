@@ -194,9 +194,12 @@ CREATE TABLE `commit_issue` (
 CREATE TABLE `commit_summary` (
 	`id`             VARCHAR(64) NOT NULL PRIMARY KEY,
 	`commit_id`      VARCHAR(64) NOT NULL,
-	`repo_id`        VARCHAR(64) NOT NULL,
+	`sha`            VARCHAR(64) NOT NULL,
 	`author_user_id` VARCHAR(64) NOT NULL,
 	`customer_id`    VARCHAR(64) NOT NULL,
+	`data_group_id`  VARCHAR(64) NOT NULL,
+	`repo_id`        VARCHAR(64) NOT NULL,
+	`repo`           TEXT NOT NULL,
 	`ref_type`       VARCHAR(20) NOT NULL,
 	`additions`      INT NOT NULL DEFAULT 0,
 	`deletions`      INT NOT NULL DEFAULT 0,
@@ -206,9 +209,12 @@ CREATE TABLE `commit_summary` (
 	`date`           BIGINT UNSIGNED NOT NULL,
 	`message`        LONGTEXT,
 	INDEX commit_summary_commit_id_index (`commit_id`),
-	INDEX commit_summary_repo_id_index (`repo_id`),
+	INDEX commit_summary_sha_index (`sha`),
 	INDEX commit_summary_author_user_id_index (`author_user_id`),
 	INDEX commit_summary_customer_id_index (`customer_id`),
+	INDEX commit_summary_data_group_id_index (`data_group_id`),
+	INDEX commit_summary_repo_id_index (`repo_id`),
+	INDEX commit_summary_repo_index (`repo`),
 	INDEX commit_summary_ref_type_index (`ref_type`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

@@ -33,9 +33,12 @@ const CommitSummaryTableName = "commit_summary"
 var CommitSummaryColumns = []string{
 	"id",
 	"commit_id",
-	"repo_id",
+	"sha",
 	"author_user_id",
 	"customer_id",
+	"data_group_id",
+	"repo_id",
+	"repo",
 	"ref_type",
 	"additions",
 	"deletions",
@@ -53,6 +56,7 @@ type CommitSummary struct {
 	Branch       *string `json:"branch,omitempty"`
 	CommitID     string  `json:"commit_id"`
 	CustomerID   string  `json:"customer_id"`
+	DataGroupID  string  `json:"data_group_id"`
 	Date         int64   `json:"date"`
 	Deletions    int32   `json:"deletions"`
 	FilesChanged int32   `json:"files_changed"`
@@ -60,7 +64,9 @@ type CommitSummary struct {
 	Language     string  `json:"language"`
 	Message      *string `json:"message,omitempty"`
 	RefType      string  `json:"ref_type"`
+	Repo         string  `json:"repo"`
 	RepoID       string  `json:"repo_id"`
+	Sha          string  `json:"sha"`
 }
 
 // TableName returns the SQL table name for CommitSummary and satifies the Model interface
@@ -73,9 +79,12 @@ func (t *CommitSummary) ToCSV() []string {
 	return []string{
 		t.ID,
 		t.CommitID,
-		t.RepoID,
+		t.Sha,
 		t.AuthorUserID,
 		t.CustomerID,
+		t.DataGroupID,
+		t.RepoID,
+		t.Repo,
 		t.RefType,
 		toCSVString(t.Additions),
 		toCSVString(t.Deletions),
@@ -147,17 +156,20 @@ func NewCSVCommitSummaryReader(r io.Reader, ch chan<- CommitSummary) error {
 		ch <- CommitSummary{
 			ID:           record[0],
 			CommitID:     record[1],
-			RepoID:       record[2],
+			Sha:          record[2],
 			AuthorUserID: record[3],
 			CustomerID:   record[4],
-			RefType:      record[5],
-			Additions:    fromCSVInt32(record[6]),
-			Deletions:    fromCSVInt32(record[7]),
-			FilesChanged: fromCSVInt32(record[8]),
-			Branch:       fromStringPointer(record[9]),
-			Language:     record[10],
-			Date:         fromCSVInt64(record[11]),
-			Message:      fromStringPointer(record[12]),
+			DataGroupID:  record[5],
+			RepoID:       record[6],
+			Repo:         record[7],
+			RefType:      record[8],
+			Additions:    fromCSVInt32(record[9]),
+			Deletions:    fromCSVInt32(record[10]),
+			FilesChanged: fromCSVInt32(record[11]),
+			Branch:       fromStringPointer(record[12]),
+			Language:     record[13],
+			Date:         fromCSVInt64(record[14]),
+			Message:      fromStringPointer(record[15]),
 		}
 	}
 	return nil
@@ -333,11 +345,11 @@ const CommitSummaryColumnCommitID = "commit_id"
 // CommitSummaryEscapedColumnCommitID is the escaped CommitID SQL column name for the CommitSummary table
 const CommitSummaryEscapedColumnCommitID = "`commit_id`"
 
-// CommitSummaryColumnRepoID is the RepoID SQL column name for the CommitSummary table
-const CommitSummaryColumnRepoID = "repo_id"
+// CommitSummaryColumnSha is the Sha SQL column name for the CommitSummary table
+const CommitSummaryColumnSha = "sha"
 
-// CommitSummaryEscapedColumnRepoID is the escaped RepoID SQL column name for the CommitSummary table
-const CommitSummaryEscapedColumnRepoID = "`repo_id`"
+// CommitSummaryEscapedColumnSha is the escaped Sha SQL column name for the CommitSummary table
+const CommitSummaryEscapedColumnSha = "`sha`"
 
 // CommitSummaryColumnAuthorUserID is the AuthorUserID SQL column name for the CommitSummary table
 const CommitSummaryColumnAuthorUserID = "author_user_id"
@@ -350,6 +362,24 @@ const CommitSummaryColumnCustomerID = "customer_id"
 
 // CommitSummaryEscapedColumnCustomerID is the escaped CustomerID SQL column name for the CommitSummary table
 const CommitSummaryEscapedColumnCustomerID = "`customer_id`"
+
+// CommitSummaryColumnDataGroupID is the DataGroupID SQL column name for the CommitSummary table
+const CommitSummaryColumnDataGroupID = "data_group_id"
+
+// CommitSummaryEscapedColumnDataGroupID is the escaped DataGroupID SQL column name for the CommitSummary table
+const CommitSummaryEscapedColumnDataGroupID = "`data_group_id`"
+
+// CommitSummaryColumnRepoID is the RepoID SQL column name for the CommitSummary table
+const CommitSummaryColumnRepoID = "repo_id"
+
+// CommitSummaryEscapedColumnRepoID is the escaped RepoID SQL column name for the CommitSummary table
+const CommitSummaryEscapedColumnRepoID = "`repo_id`"
+
+// CommitSummaryColumnRepo is the Repo SQL column name for the CommitSummary table
+const CommitSummaryColumnRepo = "repo"
+
+// CommitSummaryEscapedColumnRepo is the escaped Repo SQL column name for the CommitSummary table
+const CommitSummaryEscapedColumnRepo = "`repo`"
 
 // CommitSummaryColumnRefType is the RefType SQL column name for the CommitSummary table
 const CommitSummaryColumnRefType = "ref_type"
@@ -411,12 +441,15 @@ func (t *CommitSummary) SetID(v string) {
 
 // FindCommitSummaryByID will find a CommitSummary by ID
 func FindCommitSummaryByID(ctx context.Context, db DB, value string) (*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `id` = ?"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _CommitID sql.NullString
-	var _RepoID sql.NullString
+	var _Sha sql.NullString
 	var _AuthorUserID sql.NullString
 	var _CustomerID sql.NullString
+	var _DataGroupID sql.NullString
+	var _RepoID sql.NullString
+	var _Repo sql.NullString
 	var _RefType sql.NullString
 	var _Additions sql.NullInt64
 	var _Deletions sql.NullInt64
@@ -428,9 +461,12 @@ func FindCommitSummaryByID(ctx context.Context, db DB, value string) (*CommitSum
 	err := db.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_CommitID,
-		&_RepoID,
+		&_Sha,
 		&_AuthorUserID,
 		&_CustomerID,
+		&_DataGroupID,
+		&_RepoID,
+		&_Repo,
 		&_RefType,
 		&_Additions,
 		&_Deletions,
@@ -453,14 +489,23 @@ func FindCommitSummaryByID(ctx context.Context, db DB, value string) (*CommitSum
 	if _CommitID.Valid {
 		t.SetCommitID(_CommitID.String)
 	}
-	if _RepoID.Valid {
-		t.SetRepoID(_RepoID.String)
+	if _Sha.Valid {
+		t.SetSha(_Sha.String)
 	}
 	if _AuthorUserID.Valid {
 		t.SetAuthorUserID(_AuthorUserID.String)
 	}
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
+	}
+	if _DataGroupID.Valid {
+		t.SetDataGroupID(_DataGroupID.String)
+	}
+	if _RepoID.Valid {
+		t.SetRepoID(_RepoID.String)
+	}
+	if _Repo.Valid {
+		t.SetRepo(_Repo.String)
 	}
 	if _RefType.Valid {
 		t.SetRefType(_RefType.String)
@@ -491,12 +536,15 @@ func FindCommitSummaryByID(ctx context.Context, db DB, value string) (*CommitSum
 
 // FindCommitSummaryByIDTx will find a CommitSummary by ID using the provided transaction
 func FindCommitSummaryByIDTx(ctx context.Context, tx Tx, value string) (*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `id` = ?"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _CommitID sql.NullString
-	var _RepoID sql.NullString
+	var _Sha sql.NullString
 	var _AuthorUserID sql.NullString
 	var _CustomerID sql.NullString
+	var _DataGroupID sql.NullString
+	var _RepoID sql.NullString
+	var _Repo sql.NullString
 	var _RefType sql.NullString
 	var _Additions sql.NullInt64
 	var _Deletions sql.NullInt64
@@ -508,9 +556,12 @@ func FindCommitSummaryByIDTx(ctx context.Context, tx Tx, value string) (*CommitS
 	err := tx.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_CommitID,
-		&_RepoID,
+		&_Sha,
 		&_AuthorUserID,
 		&_CustomerID,
+		&_DataGroupID,
+		&_RepoID,
+		&_Repo,
 		&_RefType,
 		&_Additions,
 		&_Deletions,
@@ -533,14 +584,23 @@ func FindCommitSummaryByIDTx(ctx context.Context, tx Tx, value string) (*CommitS
 	if _CommitID.Valid {
 		t.SetCommitID(_CommitID.String)
 	}
-	if _RepoID.Valid {
-		t.SetRepoID(_RepoID.String)
+	if _Sha.Valid {
+		t.SetSha(_Sha.String)
 	}
 	if _AuthorUserID.Valid {
 		t.SetAuthorUserID(_AuthorUserID.String)
 	}
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
+	}
+	if _DataGroupID.Valid {
+		t.SetDataGroupID(_DataGroupID.String)
+	}
+	if _RepoID.Valid {
+		t.SetRepoID(_RepoID.String)
+	}
+	if _Repo.Valid {
+		t.SetRepo(_Repo.String)
 	}
 	if _RefType.Valid {
 		t.SetRefType(_RefType.String)
@@ -581,7 +641,7 @@ func (t *CommitSummary) SetCommitID(v string) {
 
 // FindCommitSummariesByCommitID will find all CommitSummarys by the CommitID value
 func FindCommitSummariesByCommitID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `commit_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `commit_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -594,9 +654,12 @@ func FindCommitSummariesByCommitID(ctx context.Context, db DB, value string) ([]
 	for rows.Next() {
 		var _ID sql.NullString
 		var _CommitID sql.NullString
-		var _RepoID sql.NullString
+		var _Sha sql.NullString
 		var _AuthorUserID sql.NullString
 		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
 		var _RefType sql.NullString
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
@@ -608,9 +671,12 @@ func FindCommitSummariesByCommitID(ctx context.Context, db DB, value string) ([]
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
-			&_RepoID,
+			&_Sha,
 			&_AuthorUserID,
 			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
 			&_RefType,
 			&_Additions,
 			&_Deletions,
@@ -630,14 +696,23 @@ func FindCommitSummariesByCommitID(ctx context.Context, db DB, value string) ([]
 		if _CommitID.Valid {
 			t.SetCommitID(_CommitID.String)
 		}
-		if _RepoID.Valid {
-			t.SetRepoID(_RepoID.String)
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
 		}
 		if _AuthorUserID.Valid {
 			t.SetAuthorUserID(_AuthorUserID.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
 		}
 		if _RefType.Valid {
 			t.SetRefType(_RefType.String)
@@ -670,7 +745,7 @@ func FindCommitSummariesByCommitID(ctx context.Context, db DB, value string) ([]
 
 // FindCommitSummariesByCommitIDTx will find all CommitSummarys by the CommitID value using the provided transaction
 func FindCommitSummariesByCommitIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `commit_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `commit_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -683,9 +758,12 @@ func FindCommitSummariesByCommitIDTx(ctx context.Context, tx Tx, value string) (
 	for rows.Next() {
 		var _ID sql.NullString
 		var _CommitID sql.NullString
-		var _RepoID sql.NullString
+		var _Sha sql.NullString
 		var _AuthorUserID sql.NullString
 		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
 		var _RefType sql.NullString
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
@@ -697,9 +775,12 @@ func FindCommitSummariesByCommitIDTx(ctx context.Context, tx Tx, value string) (
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
-			&_RepoID,
+			&_Sha,
 			&_AuthorUserID,
 			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
 			&_RefType,
 			&_Additions,
 			&_Deletions,
@@ -719,14 +800,23 @@ func FindCommitSummariesByCommitIDTx(ctx context.Context, tx Tx, value string) (
 		if _CommitID.Valid {
 			t.SetCommitID(_CommitID.String)
 		}
-		if _RepoID.Valid {
-			t.SetRepoID(_RepoID.String)
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
 		}
 		if _AuthorUserID.Valid {
 			t.SetAuthorUserID(_AuthorUserID.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
 		}
 		if _RefType.Valid {
 			t.SetRefType(_RefType.String)
@@ -757,19 +847,19 @@ func FindCommitSummariesByCommitIDTx(ctx context.Context, tx Tx, value string) (
 	return results, nil
 }
 
-// GetRepoID will return the CommitSummary RepoID value
-func (t *CommitSummary) GetRepoID() string {
-	return t.RepoID
+// GetSha will return the CommitSummary Sha value
+func (t *CommitSummary) GetSha() string {
+	return t.Sha
 }
 
-// SetRepoID will set the CommitSummary RepoID value
-func (t *CommitSummary) SetRepoID(v string) {
-	t.RepoID = v
+// SetSha will set the CommitSummary Sha value
+func (t *CommitSummary) SetSha(v string) {
+	t.Sha = v
 }
 
-// FindCommitSummariesByRepoID will find all CommitSummarys by the RepoID value
-func FindCommitSummariesByRepoID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `repo_id` = ? LIMIT 1"
+// FindCommitSummariesBySha will find all CommitSummarys by the Sha value
+func FindCommitSummariesBySha(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `sha` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -782,9 +872,12 @@ func FindCommitSummariesByRepoID(ctx context.Context, db DB, value string) ([]*C
 	for rows.Next() {
 		var _ID sql.NullString
 		var _CommitID sql.NullString
-		var _RepoID sql.NullString
+		var _Sha sql.NullString
 		var _AuthorUserID sql.NullString
 		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
 		var _RefType sql.NullString
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
@@ -796,9 +889,12 @@ func FindCommitSummariesByRepoID(ctx context.Context, db DB, value string) ([]*C
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
-			&_RepoID,
+			&_Sha,
 			&_AuthorUserID,
 			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
 			&_RefType,
 			&_Additions,
 			&_Deletions,
@@ -818,14 +914,23 @@ func FindCommitSummariesByRepoID(ctx context.Context, db DB, value string) ([]*C
 		if _CommitID.Valid {
 			t.SetCommitID(_CommitID.String)
 		}
-		if _RepoID.Valid {
-			t.SetRepoID(_RepoID.String)
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
 		}
 		if _AuthorUserID.Valid {
 			t.SetAuthorUserID(_AuthorUserID.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
 		}
 		if _RefType.Valid {
 			t.SetRefType(_RefType.String)
@@ -856,9 +961,9 @@ func FindCommitSummariesByRepoID(ctx context.Context, db DB, value string) ([]*C
 	return results, nil
 }
 
-// FindCommitSummariesByRepoIDTx will find all CommitSummarys by the RepoID value using the provided transaction
-func FindCommitSummariesByRepoIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `repo_id` = ? LIMIT 1"
+// FindCommitSummariesByShaTx will find all CommitSummarys by the Sha value using the provided transaction
+func FindCommitSummariesByShaTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `sha` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -871,9 +976,12 @@ func FindCommitSummariesByRepoIDTx(ctx context.Context, tx Tx, value string) ([]
 	for rows.Next() {
 		var _ID sql.NullString
 		var _CommitID sql.NullString
-		var _RepoID sql.NullString
+		var _Sha sql.NullString
 		var _AuthorUserID sql.NullString
 		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
 		var _RefType sql.NullString
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
@@ -885,9 +993,12 @@ func FindCommitSummariesByRepoIDTx(ctx context.Context, tx Tx, value string) ([]
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
-			&_RepoID,
+			&_Sha,
 			&_AuthorUserID,
 			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
 			&_RefType,
 			&_Additions,
 			&_Deletions,
@@ -907,14 +1018,23 @@ func FindCommitSummariesByRepoIDTx(ctx context.Context, tx Tx, value string) ([]
 		if _CommitID.Valid {
 			t.SetCommitID(_CommitID.String)
 		}
-		if _RepoID.Valid {
-			t.SetRepoID(_RepoID.String)
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
 		}
 		if _AuthorUserID.Valid {
 			t.SetAuthorUserID(_AuthorUserID.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
 		}
 		if _RefType.Valid {
 			t.SetRefType(_RefType.String)
@@ -957,7 +1077,7 @@ func (t *CommitSummary) SetAuthorUserID(v string) {
 
 // FindCommitSummariesByAuthorUserID will find all CommitSummarys by the AuthorUserID value
 func FindCommitSummariesByAuthorUserID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `author_user_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `author_user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -970,9 +1090,12 @@ func FindCommitSummariesByAuthorUserID(ctx context.Context, db DB, value string)
 	for rows.Next() {
 		var _ID sql.NullString
 		var _CommitID sql.NullString
-		var _RepoID sql.NullString
+		var _Sha sql.NullString
 		var _AuthorUserID sql.NullString
 		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
 		var _RefType sql.NullString
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
@@ -984,9 +1107,12 @@ func FindCommitSummariesByAuthorUserID(ctx context.Context, db DB, value string)
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
-			&_RepoID,
+			&_Sha,
 			&_AuthorUserID,
 			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
 			&_RefType,
 			&_Additions,
 			&_Deletions,
@@ -1006,14 +1132,23 @@ func FindCommitSummariesByAuthorUserID(ctx context.Context, db DB, value string)
 		if _CommitID.Valid {
 			t.SetCommitID(_CommitID.String)
 		}
-		if _RepoID.Valid {
-			t.SetRepoID(_RepoID.String)
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
 		}
 		if _AuthorUserID.Valid {
 			t.SetAuthorUserID(_AuthorUserID.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
 		}
 		if _RefType.Valid {
 			t.SetRefType(_RefType.String)
@@ -1046,7 +1181,7 @@ func FindCommitSummariesByAuthorUserID(ctx context.Context, db DB, value string)
 
 // FindCommitSummariesByAuthorUserIDTx will find all CommitSummarys by the AuthorUserID value using the provided transaction
 func FindCommitSummariesByAuthorUserIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `author_user_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `author_user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1059,9 +1194,12 @@ func FindCommitSummariesByAuthorUserIDTx(ctx context.Context, tx Tx, value strin
 	for rows.Next() {
 		var _ID sql.NullString
 		var _CommitID sql.NullString
-		var _RepoID sql.NullString
+		var _Sha sql.NullString
 		var _AuthorUserID sql.NullString
 		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
 		var _RefType sql.NullString
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
@@ -1073,9 +1211,12 @@ func FindCommitSummariesByAuthorUserIDTx(ctx context.Context, tx Tx, value strin
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
-			&_RepoID,
+			&_Sha,
 			&_AuthorUserID,
 			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
 			&_RefType,
 			&_Additions,
 			&_Deletions,
@@ -1095,14 +1236,23 @@ func FindCommitSummariesByAuthorUserIDTx(ctx context.Context, tx Tx, value strin
 		if _CommitID.Valid {
 			t.SetCommitID(_CommitID.String)
 		}
-		if _RepoID.Valid {
-			t.SetRepoID(_RepoID.String)
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
 		}
 		if _AuthorUserID.Valid {
 			t.SetAuthorUserID(_AuthorUserID.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
 		}
 		if _RefType.Valid {
 			t.SetRefType(_RefType.String)
@@ -1145,7 +1295,7 @@ func (t *CommitSummary) SetCustomerID(v string) {
 
 // FindCommitSummariesByCustomerID will find all CommitSummarys by the CustomerID value
 func FindCommitSummariesByCustomerID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1158,9 +1308,12 @@ func FindCommitSummariesByCustomerID(ctx context.Context, db DB, value string) (
 	for rows.Next() {
 		var _ID sql.NullString
 		var _CommitID sql.NullString
-		var _RepoID sql.NullString
+		var _Sha sql.NullString
 		var _AuthorUserID sql.NullString
 		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
 		var _RefType sql.NullString
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
@@ -1172,9 +1325,12 @@ func FindCommitSummariesByCustomerID(ctx context.Context, db DB, value string) (
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
-			&_RepoID,
+			&_Sha,
 			&_AuthorUserID,
 			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
 			&_RefType,
 			&_Additions,
 			&_Deletions,
@@ -1194,14 +1350,23 @@ func FindCommitSummariesByCustomerID(ctx context.Context, db DB, value string) (
 		if _CommitID.Valid {
 			t.SetCommitID(_CommitID.String)
 		}
-		if _RepoID.Valid {
-			t.SetRepoID(_RepoID.String)
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
 		}
 		if _AuthorUserID.Valid {
 			t.SetAuthorUserID(_AuthorUserID.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
 		}
 		if _RefType.Valid {
 			t.SetRefType(_RefType.String)
@@ -1234,7 +1399,7 @@ func FindCommitSummariesByCustomerID(ctx context.Context, db DB, value string) (
 
 // FindCommitSummariesByCustomerIDTx will find all CommitSummarys by the CustomerID value using the provided transaction
 func FindCommitSummariesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1247,9 +1412,12 @@ func FindCommitSummariesByCustomerIDTx(ctx context.Context, tx Tx, value string)
 	for rows.Next() {
 		var _ID sql.NullString
 		var _CommitID sql.NullString
-		var _RepoID sql.NullString
+		var _Sha sql.NullString
 		var _AuthorUserID sql.NullString
 		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
 		var _RefType sql.NullString
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
@@ -1261,9 +1429,12 @@ func FindCommitSummariesByCustomerIDTx(ctx context.Context, tx Tx, value string)
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
-			&_RepoID,
+			&_Sha,
 			&_AuthorUserID,
 			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
 			&_RefType,
 			&_Additions,
 			&_Deletions,
@@ -1283,14 +1454,677 @@ func FindCommitSummariesByCustomerIDTx(ctx context.Context, tx Tx, value string)
 		if _CommitID.Valid {
 			t.SetCommitID(_CommitID.String)
 		}
-		if _RepoID.Valid {
-			t.SetRepoID(_RepoID.String)
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
 		}
 		if _AuthorUserID.Valid {
 			t.SetAuthorUserID(_AuthorUserID.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
+		}
+		if _RefType.Valid {
+			t.SetRefType(_RefType.String)
+		}
+		if _Additions.Valid {
+			t.SetAdditions(int32(_Additions.Int64))
+		}
+		if _Deletions.Valid {
+			t.SetDeletions(int32(_Deletions.Int64))
+		}
+		if _FilesChanged.Valid {
+			t.SetFilesChanged(int32(_FilesChanged.Int64))
+		}
+		if _Branch.Valid {
+			t.SetBranch(_Branch.String)
+		}
+		if _Language.Valid {
+			t.SetLanguage(_Language.String)
+		}
+		if _Date.Valid {
+			t.SetDate(_Date.Int64)
+		}
+		if _Message.Valid {
+			t.SetMessage(_Message.String)
+		}
+		results = append(results, t)
+	}
+	return results, nil
+}
+
+// GetDataGroupID will return the CommitSummary DataGroupID value
+func (t *CommitSummary) GetDataGroupID() string {
+	return t.DataGroupID
+}
+
+// SetDataGroupID will set the CommitSummary DataGroupID value
+func (t *CommitSummary) SetDataGroupID(v string) {
+	t.DataGroupID = v
+}
+
+// FindCommitSummariesByDataGroupID will find all CommitSummarys by the DataGroupID value
+func FindCommitSummariesByDataGroupID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `data_group_id` = ? LIMIT 1"
+	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	results := make([]*CommitSummary, 0)
+	for rows.Next() {
+		var _ID sql.NullString
+		var _CommitID sql.NullString
+		var _Sha sql.NullString
+		var _AuthorUserID sql.NullString
+		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
+		var _RefType sql.NullString
+		var _Additions sql.NullInt64
+		var _Deletions sql.NullInt64
+		var _FilesChanged sql.NullInt64
+		var _Branch sql.NullString
+		var _Language sql.NullString
+		var _Date sql.NullInt64
+		var _Message sql.NullString
+		err := rows.Scan(
+			&_ID,
+			&_CommitID,
+			&_Sha,
+			&_AuthorUserID,
+			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
+			&_RefType,
+			&_Additions,
+			&_Deletions,
+			&_FilesChanged,
+			&_Branch,
+			&_Language,
+			&_Date,
+			&_Message,
+		)
+		if err != nil {
+			return nil, err
+		}
+		t := &CommitSummary{}
+		if _ID.Valid {
+			t.SetID(_ID.String)
+		}
+		if _CommitID.Valid {
+			t.SetCommitID(_CommitID.String)
+		}
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
+		}
+		if _AuthorUserID.Valid {
+			t.SetAuthorUserID(_AuthorUserID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
+		}
+		if _RefType.Valid {
+			t.SetRefType(_RefType.String)
+		}
+		if _Additions.Valid {
+			t.SetAdditions(int32(_Additions.Int64))
+		}
+		if _Deletions.Valid {
+			t.SetDeletions(int32(_Deletions.Int64))
+		}
+		if _FilesChanged.Valid {
+			t.SetFilesChanged(int32(_FilesChanged.Int64))
+		}
+		if _Branch.Valid {
+			t.SetBranch(_Branch.String)
+		}
+		if _Language.Valid {
+			t.SetLanguage(_Language.String)
+		}
+		if _Date.Valid {
+			t.SetDate(_Date.Int64)
+		}
+		if _Message.Valid {
+			t.SetMessage(_Message.String)
+		}
+		results = append(results, t)
+	}
+	return results, nil
+}
+
+// FindCommitSummariesByDataGroupIDTx will find all CommitSummarys by the DataGroupID value using the provided transaction
+func FindCommitSummariesByDataGroupIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `data_group_id` = ? LIMIT 1"
+	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	results := make([]*CommitSummary, 0)
+	for rows.Next() {
+		var _ID sql.NullString
+		var _CommitID sql.NullString
+		var _Sha sql.NullString
+		var _AuthorUserID sql.NullString
+		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
+		var _RefType sql.NullString
+		var _Additions sql.NullInt64
+		var _Deletions sql.NullInt64
+		var _FilesChanged sql.NullInt64
+		var _Branch sql.NullString
+		var _Language sql.NullString
+		var _Date sql.NullInt64
+		var _Message sql.NullString
+		err := rows.Scan(
+			&_ID,
+			&_CommitID,
+			&_Sha,
+			&_AuthorUserID,
+			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
+			&_RefType,
+			&_Additions,
+			&_Deletions,
+			&_FilesChanged,
+			&_Branch,
+			&_Language,
+			&_Date,
+			&_Message,
+		)
+		if err != nil {
+			return nil, err
+		}
+		t := &CommitSummary{}
+		if _ID.Valid {
+			t.SetID(_ID.String)
+		}
+		if _CommitID.Valid {
+			t.SetCommitID(_CommitID.String)
+		}
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
+		}
+		if _AuthorUserID.Valid {
+			t.SetAuthorUserID(_AuthorUserID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
+		}
+		if _RefType.Valid {
+			t.SetRefType(_RefType.String)
+		}
+		if _Additions.Valid {
+			t.SetAdditions(int32(_Additions.Int64))
+		}
+		if _Deletions.Valid {
+			t.SetDeletions(int32(_Deletions.Int64))
+		}
+		if _FilesChanged.Valid {
+			t.SetFilesChanged(int32(_FilesChanged.Int64))
+		}
+		if _Branch.Valid {
+			t.SetBranch(_Branch.String)
+		}
+		if _Language.Valid {
+			t.SetLanguage(_Language.String)
+		}
+		if _Date.Valid {
+			t.SetDate(_Date.Int64)
+		}
+		if _Message.Valid {
+			t.SetMessage(_Message.String)
+		}
+		results = append(results, t)
+	}
+	return results, nil
+}
+
+// GetRepoID will return the CommitSummary RepoID value
+func (t *CommitSummary) GetRepoID() string {
+	return t.RepoID
+}
+
+// SetRepoID will set the CommitSummary RepoID value
+func (t *CommitSummary) SetRepoID(v string) {
+	t.RepoID = v
+}
+
+// FindCommitSummariesByRepoID will find all CommitSummarys by the RepoID value
+func FindCommitSummariesByRepoID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `repo_id` = ? LIMIT 1"
+	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	results := make([]*CommitSummary, 0)
+	for rows.Next() {
+		var _ID sql.NullString
+		var _CommitID sql.NullString
+		var _Sha sql.NullString
+		var _AuthorUserID sql.NullString
+		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
+		var _RefType sql.NullString
+		var _Additions sql.NullInt64
+		var _Deletions sql.NullInt64
+		var _FilesChanged sql.NullInt64
+		var _Branch sql.NullString
+		var _Language sql.NullString
+		var _Date sql.NullInt64
+		var _Message sql.NullString
+		err := rows.Scan(
+			&_ID,
+			&_CommitID,
+			&_Sha,
+			&_AuthorUserID,
+			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
+			&_RefType,
+			&_Additions,
+			&_Deletions,
+			&_FilesChanged,
+			&_Branch,
+			&_Language,
+			&_Date,
+			&_Message,
+		)
+		if err != nil {
+			return nil, err
+		}
+		t := &CommitSummary{}
+		if _ID.Valid {
+			t.SetID(_ID.String)
+		}
+		if _CommitID.Valid {
+			t.SetCommitID(_CommitID.String)
+		}
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
+		}
+		if _AuthorUserID.Valid {
+			t.SetAuthorUserID(_AuthorUserID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
+		}
+		if _RefType.Valid {
+			t.SetRefType(_RefType.String)
+		}
+		if _Additions.Valid {
+			t.SetAdditions(int32(_Additions.Int64))
+		}
+		if _Deletions.Valid {
+			t.SetDeletions(int32(_Deletions.Int64))
+		}
+		if _FilesChanged.Valid {
+			t.SetFilesChanged(int32(_FilesChanged.Int64))
+		}
+		if _Branch.Valid {
+			t.SetBranch(_Branch.String)
+		}
+		if _Language.Valid {
+			t.SetLanguage(_Language.String)
+		}
+		if _Date.Valid {
+			t.SetDate(_Date.Int64)
+		}
+		if _Message.Valid {
+			t.SetMessage(_Message.String)
+		}
+		results = append(results, t)
+	}
+	return results, nil
+}
+
+// FindCommitSummariesByRepoIDTx will find all CommitSummarys by the RepoID value using the provided transaction
+func FindCommitSummariesByRepoIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `repo_id` = ? LIMIT 1"
+	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	results := make([]*CommitSummary, 0)
+	for rows.Next() {
+		var _ID sql.NullString
+		var _CommitID sql.NullString
+		var _Sha sql.NullString
+		var _AuthorUserID sql.NullString
+		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
+		var _RefType sql.NullString
+		var _Additions sql.NullInt64
+		var _Deletions sql.NullInt64
+		var _FilesChanged sql.NullInt64
+		var _Branch sql.NullString
+		var _Language sql.NullString
+		var _Date sql.NullInt64
+		var _Message sql.NullString
+		err := rows.Scan(
+			&_ID,
+			&_CommitID,
+			&_Sha,
+			&_AuthorUserID,
+			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
+			&_RefType,
+			&_Additions,
+			&_Deletions,
+			&_FilesChanged,
+			&_Branch,
+			&_Language,
+			&_Date,
+			&_Message,
+		)
+		if err != nil {
+			return nil, err
+		}
+		t := &CommitSummary{}
+		if _ID.Valid {
+			t.SetID(_ID.String)
+		}
+		if _CommitID.Valid {
+			t.SetCommitID(_CommitID.String)
+		}
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
+		}
+		if _AuthorUserID.Valid {
+			t.SetAuthorUserID(_AuthorUserID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
+		}
+		if _RefType.Valid {
+			t.SetRefType(_RefType.String)
+		}
+		if _Additions.Valid {
+			t.SetAdditions(int32(_Additions.Int64))
+		}
+		if _Deletions.Valid {
+			t.SetDeletions(int32(_Deletions.Int64))
+		}
+		if _FilesChanged.Valid {
+			t.SetFilesChanged(int32(_FilesChanged.Int64))
+		}
+		if _Branch.Valid {
+			t.SetBranch(_Branch.String)
+		}
+		if _Language.Valid {
+			t.SetLanguage(_Language.String)
+		}
+		if _Date.Valid {
+			t.SetDate(_Date.Int64)
+		}
+		if _Message.Valid {
+			t.SetMessage(_Message.String)
+		}
+		results = append(results, t)
+	}
+	return results, nil
+}
+
+// GetRepo will return the CommitSummary Repo value
+func (t *CommitSummary) GetRepo() string {
+	return t.Repo
+}
+
+// SetRepo will set the CommitSummary Repo value
+func (t *CommitSummary) SetRepo(v string) {
+	t.Repo = v
+}
+
+// FindCommitSummariesByRepo will find all CommitSummarys by the Repo value
+func FindCommitSummariesByRepo(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `repo` = ? LIMIT 1"
+	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	results := make([]*CommitSummary, 0)
+	for rows.Next() {
+		var _ID sql.NullString
+		var _CommitID sql.NullString
+		var _Sha sql.NullString
+		var _AuthorUserID sql.NullString
+		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
+		var _RefType sql.NullString
+		var _Additions sql.NullInt64
+		var _Deletions sql.NullInt64
+		var _FilesChanged sql.NullInt64
+		var _Branch sql.NullString
+		var _Language sql.NullString
+		var _Date sql.NullInt64
+		var _Message sql.NullString
+		err := rows.Scan(
+			&_ID,
+			&_CommitID,
+			&_Sha,
+			&_AuthorUserID,
+			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
+			&_RefType,
+			&_Additions,
+			&_Deletions,
+			&_FilesChanged,
+			&_Branch,
+			&_Language,
+			&_Date,
+			&_Message,
+		)
+		if err != nil {
+			return nil, err
+		}
+		t := &CommitSummary{}
+		if _ID.Valid {
+			t.SetID(_ID.String)
+		}
+		if _CommitID.Valid {
+			t.SetCommitID(_CommitID.String)
+		}
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
+		}
+		if _AuthorUserID.Valid {
+			t.SetAuthorUserID(_AuthorUserID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
+		}
+		if _RefType.Valid {
+			t.SetRefType(_RefType.String)
+		}
+		if _Additions.Valid {
+			t.SetAdditions(int32(_Additions.Int64))
+		}
+		if _Deletions.Valid {
+			t.SetDeletions(int32(_Deletions.Int64))
+		}
+		if _FilesChanged.Valid {
+			t.SetFilesChanged(int32(_FilesChanged.Int64))
+		}
+		if _Branch.Valid {
+			t.SetBranch(_Branch.String)
+		}
+		if _Language.Valid {
+			t.SetLanguage(_Language.String)
+		}
+		if _Date.Valid {
+			t.SetDate(_Date.Int64)
+		}
+		if _Message.Valid {
+			t.SetMessage(_Message.String)
+		}
+		results = append(results, t)
+	}
+	return results, nil
+}
+
+// FindCommitSummariesByRepoTx will find all CommitSummarys by the Repo value using the provided transaction
+func FindCommitSummariesByRepoTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `repo` = ? LIMIT 1"
+	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	results := make([]*CommitSummary, 0)
+	for rows.Next() {
+		var _ID sql.NullString
+		var _CommitID sql.NullString
+		var _Sha sql.NullString
+		var _AuthorUserID sql.NullString
+		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
+		var _RefType sql.NullString
+		var _Additions sql.NullInt64
+		var _Deletions sql.NullInt64
+		var _FilesChanged sql.NullInt64
+		var _Branch sql.NullString
+		var _Language sql.NullString
+		var _Date sql.NullInt64
+		var _Message sql.NullString
+		err := rows.Scan(
+			&_ID,
+			&_CommitID,
+			&_Sha,
+			&_AuthorUserID,
+			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
+			&_RefType,
+			&_Additions,
+			&_Deletions,
+			&_FilesChanged,
+			&_Branch,
+			&_Language,
+			&_Date,
+			&_Message,
+		)
+		if err != nil {
+			return nil, err
+		}
+		t := &CommitSummary{}
+		if _ID.Valid {
+			t.SetID(_ID.String)
+		}
+		if _CommitID.Valid {
+			t.SetCommitID(_CommitID.String)
+		}
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
+		}
+		if _AuthorUserID.Valid {
+			t.SetAuthorUserID(_AuthorUserID.String)
+		}
+		if _CustomerID.Valid {
+			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
 		}
 		if _RefType.Valid {
 			t.SetRefType(_RefType.String)
@@ -1333,7 +2167,7 @@ func (t *CommitSummary) SetRefType(v string) {
 
 // FindCommitSummariesByRefType will find all CommitSummarys by the RefType value
 func FindCommitSummariesByRefType(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1346,9 +2180,12 @@ func FindCommitSummariesByRefType(ctx context.Context, db DB, value string) ([]*
 	for rows.Next() {
 		var _ID sql.NullString
 		var _CommitID sql.NullString
-		var _RepoID sql.NullString
+		var _Sha sql.NullString
 		var _AuthorUserID sql.NullString
 		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
 		var _RefType sql.NullString
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
@@ -1360,9 +2197,12 @@ func FindCommitSummariesByRefType(ctx context.Context, db DB, value string) ([]*
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
-			&_RepoID,
+			&_Sha,
 			&_AuthorUserID,
 			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
 			&_RefType,
 			&_Additions,
 			&_Deletions,
@@ -1382,14 +2222,23 @@ func FindCommitSummariesByRefType(ctx context.Context, db DB, value string) ([]*
 		if _CommitID.Valid {
 			t.SetCommitID(_CommitID.String)
 		}
-		if _RepoID.Valid {
-			t.SetRepoID(_RepoID.String)
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
 		}
 		if _AuthorUserID.Valid {
 			t.SetAuthorUserID(_AuthorUserID.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
 		}
 		if _RefType.Valid {
 			t.SetRefType(_RefType.String)
@@ -1422,7 +2271,7 @@ func FindCommitSummariesByRefType(ctx context.Context, db DB, value string) ([]*
 
 // FindCommitSummariesByRefTypeTx will find all CommitSummarys by the RefType value using the provided transaction
 func FindCommitSummariesByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1435,9 +2284,12 @@ func FindCommitSummariesByRefTypeTx(ctx context.Context, tx Tx, value string) ([
 	for rows.Next() {
 		var _ID sql.NullString
 		var _CommitID sql.NullString
-		var _RepoID sql.NullString
+		var _Sha sql.NullString
 		var _AuthorUserID sql.NullString
 		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
 		var _RefType sql.NullString
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
@@ -1449,9 +2301,12 @@ func FindCommitSummariesByRefTypeTx(ctx context.Context, tx Tx, value string) ([
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
-			&_RepoID,
+			&_Sha,
 			&_AuthorUserID,
 			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
 			&_RefType,
 			&_Additions,
 			&_Deletions,
@@ -1471,14 +2326,23 @@ func FindCommitSummariesByRefTypeTx(ctx context.Context, tx Tx, value string) ([
 		if _CommitID.Valid {
 			t.SetCommitID(_CommitID.String)
 		}
-		if _RepoID.Valid {
-			t.SetRepoID(_RepoID.String)
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
 		}
 		if _AuthorUserID.Valid {
 			t.SetAuthorUserID(_AuthorUserID.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
 		}
 		if _RefType.Valid {
 			t.SetRefType(_RefType.String)
@@ -1592,14 +2456,14 @@ func (t *CommitSummary) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateCommitSummaryTable will create the CommitSummary table
 func DBCreateCommitSummaryTable(ctx context.Context, db DB) error {
-	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id`VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions`INT NOT NULL DEFAULT 0,`deletions`INT NOT NULL DEFAULT 0,`files_changed` INT NOT NULL DEFAULT 0,`branch`VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date` BIGINT UNSIGNED NOT NULL,`message` LONGTEXT,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id`VARCHAR(64) NOT NULL,`sha`VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`data_group_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`repo` TEXT NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions`INT NOT NULL DEFAULT 0,`deletions`INT NOT NULL DEFAULT 0,`files_changed` INT NOT NULL DEFAULT 0,`branch`VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date` BIGINT UNSIGNED NOT NULL,`message` LONGTEXT,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_sha_index (`sha`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_data_group_id_index (`data_group_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_repo_index (`repo`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateCommitSummaryTableTx will create the CommitSummary table using the provided transction
 func DBCreateCommitSummaryTableTx(ctx context.Context, tx Tx) error {
-	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id`VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions`INT NOT NULL DEFAULT 0,`deletions`INT NOT NULL DEFAULT 0,`files_changed` INT NOT NULL DEFAULT 0,`branch`VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date` BIGINT UNSIGNED NOT NULL,`message` LONGTEXT,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id`VARCHAR(64) NOT NULL,`sha`VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`data_group_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`repo` TEXT NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions`INT NOT NULL DEFAULT 0,`deletions`INT NOT NULL DEFAULT 0,`files_changed` INT NOT NULL DEFAULT 0,`branch`VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date` BIGINT UNSIGNED NOT NULL,`message` LONGTEXT,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_sha_index (`sha`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_data_group_id_index (`data_group_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_repo_index (`repo`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
@@ -1620,13 +2484,16 @@ func DBDropCommitSummaryTableTx(ctx context.Context, tx Tx) error {
 
 // DBCreate will create a new CommitSummary record in the database
 func (t *CommitSummary) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
-	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.CommitID),
-		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Sha),
 		orm.ToSQLString(t.AuthorUserID),
 		orm.ToSQLString(t.CustomerID),
+		orm.ToSQLString(t.DataGroupID),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Repo),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
@@ -1640,13 +2507,16 @@ func (t *CommitSummary) DBCreate(ctx context.Context, db DB) (sql.Result, error)
 
 // DBCreateTx will create a new CommitSummary record in the database using the provided transaction
 func (t *CommitSummary) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
-	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.CommitID),
-		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Sha),
 		orm.ToSQLString(t.AuthorUserID),
 		orm.ToSQLString(t.CustomerID),
+		orm.ToSQLString(t.DataGroupID),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Repo),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
@@ -1660,13 +2530,16 @@ func (t *CommitSummary) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, erro
 
 // DBCreateIgnoreDuplicate will upsert the CommitSummary record in the database
 func (t *CommitSummary) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
-	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.CommitID),
-		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Sha),
 		orm.ToSQLString(t.AuthorUserID),
 		orm.ToSQLString(t.CustomerID),
+		orm.ToSQLString(t.DataGroupID),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Repo),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
@@ -1680,13 +2553,16 @@ func (t *CommitSummary) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql
 
 // DBCreateIgnoreDuplicateTx will upsert the CommitSummary record in the database using the provided transaction
 func (t *CommitSummary) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
-	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.CommitID),
-		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Sha),
 		orm.ToSQLString(t.AuthorUserID),
 		orm.ToSQLString(t.CustomerID),
+		orm.ToSQLString(t.DataGroupID),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Repo),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
@@ -1758,12 +2634,15 @@ func (t *CommitSummary) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 
 // DBUpdate will update the CommitSummary record in the database
 func (t *CommitSummary) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
-	q := "UPDATE `commit_summary` SET `commit_id`=?,`repo_id`=?,`author_user_id`=?,`customer_id`=?,`ref_type`=?,`additions`=?,`deletions`=?,`files_changed`=?,`branch`=?,`language`=?,`date`=?,`message`=? WHERE `id`=?"
+	q := "UPDATE `commit_summary` SET `commit_id`=?,`sha`=?,`author_user_id`=?,`customer_id`=?,`data_group_id`=?,`repo_id`=?,`repo`=?,`ref_type`=?,`additions`=?,`deletions`=?,`files_changed`=?,`branch`=?,`language`=?,`date`=?,`message`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.CommitID),
-		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Sha),
 		orm.ToSQLString(t.AuthorUserID),
 		orm.ToSQLString(t.CustomerID),
+		orm.ToSQLString(t.DataGroupID),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Repo),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
@@ -1778,12 +2657,15 @@ func (t *CommitSummary) DBUpdate(ctx context.Context, db DB) (sql.Result, error)
 
 // DBUpdateTx will update the CommitSummary record in the database using the provided transaction
 func (t *CommitSummary) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
-	q := "UPDATE `commit_summary` SET `commit_id`=?,`repo_id`=?,`author_user_id`=?,`customer_id`=?,`ref_type`=?,`additions`=?,`deletions`=?,`files_changed`=?,`branch`=?,`language`=?,`date`=?,`message`=? WHERE `id`=?"
+	q := "UPDATE `commit_summary` SET `commit_id`=?,`sha`=?,`author_user_id`=?,`customer_id`=?,`data_group_id`=?,`repo_id`=?,`repo`=?,`ref_type`=?,`additions`=?,`deletions`=?,`files_changed`=?,`branch`=?,`language`=?,`date`=?,`message`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.CommitID),
-		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Sha),
 		orm.ToSQLString(t.AuthorUserID),
 		orm.ToSQLString(t.CustomerID),
+		orm.ToSQLString(t.DataGroupID),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Repo),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
@@ -1800,19 +2682,22 @@ func (t *CommitSummary) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, erro
 func (t *CommitSummary) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `commit_id`=VALUES(`commit_id`),`repo_id`=VALUES(`repo_id`),`author_user_id`=VALUES(`author_user_id`),`customer_id`=VALUES(`customer_id`),`ref_type`=VALUES(`ref_type`),`additions`=VALUES(`additions`),`deletions`=VALUES(`deletions`),`files_changed`=VALUES(`files_changed`),`branch`=VALUES(`branch`),`language`=VALUES(`language`),`date`=VALUES(`date`),`message`=VALUES(`message`)"
+		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `commit_id`=VALUES(`commit_id`),`sha`=VALUES(`sha`),`author_user_id`=VALUES(`author_user_id`),`customer_id`=VALUES(`customer_id`),`data_group_id`=VALUES(`data_group_id`),`repo_id`=VALUES(`repo_id`),`repo`=VALUES(`repo`),`ref_type`=VALUES(`ref_type`),`additions`=VALUES(`additions`),`deletions`=VALUES(`deletions`),`files_changed`=VALUES(`files_changed`),`branch`=VALUES(`branch`),`language`=VALUES(`language`),`date`=VALUES(`date`),`message`=VALUES(`message`)"
 	}
 	r, err := db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.CommitID),
-		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Sha),
 		orm.ToSQLString(t.AuthorUserID),
 		orm.ToSQLString(t.CustomerID),
+		orm.ToSQLString(t.DataGroupID),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Repo),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
@@ -1833,19 +2718,22 @@ func (t *CommitSummary) DBUpsert(ctx context.Context, db DB, conditions ...inter
 func (t *CommitSummary) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `commit_id`=VALUES(`commit_id`),`repo_id`=VALUES(`repo_id`),`author_user_id`=VALUES(`author_user_id`),`customer_id`=VALUES(`customer_id`),`ref_type`=VALUES(`ref_type`),`additions`=VALUES(`additions`),`deletions`=VALUES(`deletions`),`files_changed`=VALUES(`files_changed`),`branch`=VALUES(`branch`),`language`=VALUES(`language`),`date`=VALUES(`date`),`message`=VALUES(`message`)"
+		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `commit_id`=VALUES(`commit_id`),`sha`=VALUES(`sha`),`author_user_id`=VALUES(`author_user_id`),`customer_id`=VALUES(`customer_id`),`data_group_id`=VALUES(`data_group_id`),`repo_id`=VALUES(`repo_id`),`repo`=VALUES(`repo`),`ref_type`=VALUES(`ref_type`),`additions`=VALUES(`additions`),`deletions`=VALUES(`deletions`),`files_changed`=VALUES(`files_changed`),`branch`=VALUES(`branch`),`language`=VALUES(`language`),`date`=VALUES(`date`),`message`=VALUES(`message`)"
 	}
 	r, err := tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.CommitID),
-		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Sha),
 		orm.ToSQLString(t.AuthorUserID),
 		orm.ToSQLString(t.CustomerID),
+		orm.ToSQLString(t.DataGroupID),
+		orm.ToSQLString(t.RepoID),
+		orm.ToSQLString(t.Repo),
 		orm.ToSQLString(t.RefType),
 		orm.ToSQLInt64(t.Additions),
 		orm.ToSQLInt64(t.Deletions),
@@ -1864,13 +2752,16 @@ func (t *CommitSummary) DBUpsertTx(ctx context.Context, tx Tx, conditions ...int
 
 // DBFindOne will find a CommitSummary record in the database with the primary key
 func (t *CommitSummary) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _CommitID sql.NullString
-	var _RepoID sql.NullString
+	var _Sha sql.NullString
 	var _AuthorUserID sql.NullString
 	var _CustomerID sql.NullString
+	var _DataGroupID sql.NullString
+	var _RepoID sql.NullString
+	var _Repo sql.NullString
 	var _RefType sql.NullString
 	var _Additions sql.NullInt64
 	var _Deletions sql.NullInt64
@@ -1882,9 +2773,12 @@ func (t *CommitSummary) DBFindOne(ctx context.Context, db DB, value string) (boo
 	err := row.Scan(
 		&_ID,
 		&_CommitID,
-		&_RepoID,
+		&_Sha,
 		&_AuthorUserID,
 		&_CustomerID,
+		&_DataGroupID,
+		&_RepoID,
+		&_Repo,
 		&_RefType,
 		&_Additions,
 		&_Deletions,
@@ -1906,14 +2800,23 @@ func (t *CommitSummary) DBFindOne(ctx context.Context, db DB, value string) (boo
 	if _CommitID.Valid {
 		t.SetCommitID(_CommitID.String)
 	}
-	if _RepoID.Valid {
-		t.SetRepoID(_RepoID.String)
+	if _Sha.Valid {
+		t.SetSha(_Sha.String)
 	}
 	if _AuthorUserID.Valid {
 		t.SetAuthorUserID(_AuthorUserID.String)
 	}
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
+	}
+	if _DataGroupID.Valid {
+		t.SetDataGroupID(_DataGroupID.String)
+	}
+	if _RepoID.Valid {
+		t.SetRepoID(_RepoID.String)
+	}
+	if _Repo.Valid {
+		t.SetRepo(_Repo.String)
 	}
 	if _RefType.Valid {
 		t.SetRefType(_RefType.String)
@@ -1944,13 +2847,16 @@ func (t *CommitSummary) DBFindOne(ctx context.Context, db DB, value string) (boo
 
 // DBFindOneTx will find a CommitSummary record in the database with the primary key using the provided transaction
 func (t *CommitSummary) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`repo_id`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _CommitID sql.NullString
-	var _RepoID sql.NullString
+	var _Sha sql.NullString
 	var _AuthorUserID sql.NullString
 	var _CustomerID sql.NullString
+	var _DataGroupID sql.NullString
+	var _RepoID sql.NullString
+	var _Repo sql.NullString
 	var _RefType sql.NullString
 	var _Additions sql.NullInt64
 	var _Deletions sql.NullInt64
@@ -1962,9 +2868,12 @@ func (t *CommitSummary) DBFindOneTx(ctx context.Context, tx Tx, value string) (b
 	err := row.Scan(
 		&_ID,
 		&_CommitID,
-		&_RepoID,
+		&_Sha,
 		&_AuthorUserID,
 		&_CustomerID,
+		&_DataGroupID,
+		&_RepoID,
+		&_Repo,
 		&_RefType,
 		&_Additions,
 		&_Deletions,
@@ -1986,14 +2895,23 @@ func (t *CommitSummary) DBFindOneTx(ctx context.Context, tx Tx, value string) (b
 	if _CommitID.Valid {
 		t.SetCommitID(_CommitID.String)
 	}
-	if _RepoID.Valid {
-		t.SetRepoID(_RepoID.String)
+	if _Sha.Valid {
+		t.SetSha(_Sha.String)
 	}
 	if _AuthorUserID.Valid {
 		t.SetAuthorUserID(_AuthorUserID.String)
 	}
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
+	}
+	if _DataGroupID.Valid {
+		t.SetDataGroupID(_DataGroupID.String)
+	}
+	if _RepoID.Valid {
+		t.SetRepoID(_RepoID.String)
+	}
+	if _Repo.Valid {
+		t.SetRepo(_Repo.String)
 	}
 	if _RefType.Valid {
 		t.SetRefType(_RefType.String)
@@ -2027,9 +2945,12 @@ func FindCommitSummaries(ctx context.Context, db DB, _params ...interface{}) ([]
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("commit_id"),
-		orm.Column("repo_id"),
+		orm.Column("sha"),
 		orm.Column("author_user_id"),
 		orm.Column("customer_id"),
+		orm.Column("data_group_id"),
+		orm.Column("repo_id"),
+		orm.Column("repo"),
 		orm.Column("ref_type"),
 		orm.Column("additions"),
 		orm.Column("deletions"),
@@ -2058,9 +2979,12 @@ func FindCommitSummaries(ctx context.Context, db DB, _params ...interface{}) ([]
 	for rows.Next() {
 		var _ID sql.NullString
 		var _CommitID sql.NullString
-		var _RepoID sql.NullString
+		var _Sha sql.NullString
 		var _AuthorUserID sql.NullString
 		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
 		var _RefType sql.NullString
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
@@ -2072,9 +2996,12 @@ func FindCommitSummaries(ctx context.Context, db DB, _params ...interface{}) ([]
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
-			&_RepoID,
+			&_Sha,
 			&_AuthorUserID,
 			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
 			&_RefType,
 			&_Additions,
 			&_Deletions,
@@ -2094,14 +3021,23 @@ func FindCommitSummaries(ctx context.Context, db DB, _params ...interface{}) ([]
 		if _CommitID.Valid {
 			t.SetCommitID(_CommitID.String)
 		}
-		if _RepoID.Valid {
-			t.SetRepoID(_RepoID.String)
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
 		}
 		if _AuthorUserID.Valid {
 			t.SetAuthorUserID(_AuthorUserID.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
 		}
 		if _RefType.Valid {
 			t.SetRefType(_RefType.String)
@@ -2137,9 +3073,12 @@ func FindCommitSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) (
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("commit_id"),
-		orm.Column("repo_id"),
+		orm.Column("sha"),
 		orm.Column("author_user_id"),
 		orm.Column("customer_id"),
+		orm.Column("data_group_id"),
+		orm.Column("repo_id"),
+		orm.Column("repo"),
 		orm.Column("ref_type"),
 		orm.Column("additions"),
 		orm.Column("deletions"),
@@ -2168,9 +3107,12 @@ func FindCommitSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) (
 	for rows.Next() {
 		var _ID sql.NullString
 		var _CommitID sql.NullString
-		var _RepoID sql.NullString
+		var _Sha sql.NullString
 		var _AuthorUserID sql.NullString
 		var _CustomerID sql.NullString
+		var _DataGroupID sql.NullString
+		var _RepoID sql.NullString
+		var _Repo sql.NullString
 		var _RefType sql.NullString
 		var _Additions sql.NullInt64
 		var _Deletions sql.NullInt64
@@ -2182,9 +3124,12 @@ func FindCommitSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) (
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
-			&_RepoID,
+			&_Sha,
 			&_AuthorUserID,
 			&_CustomerID,
+			&_DataGroupID,
+			&_RepoID,
+			&_Repo,
 			&_RefType,
 			&_Additions,
 			&_Deletions,
@@ -2204,14 +3149,23 @@ func FindCommitSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) (
 		if _CommitID.Valid {
 			t.SetCommitID(_CommitID.String)
 		}
-		if _RepoID.Valid {
-			t.SetRepoID(_RepoID.String)
+		if _Sha.Valid {
+			t.SetSha(_Sha.String)
 		}
 		if _AuthorUserID.Valid {
 			t.SetAuthorUserID(_AuthorUserID.String)
 		}
 		if _CustomerID.Valid {
 			t.SetCustomerID(_CustomerID.String)
+		}
+		if _DataGroupID.Valid {
+			t.SetDataGroupID(_DataGroupID.String)
+		}
+		if _RepoID.Valid {
+			t.SetRepoID(_RepoID.String)
+		}
+		if _Repo.Valid {
+			t.SetRepo(_Repo.String)
 		}
 		if _RefType.Valid {
 			t.SetRefType(_RefType.String)
@@ -2247,9 +3201,12 @@ func (t *CommitSummary) DBFind(ctx context.Context, db DB, _params ...interface{
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("commit_id"),
-		orm.Column("repo_id"),
+		orm.Column("sha"),
 		orm.Column("author_user_id"),
 		orm.Column("customer_id"),
+		orm.Column("data_group_id"),
+		orm.Column("repo_id"),
+		orm.Column("repo"),
 		orm.Column("ref_type"),
 		orm.Column("additions"),
 		orm.Column("deletions"),
@@ -2269,9 +3226,12 @@ func (t *CommitSummary) DBFind(ctx context.Context, db DB, _params ...interface{
 	row := db.QueryRowContext(ctx, q, p...)
 	var _ID sql.NullString
 	var _CommitID sql.NullString
-	var _RepoID sql.NullString
+	var _Sha sql.NullString
 	var _AuthorUserID sql.NullString
 	var _CustomerID sql.NullString
+	var _DataGroupID sql.NullString
+	var _RepoID sql.NullString
+	var _Repo sql.NullString
 	var _RefType sql.NullString
 	var _Additions sql.NullInt64
 	var _Deletions sql.NullInt64
@@ -2283,9 +3243,12 @@ func (t *CommitSummary) DBFind(ctx context.Context, db DB, _params ...interface{
 	err := row.Scan(
 		&_ID,
 		&_CommitID,
-		&_RepoID,
+		&_Sha,
 		&_AuthorUserID,
 		&_CustomerID,
+		&_DataGroupID,
+		&_RepoID,
+		&_Repo,
 		&_RefType,
 		&_Additions,
 		&_Deletions,
@@ -2304,14 +3267,23 @@ func (t *CommitSummary) DBFind(ctx context.Context, db DB, _params ...interface{
 	if _CommitID.Valid {
 		t.SetCommitID(_CommitID.String)
 	}
-	if _RepoID.Valid {
-		t.SetRepoID(_RepoID.String)
+	if _Sha.Valid {
+		t.SetSha(_Sha.String)
 	}
 	if _AuthorUserID.Valid {
 		t.SetAuthorUserID(_AuthorUserID.String)
 	}
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
+	}
+	if _DataGroupID.Valid {
+		t.SetDataGroupID(_DataGroupID.String)
+	}
+	if _RepoID.Valid {
+		t.SetRepoID(_RepoID.String)
+	}
+	if _Repo.Valid {
+		t.SetRepo(_Repo.String)
 	}
 	if _RefType.Valid {
 		t.SetRefType(_RefType.String)
@@ -2345,9 +3317,12 @@ func (t *CommitSummary) DBFindTx(ctx context.Context, tx Tx, _params ...interfac
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("commit_id"),
-		orm.Column("repo_id"),
+		orm.Column("sha"),
 		orm.Column("author_user_id"),
 		orm.Column("customer_id"),
+		orm.Column("data_group_id"),
+		orm.Column("repo_id"),
+		orm.Column("repo"),
 		orm.Column("ref_type"),
 		orm.Column("additions"),
 		orm.Column("deletions"),
@@ -2367,9 +3342,12 @@ func (t *CommitSummary) DBFindTx(ctx context.Context, tx Tx, _params ...interfac
 	row := tx.QueryRowContext(ctx, q, p...)
 	var _ID sql.NullString
 	var _CommitID sql.NullString
-	var _RepoID sql.NullString
+	var _Sha sql.NullString
 	var _AuthorUserID sql.NullString
 	var _CustomerID sql.NullString
+	var _DataGroupID sql.NullString
+	var _RepoID sql.NullString
+	var _Repo sql.NullString
 	var _RefType sql.NullString
 	var _Additions sql.NullInt64
 	var _Deletions sql.NullInt64
@@ -2381,9 +3359,12 @@ func (t *CommitSummary) DBFindTx(ctx context.Context, tx Tx, _params ...interfac
 	err := row.Scan(
 		&_ID,
 		&_CommitID,
-		&_RepoID,
+		&_Sha,
 		&_AuthorUserID,
 		&_CustomerID,
+		&_DataGroupID,
+		&_RepoID,
+		&_Repo,
 		&_RefType,
 		&_Additions,
 		&_Deletions,
@@ -2402,14 +3383,23 @@ func (t *CommitSummary) DBFindTx(ctx context.Context, tx Tx, _params ...interfac
 	if _CommitID.Valid {
 		t.SetCommitID(_CommitID.String)
 	}
-	if _RepoID.Valid {
-		t.SetRepoID(_RepoID.String)
+	if _Sha.Valid {
+		t.SetSha(_Sha.String)
 	}
 	if _AuthorUserID.Valid {
 		t.SetAuthorUserID(_AuthorUserID.String)
 	}
 	if _CustomerID.Valid {
 		t.SetCustomerID(_CustomerID.String)
+	}
+	if _DataGroupID.Valid {
+		t.SetDataGroupID(_DataGroupID.String)
+	}
+	if _RepoID.Valid {
+		t.SetRepoID(_RepoID.String)
+	}
+	if _Repo.Valid {
+		t.SetRepo(_Repo.String)
 	}
 	if _RefType.Valid {
 		t.SetRefType(_RefType.String)
