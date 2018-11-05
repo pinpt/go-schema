@@ -23,15 +23,15 @@ import (
 // compiler checks for interface implementations. if the generated model
 // doesn't implement these interfaces for some reason you'll get a compiler error
 
-var _ Model = (*issueReworkSummary)(nil)
-var _ CSVWriter = (*issueReworkSummary)(nil)
-var _ JSONWriter = (*issueReworkSummary)(nil)
-var _ Checksum = (*issueReworkSummary)(nil)
+var _ Model = (*IssueReworkSummary)(nil)
+var _ CSVWriter = (*IssueReworkSummary)(nil)
+var _ JSONWriter = (*IssueReworkSummary)(nil)
+var _ Checksum = (*IssueReworkSummary)(nil)
 
-// issueReworkSummaryTableName is the name of the table in SQL
-const issueReworkSummaryTableName = "issue_rework_summary"
+// IssueReworkSummaryTableName is the name of the table in SQL
+const IssueReworkSummaryTableName = "issue_rework_summary"
 
-var issueReworkSummaryColumns = []string{
+var IssueReworkSummaryColumns = []string{
 	"id",
 	"checksum",
 	"customer_id",
@@ -42,8 +42,8 @@ var issueReworkSummaryColumns = []string{
 	"date",
 }
 
-// issueReworkSummary table
-type issueReworkSummary struct {
+// IssueReworkSummary table
+type IssueReworkSummary struct {
 	Checksum   *string `json:"checksum,omitempty"`
 	CustomerID string  `json:"customer_id"`
 	Date       *int64  `json:"date,omitempty"`
@@ -54,13 +54,13 @@ type issueReworkSummary struct {
 	UserID     *string `json:"user_id,omitempty"`
 }
 
-// TableName returns the SQL table name for issueReworkSummary and satifies the Model interface
-func (t *issueReworkSummary) TableName() string {
-	return issueReworkSummaryTableName
+// TableName returns the SQL table name for IssueReworkSummary and satifies the Model interface
+func (t *IssueReworkSummary) TableName() string {
+	return IssueReworkSummaryTableName
 }
 
-// ToCSV will serialize the issueReworkSummary instance to a CSV compatible array of strings
-func (t *issueReworkSummary) ToCSV() []string {
+// ToCSV will serialize the IssueReworkSummary instance to a CSV compatible array of strings
+func (t *IssueReworkSummary) ToCSV() []string {
 	return []string{
 		t.ID,
 		t.CalculateChecksum(),
@@ -73,13 +73,13 @@ func (t *issueReworkSummary) ToCSV() []string {
 	}
 }
 
-// WriteCSV will serialize the issueReworkSummary instance to the writer as CSV and satisfies the CSVWriter interface
-func (t *issueReworkSummary) WriteCSV(w *csv.Writer) error {
+// WriteCSV will serialize the IssueReworkSummary instance to the writer as CSV and satisfies the CSVWriter interface
+func (t *IssueReworkSummary) WriteCSV(w *csv.Writer) error {
 	return w.Write(t.ToCSV())
 }
 
-// WriteJSON will serialize the issueReworkSummary instance to the writer as JSON and satisfies the JSONWriter interface
-func (t *issueReworkSummary) WriteJSON(w io.Writer, indent ...bool) error {
+// WriteJSON will serialize the IssueReworkSummary instance to the writer as JSON and satisfies the JSONWriter interface
+func (t *IssueReworkSummary) WriteJSON(w io.Writer, indent ...bool) error {
 	if indent != nil && len(indent) > 0 {
 		buf, err := json.MarshalIndent(t, "", "\t")
 		if err != nil {
@@ -106,12 +106,12 @@ func (t *issueReworkSummary) WriteJSON(w io.Writer, indent ...bool) error {
 	return nil
 }
 
-// NewissueReworkSummaryReader creates a JSON reader which can read in issueReworkSummary objects serialized as JSON either as an array, single object or json new lines
-// and writes each issueReworkSummary to the channel provided
-func NewissueReworkSummaryReader(r io.Reader, ch chan<- issueReworkSummary) error {
+// NewIssueReworkSummaryReader creates a JSON reader which can read in IssueReworkSummary objects serialized as JSON either as an array, single object or json new lines
+// and writes each IssueReworkSummary to the channel provided
+func NewIssueReworkSummaryReader(r io.Reader, ch chan<- IssueReworkSummary) error {
 	return orm.Deserialize(r, func(buf json.RawMessage) error {
 		dec := json.NewDecoder(bytes.NewBuffer(buf))
-		e := issueReworkSummary{}
+		e := IssueReworkSummary{}
 		if err := dec.Decode(&e); err != nil {
 			return err
 		}
@@ -120,8 +120,8 @@ func NewissueReworkSummaryReader(r io.Reader, ch chan<- issueReworkSummary) erro
 	})
 }
 
-// NewCSVissueReworkSummaryReaderDir will read the reader as CSV and emit each record to the channel provided
-func NewCSVissueReworkSummaryReader(r io.Reader, ch chan<- issueReworkSummary) error {
+// NewCSVIssueReworkSummaryReaderDir will read the reader as CSV and emit each record to the channel provided
+func NewCSVIssueReworkSummaryReader(r io.Reader, ch chan<- IssueReworkSummary) error {
 	cr := csv.NewReader(r)
 	for {
 		record, err := cr.Read()
@@ -130,7 +130,7 @@ func NewCSVissueReworkSummaryReader(r io.Reader, ch chan<- issueReworkSummary) e
 		} else if err != nil {
 			return err
 		}
-		ch <- issueReworkSummary{
+		ch <- IssueReworkSummary{
 			ID:         record[0],
 			Checksum:   fromStringPointer(record[1]),
 			CustomerID: record[2],
@@ -144,8 +144,8 @@ func NewCSVissueReworkSummaryReader(r io.Reader, ch chan<- issueReworkSummary) e
 	return nil
 }
 
-// NewCSVissueReworkSummaryReaderFile will read the file as a CSV and emit each record to the channel provided
-func NewCSVissueReworkSummaryReaderFile(fp string, ch chan<- issueReworkSummary) error {
+// NewCSVIssueReworkSummaryReaderFile will read the file as a CSV and emit each record to the channel provided
+func NewCSVIssueReworkSummaryReaderFile(fp string, ch chan<- IssueReworkSummary) error {
 	f, err := os.Open(fp)
 	if err != nil {
 		return fmt.Errorf("error opening CSV file at %s. %v", fp, err)
@@ -160,41 +160,41 @@ func NewCSVissueReworkSummaryReaderFile(fp string, ch chan<- issueReworkSummary)
 	}
 	defer f.Close()
 	defer fc.Close()
-	return NewCSVissueReworkSummaryReader(fc, ch)
+	return NewCSVIssueReworkSummaryReader(fc, ch)
 }
 
-// NewCSVissueReworkSummaryReaderDir will read the issue_rework_summary.csv.gz file as a CSV and emit each record to the channel provided
-func NewCSVissueReworkSummaryReaderDir(dir string, ch chan<- issueReworkSummary) error {
-	return NewCSVissueReworkSummaryReaderFile(filepath.Join(dir, "issue_rework_summary.csv.gz"), ch)
+// NewCSVIssueReworkSummaryReaderDir will read the issue_rework_summary.csv.gz file as a CSV and emit each record to the channel provided
+func NewCSVIssueReworkSummaryReaderDir(dir string, ch chan<- IssueReworkSummary) error {
+	return NewCSVIssueReworkSummaryReaderFile(filepath.Join(dir, "issue_rework_summary.csv.gz"), ch)
 }
 
-// issueReworkSummaryCSVDeduper is a function callback which takes the existing value (a) and the new value (b)
+// IssueReworkSummaryCSVDeduper is a function callback which takes the existing value (a) and the new value (b)
 // and the return value should be the one to use (or a new one, if applicable). return nil
 // to skip processing of this record
-type issueReworkSummaryCSVDeduper func(a issueReworkSummary, b issueReworkSummary) *issueReworkSummary
+type IssueReworkSummaryCSVDeduper func(a IssueReworkSummary, b IssueReworkSummary) *IssueReworkSummary
 
-// issueReworkSummaryCSVDedupeDisabled is set on whether the CSV writer should de-dupe values by key
-var issueReworkSummaryCSVDedupeDisabled bool
+// IssueReworkSummaryCSVDedupeDisabled is set on whether the CSV writer should de-dupe values by key
+var IssueReworkSummaryCSVDedupeDisabled bool
 
-// NewissueReworkSummaryCSVWriterSize creates a batch writer that will write each issueReworkSummary into a CSV file
+// NewIssueReworkSummaryCSVWriterSize creates a batch writer that will write each IssueReworkSummary into a CSV file
 // this method will automatically de-duplicate entries using the primary key. if the checksum
 // for a newer item with the same primary key doesn't match a previously sent item, the newer
 // one will be used
-func NewissueReworkSummaryCSVWriterSize(w io.Writer, size int, dedupers ...issueReworkSummaryCSVDeduper) (chan issueReworkSummary, chan bool, error) {
+func NewIssueReworkSummaryCSVWriterSize(w io.Writer, size int, dedupers ...IssueReworkSummaryCSVDeduper) (chan IssueReworkSummary, chan bool, error) {
 	cw := csv.NewWriter(w)
-	ch := make(chan issueReworkSummary, size)
+	ch := make(chan IssueReworkSummary, size)
 	done := make(chan bool)
 	go func() {
 		defer func() { done <- true }()
-		dodedupe := !issueReworkSummaryCSVDedupeDisabled
-		var kv map[string]*issueReworkSummary
-		var deduper issueReworkSummaryCSVDeduper
+		dodedupe := !IssueReworkSummaryCSVDedupeDisabled
+		var kv map[string]*IssueReworkSummary
+		var deduper IssueReworkSummaryCSVDeduper
 		if dedupers != nil && len(dedupers) > 0 {
 			deduper = dedupers[0]
 			dodedupe = true
 		}
 		if dodedupe {
-			kv = make(map[string]*issueReworkSummary)
+			kv = make(map[string]*IssueReworkSummary)
 		}
 		for c := range ch {
 			if dodedupe {
@@ -234,21 +234,21 @@ func NewissueReworkSummaryCSVWriterSize(w io.Writer, size int, dedupers ...issue
 	return ch, done, nil
 }
 
-// issueReworkSummaryCSVDefaultSize is the default channel buffer size if not provided
-var issueReworkSummaryCSVDefaultSize = 100
+// IssueReworkSummaryCSVDefaultSize is the default channel buffer size if not provided
+var IssueReworkSummaryCSVDefaultSize = 100
 
-// NewissueReworkSummaryCSVWriter creates a batch writer that will write each issueReworkSummary into a CSV file
-func NewissueReworkSummaryCSVWriter(w io.Writer, dedupers ...issueReworkSummaryCSVDeduper) (chan issueReworkSummary, chan bool, error) {
-	return NewissueReworkSummaryCSVWriterSize(w, issueReworkSummaryCSVDefaultSize, dedupers...)
+// NewIssueReworkSummaryCSVWriter creates a batch writer that will write each IssueReworkSummary into a CSV file
+func NewIssueReworkSummaryCSVWriter(w io.Writer, dedupers ...IssueReworkSummaryCSVDeduper) (chan IssueReworkSummary, chan bool, error) {
+	return NewIssueReworkSummaryCSVWriterSize(w, IssueReworkSummaryCSVDefaultSize, dedupers...)
 }
 
-// NewissueReworkSummaryCSVWriterDir creates a batch writer that will write each issueReworkSummary into a CSV file named issue_rework_summary.csv.gz in dir
-func NewissueReworkSummaryCSVWriterDir(dir string, dedupers ...issueReworkSummaryCSVDeduper) (chan issueReworkSummary, chan bool, error) {
-	return NewissueReworkSummaryCSVWriterFile(filepath.Join(dir, "issue_rework_summary.csv.gz"), dedupers...)
+// NewIssueReworkSummaryCSVWriterDir creates a batch writer that will write each IssueReworkSummary into a CSV file named issue_rework_summary.csv.gz in dir
+func NewIssueReworkSummaryCSVWriterDir(dir string, dedupers ...IssueReworkSummaryCSVDeduper) (chan IssueReworkSummary, chan bool, error) {
+	return NewIssueReworkSummaryCSVWriterFile(filepath.Join(dir, "issue_rework_summary.csv.gz"), dedupers...)
 }
 
-// NewissueReworkSummaryCSVWriterFile creates a batch writer that will write each issueReworkSummary into a CSV file
-func NewissueReworkSummaryCSVWriterFile(fn string, dedupers ...issueReworkSummaryCSVDeduper) (chan issueReworkSummary, chan bool, error) {
+// NewIssueReworkSummaryCSVWriterFile creates a batch writer that will write each IssueReworkSummary into a CSV file
+func NewIssueReworkSummaryCSVWriterFile(fn string, dedupers ...IssueReworkSummaryCSVDeduper) (chan IssueReworkSummary, chan bool, error) {
 	f, err := os.Create(fn)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error opening CSV file %s. %v", fn, err)
@@ -258,7 +258,7 @@ func NewissueReworkSummaryCSVWriterFile(fn string, dedupers ...issueReworkSummar
 		w, _ := gzip.NewWriterLevel(f, gzip.BestCompression)
 		fc = w
 	}
-	ch, done, err := NewissueReworkSummaryCSVWriter(fc, dedupers...)
+	ch, done, err := NewIssueReworkSummaryCSVWriter(fc, dedupers...)
 	if err != nil {
 		fc.Close()
 		f.Close()
@@ -277,13 +277,13 @@ func NewissueReworkSummaryCSVWriterFile(fn string, dedupers ...issueReworkSummar
 	return ch, sdone, nil
 }
 
-type issueReworkSummaryDBAction func(ctx context.Context, db DB, record issueReworkSummary) error
+type IssueReworkSummaryDBAction func(ctx context.Context, db DB, record IssueReworkSummary) error
 
-// NewissueReworkSummaryDBWriterSize creates a DB writer that will write each issue into the DB
-func NewissueReworkSummaryDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...issueReworkSummaryDBAction) (chan issueReworkSummary, chan bool, error) {
-	ch := make(chan issueReworkSummary, size)
+// NewIssueReworkSummaryDBWriterSize creates a DB writer that will write each issue into the DB
+func NewIssueReworkSummaryDBWriterSize(ctx context.Context, db DB, errors chan<- error, size int, actions ...IssueReworkSummaryDBAction) (chan IssueReworkSummary, chan bool, error) {
+	ch := make(chan IssueReworkSummary, size)
 	done := make(chan bool)
-	var action issueReworkSummaryDBAction
+	var action IssueReworkSummaryDBAction
 	if actions != nil && len(actions) > 0 {
 		action = actions[0]
 	}
@@ -304,71 +304,71 @@ func NewissueReworkSummaryDBWriterSize(ctx context.Context, db DB, errors chan<-
 	return ch, done, nil
 }
 
-// NewissueReworkSummaryDBWriter creates a DB writer that will write each issue into the DB
-func NewissueReworkSummaryDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...issueReworkSummaryDBAction) (chan issueReworkSummary, chan bool, error) {
-	return NewissueReworkSummaryDBWriterSize(ctx, db, errors, 100, actions...)
+// NewIssueReworkSummaryDBWriter creates a DB writer that will write each issue into the DB
+func NewIssueReworkSummaryDBWriter(ctx context.Context, db DB, errors chan<- error, actions ...IssueReworkSummaryDBAction) (chan IssueReworkSummary, chan bool, error) {
+	return NewIssueReworkSummaryDBWriterSize(ctx, db, errors, 100, actions...)
 }
 
-// issueReworkSummaryColumnID is the ID SQL column name for the issueReworkSummary table
-const issueReworkSummaryColumnID = "id"
+// IssueReworkSummaryColumnID is the ID SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryColumnID = "id"
 
-// issueReworkSummaryEscapedColumnID is the escaped ID SQL column name for the issueReworkSummary table
-const issueReworkSummaryEscapedColumnID = "`id`"
+// IssueReworkSummaryEscapedColumnID is the escaped ID SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryEscapedColumnID = "`id`"
 
-// issueReworkSummaryColumnChecksum is the Checksum SQL column name for the issueReworkSummary table
-const issueReworkSummaryColumnChecksum = "checksum"
+// IssueReworkSummaryColumnChecksum is the Checksum SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryColumnChecksum = "checksum"
 
-// issueReworkSummaryEscapedColumnChecksum is the escaped Checksum SQL column name for the issueReworkSummary table
-const issueReworkSummaryEscapedColumnChecksum = "`checksum`"
+// IssueReworkSummaryEscapedColumnChecksum is the escaped Checksum SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryEscapedColumnChecksum = "`checksum`"
 
-// issueReworkSummaryColumnCustomerID is the CustomerID SQL column name for the issueReworkSummary table
-const issueReworkSummaryColumnCustomerID = "customer_id"
+// IssueReworkSummaryColumnCustomerID is the CustomerID SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryColumnCustomerID = "customer_id"
 
-// issueReworkSummaryEscapedColumnCustomerID is the escaped CustomerID SQL column name for the issueReworkSummary table
-const issueReworkSummaryEscapedColumnCustomerID = "`customer_id`"
+// IssueReworkSummaryEscapedColumnCustomerID is the escaped CustomerID SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryEscapedColumnCustomerID = "`customer_id`"
 
-// issueReworkSummaryColumnProjectID is the ProjectID SQL column name for the issueReworkSummary table
-const issueReworkSummaryColumnProjectID = "project_id"
+// IssueReworkSummaryColumnProjectID is the ProjectID SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryColumnProjectID = "project_id"
 
-// issueReworkSummaryEscapedColumnProjectID is the escaped ProjectID SQL column name for the issueReworkSummary table
-const issueReworkSummaryEscapedColumnProjectID = "`project_id`"
+// IssueReworkSummaryEscapedColumnProjectID is the escaped ProjectID SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryEscapedColumnProjectID = "`project_id`"
 
-// issueReworkSummaryColumnUserID is the UserID SQL column name for the issueReworkSummary table
-const issueReworkSummaryColumnUserID = "user_id"
+// IssueReworkSummaryColumnUserID is the UserID SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryColumnUserID = "user_id"
 
-// issueReworkSummaryEscapedColumnUserID is the escaped UserID SQL column name for the issueReworkSummary table
-const issueReworkSummaryEscapedColumnUserID = "`user_id`"
+// IssueReworkSummaryEscapedColumnUserID is the escaped UserID SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryEscapedColumnUserID = "`user_id`"
 
-// issueReworkSummaryColumnIssueID is the IssueID SQL column name for the issueReworkSummary table
-const issueReworkSummaryColumnIssueID = "issue_id"
+// IssueReworkSummaryColumnIssueID is the IssueID SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryColumnIssueID = "issue_id"
 
-// issueReworkSummaryEscapedColumnIssueID is the escaped IssueID SQL column name for the issueReworkSummary table
-const issueReworkSummaryEscapedColumnIssueID = "`issue_id`"
+// IssueReworkSummaryEscapedColumnIssueID is the escaped IssueID SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryEscapedColumnIssueID = "`issue_id`"
 
-// issueReworkSummaryColumnPath is the Path SQL column name for the issueReworkSummary table
-const issueReworkSummaryColumnPath = "path"
+// IssueReworkSummaryColumnPath is the Path SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryColumnPath = "path"
 
-// issueReworkSummaryEscapedColumnPath is the escaped Path SQL column name for the issueReworkSummary table
-const issueReworkSummaryEscapedColumnPath = "`path`"
+// IssueReworkSummaryEscapedColumnPath is the escaped Path SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryEscapedColumnPath = "`path`"
 
-// issueReworkSummaryColumnDate is the Date SQL column name for the issueReworkSummary table
-const issueReworkSummaryColumnDate = "date"
+// IssueReworkSummaryColumnDate is the Date SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryColumnDate = "date"
 
-// issueReworkSummaryEscapedColumnDate is the escaped Date SQL column name for the issueReworkSummary table
-const issueReworkSummaryEscapedColumnDate = "`date`"
+// IssueReworkSummaryEscapedColumnDate is the escaped Date SQL column name for the IssueReworkSummary table
+const IssueReworkSummaryEscapedColumnDate = "`date`"
 
-// GetID will return the issueReworkSummary ID value
-func (t *issueReworkSummary) GetID() string {
+// GetID will return the IssueReworkSummary ID value
+func (t *IssueReworkSummary) GetID() string {
 	return t.ID
 }
 
-// SetID will set the issueReworkSummary ID value
-func (t *issueReworkSummary) SetID(v string) {
+// SetID will set the IssueReworkSummary ID value
+func (t *IssueReworkSummary) SetID(v string) {
 	t.ID = v
 }
 
-// FindIssueReworkSummaryByID will find a issueReworkSummary by ID
-func FindIssueReworkSummaryByID(ctx context.Context, db DB, value string) (*issueReworkSummary, error) {
+// FindIssueReworkSummaryByID will find a IssueReworkSummary by ID
+func FindIssueReworkSummaryByID(ctx context.Context, db DB, value string) (*IssueReworkSummary, error) {
 	q := "SELECT `issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date` FROM `issue_rework_summary` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -394,7 +394,7 @@ func FindIssueReworkSummaryByID(ctx context.Context, db DB, value string) (*issu
 	if err != nil {
 		return nil, err
 	}
-	t := &issueReworkSummary{}
+	t := &IssueReworkSummary{}
 	if _ID.Valid {
 		t.SetID(_ID.String)
 	}
@@ -422,8 +422,8 @@ func FindIssueReworkSummaryByID(ctx context.Context, db DB, value string) (*issu
 	return t, nil
 }
 
-// FindIssueReworkSummaryByIDTx will find a issueReworkSummary by ID using the provided transaction
-func FindIssueReworkSummaryByIDTx(ctx context.Context, tx Tx, value string) (*issueReworkSummary, error) {
+// FindIssueReworkSummaryByIDTx will find a IssueReworkSummary by ID using the provided transaction
+func FindIssueReworkSummaryByIDTx(ctx context.Context, tx Tx, value string) (*IssueReworkSummary, error) {
 	q := "SELECT `issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date` FROM `issue_rework_summary` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Checksum sql.NullString
@@ -449,7 +449,7 @@ func FindIssueReworkSummaryByIDTx(ctx context.Context, tx Tx, value string) (*is
 	if err != nil {
 		return nil, err
 	}
-	t := &issueReworkSummary{}
+	t := &IssueReworkSummary{}
 	if _ID.Valid {
 		t.SetID(_ID.String)
 	}
@@ -477,31 +477,31 @@ func FindIssueReworkSummaryByIDTx(ctx context.Context, tx Tx, value string) (*is
 	return t, nil
 }
 
-// GetChecksum will return the issueReworkSummary Checksum value
-func (t *issueReworkSummary) GetChecksum() string {
+// GetChecksum will return the IssueReworkSummary Checksum value
+func (t *IssueReworkSummary) GetChecksum() string {
 	if t.Checksum == nil {
 		return ""
 	}
 	return *t.Checksum
 }
 
-// SetChecksum will set the issueReworkSummary Checksum value
-func (t *issueReworkSummary) SetChecksum(v string) {
+// SetChecksum will set the IssueReworkSummary Checksum value
+func (t *IssueReworkSummary) SetChecksum(v string) {
 	t.Checksum = &v
 }
 
-// GetCustomerID will return the issueReworkSummary CustomerID value
-func (t *issueReworkSummary) GetCustomerID() string {
+// GetCustomerID will return the IssueReworkSummary CustomerID value
+func (t *IssueReworkSummary) GetCustomerID() string {
 	return t.CustomerID
 }
 
-// SetCustomerID will set the issueReworkSummary CustomerID value
-func (t *issueReworkSummary) SetCustomerID(v string) {
+// SetCustomerID will set the IssueReworkSummary CustomerID value
+func (t *IssueReworkSummary) SetCustomerID(v string) {
 	t.CustomerID = v
 }
 
-// FindIssueReworkSummariesByCustomerID will find all issueReworkSummarys by the CustomerID value
-func FindIssueReworkSummariesByCustomerID(ctx context.Context, db DB, value string) ([]*issueReworkSummary, error) {
+// FindIssueReworkSummariesByCustomerID will find all IssueReworkSummarys by the CustomerID value
+func FindIssueReworkSummariesByCustomerID(ctx context.Context, db DB, value string) ([]*IssueReworkSummary, error) {
 	q := "SELECT `issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date` FROM `issue_rework_summary` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -511,7 +511,7 @@ func FindIssueReworkSummariesByCustomerID(ctx context.Context, db DB, value stri
 		return nil, err
 	}
 	defer rows.Close()
-	results := make([]*issueReworkSummary, 0)
+	results := make([]*IssueReworkSummary, 0)
 	for rows.Next() {
 		var _ID sql.NullString
 		var _Checksum sql.NullString
@@ -534,7 +534,7 @@ func FindIssueReworkSummariesByCustomerID(ctx context.Context, db DB, value stri
 		if err != nil {
 			return nil, err
 		}
-		t := &issueReworkSummary{}
+		t := &IssueReworkSummary{}
 		if _ID.Valid {
 			t.SetID(_ID.String)
 		}
@@ -564,8 +564,8 @@ func FindIssueReworkSummariesByCustomerID(ctx context.Context, db DB, value stri
 	return results, nil
 }
 
-// FindIssueReworkSummariesByCustomerIDTx will find all issueReworkSummarys by the CustomerID value using the provided transaction
-func FindIssueReworkSummariesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*issueReworkSummary, error) {
+// FindIssueReworkSummariesByCustomerIDTx will find all IssueReworkSummarys by the CustomerID value using the provided transaction
+func FindIssueReworkSummariesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*IssueReworkSummary, error) {
 	q := "SELECT `issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date` FROM `issue_rework_summary` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -575,7 +575,7 @@ func FindIssueReworkSummariesByCustomerIDTx(ctx context.Context, tx Tx, value st
 		return nil, err
 	}
 	defer rows.Close()
-	results := make([]*issueReworkSummary, 0)
+	results := make([]*IssueReworkSummary, 0)
 	for rows.Next() {
 		var _ID sql.NullString
 		var _Checksum sql.NullString
@@ -598,7 +598,7 @@ func FindIssueReworkSummariesByCustomerIDTx(ctx context.Context, tx Tx, value st
 		if err != nil {
 			return nil, err
 		}
-		t := &issueReworkSummary{}
+		t := &IssueReworkSummary{}
 		if _ID.Valid {
 			t.SetID(_ID.String)
 		}
@@ -628,18 +628,18 @@ func FindIssueReworkSummariesByCustomerIDTx(ctx context.Context, tx Tx, value st
 	return results, nil
 }
 
-// GetProjectID will return the issueReworkSummary ProjectID value
-func (t *issueReworkSummary) GetProjectID() string {
+// GetProjectID will return the IssueReworkSummary ProjectID value
+func (t *IssueReworkSummary) GetProjectID() string {
 	return t.ProjectID
 }
 
-// SetProjectID will set the issueReworkSummary ProjectID value
-func (t *issueReworkSummary) SetProjectID(v string) {
+// SetProjectID will set the IssueReworkSummary ProjectID value
+func (t *IssueReworkSummary) SetProjectID(v string) {
 	t.ProjectID = v
 }
 
-// FindIssueReworkSummariesByProjectID will find all issueReworkSummarys by the ProjectID value
-func FindIssueReworkSummariesByProjectID(ctx context.Context, db DB, value string) ([]*issueReworkSummary, error) {
+// FindIssueReworkSummariesByProjectID will find all IssueReworkSummarys by the ProjectID value
+func FindIssueReworkSummariesByProjectID(ctx context.Context, db DB, value string) ([]*IssueReworkSummary, error) {
 	q := "SELECT `issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date` FROM `issue_rework_summary` WHERE `project_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -649,7 +649,7 @@ func FindIssueReworkSummariesByProjectID(ctx context.Context, db DB, value strin
 		return nil, err
 	}
 	defer rows.Close()
-	results := make([]*issueReworkSummary, 0)
+	results := make([]*IssueReworkSummary, 0)
 	for rows.Next() {
 		var _ID sql.NullString
 		var _Checksum sql.NullString
@@ -672,7 +672,7 @@ func FindIssueReworkSummariesByProjectID(ctx context.Context, db DB, value strin
 		if err != nil {
 			return nil, err
 		}
-		t := &issueReworkSummary{}
+		t := &IssueReworkSummary{}
 		if _ID.Valid {
 			t.SetID(_ID.String)
 		}
@@ -702,8 +702,8 @@ func FindIssueReworkSummariesByProjectID(ctx context.Context, db DB, value strin
 	return results, nil
 }
 
-// FindIssueReworkSummariesByProjectIDTx will find all issueReworkSummarys by the ProjectID value using the provided transaction
-func FindIssueReworkSummariesByProjectIDTx(ctx context.Context, tx Tx, value string) ([]*issueReworkSummary, error) {
+// FindIssueReworkSummariesByProjectIDTx will find all IssueReworkSummarys by the ProjectID value using the provided transaction
+func FindIssueReworkSummariesByProjectIDTx(ctx context.Context, tx Tx, value string) ([]*IssueReworkSummary, error) {
 	q := "SELECT `issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date` FROM `issue_rework_summary` WHERE `project_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -713,7 +713,7 @@ func FindIssueReworkSummariesByProjectIDTx(ctx context.Context, tx Tx, value str
 		return nil, err
 	}
 	defer rows.Close()
-	results := make([]*issueReworkSummary, 0)
+	results := make([]*IssueReworkSummary, 0)
 	for rows.Next() {
 		var _ID sql.NullString
 		var _Checksum sql.NullString
@@ -736,7 +736,7 @@ func FindIssueReworkSummariesByProjectIDTx(ctx context.Context, tx Tx, value str
 		if err != nil {
 			return nil, err
 		}
-		t := &issueReworkSummary{}
+		t := &IssueReworkSummary{}
 		if _ID.Valid {
 			t.SetID(_ID.String)
 		}
@@ -766,21 +766,21 @@ func FindIssueReworkSummariesByProjectIDTx(ctx context.Context, tx Tx, value str
 	return results, nil
 }
 
-// GetUserID will return the issueReworkSummary UserID value
-func (t *issueReworkSummary) GetUserID() string {
+// GetUserID will return the IssueReworkSummary UserID value
+func (t *IssueReworkSummary) GetUserID() string {
 	if t.UserID == nil {
 		return ""
 	}
 	return *t.UserID
 }
 
-// SetUserID will set the issueReworkSummary UserID value
-func (t *issueReworkSummary) SetUserID(v string) {
+// SetUserID will set the IssueReworkSummary UserID value
+func (t *IssueReworkSummary) SetUserID(v string) {
 	t.UserID = &v
 }
 
-// FindIssueReworkSummariesByUserID will find all issueReworkSummarys by the UserID value
-func FindIssueReworkSummariesByUserID(ctx context.Context, db DB, value string) ([]*issueReworkSummary, error) {
+// FindIssueReworkSummariesByUserID will find all IssueReworkSummarys by the UserID value
+func FindIssueReworkSummariesByUserID(ctx context.Context, db DB, value string) ([]*IssueReworkSummary, error) {
 	q := "SELECT `issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date` FROM `issue_rework_summary` WHERE `user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -790,7 +790,7 @@ func FindIssueReworkSummariesByUserID(ctx context.Context, db DB, value string) 
 		return nil, err
 	}
 	defer rows.Close()
-	results := make([]*issueReworkSummary, 0)
+	results := make([]*IssueReworkSummary, 0)
 	for rows.Next() {
 		var _ID sql.NullString
 		var _Checksum sql.NullString
@@ -813,7 +813,7 @@ func FindIssueReworkSummariesByUserID(ctx context.Context, db DB, value string) 
 		if err != nil {
 			return nil, err
 		}
-		t := &issueReworkSummary{}
+		t := &IssueReworkSummary{}
 		if _ID.Valid {
 			t.SetID(_ID.String)
 		}
@@ -843,8 +843,8 @@ func FindIssueReworkSummariesByUserID(ctx context.Context, db DB, value string) 
 	return results, nil
 }
 
-// FindIssueReworkSummariesByUserIDTx will find all issueReworkSummarys by the UserID value using the provided transaction
-func FindIssueReworkSummariesByUserIDTx(ctx context.Context, tx Tx, value string) ([]*issueReworkSummary, error) {
+// FindIssueReworkSummariesByUserIDTx will find all IssueReworkSummarys by the UserID value using the provided transaction
+func FindIssueReworkSummariesByUserIDTx(ctx context.Context, tx Tx, value string) ([]*IssueReworkSummary, error) {
 	q := "SELECT `issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date` FROM `issue_rework_summary` WHERE `user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -854,7 +854,7 @@ func FindIssueReworkSummariesByUserIDTx(ctx context.Context, tx Tx, value string
 		return nil, err
 	}
 	defer rows.Close()
-	results := make([]*issueReworkSummary, 0)
+	results := make([]*IssueReworkSummary, 0)
 	for rows.Next() {
 		var _ID sql.NullString
 		var _Checksum sql.NullString
@@ -877,7 +877,7 @@ func FindIssueReworkSummariesByUserIDTx(ctx context.Context, tx Tx, value string
 		if err != nil {
 			return nil, err
 		}
-		t := &issueReworkSummary{}
+		t := &IssueReworkSummary{}
 		if _ID.Valid {
 			t.SetID(_ID.String)
 		}
@@ -907,18 +907,18 @@ func FindIssueReworkSummariesByUserIDTx(ctx context.Context, tx Tx, value string
 	return results, nil
 }
 
-// GetIssueID will return the issueReworkSummary IssueID value
-func (t *issueReworkSummary) GetIssueID() string {
+// GetIssueID will return the IssueReworkSummary IssueID value
+func (t *IssueReworkSummary) GetIssueID() string {
 	return t.IssueID
 }
 
-// SetIssueID will set the issueReworkSummary IssueID value
-func (t *issueReworkSummary) SetIssueID(v string) {
+// SetIssueID will set the IssueReworkSummary IssueID value
+func (t *IssueReworkSummary) SetIssueID(v string) {
 	t.IssueID = v
 }
 
-// FindIssueReworkSummariesByIssueID will find all issueReworkSummarys by the IssueID value
-func FindIssueReworkSummariesByIssueID(ctx context.Context, db DB, value string) ([]*issueReworkSummary, error) {
+// FindIssueReworkSummariesByIssueID will find all IssueReworkSummarys by the IssueID value
+func FindIssueReworkSummariesByIssueID(ctx context.Context, db DB, value string) ([]*IssueReworkSummary, error) {
 	q := "SELECT `issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date` FROM `issue_rework_summary` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -928,7 +928,7 @@ func FindIssueReworkSummariesByIssueID(ctx context.Context, db DB, value string)
 		return nil, err
 	}
 	defer rows.Close()
-	results := make([]*issueReworkSummary, 0)
+	results := make([]*IssueReworkSummary, 0)
 	for rows.Next() {
 		var _ID sql.NullString
 		var _Checksum sql.NullString
@@ -951,7 +951,7 @@ func FindIssueReworkSummariesByIssueID(ctx context.Context, db DB, value string)
 		if err != nil {
 			return nil, err
 		}
-		t := &issueReworkSummary{}
+		t := &IssueReworkSummary{}
 		if _ID.Valid {
 			t.SetID(_ID.String)
 		}
@@ -981,8 +981,8 @@ func FindIssueReworkSummariesByIssueID(ctx context.Context, db DB, value string)
 	return results, nil
 }
 
-// FindIssueReworkSummariesByIssueIDTx will find all issueReworkSummarys by the IssueID value using the provided transaction
-func FindIssueReworkSummariesByIssueIDTx(ctx context.Context, tx Tx, value string) ([]*issueReworkSummary, error) {
+// FindIssueReworkSummariesByIssueIDTx will find all IssueReworkSummarys by the IssueID value using the provided transaction
+func FindIssueReworkSummariesByIssueIDTx(ctx context.Context, tx Tx, value string) ([]*IssueReworkSummary, error) {
 	q := "SELECT `issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date` FROM `issue_rework_summary` WHERE `issue_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
@@ -992,7 +992,7 @@ func FindIssueReworkSummariesByIssueIDTx(ctx context.Context, tx Tx, value strin
 		return nil, err
 	}
 	defer rows.Close()
-	results := make([]*issueReworkSummary, 0)
+	results := make([]*IssueReworkSummary, 0)
 	for rows.Next() {
 		var _ID sql.NullString
 		var _Checksum sql.NullString
@@ -1015,7 +1015,7 @@ func FindIssueReworkSummariesByIssueIDTx(ctx context.Context, tx Tx, value strin
 		if err != nil {
 			return nil, err
 		}
-		t := &issueReworkSummary{}
+		t := &IssueReworkSummary{}
 		if _ID.Valid {
 			t.SetID(_ID.String)
 		}
@@ -1045,64 +1045,64 @@ func FindIssueReworkSummariesByIssueIDTx(ctx context.Context, tx Tx, value strin
 	return results, nil
 }
 
-// GetPath will return the issueReworkSummary Path value
-func (t *issueReworkSummary) GetPath() string {
+// GetPath will return the IssueReworkSummary Path value
+func (t *IssueReworkSummary) GetPath() string {
 	return t.Path
 }
 
-// SetPath will set the issueReworkSummary Path value
-func (t *issueReworkSummary) SetPath(v string) {
+// SetPath will set the IssueReworkSummary Path value
+func (t *IssueReworkSummary) SetPath(v string) {
 	t.Path = v
 }
 
-// GetDate will return the issueReworkSummary Date value
-func (t *issueReworkSummary) GetDate() int64 {
+// GetDate will return the IssueReworkSummary Date value
+func (t *IssueReworkSummary) GetDate() int64 {
 	if t.Date == nil {
 		return int64(0)
 	}
 	return *t.Date
 }
 
-// SetDate will set the issueReworkSummary Date value
-func (t *issueReworkSummary) SetDate(v int64) {
+// SetDate will set the IssueReworkSummary Date value
+func (t *IssueReworkSummary) SetDate(v int64) {
 	t.Date = &v
 }
 
-func (t *issueReworkSummary) toTimestamp(value time.Time) *timestamp.Timestamp {
+func (t *IssueReworkSummary) toTimestamp(value time.Time) *timestamp.Timestamp {
 	ts, _ := ptypes.TimestampProto(value)
 	return ts
 }
 
-// DBCreateissueReworkSummaryTable will create the issueReworkSummary table
-func DBCreateissueReworkSummaryTable(ctx context.Context, db DB) error {
-	q := "CREATE TABLE `issue_rework_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`project_id`VARCHAR(64) NOT NULL,`user_id`VARCHAR(64),`issue_id` VARCHAR(64) NOT NULL,`path`VARCHAR(615) NOT NULL,`date`BIGINT UNSIGNED,INDEX issue_rework_summary_customer_id_index (`customer_id`),INDEX issue_rework_summary_project_id_index (`project_id`),INDEX issue_rework_summary_user_id_index (`user_id`),INDEX issue_rework_summary_issue_id_index (`issue_id`),INDEX issue_rework_summary_customer_id_project_id_user_id_index (`customer_id`,`project_id`,`user_id`),INDEX issue_rework_summary_customer_id_user_id_path_index (`customer_id`,`user_id`,`path`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+// DBCreateIssueReworkSummaryTable will create the IssueReworkSummary table
+func DBCreateIssueReworkSummaryTable(ctx context.Context, db DB) error {
+	q := "CREATE TABLE `issue_rework_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`project_id`VARCHAR(64) NOT NULL,`user_id`VARCHAR(64),`issue_id` VARCHAR(64) NOT NULL,`path`VARCHAR(1024) NOT NULL,`date`BIGINT UNSIGNED,INDEX issue_rework_summary_customer_id_index (`customer_id`),INDEX issue_rework_summary_project_id_index (`project_id`),INDEX issue_rework_summary_user_id_index (`user_id`),INDEX issue_rework_summary_issue_id_index (`issue_id`),INDEX issue_rework_summary_customer_id_project_id_user_id_index (`customer_id`,`project_id`,`user_id`),INDEX issue_rework_summary_customer_id_user_id_path_index (`customer_id`,`user_id`,`path`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
-// DBCreateissueReworkSummaryTableTx will create the issueReworkSummary table using the provided transction
-func DBCreateissueReworkSummaryTableTx(ctx context.Context, tx Tx) error {
-	q := "CREATE TABLE `issue_rework_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`project_id`VARCHAR(64) NOT NULL,`user_id`VARCHAR(64),`issue_id` VARCHAR(64) NOT NULL,`path`VARCHAR(615) NOT NULL,`date`BIGINT UNSIGNED,INDEX issue_rework_summary_customer_id_index (`customer_id`),INDEX issue_rework_summary_project_id_index (`project_id`),INDEX issue_rework_summary_user_id_index (`user_id`),INDEX issue_rework_summary_issue_id_index (`issue_id`),INDEX issue_rework_summary_customer_id_project_id_user_id_index (`customer_id`,`project_id`,`user_id`),INDEX issue_rework_summary_customer_id_user_id_path_index (`customer_id`,`user_id`,`path`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+// DBCreateIssueReworkSummaryTableTx will create the IssueReworkSummary table using the provided transction
+func DBCreateIssueReworkSummaryTableTx(ctx context.Context, tx Tx) error {
+	q := "CREATE TABLE `issue_rework_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`checksum` CHAR(64),`customer_id` VARCHAR(64) NOT NULL,`project_id`VARCHAR(64) NOT NULL,`user_id`VARCHAR(64),`issue_id` VARCHAR(64) NOT NULL,`path`VARCHAR(1024) NOT NULL,`date`BIGINT UNSIGNED,INDEX issue_rework_summary_customer_id_index (`customer_id`),INDEX issue_rework_summary_project_id_index (`project_id`),INDEX issue_rework_summary_user_id_index (`user_id`),INDEX issue_rework_summary_issue_id_index (`issue_id`),INDEX issue_rework_summary_customer_id_project_id_user_id_index (`customer_id`,`project_id`,`user_id`),INDEX issue_rework_summary_customer_id_user_id_path_index (`customer_id`,`user_id`,`path`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
-// DBDropissueReworkSummaryTable will drop the issueReworkSummary table
-func DBDropissueReworkSummaryTable(ctx context.Context, db DB) error {
+// DBDropIssueReworkSummaryTable will drop the IssueReworkSummary table
+func DBDropIssueReworkSummaryTable(ctx context.Context, db DB) error {
 	q := "DROP TABLE IF EXISTS `issue_rework_summary`"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
-// DBDropissueReworkSummaryTableTx will drop the issueReworkSummary table using the provided transaction
-func DBDropissueReworkSummaryTableTx(ctx context.Context, tx Tx) error {
+// DBDropIssueReworkSummaryTableTx will drop the IssueReworkSummary table using the provided transaction
+func DBDropIssueReworkSummaryTableTx(ctx context.Context, tx Tx) error {
 	q := "DROP TABLE IF EXISTS `issue_rework_summary`"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
 
 // CalculateChecksum will calculate a checksum of the SHA1 of all field values
-func (t *issueReworkSummary) CalculateChecksum() string {
+func (t *IssueReworkSummary) CalculateChecksum() string {
 	return orm.HashStrings(
 		orm.ToString(t.ID),
 		orm.ToString(t.CustomerID),
@@ -1114,8 +1114,8 @@ func (t *issueReworkSummary) CalculateChecksum() string {
 	)
 }
 
-// DBCreate will create a new issueReworkSummary record in the database
-func (t *issueReworkSummary) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
+// DBCreate will create a new IssueReworkSummary record in the database
+func (t *IssueReworkSummary) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `issue_rework_summary` (`issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date`) VALUES (?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1134,8 +1134,8 @@ func (t *issueReworkSummary) DBCreate(ctx context.Context, db DB) (sql.Result, e
 	)
 }
 
-// DBCreateTx will create a new issueReworkSummary record in the database using the provided transaction
-func (t *issueReworkSummary) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+// DBCreateTx will create a new IssueReworkSummary record in the database using the provided transaction
+func (t *IssueReworkSummary) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `issue_rework_summary` (`issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date`) VALUES (?,?,?,?,?,?,?,?)"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1154,8 +1154,8 @@ func (t *issueReworkSummary) DBCreateTx(ctx context.Context, tx Tx) (sql.Result,
 	)
 }
 
-// DBCreateIgnoreDuplicate will upsert the issueReworkSummary record in the database
-func (t *issueReworkSummary) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
+// DBCreateIgnoreDuplicate will upsert the IssueReworkSummary record in the database
+func (t *IssueReworkSummary) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
 	q := "INSERT INTO `issue_rework_summary` (`issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date`) VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1174,8 +1174,8 @@ func (t *issueReworkSummary) DBCreateIgnoreDuplicate(ctx context.Context, db DB)
 	)
 }
 
-// DBCreateIgnoreDuplicateTx will upsert the issueReworkSummary record in the database using the provided transaction
-func (t *issueReworkSummary) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+// DBCreateIgnoreDuplicateTx will upsert the IssueReworkSummary record in the database using the provided transaction
+func (t *IssueReworkSummary) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	q := "INSERT INTO `issue_rework_summary` (`issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date`) VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
@@ -1194,10 +1194,10 @@ func (t *issueReworkSummary) DBCreateIgnoreDuplicateTx(ctx context.Context, tx T
 	)
 }
 
-// DeleteAllIssueReworkSummaries deletes all issueReworkSummary records in the database with optional filters
+// DeleteAllIssueReworkSummaries deletes all IssueReworkSummary records in the database with optional filters
 func DeleteAllIssueReworkSummaries(ctx context.Context, db DB, _params ...interface{}) error {
 	params := []interface{}{
-		orm.Table(issueReworkSummaryTableName),
+		orm.Table(IssueReworkSummaryTableName),
 	}
 	if len(_params) > 0 {
 		for _, param := range _params {
@@ -1209,10 +1209,10 @@ func DeleteAllIssueReworkSummaries(ctx context.Context, db DB, _params ...interf
 	return err
 }
 
-// DeleteAllIssueReworkSummariesTx deletes all issueReworkSummary records in the database with optional filters using the provided transaction
+// DeleteAllIssueReworkSummariesTx deletes all IssueReworkSummary records in the database with optional filters using the provided transaction
 func DeleteAllIssueReworkSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) error {
 	params := []interface{}{
-		orm.Table(issueReworkSummaryTableName),
+		orm.Table(IssueReworkSummaryTableName),
 	}
 	if len(_params) > 0 {
 		for _, param := range _params {
@@ -1224,8 +1224,8 @@ func DeleteAllIssueReworkSummariesTx(ctx context.Context, tx Tx, _params ...inte
 	return err
 }
 
-// DBDelete will delete this issueReworkSummary record in the database
-func (t *issueReworkSummary) DBDelete(ctx context.Context, db DB) (bool, error) {
+// DBDelete will delete this IssueReworkSummary record in the database
+func (t *IssueReworkSummary) DBDelete(ctx context.Context, db DB) (bool, error) {
 	q := "DELETE FROM `issue_rework_summary` WHERE `id` = ?"
 	r, err := db.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1238,8 +1238,8 @@ func (t *issueReworkSummary) DBDelete(ctx context.Context, db DB) (bool, error) 
 	return c > 0, nil
 }
 
-// DBDeleteTx will delete this issueReworkSummary record in the database using the provided transaction
-func (t *issueReworkSummary) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
+// DBDeleteTx will delete this IssueReworkSummary record in the database using the provided transaction
+func (t *IssueReworkSummary) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "DELETE FROM `issue_rework_summary` WHERE `id` = ?"
 	r, err := tx.ExecContext(ctx, q, orm.ToSQLString(t.ID))
 	if err != nil && err != sql.ErrNoRows {
@@ -1252,8 +1252,8 @@ func (t *issueReworkSummary) DBDeleteTx(ctx context.Context, tx Tx) (bool, error
 	return c > 0, nil
 }
 
-// DBUpdate will update the issueReworkSummary record in the database
-func (t *issueReworkSummary) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
+// DBUpdate will update the IssueReworkSummary record in the database
+func (t *IssueReworkSummary) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1272,8 +1272,8 @@ func (t *issueReworkSummary) DBUpdate(ctx context.Context, db DB) (sql.Result, e
 	)
 }
 
-// DBUpdateTx will update the issueReworkSummary record in the database using the provided transaction
-func (t *issueReworkSummary) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
+// DBUpdateTx will update the IssueReworkSummary record in the database using the provided transaction
+func (t *IssueReworkSummary) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return nil, nil
@@ -1292,8 +1292,8 @@ func (t *issueReworkSummary) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result,
 	)
 }
 
-// DBUpsert will upsert the issueReworkSummary record in the database
-func (t *issueReworkSummary) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
+// DBUpsert will upsert the IssueReworkSummary record in the database
+func (t *IssueReworkSummary) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1325,8 +1325,8 @@ func (t *issueReworkSummary) DBUpsert(ctx context.Context, db DB, conditions ...
 	return c > 0, c == 0, nil
 }
 
-// DBUpsertTx will upsert the issueReworkSummary record in the database using the provided transaction
-func (t *issueReworkSummary) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
+// DBUpsertTx will upsert the IssueReworkSummary record in the database using the provided transaction
+func (t *IssueReworkSummary) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	checksum := t.CalculateChecksum()
 	if t.GetChecksum() == checksum {
 		return false, false, nil
@@ -1358,8 +1358,8 @@ func (t *issueReworkSummary) DBUpsertTx(ctx context.Context, tx Tx, conditions .
 	return c > 0, c == 0, nil
 }
 
-// DBFindOne will find a issueReworkSummary record in the database with the primary key
-func (t *issueReworkSummary) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
+// DBFindOne will find a IssueReworkSummary record in the database with the primary key
+func (t *IssueReworkSummary) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
 	q := "SELECT `issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date` FROM `issue_rework_summary` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1413,8 +1413,8 @@ func (t *issueReworkSummary) DBFindOne(ctx context.Context, db DB, value string)
 	return true, nil
 }
 
-// DBFindOneTx will find a issueReworkSummary record in the database with the primary key using the provided transaction
-func (t *issueReworkSummary) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
+// DBFindOneTx will find a IssueReworkSummary record in the database with the primary key using the provided transaction
+func (t *IssueReworkSummary) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
 	q := "SELECT `issue_rework_summary`.`id`,`issue_rework_summary`.`checksum`,`issue_rework_summary`.`customer_id`,`issue_rework_summary`.`project_id`,`issue_rework_summary`.`user_id`,`issue_rework_summary`.`issue_id`,`issue_rework_summary`.`path`,`issue_rework_summary`.`date` FROM `issue_rework_summary` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
@@ -1468,8 +1468,8 @@ func (t *issueReworkSummary) DBFindOneTx(ctx context.Context, tx Tx, value strin
 	return true, nil
 }
 
-// FindIssueReworkSummaries will find a issueReworkSummary record in the database with the provided parameters
-func FindIssueReworkSummaries(ctx context.Context, db DB, _params ...interface{}) ([]*issueReworkSummary, error) {
+// FindIssueReworkSummaries will find a IssueReworkSummary record in the database with the provided parameters
+func FindIssueReworkSummaries(ctx context.Context, db DB, _params ...interface{}) ([]*IssueReworkSummary, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1479,7 +1479,7 @@ func FindIssueReworkSummaries(ctx context.Context, db DB, _params ...interface{}
 		orm.Column("issue_id"),
 		orm.Column("path"),
 		orm.Column("date"),
-		orm.Table(issueReworkSummaryTableName),
+		orm.Table(IssueReworkSummaryTableName),
 	}
 	if len(_params) > 0 {
 		for _, param := range _params {
@@ -1495,7 +1495,7 @@ func FindIssueReworkSummaries(ctx context.Context, db DB, _params ...interface{}
 		return nil, err
 	}
 	defer rows.Close()
-	results := make([]*issueReworkSummary, 0)
+	results := make([]*IssueReworkSummary, 0)
 	for rows.Next() {
 		var _ID sql.NullString
 		var _Checksum sql.NullString
@@ -1518,7 +1518,7 @@ func FindIssueReworkSummaries(ctx context.Context, db DB, _params ...interface{}
 		if err != nil {
 			return nil, err
 		}
-		t := &issueReworkSummary{}
+		t := &IssueReworkSummary{}
 		if _ID.Valid {
 			t.SetID(_ID.String)
 		}
@@ -1548,8 +1548,8 @@ func FindIssueReworkSummaries(ctx context.Context, db DB, _params ...interface{}
 	return results, nil
 }
 
-// FindIssueReworkSummariesTx will find a issueReworkSummary record in the database with the provided parameters using the provided transaction
-func FindIssueReworkSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*issueReworkSummary, error) {
+// FindIssueReworkSummariesTx will find a IssueReworkSummary record in the database with the provided parameters using the provided transaction
+func FindIssueReworkSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) ([]*IssueReworkSummary, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1559,7 +1559,7 @@ func FindIssueReworkSummariesTx(ctx context.Context, tx Tx, _params ...interface
 		orm.Column("issue_id"),
 		orm.Column("path"),
 		orm.Column("date"),
-		orm.Table(issueReworkSummaryTableName),
+		orm.Table(IssueReworkSummaryTableName),
 	}
 	if len(_params) > 0 {
 		for _, param := range _params {
@@ -1575,7 +1575,7 @@ func FindIssueReworkSummariesTx(ctx context.Context, tx Tx, _params ...interface
 		return nil, err
 	}
 	defer rows.Close()
-	results := make([]*issueReworkSummary, 0)
+	results := make([]*IssueReworkSummary, 0)
 	for rows.Next() {
 		var _ID sql.NullString
 		var _Checksum sql.NullString
@@ -1598,7 +1598,7 @@ func FindIssueReworkSummariesTx(ctx context.Context, tx Tx, _params ...interface
 		if err != nil {
 			return nil, err
 		}
-		t := &issueReworkSummary{}
+		t := &IssueReworkSummary{}
 		if _ID.Valid {
 			t.SetID(_ID.String)
 		}
@@ -1628,8 +1628,8 @@ func FindIssueReworkSummariesTx(ctx context.Context, tx Tx, _params ...interface
 	return results, nil
 }
 
-// DBFind will find a issueReworkSummary record in the database with the provided parameters
-func (t *issueReworkSummary) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
+// DBFind will find a IssueReworkSummary record in the database with the provided parameters
+func (t *IssueReworkSummary) DBFind(ctx context.Context, db DB, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1639,7 +1639,7 @@ func (t *issueReworkSummary) DBFind(ctx context.Context, db DB, _params ...inter
 		orm.Column("issue_id"),
 		orm.Column("path"),
 		orm.Column("date"),
-		orm.Table(issueReworkSummaryTableName),
+		orm.Table(IssueReworkSummaryTableName),
 	}
 	if len(_params) > 0 {
 		for _, param := range _params {
@@ -1696,8 +1696,8 @@ func (t *issueReworkSummary) DBFind(ctx context.Context, db DB, _params ...inter
 	return true, nil
 }
 
-// DBFindTx will find a issueReworkSummary record in the database with the provided parameters using the provided transaction
-func (t *issueReworkSummary) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
+// DBFindTx will find a IssueReworkSummary record in the database with the provided parameters using the provided transaction
+func (t *IssueReworkSummary) DBFindTx(ctx context.Context, tx Tx, _params ...interface{}) (bool, error) {
 	params := []interface{}{
 		orm.Column("id"),
 		orm.Column("checksum"),
@@ -1707,7 +1707,7 @@ func (t *issueReworkSummary) DBFindTx(ctx context.Context, tx Tx, _params ...int
 		orm.Column("issue_id"),
 		orm.Column("path"),
 		orm.Column("date"),
-		orm.Table(issueReworkSummaryTableName),
+		orm.Table(IssueReworkSummaryTableName),
 	}
 	if len(_params) > 0 {
 		for _, param := range _params {
@@ -1764,11 +1764,11 @@ func (t *issueReworkSummary) DBFindTx(ctx context.Context, tx Tx, _params ...int
 	return true, nil
 }
 
-// CountIssueReworkSummaries will find the count of issueReworkSummary records in the database
+// CountIssueReworkSummaries will find the count of IssueReworkSummary records in the database
 func CountIssueReworkSummaries(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
-		orm.Table(issueReworkSummaryTableName),
+		orm.Table(IssueReworkSummaryTableName),
 	}
 	if len(_params) > 0 {
 		for _, param := range _params {
@@ -1784,11 +1784,11 @@ func CountIssueReworkSummaries(ctx context.Context, db DB, _params ...interface{
 	return count.Int64, nil
 }
 
-// CountIssueReworkSummariesTx will find the count of issueReworkSummary records in the database using the provided transaction
+// CountIssueReworkSummariesTx will find the count of IssueReworkSummary records in the database using the provided transaction
 func CountIssueReworkSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.Count("*"),
-		orm.Table(issueReworkSummaryTableName),
+		orm.Table(IssueReworkSummaryTableName),
 	}
 	if len(_params) > 0 {
 		for _, param := range _params {
@@ -1804,11 +1804,11 @@ func CountIssueReworkSummariesTx(ctx context.Context, tx Tx, _params ...interfac
 	return count.Int64, nil
 }
 
-// DBCount will find the count of issueReworkSummary records in the database
-func (t *issueReworkSummary) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
+// DBCount will find the count of IssueReworkSummary records in the database
+func (t *IssueReworkSummary) DBCount(ctx context.Context, db DB, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
-		orm.Table(issueReworkSummaryTableName),
+		orm.Table(IssueReworkSummaryTableName),
 	}
 	if len(_params) > 0 {
 		for _, param := range _params {
@@ -1824,11 +1824,11 @@ func (t *issueReworkSummary) DBCount(ctx context.Context, db DB, _params ...inte
 	return count.Int64, nil
 }
 
-// DBCountTx will find the count of issueReworkSummary records in the database using the provided transaction
-func (t *issueReworkSummary) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
+// DBCountTx will find the count of IssueReworkSummary records in the database using the provided transaction
+func (t *IssueReworkSummary) DBCountTx(ctx context.Context, tx Tx, _params ...interface{}) (int64, error) {
 	params := []interface{}{
 		orm.CountAlias("*", "count"),
-		orm.Table(issueReworkSummaryTableName),
+		orm.Table(IssueReworkSummaryTableName),
 	}
 	if len(_params) > 0 {
 		for _, param := range _params {
@@ -1844,8 +1844,8 @@ func (t *issueReworkSummary) DBCountTx(ctx context.Context, tx Tx, _params ...in
 	return count.Int64, nil
 }
 
-// DBExists will return true if the issueReworkSummary record exists in the database
-func (t *issueReworkSummary) DBExists(ctx context.Context, db DB) (bool, error) {
+// DBExists will return true if the IssueReworkSummary record exists in the database
+func (t *IssueReworkSummary) DBExists(ctx context.Context, db DB) (bool, error) {
 	q := "SELECT `id` FROM `issue_rework_summary` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := db.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1855,8 +1855,8 @@ func (t *issueReworkSummary) DBExists(ctx context.Context, db DB) (bool, error) 
 	return _ID.Valid, nil
 }
 
-// DBExistsTx will return true if the issueReworkSummary record exists in the database using the provided transaction
-func (t *issueReworkSummary) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
+// DBExistsTx will return true if the IssueReworkSummary record exists in the database using the provided transaction
+func (t *IssueReworkSummary) DBExistsTx(ctx context.Context, tx Tx) (bool, error) {
 	q := "SELECT `id` FROM `issue_rework_summary` WHERE `id` = ? LIMIT 1"
 	var _ID sql.NullString
 	err := tx.QueryRowContext(ctx, q, orm.ToSQLString(t.ID)).Scan(&_ID)
@@ -1867,16 +1867,16 @@ func (t *issueReworkSummary) DBExistsTx(ctx context.Context, tx Tx) (bool, error
 }
 
 // PrimaryKeyColumn returns the column name for the primary key
-func (t *issueReworkSummary) PrimaryKeyColumn() string {
-	return issueReworkSummaryColumnID
+func (t *IssueReworkSummary) PrimaryKeyColumn() string {
+	return IssueReworkSummaryColumnID
 }
 
 // PrimaryKeyColumnType returns the primary key column Go type as a string
-func (t *issueReworkSummary) PrimaryKeyColumnType() string {
+func (t *IssueReworkSummary) PrimaryKeyColumnType() string {
 	return "string"
 }
 
 // PrimaryKey returns the primary key column value
-func (t *issueReworkSummary) PrimaryKey() interface{} {
+func (t *IssueReworkSummary) PrimaryKey() interface{} {
 	return t.ID
 }

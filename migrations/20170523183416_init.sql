@@ -298,7 +298,8 @@ CREATE TABLE `issue` (
 	INDEX issue_ref_type_state_created_at_project_id_customer_id_index (`ref_type`,`state`,`created_at`,`project_id`,`customer_id`),
 	INDEX issue_state_customer_id_project_id_index (`state`,`customer_id`,`project_id`),
 	INDEX issue_state_ref_id_closed_at_index (`state`,`ref_id`,`closed_at`),
-	INDEX issue_state_customer_id_closed_at_ref_id_type_index (`state`,`customer_id`,`closed_at`,`ref_id`,`type`)
+	INDEX issue_state_customer_id_closed_at_ref_id_type_index (`state`,`customer_id`,`closed_at`,`ref_id`,`type`),
+	INDEX issue_customer_id_project_id_created_at_index (`customer_id`,`project_id`,`created_at`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --  Issue Comment is a generic table which describes a comment for a issue
@@ -341,6 +342,23 @@ CREATE TABLE `issue_project` (
 	INDEX issue_project_customer_id_index (`customer_id`),
 	INDEX issue_project_ref_type_index (`ref_type`),
 	INDEX issue_project_ref_id_index (`ref_id`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `issue_rework_summary` (
+	`id`           VARCHAR(64) NOT NULL PRIMARY KEY,
+	`checksum`     CHAR(64),
+	`customer_id`  VARCHAR(64) NOT NULL,
+	`project_id`   VARCHAR(64) NOT NULL,
+	`user_id`      VARCHAR(64),
+	`issue_id`     VARCHAR(64) NOT NULL,
+	`path`         VARCHAR(1024) NOT NULL,
+	`date`         BIGINT UNSIGNED,
+	INDEX issue_rework_summary_customer_id_index (`customer_id`),
+	INDEX issue_rework_summary_project_id_index (`project_id`),
+	INDEX issue_rework_summary_user_id_index (`user_id`),
+	INDEX issue_rework_summary_issue_id_index (`issue_id`),
+	INDEX issue_rework_summary_customer_id_project_id_user_id_index (`customer_id`,`project_id`,`user_id`),
+	INDEX issue_rework_summary_customer_id_user_id_path_index (`customer_id`,`user_id`,`path`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --  IssueSummary is a summarization table with issue level summary data
@@ -879,23 +897,6 @@ CREATE TABLE `user_mapping` (
 	INDEX user_mapping_ref_id_index (`ref_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `issue_rework_summary` (
-	`id`           VARCHAR(64) NOT NULL PRIMARY KEY,
-	`checksum`     CHAR(64),
-	`customer_id`  VARCHAR(64) NOT NULL,
-	`project_id`   VARCHAR(64) NOT NULL,
-	`user_id`      VARCHAR(64),
-	`issue_id`     VARCHAR(64) NOT NULL,
-	`path`         VARCHAR(615) NOT NULL,
-	`date`         BIGINT UNSIGNED,
-	INDEX issue_rework_summary_customer_id_index (`customer_id`),
-	INDEX issue_rework_summary_project_id_index (`project_id`),
-	INDEX issue_rework_summary_user_id_index (`user_id`),
-	INDEX issue_rework_summary_issue_id_index (`issue_id`),
-	INDEX issue_rework_summary_customer_id_project_id_user_id_index (`customer_id`,`project_id`,`user_id`),
-	INDEX issue_rework_summary_customer_id_user_id_path_index (`customer_id`,`user_id`,`path`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back
@@ -917,6 +918,7 @@ DROP TABLE IF EXISTS `exclusion_mapping`;
 DROP TABLE IF EXISTS `issue`;
 DROP TABLE IF EXISTS `issue_comment`;
 DROP TABLE IF EXISTS `issue_project`;
+DROP TABLE IF EXISTS `issue_rework_summary`;
 DROP TABLE IF EXISTS `issue_summary`;
 DROP TABLE IF EXISTS `jira_custom_field`;
 DROP TABLE IF EXISTS `jira_custom_field_value`;
@@ -946,4 +948,3 @@ DROP TABLE IF EXISTS `user`;
 DROP TABLE IF EXISTS `user_cost_center`;
 DROP TABLE IF EXISTS `user_login`;
 DROP TABLE IF EXISTS `user_mapping`;
-DROP TABLE IF EXISTS `issue_rework_summary`;

@@ -185,7 +185,7 @@ message IssueSummary {
 	option (proto.table).index4={fields:"customer_id, top_level, issue_type_id, priority_id"};
 }
 
-message issueReworkSummary {
+message IssueReworkSummary {
 	// hash of customer_id, project_id, user_id, issue_id, path, date
 	proto.ID id = 1;
 	proto.Checksum Checksum = 2;	
@@ -199,7 +199,7 @@ message issueReworkSummary {
 	// issue with rework
 	proto.UID issue_id = 6 [(proto.column).notnull=true,(proto.column).index=true];
 	// an array of statuses for the issue at the point "re-work" was triggered
-	string path = 7 [(proto.column).notnull=true,(proto.column).type="VARCHAR(615)"];
+	string path = 7 [(proto.column).notnull=true,(proto.column).type="VARCHAR(1024)"];
 	// date rework triggered
 	int64 date = 8 [(proto.column).type="BIGINT UNSIGNED"];
 	
