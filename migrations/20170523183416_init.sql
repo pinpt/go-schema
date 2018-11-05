@@ -197,7 +197,7 @@ CREATE TABLE `commit_summary` (
 	`sha`            VARCHAR(64) NOT NULL,
 	`author_user_id` VARCHAR(64) NOT NULL,
 	`customer_id`    VARCHAR(64) NOT NULL,
-	`data_group_id`  VARCHAR(64) NOT NULL,
+	`data_group_id`  VARCHAR(64),
 	`repo_id`        VARCHAR(64) NOT NULL,
 	`repo`           TEXT NOT NULL,
 	`ref_type`       VARCHAR(20) NOT NULL,
@@ -214,7 +214,6 @@ CREATE TABLE `commit_summary` (
 	INDEX commit_summary_customer_id_index (`customer_id`),
 	INDEX commit_summary_data_group_id_index (`data_group_id`),
 	INDEX commit_summary_repo_id_index (`repo_id`),
-	INDEX commit_summary_repo_index (`repo`),
 	INDEX commit_summary_ref_type_index (`ref_type`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

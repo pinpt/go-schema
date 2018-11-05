@@ -56,7 +56,7 @@ type CommitSummary struct {
 	Branch       *string `json:"branch,omitempty"`
 	CommitID     string  `json:"commit_id"`
 	CustomerID   string  `json:"customer_id"`
-	DataGroupID  string  `json:"data_group_id"`
+	DataGroupID  *string `json:"data_group_id,omitempty"`
 	Date         int64   `json:"date"`
 	Deletions    int32   `json:"deletions"`
 	FilesChanged int32   `json:"files_changed"`
@@ -82,7 +82,7 @@ func (t *CommitSummary) ToCSV() []string {
 		t.Sha,
 		t.AuthorUserID,
 		t.CustomerID,
-		t.DataGroupID,
+		toCSVString(t.DataGroupID),
 		t.RepoID,
 		t.Repo,
 		t.RefType,
@@ -159,7 +159,7 @@ func NewCSVCommitSummaryReader(r io.Reader, ch chan<- CommitSummary) error {
 			Sha:          record[2],
 			AuthorUserID: record[3],
 			CustomerID:   record[4],
-			DataGroupID:  record[5],
+			DataGroupID:  fromStringPointer(record[5]),
 			RepoID:       record[6],
 			Repo:         record[7],
 			RefType:      record[8],
@@ -1503,12 +1503,15 @@ func FindCommitSummariesByCustomerIDTx(ctx context.Context, tx Tx, value string)
 
 // GetDataGroupID will return the CommitSummary DataGroupID value
 func (t *CommitSummary) GetDataGroupID() string {
-	return t.DataGroupID
+	if t.DataGroupID == nil {
+		return ""
+	}
+	return *t.DataGroupID
 }
 
 // SetDataGroupID will set the CommitSummary DataGroupID value
 func (t *CommitSummary) SetDataGroupID(v string) {
-	t.DataGroupID = v
+	t.DataGroupID = &v
 }
 
 // FindCommitSummariesByDataGroupID will find all CommitSummarys by the DataGroupID value
@@ -1947,214 +1950,6 @@ func (t *CommitSummary) SetRepo(v string) {
 	t.Repo = v
 }
 
-// FindCommitSummariesByRepo will find all CommitSummarys by the Repo value
-func FindCommitSummariesByRepo(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `repo` = ? LIMIT 1"
-	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	results := make([]*CommitSummary, 0)
-	for rows.Next() {
-		var _ID sql.NullString
-		var _CommitID sql.NullString
-		var _Sha sql.NullString
-		var _AuthorUserID sql.NullString
-		var _CustomerID sql.NullString
-		var _DataGroupID sql.NullString
-		var _RepoID sql.NullString
-		var _Repo sql.NullString
-		var _RefType sql.NullString
-		var _Additions sql.NullInt64
-		var _Deletions sql.NullInt64
-		var _FilesChanged sql.NullInt64
-		var _Branch sql.NullString
-		var _Language sql.NullString
-		var _Date sql.NullInt64
-		var _Message sql.NullString
-		err := rows.Scan(
-			&_ID,
-			&_CommitID,
-			&_Sha,
-			&_AuthorUserID,
-			&_CustomerID,
-			&_DataGroupID,
-			&_RepoID,
-			&_Repo,
-			&_RefType,
-			&_Additions,
-			&_Deletions,
-			&_FilesChanged,
-			&_Branch,
-			&_Language,
-			&_Date,
-			&_Message,
-		)
-		if err != nil {
-			return nil, err
-		}
-		t := &CommitSummary{}
-		if _ID.Valid {
-			t.SetID(_ID.String)
-		}
-		if _CommitID.Valid {
-			t.SetCommitID(_CommitID.String)
-		}
-		if _Sha.Valid {
-			t.SetSha(_Sha.String)
-		}
-		if _AuthorUserID.Valid {
-			t.SetAuthorUserID(_AuthorUserID.String)
-		}
-		if _CustomerID.Valid {
-			t.SetCustomerID(_CustomerID.String)
-		}
-		if _DataGroupID.Valid {
-			t.SetDataGroupID(_DataGroupID.String)
-		}
-		if _RepoID.Valid {
-			t.SetRepoID(_RepoID.String)
-		}
-		if _Repo.Valid {
-			t.SetRepo(_Repo.String)
-		}
-		if _RefType.Valid {
-			t.SetRefType(_RefType.String)
-		}
-		if _Additions.Valid {
-			t.SetAdditions(int32(_Additions.Int64))
-		}
-		if _Deletions.Valid {
-			t.SetDeletions(int32(_Deletions.Int64))
-		}
-		if _FilesChanged.Valid {
-			t.SetFilesChanged(int32(_FilesChanged.Int64))
-		}
-		if _Branch.Valid {
-			t.SetBranch(_Branch.String)
-		}
-		if _Language.Valid {
-			t.SetLanguage(_Language.String)
-		}
-		if _Date.Valid {
-			t.SetDate(_Date.Int64)
-		}
-		if _Message.Valid {
-			t.SetMessage(_Message.String)
-		}
-		results = append(results, t)
-	}
-	return results, nil
-}
-
-// FindCommitSummariesByRepoTx will find all CommitSummarys by the Repo value using the provided transaction
-func FindCommitSummariesByRepoTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message` FROM `commit_summary` WHERE `repo` = ? LIMIT 1"
-	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	results := make([]*CommitSummary, 0)
-	for rows.Next() {
-		var _ID sql.NullString
-		var _CommitID sql.NullString
-		var _Sha sql.NullString
-		var _AuthorUserID sql.NullString
-		var _CustomerID sql.NullString
-		var _DataGroupID sql.NullString
-		var _RepoID sql.NullString
-		var _Repo sql.NullString
-		var _RefType sql.NullString
-		var _Additions sql.NullInt64
-		var _Deletions sql.NullInt64
-		var _FilesChanged sql.NullInt64
-		var _Branch sql.NullString
-		var _Language sql.NullString
-		var _Date sql.NullInt64
-		var _Message sql.NullString
-		err := rows.Scan(
-			&_ID,
-			&_CommitID,
-			&_Sha,
-			&_AuthorUserID,
-			&_CustomerID,
-			&_DataGroupID,
-			&_RepoID,
-			&_Repo,
-			&_RefType,
-			&_Additions,
-			&_Deletions,
-			&_FilesChanged,
-			&_Branch,
-			&_Language,
-			&_Date,
-			&_Message,
-		)
-		if err != nil {
-			return nil, err
-		}
-		t := &CommitSummary{}
-		if _ID.Valid {
-			t.SetID(_ID.String)
-		}
-		if _CommitID.Valid {
-			t.SetCommitID(_CommitID.String)
-		}
-		if _Sha.Valid {
-			t.SetSha(_Sha.String)
-		}
-		if _AuthorUserID.Valid {
-			t.SetAuthorUserID(_AuthorUserID.String)
-		}
-		if _CustomerID.Valid {
-			t.SetCustomerID(_CustomerID.String)
-		}
-		if _DataGroupID.Valid {
-			t.SetDataGroupID(_DataGroupID.String)
-		}
-		if _RepoID.Valid {
-			t.SetRepoID(_RepoID.String)
-		}
-		if _Repo.Valid {
-			t.SetRepo(_Repo.String)
-		}
-		if _RefType.Valid {
-			t.SetRefType(_RefType.String)
-		}
-		if _Additions.Valid {
-			t.SetAdditions(int32(_Additions.Int64))
-		}
-		if _Deletions.Valid {
-			t.SetDeletions(int32(_Deletions.Int64))
-		}
-		if _FilesChanged.Valid {
-			t.SetFilesChanged(int32(_FilesChanged.Int64))
-		}
-		if _Branch.Valid {
-			t.SetBranch(_Branch.String)
-		}
-		if _Language.Valid {
-			t.SetLanguage(_Language.String)
-		}
-		if _Date.Valid {
-			t.SetDate(_Date.Int64)
-		}
-		if _Message.Valid {
-			t.SetMessage(_Message.String)
-		}
-		results = append(results, t)
-	}
-	return results, nil
-}
-
 // GetRefType will return the CommitSummary RefType value
 func (t *CommitSummary) GetRefType() string {
 	return t.RefType
@@ -2456,14 +2251,14 @@ func (t *CommitSummary) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateCommitSummaryTable will create the CommitSummary table
 func DBCreateCommitSummaryTable(ctx context.Context, db DB) error {
-	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id`VARCHAR(64) NOT NULL,`sha`VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`data_group_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`repo` TEXT NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions`INT NOT NULL DEFAULT 0,`deletions`INT NOT NULL DEFAULT 0,`files_changed` INT NOT NULL DEFAULT 0,`branch`VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date` BIGINT UNSIGNED NOT NULL,`message` LONGTEXT,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_sha_index (`sha`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_data_group_id_index (`data_group_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_repo_index (`repo`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id`VARCHAR(64) NOT NULL,`sha`VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`data_group_id` VARCHAR(64),`repo_id` VARCHAR(64) NOT NULL,`repo` TEXT NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions`INT NOT NULL DEFAULT 0,`deletions`INT NOT NULL DEFAULT 0,`files_changed` INT NOT NULL DEFAULT 0,`branch`VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date` BIGINT UNSIGNED NOT NULL,`message` LONGTEXT,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_sha_index (`sha`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_data_group_id_index (`data_group_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateCommitSummaryTableTx will create the CommitSummary table using the provided transction
 func DBCreateCommitSummaryTableTx(ctx context.Context, tx Tx) error {
-	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id`VARCHAR(64) NOT NULL,`sha`VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`data_group_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`repo` TEXT NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions`INT NOT NULL DEFAULT 0,`deletions`INT NOT NULL DEFAULT 0,`files_changed` INT NOT NULL DEFAULT 0,`branch`VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date` BIGINT UNSIGNED NOT NULL,`message` LONGTEXT,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_sha_index (`sha`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_data_group_id_index (`data_group_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_repo_index (`repo`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id`VARCHAR(64) NOT NULL,`sha`VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`data_group_id` VARCHAR(64),`repo_id` VARCHAR(64) NOT NULL,`repo` TEXT NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions`INT NOT NULL DEFAULT 0,`deletions`INT NOT NULL DEFAULT 0,`files_changed` INT NOT NULL DEFAULT 0,`branch`VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date` BIGINT UNSIGNED NOT NULL,`message` LONGTEXT,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_sha_index (`sha`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_data_group_id_index (`data_group_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }

@@ -162,9 +162,9 @@ message CommitSummary {
 	proto.UID 	sha 			= 3 [(proto.column).notnull=true,(proto.column).index=true];
 	proto.UID 	author_user_id 	= 4 [(proto.column).notnull=true,(proto.column).index=true];
 	proto.UID 	customer_id 	= 5 [(proto.column).notnull=true,(proto.column).index=true];
-	proto.UID 	data_group_id 	= 6 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID 	data_group_id 	= 6 [(proto.column).index=true];
 	proto.UID 	repo_id 		= 7 [(proto.column).notnull=true,(proto.column).index=true];
-	string 		repo 			= 8 [(proto.column).notnull=true,(proto.column).index=true];
+	string 		repo 			= 8 [(proto.column).notnull=true];
 	// ref_type is the name type of the specialized type (such as github, gitlab, etc)
 	string 		ref_type 		= 9 [(proto.column).notnull=true,(proto.column).index=true,(proto.column).type="VARCHAR(20)"];
 	int32 		additions 		= 10[(proto.column).notnull=true,(proto.column).default="0"];
