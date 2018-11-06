@@ -9,12 +9,12 @@ import (
 	"github.com/jhaynie/go-gator/orm"
 )
 
-func TestCreateissueReworkSummaryTable(t *testing.T) {
+func TestCreateIssueReworkSummaryTable(t *testing.T) {
 	tx, err := GetDatabase().Begin()
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DBCreateissueReworkSummaryTableTx(context.Background(), tx)
+	err = DBCreateIssueReworkSummaryTableTx(context.Background(), tx)
 	if err != nil {
 		tx.Rollback()
 		t.Fatal(err)
@@ -26,15 +26,15 @@ func TestCreateissueReworkSummaryTable(t *testing.T) {
 	}
 }
 
-func TestCreateissueReworkSummaryDelete(t *testing.T) {
-	r := &issueReworkSummary{
-		ID:         "e708e8dee1eb37ac",
+func TestCreateIssueReworkSummaryDelete(t *testing.T) {
+	r := &IssueReworkSummary{
+		ID:         "e8fa05f43de32b1d",
 		Checksum:   nil,
-		CustomerID: "5f9ab367986997ee",
-		ProjectID:  "9490b1f1e18999f3",
+		CustomerID: "d2045a65c320c533",
+		ProjectID:  "d909238fd39f4d91",
 		UserID:     nil,
-		IssueID:    "31b59f8074e8ccb7",
-		Path:       "1264162994ce62b4",
+		IssueID:    "6bd183eb11b8fdb6",
+		Path:       "db859b175e629442",
 		Date:       nil,
 	}
 	ctx := context.Background()
@@ -102,13 +102,13 @@ func TestCreateissueReworkSummaryDelete(t *testing.T) {
 	if b {
 		t.Fatal("expected b to be false but was true")
 	}
-	r.SetCustomerID("ec1ae0b48d505f1a")
+	r.SetCustomerID("2dc457058d4f9b1b")
 
-	r.SetProjectID("4f898c03de96b277")
+	r.SetProjectID("47f8cc72a9be80b8")
 
-	r.SetIssueID("9abd787e4819cf1c")
+	r.SetIssueID("0b5ec731a1222891")
 
-	r.SetPath("92887262804f5fd4")
+	r.SetPath("7f25f335b7e96377")
 
 	a, b, err = r.DBUpsert(ctx, db)
 	if err != nil {
@@ -140,15 +140,15 @@ func TestCreateissueReworkSummaryDelete(t *testing.T) {
 	}
 }
 
-func TestCreateissueReworkSummaryDeleteTx(t *testing.T) {
-	r := &issueReworkSummary{
-		ID:         "e708e8dee1eb37ac",
+func TestCreateIssueReworkSummaryDeleteTx(t *testing.T) {
+	r := &IssueReworkSummary{
+		ID:         "e8fa05f43de32b1d",
 		Checksum:   nil,
-		CustomerID: "5f9ab367986997ee",
-		ProjectID:  "9490b1f1e18999f3",
+		CustomerID: "d2045a65c320c533",
+		ProjectID:  "d909238fd39f4d91",
 		UserID:     nil,
-		IssueID:    "31b59f8074e8ccb7",
-		Path:       "1264162994ce62b4",
+		IssueID:    "6bd183eb11b8fdb6",
+		Path:       "db859b175e629442",
 		Date:       nil,
 	}
 	ctx := context.Background()
@@ -220,13 +220,13 @@ func TestCreateissueReworkSummaryDeleteTx(t *testing.T) {
 	if b {
 		t.Fatal("expected b to be false but was true")
 	}
-	r.SetCustomerID("ec1ae0b48d505f1a")
+	r.SetCustomerID("2dc457058d4f9b1b")
 
-	r.SetProjectID("4f898c03de96b277")
+	r.SetProjectID("47f8cc72a9be80b8")
 
-	r.SetIssueID("9abd787e4819cf1c")
+	r.SetIssueID("0b5ec731a1222891")
 
-	r.SetPath("92887262804f5fd4")
+	r.SetPath("7f25f335b7e96377")
 
 	a, b, err = r.DBUpsertTx(ctx, tx)
 	if err != nil {
