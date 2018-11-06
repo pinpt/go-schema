@@ -25,6 +25,8 @@ ALTER TABLE `signal` PARTITION BY RANGE(YEAR(date))
 
 CREATE INDEX issue_state_customer_id_project_id_closed_at_ref_id_type_index ON issue(state, customer_id, project_id, closed_at, ref_id, type);
 CREATE INDEX jira_issue_change_log_issue_id_field_index ON jira_issue_change_log(issue_id, field);
+CREATE INDEX issue_summary_customer_id_planned_closed_state_total_issues on issue_summary(customer_id, planned_end_date, closed_at, state, total_issues);
+CREATE INDEX issue_summary_customer_id_planned_end_date_state_total_issues on issue_summary(customer_id, planned_end_date, state, total_issues);
 
 -- create an index for the generated virtual field
 ALTER TABLE issue_summary ADD FULLTEXT INDEX `custom_fields_full_idx`(`custom_field_ids_virtual`);

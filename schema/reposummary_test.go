@@ -9,12 +9,12 @@ import (
 	"github.com/jhaynie/go-gator/orm"
 )
 
-func TestCreateCommitSummaryTable(t *testing.T) {
+func TestCreateRepoSummaryTable(t *testing.T) {
 	tx, err := GetDatabase().Begin()
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DBCreateCommitSummaryTableTx(context.Background(), tx)
+	err = DBCreateRepoSummaryTableTx(context.Background(), tx)
 	if err != nil {
 		tx.Rollback()
 		t.Fatal(err)
@@ -26,28 +26,24 @@ func TestCreateCommitSummaryTable(t *testing.T) {
 	}
 }
 
-func TestCreateCommitSummaryDelete(t *testing.T) {
-	r := &CommitSummary{
-		ID:           "f2304e5529d9ba57",
-		CommitID:     "4dabb174f8964b77",
-		Sha:          "76c47452e5f9b37a",
-		AuthorUserID: "b269d8cde5e84d5d",
-		CustomerID:   "c9ad489ec64dacbe",
-		DataGroupID:  nil,
-		RepoID:       "d9d73c975aee36a9",
-		Repo:         "65bd10b2687ef91f",
-		RefType:      "71badf00b022629e",
-		Additions:    int32(32),
-		Deletions:    int32(32),
-		FilesChanged: int32(32),
-		Branch:       nil,
-		Language:     "b0ca4ff49d5c17b5",
-		Date:         int64(64),
-		Message:      nil,
+func TestCreateRepoSummaryDelete(t *testing.T) {
+	r := &RepoSummary{
+		ID:               "73dad54b13a005f3",
+		Name:             "1a1df9b0d0eec55b",
+		Description:      nil,
+		RefType:          "8e63a1042b31376a",
+		DataGroupID:      nil,
+		UserIds:          "{}",
+		Commits:          int64(64),
+		Additions:        int64(64),
+		Deletions:        int64(64),
+		LatestCommitDate: int64(64),
+		RepoID:           "8babdd2915bdae08",
+		CustomerID:       "24c290c16b4681d6",
 	}
 	ctx := context.Background()
 	db := GetDatabase()
-	DeleteAllCommitSummaries(ctx, db)
+	DeleteAllRepoSummaries(ctx, db)
 	result, err := r.DBCreate(ctx, db)
 	if err != nil {
 		t.Fatal(err)
@@ -69,7 +65,7 @@ func TestCreateCommitSummaryDelete(t *testing.T) {
 	if !exists {
 		t.Fatal("exists should have been true but was false")
 	}
-	found, err := FindCommitSummaryByID(ctx, db, r.ID)
+	found, err := FindRepoSummaryByID(ctx, db, r.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +78,7 @@ func TestCreateCommitSummaryDelete(t *testing.T) {
 	if orm.Stringify(r) != orm.Stringify(found) {
 		t.Fatalf("expected r to be found but was different")
 	}
-	results, err := FindCommitSummaries(ctx, db)
+	results, err := FindRepoSummaries(ctx, db)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,28 +116,24 @@ func TestCreateCommitSummaryDelete(t *testing.T) {
 	}
 }
 
-func TestCreateCommitSummaryDeleteTx(t *testing.T) {
-	r := &CommitSummary{
-		ID:           "f2304e5529d9ba57",
-		CommitID:     "4dabb174f8964b77",
-		Sha:          "76c47452e5f9b37a",
-		AuthorUserID: "b269d8cde5e84d5d",
-		CustomerID:   "c9ad489ec64dacbe",
-		DataGroupID:  nil,
-		RepoID:       "d9d73c975aee36a9",
-		Repo:         "65bd10b2687ef91f",
-		RefType:      "71badf00b022629e",
-		Additions:    int32(32),
-		Deletions:    int32(32),
-		FilesChanged: int32(32),
-		Branch:       nil,
-		Language:     "b0ca4ff49d5c17b5",
-		Date:         int64(64),
-		Message:      nil,
+func TestCreateRepoSummaryDeleteTx(t *testing.T) {
+	r := &RepoSummary{
+		ID:               "73dad54b13a005f3",
+		Name:             "1a1df9b0d0eec55b",
+		Description:      nil,
+		RefType:          "8e63a1042b31376a",
+		DataGroupID:      nil,
+		UserIds:          "{}",
+		Commits:          int64(64),
+		Additions:        int64(64),
+		Deletions:        int64(64),
+		LatestCommitDate: int64(64),
+		RepoID:           "8babdd2915bdae08",
+		CustomerID:       "24c290c16b4681d6",
 	}
 	ctx := context.Background()
 	db := GetDatabase()
-	DeleteAllCommitSummaries(ctx, db)
+	DeleteAllRepoSummaries(ctx, db)
 	tx, err := db.Begin()
 	if err != nil {
 		t.Fatal(err)
@@ -167,7 +159,7 @@ func TestCreateCommitSummaryDeleteTx(t *testing.T) {
 	if !exists {
 		t.Fatal("exists should have been true but was false")
 	}
-	found, err := FindCommitSummaryByIDTx(ctx, tx, r.ID)
+	found, err := FindRepoSummaryByIDTx(ctx, tx, r.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -180,7 +172,7 @@ func TestCreateCommitSummaryDeleteTx(t *testing.T) {
 	if orm.Stringify(r) != orm.Stringify(found) {
 		t.Fatalf("expected r to be found but was different")
 	}
-	results, err := FindCommitSummariesTx(ctx, tx)
+	results, err := FindRepoSummariesTx(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}

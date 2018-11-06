@@ -9,12 +9,12 @@ import (
 	"github.com/jhaynie/go-gator/orm"
 )
 
-func TestCreateCommitSummaryTable(t *testing.T) {
+func TestCreateIssueReworkSummaryTable(t *testing.T) {
 	tx, err := GetDatabase().Begin()
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = DBCreateCommitSummaryTableTx(context.Background(), tx)
+	err = DBCreateIssueReworkSummaryTableTx(context.Background(), tx)
 	if err != nil {
 		tx.Rollback()
 		t.Fatal(err)
@@ -26,28 +26,20 @@ func TestCreateCommitSummaryTable(t *testing.T) {
 	}
 }
 
-func TestCreateCommitSummaryDelete(t *testing.T) {
-	r := &CommitSummary{
-		ID:           "f2304e5529d9ba57",
-		CommitID:     "4dabb174f8964b77",
-		Sha:          "76c47452e5f9b37a",
-		AuthorUserID: "b269d8cde5e84d5d",
-		CustomerID:   "c9ad489ec64dacbe",
-		DataGroupID:  nil,
-		RepoID:       "d9d73c975aee36a9",
-		Repo:         "65bd10b2687ef91f",
-		RefType:      "71badf00b022629e",
-		Additions:    int32(32),
-		Deletions:    int32(32),
-		FilesChanged: int32(32),
-		Branch:       nil,
-		Language:     "b0ca4ff49d5c17b5",
-		Date:         int64(64),
-		Message:      nil,
+func TestCreateIssueReworkSummaryDelete(t *testing.T) {
+	r := &IssueReworkSummary{
+		ID:         "e8fa05f43de32b1d",
+		Checksum:   nil,
+		CustomerID: "d2045a65c320c533",
+		ProjectID:  "d909238fd39f4d91",
+		UserID:     nil,
+		IssueID:    "6bd183eb11b8fdb6",
+		Path:       "db859b175e629442",
+		Date:       nil,
 	}
 	ctx := context.Background()
 	db := GetDatabase()
-	DeleteAllCommitSummaries(ctx, db)
+	DeleteAllIssueReworkSummaries(ctx, db)
 	result, err := r.DBCreate(ctx, db)
 	if err != nil {
 		t.Fatal(err)
@@ -69,7 +61,7 @@ func TestCreateCommitSummaryDelete(t *testing.T) {
 	if !exists {
 		t.Fatal("exists should have been true but was false")
 	}
-	found, err := FindCommitSummaryByID(ctx, db, r.ID)
+	found, err := FindIssueReworkSummaryByID(ctx, db, r.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +74,7 @@ func TestCreateCommitSummaryDelete(t *testing.T) {
 	if orm.Stringify(r) != orm.Stringify(found) {
 		t.Fatalf("expected r to be found but was different")
 	}
-	results, err := FindCommitSummaries(ctx, db)
+	results, err := FindIssueReworkSummaries(ctx, db)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -99,6 +91,34 @@ func TestCreateCommitSummaryDelete(t *testing.T) {
 	}
 	if f == false {
 		t.Fatal("expected found to be a true but was false")
+	}
+	a, b, err := r.DBUpsert(ctx, db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a {
+		t.Fatal("expected a to be false but was true")
+	}
+	if b {
+		t.Fatal("expected b to be false but was true")
+	}
+	r.SetCustomerID("2dc457058d4f9b1b")
+
+	r.SetProjectID("47f8cc72a9be80b8")
+
+	r.SetIssueID("0b5ec731a1222891")
+
+	r.SetPath("7f25f335b7e96377")
+
+	a, b, err = r.DBUpsert(ctx, db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !a {
+		t.Fatal("expected a to be true but was false")
+	}
+	if b {
+		t.Fatal("expected b to be false but was true")
 	}
 	_, err = r.DBDelete(ctx, db)
 	if err != nil {
@@ -120,28 +140,20 @@ func TestCreateCommitSummaryDelete(t *testing.T) {
 	}
 }
 
-func TestCreateCommitSummaryDeleteTx(t *testing.T) {
-	r := &CommitSummary{
-		ID:           "f2304e5529d9ba57",
-		CommitID:     "4dabb174f8964b77",
-		Sha:          "76c47452e5f9b37a",
-		AuthorUserID: "b269d8cde5e84d5d",
-		CustomerID:   "c9ad489ec64dacbe",
-		DataGroupID:  nil,
-		RepoID:       "d9d73c975aee36a9",
-		Repo:         "65bd10b2687ef91f",
-		RefType:      "71badf00b022629e",
-		Additions:    int32(32),
-		Deletions:    int32(32),
-		FilesChanged: int32(32),
-		Branch:       nil,
-		Language:     "b0ca4ff49d5c17b5",
-		Date:         int64(64),
-		Message:      nil,
+func TestCreateIssueReworkSummaryDeleteTx(t *testing.T) {
+	r := &IssueReworkSummary{
+		ID:         "e8fa05f43de32b1d",
+		Checksum:   nil,
+		CustomerID: "d2045a65c320c533",
+		ProjectID:  "d909238fd39f4d91",
+		UserID:     nil,
+		IssueID:    "6bd183eb11b8fdb6",
+		Path:       "db859b175e629442",
+		Date:       nil,
 	}
 	ctx := context.Background()
 	db := GetDatabase()
-	DeleteAllCommitSummaries(ctx, db)
+	DeleteAllIssueReworkSummaries(ctx, db)
 	tx, err := db.Begin()
 	if err != nil {
 		t.Fatal(err)
@@ -167,7 +179,7 @@ func TestCreateCommitSummaryDeleteTx(t *testing.T) {
 	if !exists {
 		t.Fatal("exists should have been true but was false")
 	}
-	found, err := FindCommitSummaryByIDTx(ctx, tx, r.ID)
+	found, err := FindIssueReworkSummaryByIDTx(ctx, tx, r.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -180,7 +192,7 @@ func TestCreateCommitSummaryDeleteTx(t *testing.T) {
 	if orm.Stringify(r) != orm.Stringify(found) {
 		t.Fatalf("expected r to be found but was different")
 	}
-	results, err := FindCommitSummariesTx(ctx, tx)
+	results, err := FindIssueReworkSummariesTx(ctx, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -197,6 +209,34 @@ func TestCreateCommitSummaryDeleteTx(t *testing.T) {
 	}
 	if f == false {
 		t.Fatal("expected found to be a true but was false")
+	}
+	a, b, err := r.DBUpsertTx(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a {
+		t.Fatal("expected a to be false but was true")
+	}
+	if b {
+		t.Fatal("expected b to be false but was true")
+	}
+	r.SetCustomerID("2dc457058d4f9b1b")
+
+	r.SetProjectID("47f8cc72a9be80b8")
+
+	r.SetIssueID("0b5ec731a1222891")
+
+	r.SetPath("7f25f335b7e96377")
+
+	a, b, err = r.DBUpsertTx(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !a {
+		t.Fatal("expected a to be true but was false")
+	}
+	if b {
+		t.Fatal("expected b to be false but was true")
 	}
 	_, err = r.DBDeleteTx(ctx, tx)
 	if err != nil {

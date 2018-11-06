@@ -8,10 +8,10 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
-	"github.com/pinpt/go-common/datetime"
 	"github.com/pinpt/go-common/fileutil"
 	"github.com/pinpt/go-common/hash"
 	"github.com/pinpt/go-schema/acl"
@@ -51,6 +51,11 @@ func runGenerateCmd(dir string) error {
 	}
 	return nil
 }
+
+// keep the date the same so that subsequent generations will always use the same
+// date and the diff will not change if the routes are the same
+var timeEpoch int64 = 1541002044312
+var timeConst = time.Unix(timeEpoch, 0)
 
 func generateRoutesGoFile(dir string) ([]*acl.Route, error) {
 	routefn := filepath.Join(dir, "src", "routes.json")
@@ -112,13 +117,19 @@ func generateRoutesGoFile(dir string) ([]*acl.Route, error) {
 		routes = append(routes, r)
 	}
 
+	sort.SliceStable(routes, func(i, j int) bool {
+		return routes[i].Name < routes[j].Name
+	})
+	sort.SliceStable(pubRoutes, func(i, j int) bool {
+		return pubRoutes[i].Name < pubRoutes[j].Name
+	})
 	err = PackageTemplate.Execute(f, struct {
 		Timestamp    time.Time
 		Dir          string
 		Routes       []*acl.Route
 		PublicRoutes []*acl.Route
 	}{
-		Timestamp:    time.Now(),
+		Timestamp:    timeConst,
 		Dir:          dir,
 		Routes:       routes,
 		PublicRoutes: pubRoutes,
@@ -178,7 +189,7 @@ func (r role) SQLValues() template.HTML {
 		escape(r.id),
 		escape(r.name),
 		escape(r.description),
-		fmt.Sprintf("%v", datetime.TimeToEpoch(time.Now())),
+		fmt.Sprintf("%d", timeEpoch),
 	}
 	return template.HTML(strings.Join(s, ","))
 }

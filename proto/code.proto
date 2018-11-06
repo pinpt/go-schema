@@ -157,21 +157,24 @@ message CommitActivity {
 }
 
 message CommitSummary {
-	proto.ID id = 1;
-	proto.UID commit_id = 2[(proto.column).notnull=true,(proto.column).index=true];
-	proto.UID repo_id = 3[(proto.column).notnull=true,(proto.column).index=true];
-	proto.UID author_user_id = 4[(proto.column).notnull=true,(proto.column).index=true];
-	proto.UID customer_id = 5[(proto.column).notnull=true,(proto.column).index=true];
+	proto.ID 	id 				= 1;
+	proto.UID 	commit_id 		= 2 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID 	sha 			= 3 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID 	author_user_id 	= 4 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID 	customer_id 	= 5 [(proto.column).notnull=true,(proto.column).index=true];
+	proto.UID 	data_group_id 	= 6 [(proto.column).index=true];
+	proto.UID 	repo_id 		= 7 [(proto.column).notnull=true,(proto.column).index=true];
+	string 		repo 			= 8 [(proto.column).notnull=true];
 	// ref_type is the name type of the specialized type (such as github, gitlab, etc)
-	string ref_type = 6 [(proto.column).notnull=true,(proto.column).type="VARCHAR(20)",(proto.column).index=true];
-	int32 additions = 7[(proto.column).default="0",(proto.column).notnull=true];
-	int32 deletions = 8[(proto.column).default="0",(proto.column).notnull=true];
+	string 		ref_type 		= 9 [(proto.column).notnull=true,(proto.column).index=true,(proto.column).type="VARCHAR(20)"];
+	int32 		additions 		= 10[(proto.column).notnull=true,(proto.column).default="0"];
+	int32 		deletions 		= 11[(proto.column).notnull=true,(proto.column).default="0"];
 	// files changed in the commit
-	int32 files_changed = 9[(proto.column).default="0",(proto.column).notnull=true];
-	string branch = 10[(proto.column).type="VARCHAR(255)",(proto.column).default="master"];
+	int32 		files_changed 	= 12[(proto.column).notnull=true,(proto.column).default="0"];
+	string 		branch 			= 13[(proto.column).type="VARCHAR(255)",(proto.column).default="master"];
 	//programming languages in the commit
-	string language = 11[(proto.column).type="VARCHAR(500)",(proto.column).default="unknown",(proto.column).notnull=true];
+	string 		language 		= 14[(proto.column).notnull=true,(proto.column).type="VARCHAR(500)",(proto.column).default="unknown"];
 	//date of the commit
-	int64 date = 12 [(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
-	string message = 13[(proto.column).type="LONGTEXT"];
+	int64 		date 			= 15[(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
+	string 		message 		= 16[(proto.column).type="LONGTEXT"];
 }

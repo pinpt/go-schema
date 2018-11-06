@@ -194,9 +194,12 @@ CREATE TABLE `commit_issue` (
 CREATE TABLE `commit_summary` (
 	`id`             VARCHAR(64) NOT NULL PRIMARY KEY,
 	`commit_id`      VARCHAR(64) NOT NULL,
-	`repo_id`        VARCHAR(64) NOT NULL,
+	`sha`            VARCHAR(64) NOT NULL,
 	`author_user_id` VARCHAR(64) NOT NULL,
 	`customer_id`    VARCHAR(64) NOT NULL,
+	`data_group_id`  VARCHAR(64),
+	`repo_id`        VARCHAR(64) NOT NULL,
+	`repo`           TEXT NOT NULL,
 	`ref_type`       VARCHAR(20) NOT NULL,
 	`additions`      INT NOT NULL DEFAULT 0,
 	`deletions`      INT NOT NULL DEFAULT 0,
@@ -206,9 +209,11 @@ CREATE TABLE `commit_summary` (
 	`date`           BIGINT UNSIGNED NOT NULL,
 	`message`        LONGTEXT,
 	INDEX commit_summary_commit_id_index (`commit_id`),
-	INDEX commit_summary_repo_id_index (`repo_id`),
+	INDEX commit_summary_sha_index (`sha`),
 	INDEX commit_summary_author_user_id_index (`author_user_id`),
 	INDEX commit_summary_customer_id_index (`customer_id`),
+	INDEX commit_summary_data_group_id_index (`data_group_id`),
+	INDEX commit_summary_repo_id_index (`repo_id`),
 	INDEX commit_summary_ref_type_index (`ref_type`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -344,6 +349,23 @@ CREATE TABLE `issue_project` (
 	INDEX issue_project_ref_id_index (`ref_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE `issue_rework_summary` (
+	`id`           VARCHAR(64) NOT NULL PRIMARY KEY,
+	`checksum`     CHAR(64),
+	`customer_id`  VARCHAR(64) NOT NULL,
+	`project_id`   VARCHAR(64) NOT NULL,
+	`user_id`      VARCHAR(64),
+	`issue_id`     VARCHAR(64) NOT NULL,
+	`path`         VARCHAR(1024) NOT NULL,
+	`date`         BIGINT UNSIGNED,
+	INDEX issue_rework_summary_customer_id_index (`customer_id`),
+	INDEX issue_rework_summary_project_id_index (`project_id`),
+	INDEX issue_rework_summary_user_id_index (`user_id`),
+	INDEX issue_rework_summary_issue_id_index (`issue_id`),
+	INDEX issue_rework_summary_customer_id_project_id_user_id_index (`customer_id`,`project_id`,`user_id`),
+	INDEX issue_rework_summary_customer_id_user_id_path_index (`customer_id`,`user_id`,`path`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --  IssueSummary is a summarization table with issue level summary data
 CREATE TABLE `issue_summary` (
 	`id`                          VARCHAR(64) NOT NULL PRIMARY KEY,
@@ -377,11 +399,27 @@ CREATE TABLE `issue_summary` (
 	`top_level`                   TINYINT UNSIGNED NOT NULL,
 	`is_leaf`                     TINYINT UNSIGNED NOT NULL,
 	`path`                        VARCHAR(1024) NOT NULL,
+	`in_progress_duration`        BIGINT NOT NULL,
+	`verification_duration`       BIGINT NOT NULL,
+	`in_progress_count`           INT NOT NULL,
+	`reopen_count`                INT NOT NULL,
+	`mapped_type`                 VARCHAR(75) NOT NULL,
+	`strategic_parent_id`         VARCHAR(64),
+	`sprint_id`                   JSON,
+	`issue_project_name`          VARCHAR(255) NOT NULL,
+	`users`                       JSON,
+	`initial_start_date`          BIGINT UNSIGNED NOT NULL,
+	`total_duration`              BIGINT UNSIGNED NOT NULL,
+	`created_at`                  BIGINT UNSIGNED,
+	`closed_at`                   BIGINT UNSIGNED,
+	`planned_end_date`            BIGINT UNSIGNED,
 	`customer_id`                 VARCHAR(64) NOT NULL,
 	`ref_type`                    VARCHAR(20) NOT NULL,
 	`ref_id`                      VARCHAR(64) NOT NULL,
 	`custom_field_ids_virtual`    TEXT,
 	`release_duration`            BIGINT NOT NULL,
+	`completed`                   BOOL NOT NULL,
+	`completed_date`              BIGINT UNSIGNED,
 	INDEX issue_summary_issue_id_index (`issue_id`),
 	INDEX issue_summary_priority_id_index (`priority_id`),
 	INDEX issue_summary_issue_type_id_index (`issue_type_id`),
@@ -389,6 +427,7 @@ CREATE TABLE `issue_summary` (
 	INDEX issue_summary_parent_issue_id_index (`parent_issue_id`),
 	INDEX issue_summary_project_id_index (`project_id`),
 	INDEX issue_summary_top_level_index (`top_level`),
+	INDEX issue_summary_strategic_parent_id_index (`strategic_parent_id`),
 	INDEX issue_summary_customer_id_index (`customer_id`),
 	INDEX issue_summary_ref_id_index (`ref_id`),
 	INDEX issue_summary_customer_id_parent_issue_id_index (`customer_id`,`parent_issue_id`),
@@ -723,6 +762,26 @@ CREATE TABLE `repo_mapping` (
 	INDEX repo_mapping_ref_id_index (`ref_id`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--  RepoSummary table stores a summary for each repository
+CREATE TABLE `repo_summary` (
+	`id`                 VARCHAR(64) NOT NULL PRIMARY KEY,
+	`name`               VARCHAR(255) NOT NULL,
+	`description`        TEXT,
+	`ref_type`           VARCHAR(20) NOT NULL,
+	`data_group_id`      VARCHAR(20),
+	`user_ids`           JSON NOT NULL,
+	`commits`            BIGINT UNSIGNED NOT NULL,
+	`additions`          BIGINT UNSIGNED NOT NULL,
+	`deletions`          BIGINT UNSIGNED NOT NULL,
+	`latest_commit_date` BIGINT UNSIGNED NOT NULL,
+	`repo_id`            VARCHAR(64) NOT NULL,
+	`customer_id`        VARCHAR(64) NOT NULL,
+	INDEX repo_summary_ref_type_index (`ref_type`),
+	INDEX repo_summary_data_group_id_index (`data_group_id`),
+	INDEX repo_summary_repo_id_index (`repo_id`),
+	INDEX repo_summary_customer_id_index (`customer_id`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --  Signal table is a generic set of signals that are calculated behind the scenes
 CREATE TABLE `signal` (
 	`id`           VARCHAR(64) NOT NULL PRIMARY KEY,
@@ -865,6 +924,7 @@ DROP TABLE IF EXISTS `exclusion_mapping`;
 DROP TABLE IF EXISTS `issue`;
 DROP TABLE IF EXISTS `issue_comment`;
 DROP TABLE IF EXISTS `issue_project`;
+DROP TABLE IF EXISTS `issue_rework_summary`;
 DROP TABLE IF EXISTS `issue_summary`;
 DROP TABLE IF EXISTS `jira_custom_field`;
 DROP TABLE IF EXISTS `jira_custom_field_value`;
@@ -885,6 +945,7 @@ DROP TABLE IF EXISTS `mockapi_deployment`;
 DROP TABLE IF EXISTS `processing_error`;
 DROP TABLE IF EXISTS `repo`;
 DROP TABLE IF EXISTS `repo_mapping`;
+DROP TABLE IF EXISTS `repo_summary`;
 DROP TABLE IF EXISTS `signal`;
 DROP TABLE IF EXISTS `sonarqube_metric`;
 DROP TABLE IF EXISTS `sonarqube_project`;
