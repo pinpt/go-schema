@@ -13,7 +13,6 @@ all: build test
 dependencies:
 	@dep ensure
 	@go get golang.org/x/tools/cmd/goimports
-	@go get -u github.com/jhaynie/protoc-gen-gator
 
 build: dependencies
 	@go run main.go all

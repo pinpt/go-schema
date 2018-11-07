@@ -24,6 +24,11 @@
 #   go-tests = true
 #   unused-packages = true
 
+required = ["github.com/jhaynie/protoc-gen-gator"]
+
+[[constraint]]
+	name = "github.com/jhaynie/protoc-gen-gator"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/fatih/color"

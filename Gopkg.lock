@@ -26,10 +26,12 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:4c0989ca0bcd10799064318923b9bc2db6b4d6338dd75f3f2d86c3511aaaf5cf"
+  digest = "1:fc5af0ce30d523e01d57e3cf514ea481373cccb512d5224511864505bd397187"
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
+    "protoc-gen-go/descriptor",
+    "protoc-gen-go/plugin",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
@@ -54,6 +56,24 @@
   pruneopts = "UT"
   revision = "8baee4036fffd6426d109edfbc326d85c3f1dc0f"
   version = "2.1.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:b580e26f93a975ec492c91f73b7de7b33facae86d1c591cae2853afecb4b2f47"
+  name = "github.com/jhaynie/protoc-gen-gator"
+  packages = [
+    ".",
+    "generator",
+    "generators",
+    "generators/golang",
+    "generators/goose",
+    "generators/graphql",
+    "generators/sql",
+    "proto",
+    "types",
+  ]
+  pruneopts = "UT"
+  revision = "e29a8e285a69cdf738c47853738b00736e7d8ff9"
 
 [[projects]]
   digest = "1:c658e84ad3916da105a761660dcaeb01e63416c8ec7bc62256a9b411a05fcd67"
@@ -82,6 +102,14 @@
   pruneopts = "UT"
   revision = "32cafe35e46b30c6cfa905c66ef519412a5827ef"
   version = "2.1.7"
+
+[[projects]]
+  branch = "master"
+  digest = "1:efa124a0ca36a35cc1a1b472cb0fa2be1e7d9fd1db0f8bc9a042e42e4c6405aa"
+  name = "github.com/serenize/snaker"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a683aaf2d516deecd70cad0c72e3ca773ecfcef0"
 
 [[projects]]
   digest = "1:645cabccbb4fa8aab25a956cbcbdf6a6845ca736b2c64e197ca7cbb9d210b939"
@@ -123,6 +151,7 @@
     "github.com/golang/protobuf/ptypes",
     "github.com/golang/protobuf/ptypes/timestamp",
     "github.com/jhaynie/go-gator/orm",
+    "github.com/jhaynie/protoc-gen-gator",
     "github.com/pinpt/go-common/datetime",
     "github.com/pinpt/go-common/fileutil",
     "github.com/pinpt/go-common/hash",

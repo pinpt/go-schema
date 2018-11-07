@@ -36,7 +36,7 @@ func runSchemaCmd() error {
 	if err := generateTempProtoFile(rootDir, protoDir, tempDir, tempProto); err != nil {
 		return err
 	}
-	if err := runProtoc(protoDir, tempDir, tempProto); err != nil {
+	if err := runProtoc(protoDir, tempDir, tempProto, rootDir); err != nil {
 		return err
 	}
 	deleteAllGoFiles(rootDir)
@@ -81,13 +81,13 @@ func generateTempProtoFile(rootDir string, protoDir string, tempDir string, temp
 	return ioutil.WriteFile(tempProto, []byte(strings.Join(tmpProtocFile, "\n")), 0644)
 }
 
-func runProtoc(protoDir string, tempDir string, tempProto string) error {
+func runProtoc(protoDir string, tempDir string, tempProto string, rootDir string) error {
+	vendorDir := filepath.Join(rootDir, "vendor")
 	cArgs := []string{}
 	cArgs = append(cArgs, fmt.Sprintf("--proto_path=%v", tempDir))
 	cArgs = append(cArgs, fmt.Sprintf("-I=%v", protoDir))
-	cArgs = append(cArgs, fmt.Sprintf("-I=%v", filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "jhaynie", "protoc-gen-gator")))
-	cArgs = append(cArgs, fmt.Sprintf("-I=%v", filepath.Join(os.Getenv("GOPATH"), "src", "github.com", "jhaynie", "protoc-gen-gator", "proto")))
-	cArgs = append(cArgs, fmt.Sprintf("-I=%v", filepath.Join(os.Getenv("GOPATH"), "src")))
+	cArgs = append(cArgs, fmt.Sprintf("-I=%v", filepath.Join(vendorDir, "github.com", "jhaynie", "protoc-gen-gator")))
+	cArgs = append(cArgs, fmt.Sprintf("-I=%v", filepath.Join(vendorDir, "github.com", "jhaynie", "protoc-gen-gator", "proto")))
 	cArgs = append(cArgs, fmt.Sprintf("--gator_out=goose,golang:%v", tempDir))
 	cArgs = append(cArgs, tempProto)
 
