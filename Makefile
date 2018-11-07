@@ -8,13 +8,13 @@ SHELL := /bin/bash
 
 .PHONY: all test dependencies build generate bindata schema clean
 
-all: test
+all: build test
 
 dependencies:
 	@dep ensure
 	@go get golang.org/x/tools/cmd/goimports
 
-build:
+build: dependencies
 	@go run main.go all
 
 generate:
