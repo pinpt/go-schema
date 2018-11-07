@@ -356,7 +356,7 @@ CREATE TABLE `issue_rework_summary` (
 	`project_id`   VARCHAR(64) NOT NULL,
 	`user_id`      VARCHAR(64),
 	`issue_id`     VARCHAR(64) NOT NULL,
-	`path`         VARCHAR(1024) NOT NULL,
+	`path`         VARCHAR(615) NOT NULL,
 	`date`         BIGINT UNSIGNED,
 	INDEX issue_rework_summary_customer_id_index (`customer_id`),
 	INDEX issue_rework_summary_project_id_index (`project_id`),
