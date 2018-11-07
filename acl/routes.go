@@ -7,8 +7,8 @@ import (
 )
 
 func init() {
-	isPublicRoute = regexp.MustCompile("(^\\/error$|^\\/welcome$)")
-	isValidRoute = regexp.MustCompile("(^$|^\\/$|^\\/admin$|^\\/admin\\/cost-center$|^\\/admin\\/mapping$|^\\/admin\\/people$|^\\/admin\\/roles$|^\\/commit\\/(\\w+)?$|^\\/cost-center\\/(\\w+)?$|^\\/data\\/commits$|^\\/data\\/issues$|^\\/data\\/locations$|^\\/data\\/people$|^\\/data\\/projects$|^\\/data\\/repositories$|^\\/data\\/sprints$|^\\/data\\/teams$|^\\/error$|^\\/file\\/(\\w+)?$|^\\/issue\\/(\\w+)?$|^\\/issues\\/forecast$|^\\/issues\\/workflow\\/(\\w+)?\\/(\\w+)?\\/(\\w+)?$|^\\/language\\/(\\w+)?$|^\\/location\\/(\\w+)?$|^\\/locations\\/performance$|^\\/people\\/performance$|^\\/person\\/(\\w+)?$|^\\/project\\/(\\w+)?$|^\\/repository\\/(\\w+)?$|^\\/signal\\/backlog-change\\/team\\/(\\w+)?$|^\\/signal\\/changes-per-commit\\/person\\/(\\w+)?$|^\\/signal\\/code-ownership\\/person\\/(\\w+)?$|^\\/signal\\/commits\\/person\\/(\\w+)?$|^\\/signal\\/cost\\/team\\/(\\w+)?$|^\\/signal\\/cycle-time\\/person\\/(\\w+)?$|^\\/signal\\/cycle-time\\/team\\/(\\w+)?$|^\\/signal\\/defects-density\\/team\\/(\\w+)?$|^\\/signal\\/defects-rate\\/team\\/(\\w+)?$|^\\/signal\\/delivered-vs-committed\\/team\\/(\\w+)?$|^\\/signal\\/initiative-issues\\/team\\/(\\w+)?$|^\\/signal\\/innovation-rate\\/team\\/(\\w+)?$|^\\/signal\\/issues-completed\\/team\\/(\\w+)?$|^\\/signal\\/issues-worked\\/person\\/(\\w+)?$|^\\/signal\\/on-time-delivery\\/team\\/(\\w+)?$|^\\/signal\\/rework-rate\\/person\\/(\\w+)?$|^\\/signal\\/rework-rate\\/team\\/(\\w+)?$|^\\/signal\\/scheduled-rate\\/team\\/(\\w+)?$|^\\/signal\\/sprint-health\\/team\\/(\\w+)?$|^\\/signal\\/sprint-volatility\\/team\\/(\\w+)?$|^\\/signal\\/throughput\\/team\\/(\\w+)?$|^\\/signal\\/traceability\\/person\\/(\\w+)?$|^\\/sprint\\/(\\w+)?$|^\\/team\\/(\\w+)?$|^\\/teams\\/performance$|^\\/welcome$)")
+	isPublicRoute = regexp.MustCompile("(^\\/admin\\/activate$|^\\/error$|^\\/welcome$)")
+	isValidRoute = regexp.MustCompile("(^$|^\\/$|^\\/admin$|^\\/admin\\/activate$|^\\/admin\\/cost-center$|^\\/admin\\/mapping$|^\\/admin\\/roles$|^\\/data\\/person\\/commits$|^\\/data\\/person\\/issues-worked$|^\\/data\\/person\\/rework-rate$|^\\/data\\/person\\/traceability$|^\\/data\\/team\\/cost$|^\\/data\\/team\\/issues-completed$|^\\/data\\/team\\/issues-open$|^\\/data\\/team\\/sprints-completed$|^\\/error$|^\\/jira\\/(\\w+)?$|^\\/languages$|^\\/performance-detail\\/people\\/(\\w+)?$|^\\/performance-detail\\/team\\/(\\w+)?$|^\\/performance\\/location$|^\\/performance\\/people\\/(\\w+)?\\/(\\w+)?$|^\\/performance\\/team\\/(\\w+)?$|^\\/signal\\/person\\/changes-per-commit\\/(\\w+)?$|^\\/signal\\/person\\/code-ownership\\/(\\w+)?$|^\\/signal\\/person\\/commits\\/(\\w+)?$|^\\/signal\\/person\\/cycle-time\\/(\\w+)?$|^\\/signal\\/person\\/issues-worked\\/(\\w+)?$|^\\/signal\\/person\\/rework-rate\\/(\\w+)?$|^\\/signal\\/person\\/traceability\\/(\\w+)?$|^\\/signal\\/team\\/backlog-change\\/(\\w+)?$|^\\/signal\\/team\\/cost\\/(\\w+)?$|^\\/signal\\/team\\/cycle-time\\/(\\w+)?$|^\\/signal\\/team\\/cycle-time\\/data\\/(\\w+)?$|^\\/signal\\/team\\/defects-density\\/(\\w+)?$|^\\/signal\\/team\\/defects-rate\\/(\\w+)?$|^\\/signal\\/team\\/delivered-vs-committed\\/(\\w+)?$|^\\/signal\\/team\\/initiative-issues\\/(\\w+)?$|^\\/signal\\/team\\/innovation-rate\\/(\\w+)?$|^\\/signal\\/team\\/issues-closed\\/(\\w+)?$|^\\/signal\\/team\\/rework-rate\\/(\\w+)?$|^\\/signal\\/team\\/scheduled-rate\\/(\\w+)?$|^\\/signal\\/team\\/sprint-volatility\\/(\\w+)?$|^\\/welcome$|^\\/work-forecast\\/(\\w+)?\\/(\\w+)?\\/(\\w+)?\\/(\\w+)?\\/(\\w+)?$)")
 	routes = []*Route{
 		&Route{
 			Name:           "Admin",
@@ -21,13 +21,23 @@ func init() {
 			
 		},
 		&Route{
+			Name:           "AdminActivate",
+			Path:	        "/admin/activate",
+			Title:          "Admin Activation",
+			Public:         true,
+			Hidden:         true,
+			Admin:          false,
+			Description:    "",
+			
+		},
+		&Route{
 			Name:           "AdminCostCenters",
 			Path:	        "/admin/cost-center",
 			Title:          "Cost Centers",
 			Public:         false,
 			Hidden:         false,
 			Admin:          true,
-			Description:    "Create and manage cost centers",
+			Description:    "Manage cost centers and assign them to employees",
 			
 		},
 		&Route{
@@ -37,17 +47,7 @@ func init() {
 			Public:         false,
 			Hidden:         false,
 			Admin:          true,
-			Description:    "Associate projects and code repositories with teams",
-			
-		},
-		&Route{
-			Name:           "AdminPeople",
-			Path:	        "/admin/people",
-			Title:          "People",
-			Public:         false,
-			Hidden:         false,
-			Admin:          true,
-			Description:    "Manage your users",
+			Description:    "Associate projects, repositories and people with teams",
 			
 		},
 		&Route{
@@ -57,17 +57,7 @@ func init() {
 			Public:         false,
 			Hidden:         false,
 			Admin:          true,
-			Description:    "Create and manage roles",
-			
-		},
-		&Route{
-			Name:           "Commit",
-			Path:	        "/commit/:id",
-			Title:          "Commit Detail",
-			Public:         false,
-			Hidden:         true,
-			Admin:          false,
-			Description:    "",
+			Description:    "Manage user roles and assign them to employees",
 			
 		},
 		&Route{
@@ -81,18 +71,8 @@ func init() {
 			
 		},
 		&Route{
-			Name:           "CostCenter",
-			Path:	        "/cost-center/:id",
-			Title:          "Cost Center Detail",
-			Public:         false,
-			Hidden:         true,
-			Admin:          false,
-			Description:    "",
-			
-		},
-		&Route{
 			Name:           "DataCommits",
-			Path:	        "/data/commits",
+			Path:	        "/data/person/commits",
 			Title:          "Data - Commits",
 			Public:         false,
 			Hidden:         false,
@@ -101,9 +81,9 @@ func init() {
 			
 		},
 		&Route{
-			Name:           "DataIssues",
-			Path:	        "/data/issues",
-			Title:          "Data - Issues",
+			Name:           "DataCost",
+			Path:	        "/data/team/cost",
+			Title:          "Data - Cost",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -111,9 +91,9 @@ func init() {
 			
 		},
 		&Route{
-			Name:           "DataLocations",
-			Path:	        "/data/locations",
-			Title:          "Data - Locations",
+			Name:           "DataIssuesCompleted",
+			Path:	        "/data/team/issues-completed",
+			Title:          "Data - Issues Completed",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -121,9 +101,9 @@ func init() {
 			
 		},
 		&Route{
-			Name:           "DataPeople",
-			Path:	        "/data/people",
-			Title:          "Data - People",
+			Name:           "DataIssuesOpen",
+			Path:	        "/data/team/issues-open",
+			Title:          "Data - Issues Open",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -131,9 +111,9 @@ func init() {
 			
 		},
 		&Route{
-			Name:           "DataProjects",
-			Path:	        "/data/projects",
-			Title:          "Data - Projects",
+			Name:           "DataIssuesWorked",
+			Path:	        "/data/person/issues-worked",
+			Title:          "Data - Issues Worked",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -141,9 +121,9 @@ func init() {
 			
 		},
 		&Route{
-			Name:           "DataRepositories",
-			Path:	        "/data/repositories",
-			Title:          "Data - Repositories",
+			Name:           "DataReworkPercent",
+			Path:	        "/data/person/rework-rate",
+			Title:          "Data - Rework Rate",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -151,9 +131,9 @@ func init() {
 			
 		},
 		&Route{
-			Name:           "DataSprints",
-			Path:	        "/data/sprints",
-			Title:          "Data - Sprints",
+			Name:           "DataSprintsCompleted",
+			Path:	        "/data/team/sprints-completed",
+			Title:          "Data - Sprints Completed",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -161,9 +141,9 @@ func init() {
 			
 		},
 		&Route{
-			Name:           "DataTeams",
-			Path:	        "/data/teams",
-			Title:          "Data - Teams",
+			Name:           "DataTraceability",
+			Path:	        "/data/person/traceability",
+			Title:          "Data - Traceability",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -181,69 +161,29 @@ func init() {
 			
 		},
 		&Route{
-			Name:           "File",
-			Path:	        "/file/:id",
-			Title:          "File Detail",
-			Public:         false,
-			Hidden:         true,
-			Admin:          false,
-			Description:    "",
-			
-		},
-		&Route{
-			Name:           "Issue",
-			Path:	        "/issue/:id",
-			Title:          "Issue Detail",
-			Public:         false,
-			Hidden:         true,
-			Admin:          false,
-			Description:    "",
-			
-		},
-		&Route{
-			Name:           "IssueForecast",
-			Path:	        "/issues/forecast",
-			Title:          "Work - Forecast",
+			Name:           "Jira",
+			Path:	        "/jira/:team",
+			Title:          "Technology - Jira",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
-			Description:    "Summary of forecasts and delivery status for larger open issues",
+			Description:    "Usage and adoption data for all Jira projects",
 			
 		},
 		&Route{
-			Name:           "IssueWorkflow",
-			Path:	        "/issues/workflow/:team/:issueType/:interval",
-			Title:          "Work - Issue Workflow",
+			Name:           "Languages",
+			Path:	        "/languages",
+			Title:          "Technology - Languages",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
-			Description:    "Analysis of typical issue workflow paths",
-			
-		},
-		&Route{
-			Name:           "Language",
-			Path:	        "/language/:id",
-			Title:          "Language Detail",
-			Public:         false,
-			Hidden:         true,
-			Admin:          false,
-			Description:    "",
-			
-		},
-		&Route{
-			Name:           "Location",
-			Path:	        "/location/:id",
-			Title:          "Location Detail",
-			Public:         false,
-			Hidden:         true,
-			Admin:          false,
-			Description:    "",
+			Description:    "Contributions by programming language for people and projects",
 			
 		},
 		&Route{
 			Name:           "LocationPerformance",
-			Path:	        "/locations/performance",
-			Title:          "Location - Performance Summary",
+			Path:	        "/performance/location",
+			Title:          "Location Performance",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -261,18 +201,8 @@ func init() {
 			
 		},
 		&Route{
-			Name:           "Person",
-			Path:	        "/person/:id",
-			Title:          "Person Detail",
-			Public:         false,
-			Hidden:         true,
-			Admin:          false,
-			Description:    "",
-			
-		},
-		&Route{
 			Name:           "PersonChangesPerCommit",
-			Path:	        "/signal/changes-per-commit/person/:id",
+			Path:	        "/signal/person/changes-per-commit/:id",
 			Title:          "People - Changes Per Commit",
 			Public:         false,
 			Hidden:         false,
@@ -282,7 +212,7 @@ func init() {
 		},
 		&Route{
 			Name:           "PersonCodeOwnership",
-			Path:	        "/signal/code-ownership/person/:id",
+			Path:	        "/signal/person/code-ownership/:id",
 			Title:          "People - Code Ownership",
 			Public:         false,
 			Hidden:         false,
@@ -292,7 +222,7 @@ func init() {
 		},
 		&Route{
 			Name:           "PersonCommits",
-			Path:	        "/signal/commits/person/:id",
+			Path:	        "/signal/person/commits/:id",
 			Title:          "People - Commits",
 			Public:         false,
 			Hidden:         false,
@@ -302,7 +232,7 @@ func init() {
 		},
 		&Route{
 			Name:           "PersonCycleTime",
-			Path:	        "/signal/cycle-time/person/:id",
+			Path:	        "/signal/person/cycle-time/:id",
 			Title:          "People - Cycle Time",
 			Public:         false,
 			Hidden:         false,
@@ -312,7 +242,7 @@ func init() {
 		},
 		&Route{
 			Name:           "PersonIssuesWorked",
-			Path:	        "/signal/issues-worked/person/:id",
+			Path:	        "/signal/person/issues-worked/:id",
 			Title:          "People - Issues Worked",
 			Public:         false,
 			Hidden:         false,
@@ -322,7 +252,7 @@ func init() {
 		},
 		&Route{
 			Name:           "PersonPerformance",
-			Path:	        "/people/performance",
+			Path:	        "/performance/people/:filter/:id",
 			Title:          "People - Performance Summary",
 			Public:         false,
 			Hidden:         false,
@@ -331,8 +261,18 @@ func init() {
 			
 		},
 		&Route{
+			Name:           "PersonPerformanceDetail",
+			Path:	        "/performance-detail/people/:person",
+			Title:          "People - Performance Detail",
+			Public:         false,
+			Hidden:         true,
+			Admin:          false,
+			Description:    "Detailed performance signals for a specific person",
+			
+		},
+		&Route{
 			Name:           "PersonReworkPercent",
-			Path:	        "/signal/rework-rate/person/:id",
+			Path:	        "/signal/person/rework-rate/:id",
 			Title:          "People - Rework Rate",
 			Public:         false,
 			Hidden:         false,
@@ -342,8 +282,8 @@ func init() {
 		},
 		&Route{
 			Name:           "PersonTraceability",
-			Path:	        "/signal/traceability/person/:id",
-			Title:          "People - Traceability",
+			Path:	        "/signal/person/traceability/:id",
+			Title:          "People - Commit Traceability",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -351,49 +291,9 @@ func init() {
 			
 		},
 		&Route{
-			Name:           "Project",
-			Path:	        "/project/:id",
-			Title:          "Project Detail",
-			Public:         false,
-			Hidden:         true,
-			Admin:          false,
-			Description:    "",
-			
-		},
-		&Route{
-			Name:           "Repository",
-			Path:	        "/repository/:id",
-			Title:          "Repository Detail",
-			Public:         false,
-			Hidden:         true,
-			Admin:          false,
-			Description:    "",
-			
-		},
-		&Route{
-			Name:           "Sprint",
-			Path:	        "/sprint/:id",
-			Title:          "Sprint Detail",
-			Public:         false,
-			Hidden:         true,
-			Admin:          false,
-			Description:    "",
-			
-		},
-		&Route{
-			Name:           "Team",
-			Path:	        "/team/:id",
-			Title:          "Team Detail",
-			Public:         false,
-			Hidden:         true,
-			Admin:          false,
-			Description:    "",
-			
-		},
-		&Route{
 			Name:           "TeamBacklogChangePercent",
-			Path:	        "/signal/backlog-change/team/:id",
-			Title:          "Teams - Backlog Change",
+			Path:	        "/signal/team/backlog-change/:id",
+			Title:          "Team - Backlog Change",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -402,8 +302,8 @@ func init() {
 		},
 		&Route{
 			Name:           "TeamCost",
-			Path:	        "/signal/cost/team/:id",
-			Title:          "Teams - Cost",
+			Path:	        "/signal/team/cost/:id",
+			Title:          "Team - Cost",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -412,8 +312,18 @@ func init() {
 		},
 		&Route{
 			Name:           "TeamCycleTime",
-			Path:	        "/signal/cycle-time/team/:id",
-			Title:          "Teams - Cycle Time",
+			Path:	        "/signal/team/cycle-time/:id",
+			Title:          "Team - Cycle Time",
+			Public:         false,
+			Hidden:         false,
+			Admin:          false,
+			Description:    "",
+			
+		},
+		&Route{
+			Name:           "TeamCycleTimeData",
+			Path:	        "/signal/team/cycle-time/data/:id",
+			Title:          "Team - Cycle Time Data",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -422,8 +332,8 @@ func init() {
 		},
 		&Route{
 			Name:           "TeamDefectsDensity",
-			Path:	        "/signal/defects-density/team/:id",
-			Title:          "Teams - Defect Density",
+			Path:	        "/signal/team/defects-density/:id",
+			Title:          "Team - Defect Density",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -432,8 +342,8 @@ func init() {
 		},
 		&Route{
 			Name:           "TeamDefectsPercent",
-			Path:	        "/signal/defects-rate/team/:id",
-			Title:          "Teams - Defect Rate",
+			Path:	        "/signal/team/defects-rate/:id",
+			Title:          "Team - Defect Rate",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -442,8 +352,8 @@ func init() {
 		},
 		&Route{
 			Name:           "TeamDeliveredVsCommitted",
-			Path:	        "/signal/delivered-vs-committed/team/:id",
-			Title:          "Teams - Delivered vs. Planned",
+			Path:	        "/signal/team/delivered-vs-committed/:id",
+			Title:          "Team - Delivered vs. Planned",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -451,9 +361,9 @@ func init() {
 			
 		},
 		&Route{
-			Name:           "TeamIssuesCompleted",
-			Path:	        "/signal/issues-completed/team/:id",
-			Title:          "Teams - Completed Issues",
+			Name:           "TeamIssuesClosed",
+			Path:	        "/signal/team/issues-closed/:id",
+			Title:          "Team - Closed Issues",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -462,18 +372,8 @@ func init() {
 		},
 		&Route{
 			Name:           "TeamNewFeatures",
-			Path:	        "/signal/innovation-rate/team/:id",
-			Title:          "Teams - Innovation Rate",
-			Public:         false,
-			Hidden:         false,
-			Admin:          false,
-			Description:    "",
-			
-		},
-		&Route{
-			Name:           "TeamOnTimeDelivery",
-			Path:	        "/signal/on-time-delivery/team/:id",
-			Title:          "Teams - On-time Delivery",
+			Path:	        "/signal/team/innovation-rate/:id",
+			Title:          "Team - Innovation Rate",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -482,8 +382,8 @@ func init() {
 		},
 		&Route{
 			Name:           "TeamPerformance",
-			Path:	        "/teams/performance",
-			Title:          "Teams - Performance Summary",
+			Path:	        "/performance/team/:team",
+			Title:          "Team - Performance Summary",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -491,9 +391,19 @@ func init() {
 			
 		},
 		&Route{
+			Name:           "TeamPerformanceDetail",
+			Path:	        "/performance-detail/team/:team",
+			Title:          "Team - Performance Detail",
+			Public:         false,
+			Hidden:         true,
+			Admin:          false,
+			Description:    "Detailed performance signals for a specific team",
+			
+		},
+		&Route{
 			Name:           "TeamReworkPercent",
-			Path:	        "/signal/rework-rate/team/:id",
-			Title:          "Teams - Rework Rate",
+			Path:	        "/signal/team/rework-rate/:id",
+			Title:          "Team - Rework Rate",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -502,18 +412,8 @@ func init() {
 		},
 		&Route{
 			Name:           "TeamScheduled",
-			Path:	        "/signal/scheduled-rate/team/:id",
-			Title:          "Teams - Planned Issues",
-			Public:         false,
-			Hidden:         false,
-			Admin:          false,
-			Description:    "",
-			
-		},
-		&Route{
-			Name:           "TeamSprintHealth",
-			Path:	        "/signal/sprint-health/team/:id",
-			Title:          "Teams - Sprint Health",
+			Path:	        "/signal/team/scheduled-rate/:id",
+			Title:          "Team - Planned Rate",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -522,8 +422,8 @@ func init() {
 		},
 		&Route{
 			Name:           "TeamSprintVolatility",
-			Path:	        "/signal/sprint-volatility/team/:id",
-			Title:          "Teams - Sprint Volatility",
+			Path:	        "/signal/team/sprint-volatility/:id",
+			Title:          "Team - Sprint Volatility",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -532,18 +432,8 @@ func init() {
 		},
 		&Route{
 			Name:           "TeamStrategicPercent",
-			Path:	        "/signal/initiative-issues/team/:id",
-			Title:          "Teams - Strategic Issues",
-			Public:         false,
-			Hidden:         false,
-			Admin:          false,
-			Description:    "",
-			
-		},
-		&Route{
-			Name:           "TeamThroughput",
-			Path:	        "/signal/throughput/team/:id",
-			Title:          "Teams - Throughput",
+			Path:	        "/signal/team/initiative-issues/:id",
+			Title:          "Team - Strategic Issues",
 			Public:         false,
 			Hidden:         false,
 			Admin:          false,
@@ -558,6 +448,16 @@ func init() {
 			Hidden:         true,
 			Admin:          false,
 			Description:    "",
+			
+		},
+		&Route{
+			Name:           "WorkSummary",
+			Path:	        "/work-forecast/:team/:issueType/:priority/:id/:customField",
+			Title:          "Work Forecast",
+			Public:         false,
+			Hidden:         false,
+			Admin:          false,
+			Description:    "Status and estimates for open issues",
 			
 		},
 	}

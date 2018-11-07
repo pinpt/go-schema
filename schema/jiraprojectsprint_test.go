@@ -30,7 +30,8 @@ func TestCreateJiraProjectSprintDelete(t *testing.T) {
 	r := &JiraProjectSprint{
 		ID:                        "b4e2106af80bbc51",
 		Checksum:                  nil,
-		ProjectID:                 "1257165aa92f1df0",
+		DatagroupID:               "d0b3bc7ab33126f5",
+		ProjectIds:                "{}",
 		SprintID:                  "05601d7cb7f70818",
 		Name:                      "c0e4be0c39931c1f",
 		CustomerID:                "702b480582b3792e",
@@ -115,7 +116,9 @@ func TestCreateJiraProjectSprintDelete(t *testing.T) {
 	if b {
 		t.Fatal("expected b to be false but was true")
 	}
-	r.SetProjectID("a6c31e89f11d939a")
+	r.SetDatagroupID("c10e87e60190eaec")
+
+	r.SetProjectIds("{}")
 
 	r.SetSprintID("5a76bba80d3e3d77")
 
@@ -171,7 +174,8 @@ func TestCreateJiraProjectSprintDeleteTx(t *testing.T) {
 	r := &JiraProjectSprint{
 		ID:                        "b4e2106af80bbc51",
 		Checksum:                  nil,
-		ProjectID:                 "1257165aa92f1df0",
+		DatagroupID:               "d0b3bc7ab33126f5",
+		ProjectIds:                "{}",
 		SprintID:                  "05601d7cb7f70818",
 		Name:                      "c0e4be0c39931c1f",
 		CustomerID:                "702b480582b3792e",
@@ -260,7 +264,9 @@ func TestCreateJiraProjectSprintDeleteTx(t *testing.T) {
 	if b {
 		t.Fatal("expected b to be false but was true")
 	}
-	r.SetProjectID("a6c31e89f11d939a")
+	r.SetDatagroupID("c10e87e60190eaec")
+
+	r.SetProjectIds("{}")
 
 	r.SetSprintID("5a76bba80d3e3d77")
 
