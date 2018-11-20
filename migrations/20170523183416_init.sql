@@ -208,6 +208,8 @@ CREATE TABLE `commit_summary` (
 	`language`       VARCHAR(500) NOT NULL DEFAULT "unknown",
 	`date`           BIGINT UNSIGNED NOT NULL,
 	`message`        LONGTEXT,
+	`excluded`       BOOL NOT NULL DEFAULT false,
+	`metadata`       JSON,
 	INDEX commit_summary_commit_id_index (`commit_id`),
 	INDEX commit_summary_sha_index (`sha`),
 	INDEX commit_summary_author_user_id_index (`author_user_id`),

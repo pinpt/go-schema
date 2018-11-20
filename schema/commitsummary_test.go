@@ -44,6 +44,8 @@ func TestCreateCommitSummaryDelete(t *testing.T) {
 		Language:     "b0ca4ff49d5c17b5",
 		Date:         int64(64),
 		Message:      nil,
+		Excluded:     true,
+		Metadata:     nil,
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -138,6 +140,8 @@ func TestCreateCommitSummaryDeleteTx(t *testing.T) {
 		Language:     "b0ca4ff49d5c17b5",
 		Date:         int64(64),
 		Message:      nil,
+		Excluded:     true,
+		Metadata:     nil,
 	}
 	ctx := context.Background()
 	db := GetDatabase()
