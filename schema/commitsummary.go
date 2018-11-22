@@ -48,29 +48,31 @@ var CommitSummaryColumns = []string{
 	"date",
 	"message",
 	"excluded",
-	"metadata",
+	"exclude_reason",
+	"mergecommit",
 }
 
 // CommitSummary table
 type CommitSummary struct {
-	Additions    int32   `json:"additions"`
-	AuthorUserID string  `json:"author_user_id"`
-	Branch       *string `json:"branch,omitempty"`
-	CommitID     string  `json:"commit_id"`
-	CustomerID   string  `json:"customer_id"`
-	DataGroupID  *string `json:"data_group_id,omitempty"`
-	Date         int64   `json:"date"`
-	Deletions    int32   `json:"deletions"`
-	Excluded     bool    `json:"excluded"`
-	FilesChanged int32   `json:"files_changed"`
-	ID           string  `json:"id"`
-	Language     string  `json:"language"`
-	Message      *string `json:"message,omitempty"`
-	Metadata     *string `json:"metadata,omitempty"`
-	RefType      string  `json:"ref_type"`
-	Repo         string  `json:"repo"`
-	RepoID       string  `json:"repo_id"`
-	Sha          string  `json:"sha"`
+	Additions     int32   `json:"additions"`
+	AuthorUserID  string  `json:"author_user_id"`
+	Branch        *string `json:"branch,omitempty"`
+	CommitID      string  `json:"commit_id"`
+	CustomerID    string  `json:"customer_id"`
+	DataGroupID   *string `json:"data_group_id,omitempty"`
+	Date          int64   `json:"date"`
+	Deletions     int32   `json:"deletions"`
+	ExcludeReason *string `json:"exclude_reason,omitempty"`
+	Excluded      bool    `json:"excluded"`
+	FilesChanged  int32   `json:"files_changed"`
+	ID            string  `json:"id"`
+	Language      string  `json:"language"`
+	Mergecommit   *bool   `json:"mergecommit,omitempty"`
+	Message       *string `json:"message,omitempty"`
+	RefType       string  `json:"ref_type"`
+	Repo          string  `json:"repo"`
+	RepoID        string  `json:"repo_id"`
+	Sha           string  `json:"sha"`
 }
 
 // TableName returns the SQL table name for CommitSummary and satifies the Model interface
@@ -98,7 +100,8 @@ func (t *CommitSummary) ToCSV() []string {
 		toCSVString(t.Date),
 		toCSVString(t.Message),
 		toCSVBool(t.Excluded),
-		toCSVString(t.Metadata),
+		toCSVString(t.ExcludeReason),
+		toCSVString(t.Mergecommit),
 	}
 }
 
@@ -160,24 +163,25 @@ func NewCSVCommitSummaryReader(r io.Reader, ch chan<- CommitSummary) error {
 			return err
 		}
 		ch <- CommitSummary{
-			ID:           record[0],
-			CommitID:     record[1],
-			Sha:          record[2],
-			AuthorUserID: record[3],
-			CustomerID:   record[4],
-			DataGroupID:  fromStringPointer(record[5]),
-			RepoID:       record[6],
-			Repo:         record[7],
-			RefType:      record[8],
-			Additions:    fromCSVInt32(record[9]),
-			Deletions:    fromCSVInt32(record[10]),
-			FilesChanged: fromCSVInt32(record[11]),
-			Branch:       fromStringPointer(record[12]),
-			Language:     record[13],
-			Date:         fromCSVInt64(record[14]),
-			Message:      fromStringPointer(record[15]),
-			Excluded:     fromCSVBool(record[16]),
-			Metadata:     fromStringPointer(record[17]),
+			ID:            record[0],
+			CommitID:      record[1],
+			Sha:           record[2],
+			AuthorUserID:  record[3],
+			CustomerID:    record[4],
+			DataGroupID:   fromStringPointer(record[5]),
+			RepoID:        record[6],
+			Repo:          record[7],
+			RefType:       record[8],
+			Additions:     fromCSVInt32(record[9]),
+			Deletions:     fromCSVInt32(record[10]),
+			FilesChanged:  fromCSVInt32(record[11]),
+			Branch:        fromStringPointer(record[12]),
+			Language:      record[13],
+			Date:          fromCSVInt64(record[14]),
+			Message:       fromStringPointer(record[15]),
+			Excluded:      fromCSVBool(record[16]),
+			ExcludeReason: fromStringPointer(record[17]),
+			Mergecommit:   fromCSVBoolPointer(record[18]),
 		}
 	}
 	return nil
@@ -443,11 +447,17 @@ const CommitSummaryColumnExcluded = "excluded"
 // CommitSummaryEscapedColumnExcluded is the escaped Excluded SQL column name for the CommitSummary table
 const CommitSummaryEscapedColumnExcluded = "`excluded`"
 
-// CommitSummaryColumnMetadata is the Metadata SQL column name for the CommitSummary table
-const CommitSummaryColumnMetadata = "metadata"
+// CommitSummaryColumnExcludeReason is the ExcludeReason SQL column name for the CommitSummary table
+const CommitSummaryColumnExcludeReason = "exclude_reason"
 
-// CommitSummaryEscapedColumnMetadata is the escaped Metadata SQL column name for the CommitSummary table
-const CommitSummaryEscapedColumnMetadata = "`metadata`"
+// CommitSummaryEscapedColumnExcludeReason is the escaped ExcludeReason SQL column name for the CommitSummary table
+const CommitSummaryEscapedColumnExcludeReason = "`exclude_reason`"
+
+// CommitSummaryColumnMergecommit is the Mergecommit SQL column name for the CommitSummary table
+const CommitSummaryColumnMergecommit = "mergecommit"
+
+// CommitSummaryEscapedColumnMergecommit is the escaped Mergecommit SQL column name for the CommitSummary table
+const CommitSummaryEscapedColumnMergecommit = "`mergecommit`"
 
 // GetID will return the CommitSummary ID value
 func (t *CommitSummary) GetID() string {
@@ -461,7 +471,7 @@ func (t *CommitSummary) SetID(v string) {
 
 // FindCommitSummaryByID will find a CommitSummary by ID
 func FindCommitSummaryByID(ctx context.Context, db DB, value string) (*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `id` = ?"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _CommitID sql.NullString
 	var _Sha sql.NullString
@@ -479,7 +489,8 @@ func FindCommitSummaryByID(ctx context.Context, db DB, value string) (*CommitSum
 	var _Date sql.NullInt64
 	var _Message sql.NullString
 	var _Excluded sql.NullBool
-	var _Metadata sql.NullString
+	var _ExcludeReason sql.NullString
+	var _Mergecommit sql.NullBool
 	err := db.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_CommitID,
@@ -498,7 +509,8 @@ func FindCommitSummaryByID(ctx context.Context, db DB, value string) (*CommitSum
 		&_Date,
 		&_Message,
 		&_Excluded,
-		&_Metadata,
+		&_ExcludeReason,
+		&_Mergecommit,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -558,15 +570,18 @@ func FindCommitSummaryByID(ctx context.Context, db DB, value string) (*CommitSum
 	if _Excluded.Valid {
 		t.SetExcluded(_Excluded.Bool)
 	}
-	if _Metadata.Valid {
-		t.SetMetadata(_Metadata.String)
+	if _ExcludeReason.Valid {
+		t.SetExcludeReason(_ExcludeReason.String)
+	}
+	if _Mergecommit.Valid {
+		t.SetMergecommit(_Mergecommit.Bool)
 	}
 	return t, nil
 }
 
 // FindCommitSummaryByIDTx will find a CommitSummary by ID using the provided transaction
 func FindCommitSummaryByIDTx(ctx context.Context, tx Tx, value string) (*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `id` = ?"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _CommitID sql.NullString
 	var _Sha sql.NullString
@@ -584,7 +599,8 @@ func FindCommitSummaryByIDTx(ctx context.Context, tx Tx, value string) (*CommitS
 	var _Date sql.NullInt64
 	var _Message sql.NullString
 	var _Excluded sql.NullBool
-	var _Metadata sql.NullString
+	var _ExcludeReason sql.NullString
+	var _Mergecommit sql.NullBool
 	err := tx.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_CommitID,
@@ -603,7 +619,8 @@ func FindCommitSummaryByIDTx(ctx context.Context, tx Tx, value string) (*CommitS
 		&_Date,
 		&_Message,
 		&_Excluded,
-		&_Metadata,
+		&_ExcludeReason,
+		&_Mergecommit,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -663,8 +680,11 @@ func FindCommitSummaryByIDTx(ctx context.Context, tx Tx, value string) (*CommitS
 	if _Excluded.Valid {
 		t.SetExcluded(_Excluded.Bool)
 	}
-	if _Metadata.Valid {
-		t.SetMetadata(_Metadata.String)
+	if _ExcludeReason.Valid {
+		t.SetExcludeReason(_ExcludeReason.String)
+	}
+	if _Mergecommit.Valid {
+		t.SetMergecommit(_Mergecommit.Bool)
 	}
 	return t, nil
 }
@@ -681,7 +701,7 @@ func (t *CommitSummary) SetCommitID(v string) {
 
 // FindCommitSummariesByCommitID will find all CommitSummarys by the CommitID value
 func FindCommitSummariesByCommitID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `commit_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `commit_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -709,7 +729,8 @@ func FindCommitSummariesByCommitID(ctx context.Context, db DB, value string) ([]
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -728,7 +749,8 @@ func FindCommitSummariesByCommitID(ctx context.Context, db DB, value string) ([]
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -785,8 +807,11 @@ func FindCommitSummariesByCommitID(ctx context.Context, db DB, value string) ([]
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -795,7 +820,7 @@ func FindCommitSummariesByCommitID(ctx context.Context, db DB, value string) ([]
 
 // FindCommitSummariesByCommitIDTx will find all CommitSummarys by the CommitID value using the provided transaction
 func FindCommitSummariesByCommitIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `commit_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `commit_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -823,7 +848,8 @@ func FindCommitSummariesByCommitIDTx(ctx context.Context, tx Tx, value string) (
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -842,7 +868,8 @@ func FindCommitSummariesByCommitIDTx(ctx context.Context, tx Tx, value string) (
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -899,8 +926,11 @@ func FindCommitSummariesByCommitIDTx(ctx context.Context, tx Tx, value string) (
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -919,7 +949,7 @@ func (t *CommitSummary) SetSha(v string) {
 
 // FindCommitSummariesBySha will find all CommitSummarys by the Sha value
 func FindCommitSummariesBySha(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `sha` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `sha` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -947,7 +977,8 @@ func FindCommitSummariesBySha(ctx context.Context, db DB, value string) ([]*Comm
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -966,7 +997,8 @@ func FindCommitSummariesBySha(ctx context.Context, db DB, value string) ([]*Comm
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -1023,8 +1055,11 @@ func FindCommitSummariesBySha(ctx context.Context, db DB, value string) ([]*Comm
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -1033,7 +1068,7 @@ func FindCommitSummariesBySha(ctx context.Context, db DB, value string) ([]*Comm
 
 // FindCommitSummariesByShaTx will find all CommitSummarys by the Sha value using the provided transaction
 func FindCommitSummariesByShaTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `sha` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `sha` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1061,7 +1096,8 @@ func FindCommitSummariesByShaTx(ctx context.Context, tx Tx, value string) ([]*Co
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -1080,7 +1116,8 @@ func FindCommitSummariesByShaTx(ctx context.Context, tx Tx, value string) ([]*Co
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -1137,8 +1174,11 @@ func FindCommitSummariesByShaTx(ctx context.Context, tx Tx, value string) ([]*Co
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -1157,7 +1197,7 @@ func (t *CommitSummary) SetAuthorUserID(v string) {
 
 // FindCommitSummariesByAuthorUserID will find all CommitSummarys by the AuthorUserID value
 func FindCommitSummariesByAuthorUserID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `author_user_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `author_user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1185,7 +1225,8 @@ func FindCommitSummariesByAuthorUserID(ctx context.Context, db DB, value string)
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -1204,7 +1245,8 @@ func FindCommitSummariesByAuthorUserID(ctx context.Context, db DB, value string)
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -1261,8 +1303,11 @@ func FindCommitSummariesByAuthorUserID(ctx context.Context, db DB, value string)
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -1271,7 +1316,7 @@ func FindCommitSummariesByAuthorUserID(ctx context.Context, db DB, value string)
 
 // FindCommitSummariesByAuthorUserIDTx will find all CommitSummarys by the AuthorUserID value using the provided transaction
 func FindCommitSummariesByAuthorUserIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `author_user_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `author_user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1299,7 +1344,8 @@ func FindCommitSummariesByAuthorUserIDTx(ctx context.Context, tx Tx, value strin
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -1318,7 +1364,8 @@ func FindCommitSummariesByAuthorUserIDTx(ctx context.Context, tx Tx, value strin
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -1375,8 +1422,11 @@ func FindCommitSummariesByAuthorUserIDTx(ctx context.Context, tx Tx, value strin
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -1395,7 +1445,7 @@ func (t *CommitSummary) SetCustomerID(v string) {
 
 // FindCommitSummariesByCustomerID will find all CommitSummarys by the CustomerID value
 func FindCommitSummariesByCustomerID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1423,7 +1473,8 @@ func FindCommitSummariesByCustomerID(ctx context.Context, db DB, value string) (
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -1442,7 +1493,8 @@ func FindCommitSummariesByCustomerID(ctx context.Context, db DB, value string) (
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -1499,8 +1551,11 @@ func FindCommitSummariesByCustomerID(ctx context.Context, db DB, value string) (
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -1509,7 +1564,7 @@ func FindCommitSummariesByCustomerID(ctx context.Context, db DB, value string) (
 
 // FindCommitSummariesByCustomerIDTx will find all CommitSummarys by the CustomerID value using the provided transaction
 func FindCommitSummariesByCustomerIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `customer_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `customer_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1537,7 +1592,8 @@ func FindCommitSummariesByCustomerIDTx(ctx context.Context, tx Tx, value string)
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -1556,7 +1612,8 @@ func FindCommitSummariesByCustomerIDTx(ctx context.Context, tx Tx, value string)
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -1613,8 +1670,11 @@ func FindCommitSummariesByCustomerIDTx(ctx context.Context, tx Tx, value string)
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -1636,7 +1696,7 @@ func (t *CommitSummary) SetDataGroupID(v string) {
 
 // FindCommitSummariesByDataGroupID will find all CommitSummarys by the DataGroupID value
 func FindCommitSummariesByDataGroupID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `data_group_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `data_group_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1664,7 +1724,8 @@ func FindCommitSummariesByDataGroupID(ctx context.Context, db DB, value string) 
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -1683,7 +1744,8 @@ func FindCommitSummariesByDataGroupID(ctx context.Context, db DB, value string) 
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -1740,8 +1802,11 @@ func FindCommitSummariesByDataGroupID(ctx context.Context, db DB, value string) 
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -1750,7 +1815,7 @@ func FindCommitSummariesByDataGroupID(ctx context.Context, db DB, value string) 
 
 // FindCommitSummariesByDataGroupIDTx will find all CommitSummarys by the DataGroupID value using the provided transaction
 func FindCommitSummariesByDataGroupIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `data_group_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `data_group_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1778,7 +1843,8 @@ func FindCommitSummariesByDataGroupIDTx(ctx context.Context, tx Tx, value string
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -1797,7 +1863,8 @@ func FindCommitSummariesByDataGroupIDTx(ctx context.Context, tx Tx, value string
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -1854,8 +1921,11 @@ func FindCommitSummariesByDataGroupIDTx(ctx context.Context, tx Tx, value string
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -1874,7 +1944,7 @@ func (t *CommitSummary) SetRepoID(v string) {
 
 // FindCommitSummariesByRepoID will find all CommitSummarys by the RepoID value
 func FindCommitSummariesByRepoID(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `repo_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1902,7 +1972,8 @@ func FindCommitSummariesByRepoID(ctx context.Context, db DB, value string) ([]*C
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -1921,7 +1992,8 @@ func FindCommitSummariesByRepoID(ctx context.Context, db DB, value string) ([]*C
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -1978,8 +2050,11 @@ func FindCommitSummariesByRepoID(ctx context.Context, db DB, value string) ([]*C
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -1988,7 +2063,7 @@ func FindCommitSummariesByRepoID(ctx context.Context, db DB, value string) ([]*C
 
 // FindCommitSummariesByRepoIDTx will find all CommitSummarys by the RepoID value using the provided transaction
 func FindCommitSummariesByRepoIDTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `repo_id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2016,7 +2091,8 @@ func FindCommitSummariesByRepoIDTx(ctx context.Context, tx Tx, value string) ([]
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -2035,7 +2111,8 @@ func FindCommitSummariesByRepoIDTx(ctx context.Context, tx Tx, value string) ([]
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -2092,8 +2169,11 @@ func FindCommitSummariesByRepoIDTx(ctx context.Context, tx Tx, value string) ([]
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -2122,7 +2202,7 @@ func (t *CommitSummary) SetRefType(v string) {
 
 // FindCommitSummariesByRefType will find all CommitSummarys by the RefType value
 func FindCommitSummariesByRefType(ctx context.Context, db DB, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2150,7 +2230,8 @@ func FindCommitSummariesByRefType(ctx context.Context, db DB, value string) ([]*
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -2169,7 +2250,8 @@ func FindCommitSummariesByRefType(ctx context.Context, db DB, value string) ([]*
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -2226,8 +2308,11 @@ func FindCommitSummariesByRefType(ctx context.Context, db DB, value string) ([]*
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -2236,7 +2321,7 @@ func FindCommitSummariesByRefType(ctx context.Context, db DB, value string) ([]*
 
 // FindCommitSummariesByRefTypeTx will find all CommitSummarys by the RefType value using the provided transaction
 func FindCommitSummariesByRefTypeTx(ctx context.Context, tx Tx, value string) ([]*CommitSummary, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `ref_type` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `ref_type` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -2264,7 +2349,8 @@ func FindCommitSummariesByRefTypeTx(ctx context.Context, tx Tx, value string) ([
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -2283,7 +2369,8 @@ func FindCommitSummariesByRefTypeTx(ctx context.Context, tx Tx, value string) ([
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -2340,8 +2427,11 @@ func FindCommitSummariesByRefTypeTx(ctx context.Context, tx Tx, value string) ([
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -2434,17 +2524,30 @@ func (t *CommitSummary) SetExcluded(v bool) {
 	t.Excluded = v
 }
 
-// GetMetadata will return the CommitSummary Metadata value
-func (t *CommitSummary) GetMetadata() string {
-	if t.Metadata == nil {
+// GetExcludeReason will return the CommitSummary ExcludeReason value
+func (t *CommitSummary) GetExcludeReason() string {
+	if t.ExcludeReason == nil {
 		return ""
 	}
-	return *t.Metadata
+	return *t.ExcludeReason
 }
 
-// SetMetadata will set the CommitSummary Metadata value
-func (t *CommitSummary) SetMetadata(v string) {
-	t.Metadata = &v
+// SetExcludeReason will set the CommitSummary ExcludeReason value
+func (t *CommitSummary) SetExcludeReason(v string) {
+	t.ExcludeReason = &v
+}
+
+// GetMergecommit will return the CommitSummary Mergecommit value
+func (t *CommitSummary) GetMergecommit() bool {
+	if t.Mergecommit == nil {
+		return false
+	}
+	return *t.Mergecommit
+}
+
+// SetMergecommit will set the CommitSummary Mergecommit value
+func (t *CommitSummary) SetMergecommit(v bool) {
+	t.Mergecommit = &v
 }
 
 func (t *CommitSummary) toTimestamp(value time.Time) *timestamp.Timestamp {
@@ -2454,14 +2557,14 @@ func (t *CommitSummary) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateCommitSummaryTable will create the CommitSummary table
 func DBCreateCommitSummaryTable(ctx context.Context, db DB) error {
-	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id`VARCHAR(64) NOT NULL,`sha`VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`data_group_id` VARCHAR(64),`repo_id` VARCHAR(64) NOT NULL,`repo` TEXT NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions`INT NOT NULL DEFAULT 0,`deletions`INT NOT NULL DEFAULT 0,`files_changed` INT NOT NULL DEFAULT 0,`branch`VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date` BIGINT UNSIGNED NOT NULL,`message` LONGTEXT,`excluded` BOOL NOT NULL DEFAULT false,`metadata` JSON,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_sha_index (`sha`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_data_group_id_index (`data_group_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id` VARCHAR(64) NOT NULL,`sha` VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`data_group_id`VARCHAR(64),`repo_id`VARCHAR(64) NOT NULL,`repo`TEXT NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions` INT NOT NULL DEFAULT 0,`deletions` INT NOT NULL DEFAULT 0,`files_changed`INT NOT NULL DEFAULT 0,`branch` VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date`BIGINT UNSIGNED NOT NULL,`message`LONGTEXT,`excluded` BOOL NOT NULL DEFAULT false,`exclude_reason` VARCHAR(500),`mergecommit` BOOL DEFAULT false,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_sha_index (`sha`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_data_group_id_index (`data_group_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateCommitSummaryTableTx will create the CommitSummary table using the provided transction
 func DBCreateCommitSummaryTableTx(ctx context.Context, tx Tx) error {
-	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id`VARCHAR(64) NOT NULL,`sha`VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`data_group_id` VARCHAR(64),`repo_id` VARCHAR(64) NOT NULL,`repo` TEXT NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions`INT NOT NULL DEFAULT 0,`deletions`INT NOT NULL DEFAULT 0,`files_changed` INT NOT NULL DEFAULT 0,`branch`VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date` BIGINT UNSIGNED NOT NULL,`message` LONGTEXT,`excluded` BOOL NOT NULL DEFAULT false,`metadata` JSON,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_sha_index (`sha`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_data_group_id_index (`data_group_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `commit_summary` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`commit_id` VARCHAR(64) NOT NULL,`sha` VARCHAR(64) NOT NULL,`author_user_id` VARCHAR(64) NOT NULL,`customer_id` VARCHAR(64) NOT NULL,`data_group_id`VARCHAR(64),`repo_id`VARCHAR(64) NOT NULL,`repo`TEXT NOT NULL,`ref_type` VARCHAR(20) NOT NULL,`additions` INT NOT NULL DEFAULT 0,`deletions` INT NOT NULL DEFAULT 0,`files_changed`INT NOT NULL DEFAULT 0,`branch` VARCHAR(255) DEFAULT \"master\",`language` VARCHAR(500) NOT NULL DEFAULT \"unknown\",`date`BIGINT UNSIGNED NOT NULL,`message`LONGTEXT,`excluded` BOOL NOT NULL DEFAULT false,`exclude_reason` VARCHAR(500),`mergecommit` BOOL DEFAULT false,INDEX commit_summary_commit_id_index (`commit_id`),INDEX commit_summary_sha_index (`sha`),INDEX commit_summary_author_user_id_index (`author_user_id`),INDEX commit_summary_customer_id_index (`customer_id`),INDEX commit_summary_data_group_id_index (`data_group_id`),INDEX commit_summary_repo_id_index (`repo_id`),INDEX commit_summary_ref_type_index (`ref_type`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
@@ -2482,7 +2585,7 @@ func DBDropCommitSummaryTableTx(ctx context.Context, tx Tx) error {
 
 // DBCreate will create a new CommitSummary record in the database
 func (t *CommitSummary) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
-	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.CommitID),
@@ -2501,13 +2604,14 @@ func (t *CommitSummary) DBCreate(ctx context.Context, db DB) (sql.Result, error)
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Message),
 		orm.ToSQLBool(t.Excluded),
-		orm.ToSQLString(t.Metadata),
+		orm.ToSQLString(t.ExcludeReason),
+		orm.ToSQLBool(t.Mergecommit),
 	)
 }
 
 // DBCreateTx will create a new CommitSummary record in the database using the provided transaction
 func (t *CommitSummary) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
-	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.CommitID),
@@ -2526,13 +2630,14 @@ func (t *CommitSummary) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, erro
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Message),
 		orm.ToSQLBool(t.Excluded),
-		orm.ToSQLString(t.Metadata),
+		orm.ToSQLString(t.ExcludeReason),
+		orm.ToSQLBool(t.Mergecommit),
 	)
 }
 
 // DBCreateIgnoreDuplicate will upsert the CommitSummary record in the database
 func (t *CommitSummary) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
-	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.CommitID),
@@ -2551,13 +2656,14 @@ func (t *CommitSummary) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Message),
 		orm.ToSQLBool(t.Excluded),
-		orm.ToSQLString(t.Metadata),
+		orm.ToSQLString(t.ExcludeReason),
+		orm.ToSQLBool(t.Mergecommit),
 	)
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the CommitSummary record in the database using the provided transaction
 func (t *CommitSummary) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
-	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLString(t.CommitID),
@@ -2576,7 +2682,8 @@ func (t *CommitSummary) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (s
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Message),
 		orm.ToSQLBool(t.Excluded),
-		orm.ToSQLString(t.Metadata),
+		orm.ToSQLString(t.ExcludeReason),
+		orm.ToSQLBool(t.Mergecommit),
 	)
 }
 
@@ -2640,7 +2747,7 @@ func (t *CommitSummary) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 
 // DBUpdate will update the CommitSummary record in the database
 func (t *CommitSummary) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
-	q := "UPDATE `commit_summary` SET `commit_id`=?,`sha`=?,`author_user_id`=?,`customer_id`=?,`data_group_id`=?,`repo_id`=?,`repo`=?,`ref_type`=?,`additions`=?,`deletions`=?,`files_changed`=?,`branch`=?,`language`=?,`date`=?,`message`=?,`excluded`=?,`metadata`=? WHERE `id`=?"
+	q := "UPDATE `commit_summary` SET `commit_id`=?,`sha`=?,`author_user_id`=?,`customer_id`=?,`data_group_id`=?,`repo_id`=?,`repo`=?,`ref_type`=?,`additions`=?,`deletions`=?,`files_changed`=?,`branch`=?,`language`=?,`date`=?,`message`=?,`excluded`=?,`exclude_reason`=?,`mergecommit`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.CommitID),
 		orm.ToSQLString(t.Sha),
@@ -2658,14 +2765,15 @@ func (t *CommitSummary) DBUpdate(ctx context.Context, db DB) (sql.Result, error)
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Message),
 		orm.ToSQLBool(t.Excluded),
-		orm.ToSQLString(t.Metadata),
+		orm.ToSQLString(t.ExcludeReason),
+		orm.ToSQLBool(t.Mergecommit),
 		orm.ToSQLString(t.ID),
 	)
 }
 
 // DBUpdateTx will update the CommitSummary record in the database using the provided transaction
 func (t *CommitSummary) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
-	q := "UPDATE `commit_summary` SET `commit_id`=?,`sha`=?,`author_user_id`=?,`customer_id`=?,`data_group_id`=?,`repo_id`=?,`repo`=?,`ref_type`=?,`additions`=?,`deletions`=?,`files_changed`=?,`branch`=?,`language`=?,`date`=?,`message`=?,`excluded`=?,`metadata`=? WHERE `id`=?"
+	q := "UPDATE `commit_summary` SET `commit_id`=?,`sha`=?,`author_user_id`=?,`customer_id`=?,`data_group_id`=?,`repo_id`=?,`repo`=?,`ref_type`=?,`additions`=?,`deletions`=?,`files_changed`=?,`branch`=?,`language`=?,`date`=?,`message`=?,`excluded`=?,`exclude_reason`=?,`mergecommit`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.CommitID),
 		orm.ToSQLString(t.Sha),
@@ -2683,7 +2791,8 @@ func (t *CommitSummary) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, erro
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Message),
 		orm.ToSQLBool(t.Excluded),
-		orm.ToSQLString(t.Metadata),
+		orm.ToSQLString(t.ExcludeReason),
+		orm.ToSQLBool(t.Mergecommit),
 		orm.ToSQLString(t.ID),
 	)
 }
@@ -2692,12 +2801,12 @@ func (t *CommitSummary) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, erro
 func (t *CommitSummary) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `commit_id`=VALUES(`commit_id`),`sha`=VALUES(`sha`),`author_user_id`=VALUES(`author_user_id`),`customer_id`=VALUES(`customer_id`),`data_group_id`=VALUES(`data_group_id`),`repo_id`=VALUES(`repo_id`),`repo`=VALUES(`repo`),`ref_type`=VALUES(`ref_type`),`additions`=VALUES(`additions`),`deletions`=VALUES(`deletions`),`files_changed`=VALUES(`files_changed`),`branch`=VALUES(`branch`),`language`=VALUES(`language`),`date`=VALUES(`date`),`message`=VALUES(`message`),`excluded`=VALUES(`excluded`),`metadata`=VALUES(`metadata`)"
+		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `commit_id`=VALUES(`commit_id`),`sha`=VALUES(`sha`),`author_user_id`=VALUES(`author_user_id`),`customer_id`=VALUES(`customer_id`),`data_group_id`=VALUES(`data_group_id`),`repo_id`=VALUES(`repo_id`),`repo`=VALUES(`repo`),`ref_type`=VALUES(`ref_type`),`additions`=VALUES(`additions`),`deletions`=VALUES(`deletions`),`files_changed`=VALUES(`files_changed`),`branch`=VALUES(`branch`),`language`=VALUES(`language`),`date`=VALUES(`date`),`message`=VALUES(`message`),`excluded`=VALUES(`excluded`),`exclude_reason`=VALUES(`exclude_reason`),`mergecommit`=VALUES(`mergecommit`)"
 	}
 	r, err := db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -2717,7 +2826,8 @@ func (t *CommitSummary) DBUpsert(ctx context.Context, db DB, conditions ...inter
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Message),
 		orm.ToSQLBool(t.Excluded),
-		orm.ToSQLString(t.Metadata),
+		orm.ToSQLString(t.ExcludeReason),
+		orm.ToSQLBool(t.Mergecommit),
 	)
 	if err != nil {
 		return false, false, err
@@ -2730,12 +2840,12 @@ func (t *CommitSummary) DBUpsert(ctx context.Context, db DB, conditions ...inter
 func (t *CommitSummary) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `commit_id`=VALUES(`commit_id`),`sha`=VALUES(`sha`),`author_user_id`=VALUES(`author_user_id`),`customer_id`=VALUES(`customer_id`),`data_group_id`=VALUES(`data_group_id`),`repo_id`=VALUES(`repo_id`),`repo`=VALUES(`repo`),`ref_type`=VALUES(`ref_type`),`additions`=VALUES(`additions`),`deletions`=VALUES(`deletions`),`files_changed`=VALUES(`files_changed`),`branch`=VALUES(`branch`),`language`=VALUES(`language`),`date`=VALUES(`date`),`message`=VALUES(`message`),`excluded`=VALUES(`excluded`),`metadata`=VALUES(`metadata`)"
+		q = "INSERT INTO `commit_summary` (`commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `commit_id`=VALUES(`commit_id`),`sha`=VALUES(`sha`),`author_user_id`=VALUES(`author_user_id`),`customer_id`=VALUES(`customer_id`),`data_group_id`=VALUES(`data_group_id`),`repo_id`=VALUES(`repo_id`),`repo`=VALUES(`repo`),`ref_type`=VALUES(`ref_type`),`additions`=VALUES(`additions`),`deletions`=VALUES(`deletions`),`files_changed`=VALUES(`files_changed`),`branch`=VALUES(`branch`),`language`=VALUES(`language`),`date`=VALUES(`date`),`message`=VALUES(`message`),`excluded`=VALUES(`excluded`),`exclude_reason`=VALUES(`exclude_reason`),`mergecommit`=VALUES(`mergecommit`)"
 	}
 	r, err := tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -2755,7 +2865,8 @@ func (t *CommitSummary) DBUpsertTx(ctx context.Context, tx Tx, conditions ...int
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Message),
 		orm.ToSQLBool(t.Excluded),
-		orm.ToSQLString(t.Metadata),
+		orm.ToSQLString(t.ExcludeReason),
+		orm.ToSQLBool(t.Mergecommit),
 	)
 	if err != nil {
 		return false, false, err
@@ -2766,7 +2877,7 @@ func (t *CommitSummary) DBUpsertTx(ctx context.Context, tx Tx, conditions ...int
 
 // DBFindOne will find a CommitSummary record in the database with the primary key
 func (t *CommitSummary) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _CommitID sql.NullString
@@ -2785,7 +2896,8 @@ func (t *CommitSummary) DBFindOne(ctx context.Context, db DB, value string) (boo
 	var _Date sql.NullInt64
 	var _Message sql.NullString
 	var _Excluded sql.NullBool
-	var _Metadata sql.NullString
+	var _ExcludeReason sql.NullString
+	var _Mergecommit sql.NullBool
 	err := row.Scan(
 		&_ID,
 		&_CommitID,
@@ -2804,7 +2916,8 @@ func (t *CommitSummary) DBFindOne(ctx context.Context, db DB, value string) (boo
 		&_Date,
 		&_Message,
 		&_Excluded,
-		&_Metadata,
+		&_ExcludeReason,
+		&_Mergecommit,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -2863,15 +2976,18 @@ func (t *CommitSummary) DBFindOne(ctx context.Context, db DB, value string) (boo
 	if _Excluded.Valid {
 		t.SetExcluded(_Excluded.Bool)
 	}
-	if _Metadata.Valid {
-		t.SetMetadata(_Metadata.String)
+	if _ExcludeReason.Valid {
+		t.SetExcludeReason(_ExcludeReason.String)
+	}
+	if _Mergecommit.Valid {
+		t.SetMergecommit(_Mergecommit.Bool)
 	}
 	return true, nil
 }
 
 // DBFindOneTx will find a CommitSummary record in the database with the primary key using the provided transaction
 func (t *CommitSummary) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`metadata` FROM `commit_summary` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `commit_summary`.`id`,`commit_summary`.`commit_id`,`commit_summary`.`sha`,`commit_summary`.`author_user_id`,`commit_summary`.`customer_id`,`commit_summary`.`data_group_id`,`commit_summary`.`repo_id`,`commit_summary`.`repo`,`commit_summary`.`ref_type`,`commit_summary`.`additions`,`commit_summary`.`deletions`,`commit_summary`.`files_changed`,`commit_summary`.`branch`,`commit_summary`.`language`,`commit_summary`.`date`,`commit_summary`.`message`,`commit_summary`.`excluded`,`commit_summary`.`exclude_reason`,`commit_summary`.`mergecommit` FROM `commit_summary` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _CommitID sql.NullString
@@ -2890,7 +3006,8 @@ func (t *CommitSummary) DBFindOneTx(ctx context.Context, tx Tx, value string) (b
 	var _Date sql.NullInt64
 	var _Message sql.NullString
 	var _Excluded sql.NullBool
-	var _Metadata sql.NullString
+	var _ExcludeReason sql.NullString
+	var _Mergecommit sql.NullBool
 	err := row.Scan(
 		&_ID,
 		&_CommitID,
@@ -2909,7 +3026,8 @@ func (t *CommitSummary) DBFindOneTx(ctx context.Context, tx Tx, value string) (b
 		&_Date,
 		&_Message,
 		&_Excluded,
-		&_Metadata,
+		&_ExcludeReason,
+		&_Mergecommit,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -2968,8 +3086,11 @@ func (t *CommitSummary) DBFindOneTx(ctx context.Context, tx Tx, value string) (b
 	if _Excluded.Valid {
 		t.SetExcluded(_Excluded.Bool)
 	}
-	if _Metadata.Valid {
-		t.SetMetadata(_Metadata.String)
+	if _ExcludeReason.Valid {
+		t.SetExcludeReason(_ExcludeReason.String)
+	}
+	if _Mergecommit.Valid {
+		t.SetMergecommit(_Mergecommit.Bool)
 	}
 	return true, nil
 }
@@ -2994,7 +3115,8 @@ func FindCommitSummaries(ctx context.Context, db DB, _params ...interface{}) ([]
 		orm.Column("date"),
 		orm.Column("message"),
 		orm.Column("excluded"),
-		orm.Column("metadata"),
+		orm.Column("exclude_reason"),
+		orm.Column("mergecommit"),
 		orm.Table(CommitSummaryTableName),
 	}
 	if len(_params) > 0 {
@@ -3030,7 +3152,8 @@ func FindCommitSummaries(ctx context.Context, db DB, _params ...interface{}) ([]
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -3049,7 +3172,8 @@ func FindCommitSummaries(ctx context.Context, db DB, _params ...interface{}) ([]
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -3106,8 +3230,11 @@ func FindCommitSummaries(ctx context.Context, db DB, _params ...interface{}) ([]
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -3134,7 +3261,8 @@ func FindCommitSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) (
 		orm.Column("date"),
 		orm.Column("message"),
 		orm.Column("excluded"),
-		orm.Column("metadata"),
+		orm.Column("exclude_reason"),
+		orm.Column("mergecommit"),
 		orm.Table(CommitSummaryTableName),
 	}
 	if len(_params) > 0 {
@@ -3170,7 +3298,8 @@ func FindCommitSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) (
 		var _Date sql.NullInt64
 		var _Message sql.NullString
 		var _Excluded sql.NullBool
-		var _Metadata sql.NullString
+		var _ExcludeReason sql.NullString
+		var _Mergecommit sql.NullBool
 		err := rows.Scan(
 			&_ID,
 			&_CommitID,
@@ -3189,7 +3318,8 @@ func FindCommitSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) (
 			&_Date,
 			&_Message,
 			&_Excluded,
-			&_Metadata,
+			&_ExcludeReason,
+			&_Mergecommit,
 		)
 		if err != nil {
 			return nil, err
@@ -3246,8 +3376,11 @@ func FindCommitSummariesTx(ctx context.Context, tx Tx, _params ...interface{}) (
 		if _Excluded.Valid {
 			t.SetExcluded(_Excluded.Bool)
 		}
-		if _Metadata.Valid {
-			t.SetMetadata(_Metadata.String)
+		if _ExcludeReason.Valid {
+			t.SetExcludeReason(_ExcludeReason.String)
+		}
+		if _Mergecommit.Valid {
+			t.SetMergecommit(_Mergecommit.Bool)
 		}
 		results = append(results, t)
 	}
@@ -3274,7 +3407,8 @@ func (t *CommitSummary) DBFind(ctx context.Context, db DB, _params ...interface{
 		orm.Column("date"),
 		orm.Column("message"),
 		orm.Column("excluded"),
-		orm.Column("metadata"),
+		orm.Column("exclude_reason"),
+		orm.Column("mergecommit"),
 		orm.Table(CommitSummaryTableName),
 	}
 	if len(_params) > 0 {
@@ -3301,7 +3435,8 @@ func (t *CommitSummary) DBFind(ctx context.Context, db DB, _params ...interface{
 	var _Date sql.NullInt64
 	var _Message sql.NullString
 	var _Excluded sql.NullBool
-	var _Metadata sql.NullString
+	var _ExcludeReason sql.NullString
+	var _Mergecommit sql.NullBool
 	err := row.Scan(
 		&_ID,
 		&_CommitID,
@@ -3320,7 +3455,8 @@ func (t *CommitSummary) DBFind(ctx context.Context, db DB, _params ...interface{
 		&_Date,
 		&_Message,
 		&_Excluded,
-		&_Metadata,
+		&_ExcludeReason,
+		&_Mergecommit,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -3376,8 +3512,11 @@ func (t *CommitSummary) DBFind(ctx context.Context, db DB, _params ...interface{
 	if _Excluded.Valid {
 		t.SetExcluded(_Excluded.Bool)
 	}
-	if _Metadata.Valid {
-		t.SetMetadata(_Metadata.String)
+	if _ExcludeReason.Valid {
+		t.SetExcludeReason(_ExcludeReason.String)
+	}
+	if _Mergecommit.Valid {
+		t.SetMergecommit(_Mergecommit.Bool)
 	}
 	return true, nil
 }
@@ -3402,7 +3541,8 @@ func (t *CommitSummary) DBFindTx(ctx context.Context, tx Tx, _params ...interfac
 		orm.Column("date"),
 		orm.Column("message"),
 		orm.Column("excluded"),
-		orm.Column("metadata"),
+		orm.Column("exclude_reason"),
+		orm.Column("mergecommit"),
 		orm.Table(CommitSummaryTableName),
 	}
 	if len(_params) > 0 {
@@ -3429,7 +3569,8 @@ func (t *CommitSummary) DBFindTx(ctx context.Context, tx Tx, _params ...interfac
 	var _Date sql.NullInt64
 	var _Message sql.NullString
 	var _Excluded sql.NullBool
-	var _Metadata sql.NullString
+	var _ExcludeReason sql.NullString
+	var _Mergecommit sql.NullBool
 	err := row.Scan(
 		&_ID,
 		&_CommitID,
@@ -3448,7 +3589,8 @@ func (t *CommitSummary) DBFindTx(ctx context.Context, tx Tx, _params ...interfac
 		&_Date,
 		&_Message,
 		&_Excluded,
-		&_Metadata,
+		&_ExcludeReason,
+		&_Mergecommit,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -3504,8 +3646,11 @@ func (t *CommitSummary) DBFindTx(ctx context.Context, tx Tx, _params ...interfac
 	if _Excluded.Valid {
 		t.SetExcluded(_Excluded.Bool)
 	}
-	if _Metadata.Valid {
-		t.SetMetadata(_Metadata.String)
+	if _ExcludeReason.Valid {
+		t.SetExcludeReason(_ExcludeReason.String)
+	}
+	if _Mergecommit.Valid {
+		t.SetMergecommit(_Mergecommit.Bool)
 	}
 	return true, nil
 }
