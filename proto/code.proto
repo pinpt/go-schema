@@ -177,4 +177,12 @@ message CommitSummary {
 	//date of the commit
 	int64 		date 			= 15[(proto.column).notnull=true,(proto.column).type="BIGINT UNSIGNED"];
 	string 		message 		= 16[(proto.column).type="LONGTEXT"];
+	// Exclude from commit table
+	bool 		excluded		= 17 [(proto.column).default="false",(proto.column).notnull=true];
+	// The reason why the commitwas excluded
+	string 		exclude_reason 	= 18 [(proto.column).type="VARCHAR(500)"];
+	// mergecommit fromm commit table
+	bool mergecommit = 19 [(proto.column).default="false"];
+	
+
 }
