@@ -43,22 +43,26 @@ var CommitActivityColumns = []string{
 	"sloc",
 	"blanks",
 	"comments",
+	"complexity",
+	"weighted_complexity",
 }
 
 // CommitActivity table
 type CommitActivity struct {
-	Blanks   int32   `json:"blanks"`
-	Comments int32   `json:"comments"`
-	Date     int64   `json:"date"`
-	Filename string  `json:"filename"`
-	ID       string  `json:"id"`
-	Language *string `json:"language,omitempty"`
-	Loc      int32   `json:"loc"`
-	Ordinal  int64   `json:"ordinal"`
-	RepoID   string  `json:"repo_id"`
-	Sha      string  `json:"sha"`
-	Sloc     int32   `json:"sloc"`
-	UserID   string  `json:"user_id"`
+	Blanks             int32   `json:"blanks"`
+	Comments           int32   `json:"comments"`
+	Complexity         int64   `json:"complexity"`
+	Date               int64   `json:"date"`
+	Filename           string  `json:"filename"`
+	ID                 string  `json:"id"`
+	Language           *string `json:"language,omitempty"`
+	Loc                int32   `json:"loc"`
+	Ordinal            int64   `json:"ordinal"`
+	RepoID             string  `json:"repo_id"`
+	Sha                string  `json:"sha"`
+	Sloc               int32   `json:"sloc"`
+	UserID             string  `json:"user_id"`
+	WeightedComplexity float64 `json:"weighted_complexity"`
 }
 
 // TableName returns the SQL table name for CommitActivity and satifies the Model interface
@@ -81,6 +85,8 @@ func (t *CommitActivity) ToCSV() []string {
 		toCSVString(t.Sloc),
 		toCSVString(t.Blanks),
 		toCSVString(t.Comments),
+		toCSVString(t.Complexity),
+		toCSVString(t.WeightedComplexity),
 	}
 }
 
@@ -142,18 +148,20 @@ func NewCSVCommitActivityReader(r io.Reader, ch chan<- CommitActivity) error {
 			return err
 		}
 		ch <- CommitActivity{
-			ID:       record[0],
-			Date:     fromCSVInt64(record[1]),
-			Sha:      record[2],
-			UserID:   record[3],
-			RepoID:   record[4],
-			Filename: record[5],
-			Language: fromStringPointer(record[6]),
-			Ordinal:  fromCSVInt64(record[7]),
-			Loc:      fromCSVInt32(record[8]),
-			Sloc:     fromCSVInt32(record[9]),
-			Blanks:   fromCSVInt32(record[10]),
-			Comments: fromCSVInt32(record[11]),
+			ID:                 record[0],
+			Date:               fromCSVInt64(record[1]),
+			Sha:                record[2],
+			UserID:             record[3],
+			RepoID:             record[4],
+			Filename:           record[5],
+			Language:           fromStringPointer(record[6]),
+			Ordinal:            fromCSVInt64(record[7]),
+			Loc:                fromCSVInt32(record[8]),
+			Sloc:               fromCSVInt32(record[9]),
+			Blanks:             fromCSVInt32(record[10]),
+			Comments:           fromCSVInt32(record[11]),
+			Complexity:         fromCSVInt64(record[12]),
+			WeightedComplexity: fromCSVFloat64(record[13]),
 		}
 	}
 	return nil
@@ -389,6 +397,18 @@ const CommitActivityColumnComments = "comments"
 // CommitActivityEscapedColumnComments is the escaped Comments SQL column name for the CommitActivity table
 const CommitActivityEscapedColumnComments = "`comments`"
 
+// CommitActivityColumnComplexity is the Complexity SQL column name for the CommitActivity table
+const CommitActivityColumnComplexity = "complexity"
+
+// CommitActivityEscapedColumnComplexity is the escaped Complexity SQL column name for the CommitActivity table
+const CommitActivityEscapedColumnComplexity = "`complexity`"
+
+// CommitActivityColumnWeightedComplexity is the WeightedComplexity SQL column name for the CommitActivity table
+const CommitActivityColumnWeightedComplexity = "weighted_complexity"
+
+// CommitActivityEscapedColumnWeightedComplexity is the escaped WeightedComplexity SQL column name for the CommitActivity table
+const CommitActivityEscapedColumnWeightedComplexity = "`weighted_complexity`"
+
 // GetID will return the CommitActivity ID value
 func (t *CommitActivity) GetID() string {
 	return t.ID
@@ -401,7 +421,7 @@ func (t *CommitActivity) SetID(v string) {
 
 // FindCommitActivityByID will find a CommitActivity by ID
 func FindCommitActivityByID(ctx context.Context, db DB, value string) (*CommitActivity, error) {
-	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `id` = ?"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity` FROM `commit_activity` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Date sql.NullInt64
 	var _Sha sql.NullString
@@ -414,6 +434,8 @@ func FindCommitActivityByID(ctx context.Context, db DB, value string) (*CommitAc
 	var _Sloc sql.NullInt64
 	var _Blanks sql.NullInt64
 	var _Comments sql.NullInt64
+	var _Complexity sql.NullInt64
+	var _WeightedComplexity sql.NullFloat64
 	err := db.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_Date,
@@ -427,6 +449,8 @@ func FindCommitActivityByID(ctx context.Context, db DB, value string) (*CommitAc
 		&_Sloc,
 		&_Blanks,
 		&_Comments,
+		&_Complexity,
+		&_WeightedComplexity,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -471,12 +495,18 @@ func FindCommitActivityByID(ctx context.Context, db DB, value string) (*CommitAc
 	if _Comments.Valid {
 		t.SetComments(int32(_Comments.Int64))
 	}
+	if _Complexity.Valid {
+		t.SetComplexity(_Complexity.Int64)
+	}
+	if _WeightedComplexity.Valid {
+		t.SetWeightedComplexity(_WeightedComplexity.Float64)
+	}
 	return t, nil
 }
 
 // FindCommitActivityByIDTx will find a CommitActivity by ID using the provided transaction
 func FindCommitActivityByIDTx(ctx context.Context, tx Tx, value string) (*CommitActivity, error) {
-	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `id` = ?"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity` FROM `commit_activity` WHERE `id` = ?"
 	var _ID sql.NullString
 	var _Date sql.NullInt64
 	var _Sha sql.NullString
@@ -489,6 +519,8 @@ func FindCommitActivityByIDTx(ctx context.Context, tx Tx, value string) (*Commit
 	var _Sloc sql.NullInt64
 	var _Blanks sql.NullInt64
 	var _Comments sql.NullInt64
+	var _Complexity sql.NullInt64
+	var _WeightedComplexity sql.NullFloat64
 	err := tx.QueryRowContext(ctx, q, value).Scan(
 		&_ID,
 		&_Date,
@@ -502,6 +534,8 @@ func FindCommitActivityByIDTx(ctx context.Context, tx Tx, value string) (*Commit
 		&_Sloc,
 		&_Blanks,
 		&_Comments,
+		&_Complexity,
+		&_WeightedComplexity,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -545,6 +579,12 @@ func FindCommitActivityByIDTx(ctx context.Context, tx Tx, value string) (*Commit
 	}
 	if _Comments.Valid {
 		t.SetComments(int32(_Comments.Int64))
+	}
+	if _Complexity.Valid {
+		t.SetComplexity(_Complexity.Int64)
+	}
+	if _WeightedComplexity.Valid {
+		t.SetWeightedComplexity(_WeightedComplexity.Float64)
 	}
 	return t, nil
 }
@@ -571,7 +611,7 @@ func (t *CommitActivity) SetSha(v string) {
 
 // FindCommitActivitiesBySha will find all CommitActivitys by the Sha value
 func FindCommitActivitiesBySha(ctx context.Context, db DB, value string) ([]*CommitActivity, error) {
-	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `sha` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity` FROM `commit_activity` WHERE `sha` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -594,6 +634,8 @@ func FindCommitActivitiesBySha(ctx context.Context, db DB, value string) ([]*Com
 		var _Sloc sql.NullInt64
 		var _Blanks sql.NullInt64
 		var _Comments sql.NullInt64
+		var _Complexity sql.NullInt64
+		var _WeightedComplexity sql.NullFloat64
 		err := rows.Scan(
 			&_ID,
 			&_Date,
@@ -607,6 +649,8 @@ func FindCommitActivitiesBySha(ctx context.Context, db DB, value string) ([]*Com
 			&_Sloc,
 			&_Blanks,
 			&_Comments,
+			&_Complexity,
+			&_WeightedComplexity,
 		)
 		if err != nil {
 			return nil, err
@@ -648,6 +692,12 @@ func FindCommitActivitiesBySha(ctx context.Context, db DB, value string) ([]*Com
 		if _Comments.Valid {
 			t.SetComments(int32(_Comments.Int64))
 		}
+		if _Complexity.Valid {
+			t.SetComplexity(_Complexity.Int64)
+		}
+		if _WeightedComplexity.Valid {
+			t.SetWeightedComplexity(_WeightedComplexity.Float64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -655,7 +705,7 @@ func FindCommitActivitiesBySha(ctx context.Context, db DB, value string) ([]*Com
 
 // FindCommitActivitiesByShaTx will find all CommitActivitys by the Sha value using the provided transaction
 func FindCommitActivitiesByShaTx(ctx context.Context, tx Tx, value string) ([]*CommitActivity, error) {
-	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `sha` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity` FROM `commit_activity` WHERE `sha` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -678,6 +728,8 @@ func FindCommitActivitiesByShaTx(ctx context.Context, tx Tx, value string) ([]*C
 		var _Sloc sql.NullInt64
 		var _Blanks sql.NullInt64
 		var _Comments sql.NullInt64
+		var _Complexity sql.NullInt64
+		var _WeightedComplexity sql.NullFloat64
 		err := rows.Scan(
 			&_ID,
 			&_Date,
@@ -691,6 +743,8 @@ func FindCommitActivitiesByShaTx(ctx context.Context, tx Tx, value string) ([]*C
 			&_Sloc,
 			&_Blanks,
 			&_Comments,
+			&_Complexity,
+			&_WeightedComplexity,
 		)
 		if err != nil {
 			return nil, err
@@ -731,6 +785,12 @@ func FindCommitActivitiesByShaTx(ctx context.Context, tx Tx, value string) ([]*C
 		}
 		if _Comments.Valid {
 			t.SetComments(int32(_Comments.Int64))
+		}
+		if _Complexity.Valid {
+			t.SetComplexity(_Complexity.Int64)
+		}
+		if _WeightedComplexity.Valid {
+			t.SetWeightedComplexity(_WeightedComplexity.Float64)
 		}
 		results = append(results, t)
 	}
@@ -749,7 +809,7 @@ func (t *CommitActivity) SetUserID(v string) {
 
 // FindCommitActivitiesByUserID will find all CommitActivitys by the UserID value
 func FindCommitActivitiesByUserID(ctx context.Context, db DB, value string) ([]*CommitActivity, error) {
-	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `user_id` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity` FROM `commit_activity` WHERE `user_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -772,6 +832,8 @@ func FindCommitActivitiesByUserID(ctx context.Context, db DB, value string) ([]*
 		var _Sloc sql.NullInt64
 		var _Blanks sql.NullInt64
 		var _Comments sql.NullInt64
+		var _Complexity sql.NullInt64
+		var _WeightedComplexity sql.NullFloat64
 		err := rows.Scan(
 			&_ID,
 			&_Date,
@@ -785,6 +847,8 @@ func FindCommitActivitiesByUserID(ctx context.Context, db DB, value string) ([]*
 			&_Sloc,
 			&_Blanks,
 			&_Comments,
+			&_Complexity,
+			&_WeightedComplexity,
 		)
 		if err != nil {
 			return nil, err
@@ -826,6 +890,12 @@ func FindCommitActivitiesByUserID(ctx context.Context, db DB, value string) ([]*
 		if _Comments.Valid {
 			t.SetComments(int32(_Comments.Int64))
 		}
+		if _Complexity.Valid {
+			t.SetComplexity(_Complexity.Int64)
+		}
+		if _WeightedComplexity.Valid {
+			t.SetWeightedComplexity(_WeightedComplexity.Float64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -833,7 +903,7 @@ func FindCommitActivitiesByUserID(ctx context.Context, db DB, value string) ([]*
 
 // FindCommitActivitiesByUserIDTx will find all CommitActivitys by the UserID value using the provided transaction
 func FindCommitActivitiesByUserIDTx(ctx context.Context, tx Tx, value string) ([]*CommitActivity, error) {
-	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `user_id` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity` FROM `commit_activity` WHERE `user_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -856,6 +926,8 @@ func FindCommitActivitiesByUserIDTx(ctx context.Context, tx Tx, value string) ([
 		var _Sloc sql.NullInt64
 		var _Blanks sql.NullInt64
 		var _Comments sql.NullInt64
+		var _Complexity sql.NullInt64
+		var _WeightedComplexity sql.NullFloat64
 		err := rows.Scan(
 			&_ID,
 			&_Date,
@@ -869,6 +941,8 @@ func FindCommitActivitiesByUserIDTx(ctx context.Context, tx Tx, value string) ([
 			&_Sloc,
 			&_Blanks,
 			&_Comments,
+			&_Complexity,
+			&_WeightedComplexity,
 		)
 		if err != nil {
 			return nil, err
@@ -909,6 +983,12 @@ func FindCommitActivitiesByUserIDTx(ctx context.Context, tx Tx, value string) ([
 		}
 		if _Comments.Valid {
 			t.SetComments(int32(_Comments.Int64))
+		}
+		if _Complexity.Valid {
+			t.SetComplexity(_Complexity.Int64)
+		}
+		if _WeightedComplexity.Valid {
+			t.SetWeightedComplexity(_WeightedComplexity.Float64)
 		}
 		results = append(results, t)
 	}
@@ -927,7 +1007,7 @@ func (t *CommitActivity) SetRepoID(v string) {
 
 // FindCommitActivitiesByRepoID will find all CommitActivitys by the RepoID value
 func FindCommitActivitiesByRepoID(ctx context.Context, db DB, value string) ([]*CommitActivity, error) {
-	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `repo_id` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity` FROM `commit_activity` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -950,6 +1030,8 @@ func FindCommitActivitiesByRepoID(ctx context.Context, db DB, value string) ([]*
 		var _Sloc sql.NullInt64
 		var _Blanks sql.NullInt64
 		var _Comments sql.NullInt64
+		var _Complexity sql.NullInt64
+		var _WeightedComplexity sql.NullFloat64
 		err := rows.Scan(
 			&_ID,
 			&_Date,
@@ -963,6 +1045,8 @@ func FindCommitActivitiesByRepoID(ctx context.Context, db DB, value string) ([]*
 			&_Sloc,
 			&_Blanks,
 			&_Comments,
+			&_Complexity,
+			&_WeightedComplexity,
 		)
 		if err != nil {
 			return nil, err
@@ -1004,6 +1088,12 @@ func FindCommitActivitiesByRepoID(ctx context.Context, db DB, value string) ([]*
 		if _Comments.Valid {
 			t.SetComments(int32(_Comments.Int64))
 		}
+		if _Complexity.Valid {
+			t.SetComplexity(_Complexity.Int64)
+		}
+		if _WeightedComplexity.Valid {
+			t.SetWeightedComplexity(_WeightedComplexity.Float64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -1011,7 +1101,7 @@ func FindCommitActivitiesByRepoID(ctx context.Context, db DB, value string) ([]*
 
 // FindCommitActivitiesByRepoIDTx will find all CommitActivitys by the RepoID value using the provided transaction
 func FindCommitActivitiesByRepoIDTx(ctx context.Context, tx Tx, value string) ([]*CommitActivity, error) {
-	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `repo_id` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity` FROM `commit_activity` WHERE `repo_id` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1034,6 +1124,8 @@ func FindCommitActivitiesByRepoIDTx(ctx context.Context, tx Tx, value string) ([
 		var _Sloc sql.NullInt64
 		var _Blanks sql.NullInt64
 		var _Comments sql.NullInt64
+		var _Complexity sql.NullInt64
+		var _WeightedComplexity sql.NullFloat64
 		err := rows.Scan(
 			&_ID,
 			&_Date,
@@ -1047,6 +1139,8 @@ func FindCommitActivitiesByRepoIDTx(ctx context.Context, tx Tx, value string) ([
 			&_Sloc,
 			&_Blanks,
 			&_Comments,
+			&_Complexity,
+			&_WeightedComplexity,
 		)
 		if err != nil {
 			return nil, err
@@ -1087,6 +1181,12 @@ func FindCommitActivitiesByRepoIDTx(ctx context.Context, tx Tx, value string) ([
 		}
 		if _Comments.Valid {
 			t.SetComments(int32(_Comments.Int64))
+		}
+		if _Complexity.Valid {
+			t.SetComplexity(_Complexity.Int64)
+		}
+		if _WeightedComplexity.Valid {
+			t.SetWeightedComplexity(_WeightedComplexity.Float64)
 		}
 		results = append(results, t)
 	}
@@ -1105,7 +1205,7 @@ func (t *CommitActivity) SetFilename(v string) {
 
 // FindCommitActivitiesByFilename will find all CommitActivitys by the Filename value
 func FindCommitActivitiesByFilename(ctx context.Context, db DB, value string) ([]*CommitActivity, error) {
-	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `filename` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity` FROM `commit_activity` WHERE `filename` = ? LIMIT 1"
 	rows, err := db.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1128,6 +1228,8 @@ func FindCommitActivitiesByFilename(ctx context.Context, db DB, value string) ([
 		var _Sloc sql.NullInt64
 		var _Blanks sql.NullInt64
 		var _Comments sql.NullInt64
+		var _Complexity sql.NullInt64
+		var _WeightedComplexity sql.NullFloat64
 		err := rows.Scan(
 			&_ID,
 			&_Date,
@@ -1141,6 +1243,8 @@ func FindCommitActivitiesByFilename(ctx context.Context, db DB, value string) ([
 			&_Sloc,
 			&_Blanks,
 			&_Comments,
+			&_Complexity,
+			&_WeightedComplexity,
 		)
 		if err != nil {
 			return nil, err
@@ -1182,6 +1286,12 @@ func FindCommitActivitiesByFilename(ctx context.Context, db DB, value string) ([
 		if _Comments.Valid {
 			t.SetComments(int32(_Comments.Int64))
 		}
+		if _Complexity.Valid {
+			t.SetComplexity(_Complexity.Int64)
+		}
+		if _WeightedComplexity.Valid {
+			t.SetWeightedComplexity(_WeightedComplexity.Float64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -1189,7 +1299,7 @@ func FindCommitActivitiesByFilename(ctx context.Context, db DB, value string) ([
 
 // FindCommitActivitiesByFilenameTx will find all CommitActivitys by the Filename value using the provided transaction
 func FindCommitActivitiesByFilenameTx(ctx context.Context, tx Tx, value string) ([]*CommitActivity, error) {
-	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `filename` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity` FROM `commit_activity` WHERE `filename` = ? LIMIT 1"
 	rows, err := tx.QueryContext(ctx, q, orm.ToSQLString(value))
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -1212,6 +1322,8 @@ func FindCommitActivitiesByFilenameTx(ctx context.Context, tx Tx, value string) 
 		var _Sloc sql.NullInt64
 		var _Blanks sql.NullInt64
 		var _Comments sql.NullInt64
+		var _Complexity sql.NullInt64
+		var _WeightedComplexity sql.NullFloat64
 		err := rows.Scan(
 			&_ID,
 			&_Date,
@@ -1225,6 +1337,8 @@ func FindCommitActivitiesByFilenameTx(ctx context.Context, tx Tx, value string) 
 			&_Sloc,
 			&_Blanks,
 			&_Comments,
+			&_Complexity,
+			&_WeightedComplexity,
 		)
 		if err != nil {
 			return nil, err
@@ -1265,6 +1379,12 @@ func FindCommitActivitiesByFilenameTx(ctx context.Context, tx Tx, value string) 
 		}
 		if _Comments.Valid {
 			t.SetComments(int32(_Comments.Int64))
+		}
+		if _Complexity.Valid {
+			t.SetComplexity(_Complexity.Int64)
+		}
+		if _WeightedComplexity.Valid {
+			t.SetWeightedComplexity(_WeightedComplexity.Float64)
 		}
 		results = append(results, t)
 	}
@@ -1334,6 +1454,26 @@ func (t *CommitActivity) SetComments(v int32) {
 	t.Comments = v
 }
 
+// GetComplexity will return the CommitActivity Complexity value
+func (t *CommitActivity) GetComplexity() int64 {
+	return t.Complexity
+}
+
+// SetComplexity will set the CommitActivity Complexity value
+func (t *CommitActivity) SetComplexity(v int64) {
+	t.Complexity = v
+}
+
+// GetWeightedComplexity will return the CommitActivity WeightedComplexity value
+func (t *CommitActivity) GetWeightedComplexity() float64 {
+	return t.WeightedComplexity
+}
+
+// SetWeightedComplexity will set the CommitActivity WeightedComplexity value
+func (t *CommitActivity) SetWeightedComplexity(v float64) {
+	t.WeightedComplexity = v
+}
+
 func (t *CommitActivity) toTimestamp(value time.Time) *timestamp.Timestamp {
 	ts, _ := ptypes.TimestampProto(value)
 	return ts
@@ -1341,14 +1481,14 @@ func (t *CommitActivity) toTimestamp(value time.Time) *timestamp.Timestamp {
 
 // DBCreateCommitActivityTable will create the CommitActivity table
 func DBCreateCommitActivityTable(ctx context.Context, db DB) error {
-	q := "CREATE TABLE `commit_activity` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`date` BIGINT UNSIGNED NOT NULL,`sha` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`filename`VARCHAR(700) NOT NULL,`language`VARCHAR(100) DEFAULT \"unknown\",`ordinal` BIGINT UNSIGNED NOT NULL,`loc` INT NOT NULL DEFAULT 0,`sloc` INT NOT NULL DEFAULT 0,`blanks` INT NOT NULL DEFAULT 0,`comments`INT NOT NULL DEFAULT 0,INDEX commit_activity_sha_index (`sha`),INDEX commit_activity_user_id_index (`user_id`),INDEX commit_activity_repo_id_index (`repo_id`),INDEX commit_activity_filename_index (`filename`),INDEX commit_activity_filename_repo_id_date_ordinal_index (`filename`,`repo_id`,`date`,`ordinal`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `commit_activity` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`date` BIGINT UNSIGNED NOT NULL,`sha`VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`filename` VARCHAR(700) NOT NULL,`language` VARCHAR(100) DEFAULT \"unknown\",`ordinal` BIGINT UNSIGNED NOT NULL,`loc`INT NOT NULL DEFAULT 0,`sloc` INT NOT NULL DEFAULT 0,`blanks`INT NOT NULL DEFAULT 0,`comments` INT NOT NULL DEFAULT 0,`complexity` BIGINT NOT NULL DEFAULT 0,`weighted_complexity` FLOAT NOT NULL DEFAULT 0,INDEX commit_activity_sha_index (`sha`),INDEX commit_activity_user_id_index (`user_id`),INDEX commit_activity_repo_id_index (`repo_id`),INDEX commit_activity_filename_index (`filename`),INDEX commit_activity_filename_repo_id_date_ordinal_index (`filename`,`repo_id`,`date`,`ordinal`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := db.ExecContext(ctx, q)
 	return err
 }
 
 // DBCreateCommitActivityTableTx will create the CommitActivity table using the provided transction
 func DBCreateCommitActivityTableTx(ctx context.Context, tx Tx) error {
-	q := "CREATE TABLE `commit_activity` (`id`VARCHAR(64) NOT NULL PRIMARY KEY,`date` BIGINT UNSIGNED NOT NULL,`sha` VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`filename`VARCHAR(700) NOT NULL,`language`VARCHAR(100) DEFAULT \"unknown\",`ordinal` BIGINT UNSIGNED NOT NULL,`loc` INT NOT NULL DEFAULT 0,`sloc` INT NOT NULL DEFAULT 0,`blanks` INT NOT NULL DEFAULT 0,`comments`INT NOT NULL DEFAULT 0,INDEX commit_activity_sha_index (`sha`),INDEX commit_activity_user_id_index (`user_id`),INDEX commit_activity_repo_id_index (`repo_id`),INDEX commit_activity_filename_index (`filename`),INDEX commit_activity_filename_repo_id_date_ordinal_index (`filename`,`repo_id`,`date`,`ordinal`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
+	q := "CREATE TABLE `commit_activity` (`id` VARCHAR(64) NOT NULL PRIMARY KEY,`date` BIGINT UNSIGNED NOT NULL,`sha`VARCHAR(64) NOT NULL,`user_id` VARCHAR(64) NOT NULL,`repo_id` VARCHAR(64) NOT NULL,`filename` VARCHAR(700) NOT NULL,`language` VARCHAR(100) DEFAULT \"unknown\",`ordinal` BIGINT UNSIGNED NOT NULL,`loc`INT NOT NULL DEFAULT 0,`sloc` INT NOT NULL DEFAULT 0,`blanks`INT NOT NULL DEFAULT 0,`comments` INT NOT NULL DEFAULT 0,`complexity` BIGINT NOT NULL DEFAULT 0,`weighted_complexity` FLOAT NOT NULL DEFAULT 0,INDEX commit_activity_sha_index (`sha`),INDEX commit_activity_user_id_index (`user_id`),INDEX commit_activity_repo_id_index (`repo_id`),INDEX commit_activity_filename_index (`filename`),INDEX commit_activity_filename_repo_id_date_ordinal_index (`filename`,`repo_id`,`date`,`ordinal`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
 	_, err := tx.ExecContext(ctx, q)
 	return err
 }
@@ -1369,7 +1509,7 @@ func DBDropCommitActivityTableTx(ctx context.Context, tx Tx) error {
 
 // DBCreate will create a new CommitActivity record in the database
 func (t *CommitActivity) DBCreate(ctx context.Context, db DB) (sql.Result, error) {
-	q := "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLInt64(t.Date),
@@ -1383,12 +1523,14 @@ func (t *CommitActivity) DBCreate(ctx context.Context, db DB) (sql.Result, error
 		orm.ToSQLInt64(t.Sloc),
 		orm.ToSQLInt64(t.Blanks),
 		orm.ToSQLInt64(t.Comments),
+		orm.ToSQLInt64(t.Complexity),
+		orm.ToSQLFloat64(t.WeightedComplexity),
 	)
 }
 
 // DBCreateTx will create a new CommitActivity record in the database using the provided transaction
 func (t *CommitActivity) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, error) {
-	q := "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
+	q := "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLInt64(t.Date),
@@ -1402,12 +1544,14 @@ func (t *CommitActivity) DBCreateTx(ctx context.Context, tx Tx) (sql.Result, err
 		orm.ToSQLInt64(t.Sloc),
 		orm.ToSQLInt64(t.Blanks),
 		orm.ToSQLInt64(t.Comments),
+		orm.ToSQLInt64(t.Complexity),
+		orm.ToSQLFloat64(t.WeightedComplexity),
 	)
 }
 
 // DBCreateIgnoreDuplicate will upsert the CommitActivity record in the database
 func (t *CommitActivity) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sql.Result, error) {
-	q := "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLInt64(t.Date),
@@ -1421,12 +1565,14 @@ func (t *CommitActivity) DBCreateIgnoreDuplicate(ctx context.Context, db DB) (sq
 		orm.ToSQLInt64(t.Sloc),
 		orm.ToSQLInt64(t.Blanks),
 		orm.ToSQLInt64(t.Comments),
+		orm.ToSQLInt64(t.Complexity),
+		orm.ToSQLFloat64(t.WeightedComplexity),
 	)
 }
 
 // DBCreateIgnoreDuplicateTx will upsert the CommitActivity record in the database using the provided transaction
 func (t *CommitActivity) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (sql.Result, error) {
-	q := "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
+	q := "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `id` = `id`"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
 		orm.ToSQLInt64(t.Date),
@@ -1440,6 +1586,8 @@ func (t *CommitActivity) DBCreateIgnoreDuplicateTx(ctx context.Context, tx Tx) (
 		orm.ToSQLInt64(t.Sloc),
 		orm.ToSQLInt64(t.Blanks),
 		orm.ToSQLInt64(t.Comments),
+		orm.ToSQLInt64(t.Complexity),
+		orm.ToSQLFloat64(t.WeightedComplexity),
 	)
 }
 
@@ -1503,7 +1651,7 @@ func (t *CommitActivity) DBDeleteTx(ctx context.Context, tx Tx) (bool, error) {
 
 // DBUpdate will update the CommitActivity record in the database
 func (t *CommitActivity) DBUpdate(ctx context.Context, db DB) (sql.Result, error) {
-	q := "UPDATE `commit_activity` SET `date`=?,`sha`=?,`user_id`=?,`repo_id`=?,`filename`=?,`language`=?,`ordinal`=?,`loc`=?,`sloc`=?,`blanks`=?,`comments`=? WHERE `id`=?"
+	q := "UPDATE `commit_activity` SET `date`=?,`sha`=?,`user_id`=?,`repo_id`=?,`filename`=?,`language`=?,`ordinal`=?,`loc`=?,`sloc`=?,`blanks`=?,`comments`=?,`complexity`=?,`weighted_complexity`=? WHERE `id`=?"
 	return db.ExecContext(ctx, q,
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Sha),
@@ -1516,13 +1664,15 @@ func (t *CommitActivity) DBUpdate(ctx context.Context, db DB) (sql.Result, error
 		orm.ToSQLInt64(t.Sloc),
 		orm.ToSQLInt64(t.Blanks),
 		orm.ToSQLInt64(t.Comments),
+		orm.ToSQLInt64(t.Complexity),
+		orm.ToSQLFloat64(t.WeightedComplexity),
 		orm.ToSQLString(t.ID),
 	)
 }
 
 // DBUpdateTx will update the CommitActivity record in the database using the provided transaction
 func (t *CommitActivity) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, error) {
-	q := "UPDATE `commit_activity` SET `date`=?,`sha`=?,`user_id`=?,`repo_id`=?,`filename`=?,`language`=?,`ordinal`=?,`loc`=?,`sloc`=?,`blanks`=?,`comments`=? WHERE `id`=?"
+	q := "UPDATE `commit_activity` SET `date`=?,`sha`=?,`user_id`=?,`repo_id`=?,`filename`=?,`language`=?,`ordinal`=?,`loc`=?,`sloc`=?,`blanks`=?,`comments`=?,`complexity`=?,`weighted_complexity`=? WHERE `id`=?"
 	return tx.ExecContext(ctx, q,
 		orm.ToSQLInt64(t.Date),
 		orm.ToSQLString(t.Sha),
@@ -1535,6 +1685,8 @@ func (t *CommitActivity) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, err
 		orm.ToSQLInt64(t.Sloc),
 		orm.ToSQLInt64(t.Blanks),
 		orm.ToSQLInt64(t.Comments),
+		orm.ToSQLInt64(t.Complexity),
+		orm.ToSQLFloat64(t.WeightedComplexity),
 		orm.ToSQLString(t.ID),
 	)
 }
@@ -1543,12 +1695,12 @@ func (t *CommitActivity) DBUpdateTx(ctx context.Context, tx Tx) (sql.Result, err
 func (t *CommitActivity) DBUpsert(ctx context.Context, db DB, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `date`=VALUES(`date`),`sha`=VALUES(`sha`),`user_id`=VALUES(`user_id`),`repo_id`=VALUES(`repo_id`),`filename`=VALUES(`filename`),`language`=VALUES(`language`),`ordinal`=VALUES(`ordinal`),`loc`=VALUES(`loc`),`sloc`=VALUES(`sloc`),`blanks`=VALUES(`blanks`),`comments`=VALUES(`comments`)"
+		q = "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `date`=VALUES(`date`),`sha`=VALUES(`sha`),`user_id`=VALUES(`user_id`),`repo_id`=VALUES(`repo_id`),`filename`=VALUES(`filename`),`language`=VALUES(`language`),`ordinal`=VALUES(`ordinal`),`loc`=VALUES(`loc`),`sloc`=VALUES(`sloc`),`blanks`=VALUES(`blanks`),`comments`=VALUES(`comments`),`complexity`=VALUES(`complexity`),`weighted_complexity`=VALUES(`weighted_complexity`)"
 	}
 	r, err := db.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1563,6 +1715,8 @@ func (t *CommitActivity) DBUpsert(ctx context.Context, db DB, conditions ...inte
 		orm.ToSQLInt64(t.Sloc),
 		orm.ToSQLInt64(t.Blanks),
 		orm.ToSQLInt64(t.Comments),
+		orm.ToSQLInt64(t.Complexity),
+		orm.ToSQLFloat64(t.WeightedComplexity),
 	)
 	if err != nil {
 		return false, false, err
@@ -1575,12 +1729,12 @@ func (t *CommitActivity) DBUpsert(ctx context.Context, db DB, conditions ...inte
 func (t *CommitActivity) DBUpsertTx(ctx context.Context, tx Tx, conditions ...interface{}) (bool, bool, error) {
 	var q string
 	if conditions != nil && len(conditions) > 0 {
-		q = "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
+		q = "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE "
 		for _, cond := range conditions {
 			q = fmt.Sprintf("%s %v ", q, cond)
 		}
 	} else {
-		q = "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `date`=VALUES(`date`),`sha`=VALUES(`sha`),`user_id`=VALUES(`user_id`),`repo_id`=VALUES(`repo_id`),`filename`=VALUES(`filename`),`language`=VALUES(`language`),`ordinal`=VALUES(`ordinal`),`loc`=VALUES(`loc`),`sloc`=VALUES(`sloc`),`blanks`=VALUES(`blanks`),`comments`=VALUES(`comments`)"
+		q = "INSERT INTO `commit_activity` (`commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `date`=VALUES(`date`),`sha`=VALUES(`sha`),`user_id`=VALUES(`user_id`),`repo_id`=VALUES(`repo_id`),`filename`=VALUES(`filename`),`language`=VALUES(`language`),`ordinal`=VALUES(`ordinal`),`loc`=VALUES(`loc`),`sloc`=VALUES(`sloc`),`blanks`=VALUES(`blanks`),`comments`=VALUES(`comments`),`complexity`=VALUES(`complexity`),`weighted_complexity`=VALUES(`weighted_complexity`)"
 	}
 	r, err := tx.ExecContext(ctx, q,
 		orm.ToSQLString(t.ID),
@@ -1595,6 +1749,8 @@ func (t *CommitActivity) DBUpsertTx(ctx context.Context, tx Tx, conditions ...in
 		orm.ToSQLInt64(t.Sloc),
 		orm.ToSQLInt64(t.Blanks),
 		orm.ToSQLInt64(t.Comments),
+		orm.ToSQLInt64(t.Complexity),
+		orm.ToSQLFloat64(t.WeightedComplexity),
 	)
 	if err != nil {
 		return false, false, err
@@ -1605,7 +1761,7 @@ func (t *CommitActivity) DBUpsertTx(ctx context.Context, tx Tx, conditions ...in
 
 // DBFindOne will find a CommitActivity record in the database with the primary key
 func (t *CommitActivity) DBFindOne(ctx context.Context, db DB, value string) (bool, error) {
-	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity` FROM `commit_activity` WHERE `id` = ? LIMIT 1"
 	row := db.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Date sql.NullInt64
@@ -1619,6 +1775,8 @@ func (t *CommitActivity) DBFindOne(ctx context.Context, db DB, value string) (bo
 	var _Sloc sql.NullInt64
 	var _Blanks sql.NullInt64
 	var _Comments sql.NullInt64
+	var _Complexity sql.NullInt64
+	var _WeightedComplexity sql.NullFloat64
 	err := row.Scan(
 		&_ID,
 		&_Date,
@@ -1632,6 +1790,8 @@ func (t *CommitActivity) DBFindOne(ctx context.Context, db DB, value string) (bo
 		&_Sloc,
 		&_Blanks,
 		&_Comments,
+		&_Complexity,
+		&_WeightedComplexity,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -1675,12 +1835,18 @@ func (t *CommitActivity) DBFindOne(ctx context.Context, db DB, value string) (bo
 	if _Comments.Valid {
 		t.SetComments(int32(_Comments.Int64))
 	}
+	if _Complexity.Valid {
+		t.SetComplexity(_Complexity.Int64)
+	}
+	if _WeightedComplexity.Valid {
+		t.SetWeightedComplexity(_WeightedComplexity.Float64)
+	}
 	return true, nil
 }
 
 // DBFindOneTx will find a CommitActivity record in the database with the primary key using the provided transaction
 func (t *CommitActivity) DBFindOneTx(ctx context.Context, tx Tx, value string) (bool, error) {
-	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments` FROM `commit_activity` WHERE `id` = ? LIMIT 1"
+	q := "SELECT `commit_activity`.`id`,`commit_activity`.`date`,`commit_activity`.`sha`,`commit_activity`.`user_id`,`commit_activity`.`repo_id`,`commit_activity`.`filename`,`commit_activity`.`language`,`commit_activity`.`ordinal`,`commit_activity`.`loc`,`commit_activity`.`sloc`,`commit_activity`.`blanks`,`commit_activity`.`comments`,`commit_activity`.`complexity`,`commit_activity`.`weighted_complexity` FROM `commit_activity` WHERE `id` = ? LIMIT 1"
 	row := tx.QueryRowContext(ctx, q, orm.ToSQLString(value))
 	var _ID sql.NullString
 	var _Date sql.NullInt64
@@ -1694,6 +1860,8 @@ func (t *CommitActivity) DBFindOneTx(ctx context.Context, tx Tx, value string) (
 	var _Sloc sql.NullInt64
 	var _Blanks sql.NullInt64
 	var _Comments sql.NullInt64
+	var _Complexity sql.NullInt64
+	var _WeightedComplexity sql.NullFloat64
 	err := row.Scan(
 		&_ID,
 		&_Date,
@@ -1707,6 +1875,8 @@ func (t *CommitActivity) DBFindOneTx(ctx context.Context, tx Tx, value string) (
 		&_Sloc,
 		&_Blanks,
 		&_Comments,
+		&_Complexity,
+		&_WeightedComplexity,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -1749,6 +1919,12 @@ func (t *CommitActivity) DBFindOneTx(ctx context.Context, tx Tx, value string) (
 	}
 	if _Comments.Valid {
 		t.SetComments(int32(_Comments.Int64))
+	}
+	if _Complexity.Valid {
+		t.SetComplexity(_Complexity.Int64)
+	}
+	if _WeightedComplexity.Valid {
+		t.SetWeightedComplexity(_WeightedComplexity.Float64)
 	}
 	return true, nil
 }
@@ -1768,6 +1944,8 @@ func FindCommitActivities(ctx context.Context, db DB, _params ...interface{}) ([
 		orm.Column("sloc"),
 		orm.Column("blanks"),
 		orm.Column("comments"),
+		orm.Column("complexity"),
+		orm.Column("weighted_complexity"),
 		orm.Table(CommitActivityTableName),
 	}
 	if len(_params) > 0 {
@@ -1798,6 +1976,8 @@ func FindCommitActivities(ctx context.Context, db DB, _params ...interface{}) ([
 		var _Sloc sql.NullInt64
 		var _Blanks sql.NullInt64
 		var _Comments sql.NullInt64
+		var _Complexity sql.NullInt64
+		var _WeightedComplexity sql.NullFloat64
 		err := rows.Scan(
 			&_ID,
 			&_Date,
@@ -1811,6 +1991,8 @@ func FindCommitActivities(ctx context.Context, db DB, _params ...interface{}) ([
 			&_Sloc,
 			&_Blanks,
 			&_Comments,
+			&_Complexity,
+			&_WeightedComplexity,
 		)
 		if err != nil {
 			return nil, err
@@ -1852,6 +2034,12 @@ func FindCommitActivities(ctx context.Context, db DB, _params ...interface{}) ([
 		if _Comments.Valid {
 			t.SetComments(int32(_Comments.Int64))
 		}
+		if _Complexity.Valid {
+			t.SetComplexity(_Complexity.Int64)
+		}
+		if _WeightedComplexity.Valid {
+			t.SetWeightedComplexity(_WeightedComplexity.Float64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -1872,6 +2060,8 @@ func FindCommitActivitiesTx(ctx context.Context, tx Tx, _params ...interface{}) 
 		orm.Column("sloc"),
 		orm.Column("blanks"),
 		orm.Column("comments"),
+		orm.Column("complexity"),
+		orm.Column("weighted_complexity"),
 		orm.Table(CommitActivityTableName),
 	}
 	if len(_params) > 0 {
@@ -1902,6 +2092,8 @@ func FindCommitActivitiesTx(ctx context.Context, tx Tx, _params ...interface{}) 
 		var _Sloc sql.NullInt64
 		var _Blanks sql.NullInt64
 		var _Comments sql.NullInt64
+		var _Complexity sql.NullInt64
+		var _WeightedComplexity sql.NullFloat64
 		err := rows.Scan(
 			&_ID,
 			&_Date,
@@ -1915,6 +2107,8 @@ func FindCommitActivitiesTx(ctx context.Context, tx Tx, _params ...interface{}) 
 			&_Sloc,
 			&_Blanks,
 			&_Comments,
+			&_Complexity,
+			&_WeightedComplexity,
 		)
 		if err != nil {
 			return nil, err
@@ -1956,6 +2150,12 @@ func FindCommitActivitiesTx(ctx context.Context, tx Tx, _params ...interface{}) 
 		if _Comments.Valid {
 			t.SetComments(int32(_Comments.Int64))
 		}
+		if _Complexity.Valid {
+			t.SetComplexity(_Complexity.Int64)
+		}
+		if _WeightedComplexity.Valid {
+			t.SetWeightedComplexity(_WeightedComplexity.Float64)
+		}
 		results = append(results, t)
 	}
 	return results, nil
@@ -1976,6 +2176,8 @@ func (t *CommitActivity) DBFind(ctx context.Context, db DB, _params ...interface
 		orm.Column("sloc"),
 		orm.Column("blanks"),
 		orm.Column("comments"),
+		orm.Column("complexity"),
+		orm.Column("weighted_complexity"),
 		orm.Table(CommitActivityTableName),
 	}
 	if len(_params) > 0 {
@@ -1997,6 +2199,8 @@ func (t *CommitActivity) DBFind(ctx context.Context, db DB, _params ...interface
 	var _Sloc sql.NullInt64
 	var _Blanks sql.NullInt64
 	var _Comments sql.NullInt64
+	var _Complexity sql.NullInt64
+	var _WeightedComplexity sql.NullFloat64
 	err := row.Scan(
 		&_ID,
 		&_Date,
@@ -2010,6 +2214,8 @@ func (t *CommitActivity) DBFind(ctx context.Context, db DB, _params ...interface
 		&_Sloc,
 		&_Blanks,
 		&_Comments,
+		&_Complexity,
+		&_WeightedComplexity,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -2050,6 +2256,12 @@ func (t *CommitActivity) DBFind(ctx context.Context, db DB, _params ...interface
 	if _Comments.Valid {
 		t.SetComments(int32(_Comments.Int64))
 	}
+	if _Complexity.Valid {
+		t.SetComplexity(_Complexity.Int64)
+	}
+	if _WeightedComplexity.Valid {
+		t.SetWeightedComplexity(_WeightedComplexity.Float64)
+	}
 	return true, nil
 }
 
@@ -2068,6 +2280,8 @@ func (t *CommitActivity) DBFindTx(ctx context.Context, tx Tx, _params ...interfa
 		orm.Column("sloc"),
 		orm.Column("blanks"),
 		orm.Column("comments"),
+		orm.Column("complexity"),
+		orm.Column("weighted_complexity"),
 		orm.Table(CommitActivityTableName),
 	}
 	if len(_params) > 0 {
@@ -2089,6 +2303,8 @@ func (t *CommitActivity) DBFindTx(ctx context.Context, tx Tx, _params ...interfa
 	var _Sloc sql.NullInt64
 	var _Blanks sql.NullInt64
 	var _Comments sql.NullInt64
+	var _Complexity sql.NullInt64
+	var _WeightedComplexity sql.NullFloat64
 	err := row.Scan(
 		&_ID,
 		&_Date,
@@ -2102,6 +2318,8 @@ func (t *CommitActivity) DBFindTx(ctx context.Context, tx Tx, _params ...interfa
 		&_Sloc,
 		&_Blanks,
 		&_Comments,
+		&_Complexity,
+		&_WeightedComplexity,
 	)
 	if err != nil && err != sql.ErrNoRows {
 		return false, err
@@ -2141,6 +2359,12 @@ func (t *CommitActivity) DBFindTx(ctx context.Context, tx Tx, _params ...interfa
 	}
 	if _Comments.Valid {
 		t.SetComments(int32(_Comments.Int64))
+	}
+	if _Complexity.Valid {
+		t.SetComplexity(_Complexity.Int64)
+	}
+	if _WeightedComplexity.Valid {
+		t.SetWeightedComplexity(_WeightedComplexity.Float64)
 	}
 	return true, nil
 }

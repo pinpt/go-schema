@@ -153,6 +153,8 @@ message CommitActivity {
 	int32 sloc = 12 [(proto.column).default="0",(proto.column).notnull=true];
 	int32 blanks = 13 [(proto.column).default="0",(proto.column).notnull=true];
 	int32 comments = 14 [(proto.column).default="0",(proto.column).notnull=true];
+	int64 complexity = 16 [(proto.column).default="0",(proto.column).notnull=true];
+	float weighted_complexity = 17 [(proto.column).default="0",(proto.column).notnull=true];
 	option (proto.table).index={fields:"filename, repo_id, date, ordinal"};
 }
 
