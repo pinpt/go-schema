@@ -28,18 +28,20 @@ func TestCreateCommitActivityTable(t *testing.T) {
 
 func TestCreateCommitActivityDelete(t *testing.T) {
 	r := &CommitActivity{
-		ID:       "ab9ba2bffffece2f",
-		Date:     int64(64),
-		Sha:      "d3f496270fadaa64",
-		UserID:   "358dcf8424b26e0b",
-		RepoID:   "0895885a79bf88ec",
-		Filename: "edb78108698ec2df",
-		Language: nil,
-		Ordinal:  int64(64),
-		Loc:      int32(32),
-		Sloc:     int32(32),
-		Blanks:   int32(32),
-		Comments: int32(32),
+		ID:                 "ab9ba2bffffece2f",
+		Date:               int64(64),
+		Sha:                "d3f496270fadaa64",
+		UserID:             "358dcf8424b26e0b",
+		RepoID:             "0895885a79bf88ec",
+		Filename:           "edb78108698ec2df",
+		Language:           nil,
+		Ordinal:            int64(64),
+		Loc:                int32(32),
+		Sloc:               int32(32),
+		Blanks:             int32(32),
+		Comments:           int32(32),
+		Complexity:         int64(64),
+		WeightedComplexity: float64(6.4),
 	}
 	ctx := context.Background()
 	db := GetDatabase()
@@ -118,18 +120,20 @@ func TestCreateCommitActivityDelete(t *testing.T) {
 
 func TestCreateCommitActivityDeleteTx(t *testing.T) {
 	r := &CommitActivity{
-		ID:       "ab9ba2bffffece2f",
-		Date:     int64(64),
-		Sha:      "d3f496270fadaa64",
-		UserID:   "358dcf8424b26e0b",
-		RepoID:   "0895885a79bf88ec",
-		Filename: "edb78108698ec2df",
-		Language: nil,
-		Ordinal:  int64(64),
-		Loc:      int32(32),
-		Sloc:     int32(32),
-		Blanks:   int32(32),
-		Comments: int32(32),
+		ID:                 "ab9ba2bffffece2f",
+		Date:               int64(64),
+		Sha:                "d3f496270fadaa64",
+		UserID:             "358dcf8424b26e0b",
+		RepoID:             "0895885a79bf88ec",
+		Filename:           "edb78108698ec2df",
+		Language:           nil,
+		Ordinal:            int64(64),
+		Loc:                int32(32),
+		Sloc:               int32(32),
+		Blanks:             int32(32),
+		Comments:           int32(32),
+		Complexity:         int64(64),
+		WeightedComplexity: float64(6.4),
 	}
 	ctx := context.Background()
 	db := GetDatabase()
