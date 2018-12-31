@@ -183,6 +183,12 @@ message IssueSummary {
 	option (proto.table).index2={fields:"customer_id, top_level"};
 	option (proto.table).index3={fields:"customer_id, top_level, issue_type_id"};
 	option (proto.table).index4={fields:"customer_id, top_level, issue_type_id, priority_id"};
+	option (proto.table).index5={fields:"customer_id, project_id, completed_date, closed_at, created_at, issue_type_id"};
+	option (proto.table).index6={fields:"customer_id, project_id, completed_date, closed_at, created_at"};
+	option (proto.table).index7={fields:"customer_id, state, project_id"};
+	option (proto.table).index8={fields:"customer_id, state, project_id, issue_type"};
+	option (proto.table).index9={fields:"customer_id, closed_at, project_id, issue_type_id"};
+	option (proto.table).index10={fields:"customer_id, ref_id, end_date"};
 }
 
 message IssueReworkSummary {

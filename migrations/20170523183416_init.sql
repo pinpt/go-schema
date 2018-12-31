@@ -438,7 +438,13 @@ CREATE TABLE `issue_summary` (
 	INDEX issue_summary_customer_id_parent_issue_id_index (`customer_id`,`parent_issue_id`),
 	INDEX issue_summary_customer_id_top_level_index (`customer_id`,`top_level`),
 	INDEX issue_summary_customer_id_top_level_issue_type_id_index (`customer_id`,`top_level`,`issue_type_id`),
-	INDEX issue_summary_customer_id_top_level_issue_type_id_priority_id_in (`customer_id`,`top_level`,`issue_type_id`,`priority_id`)
+	INDEX issue_summary_customer_id_top_level_issue_type_id_priority_id_in (`customer_id`,`top_level`,`issue_type_id`,`priority_id`),
+	INDEX issue_summary_customer_id_project_id_completed_date_closed_at_cr (`customer_id`,`project_id`,`completed_date`,`closed_at`,`created_at`,`issue_type_id`),
+	INDEX issue_summary_customer_id_project_id_completed_date_closed_at_cr (`customer_id`,`project_id`,`completed_date`,`closed_at`,`created_at`),
+	INDEX issue_summary_customer_id_state_project_id_index (`customer_id`,`state`,`project_id`),
+	INDEX issue_summary_customer_id_state_project_id_issue_type_index (`customer_id`,`state`,`project_id`,`issue_type`),
+	INDEX issue_summary_customer_id_closed_at_project_id_issue_type_id_ind (`customer_id`,`closed_at`,`project_id`,`issue_type_id`),
+	INDEX issue_summary_customer_id_ref_id_end_date_index (`customer_id`,`ref_id`,`end_date`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --  JiraCustomField is a table which contains the unique custom fields found across all jira projects
