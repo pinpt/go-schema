@@ -12,4 +12,4 @@
 
 ## License
 
-All of this code is proprietary and Copyright &copy; 2018 by PinPT, Inc.
+All of this code is proprietary and Copyright &copy; 2018-2019 by Pinpoint Software, Inc.
