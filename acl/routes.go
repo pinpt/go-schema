@@ -8,7 +8,7 @@ import (
 
 func init() {
 	isPublicRoute = regexp.MustCompile("(^\\/error$|^\\/welcome$)")
-	isValidRoute = regexp.MustCompile("(^$|^\\/$|^\\/admin$|^\\/admin\\/cost-center$|^\\/admin\\/mapping$|^\\/admin\\/people$|^\\/admin\\/roles$|^\\/commit\\/(\\w+)?$|^\\/cost-center\\/(\\w+)?$|^\\/dashboard$|^\\/data\\/code-scans$|^\\/data\\/commits$|^\\/data\\/issues$|^\\/data\\/locations$|^\\/data\\/people$|^\\/data\\/projects$|^\\/data\\/repositories$|^\\/data\\/sprints$|^\\/data\\/teams$|^\\/error$|^\\/file\\/(\\w+)?$|^\\/foo$|^\\/issue\\/(\\w+)?$|^\\/issues\\/forecast$|^\\/issues\\/workflow\\/(\\w+)?\\/(\\w+)?\\/(\\w+)?$|^\\/language\\/(\\w+)?$|^\\/location\\/(\\w+)?$|^\\/locations\\/performance$|^\\/people\\/performance$|^\\/people\\/performance-changes$|^\\/person\\/(\\w+)?$|^\\/project\\/(\\w+)?$|^\\/repository\\/(\\w+)?$|^\\/signal\\/backlog-change\\/team\\/(\\w+)?$|^\\/signal\\/changes-per-commit\\/person\\/(\\w+)?$|^\\/signal\\/code-health\\/team\\/(\\w+)?$|^\\/signal\\/code-ownership\\/person\\/(\\w+)?$|^\\/signal\\/commits\\/person\\/(\\w+)?$|^\\/signal\\/cost\\/team\\/(\\w+)?$|^\\/signal\\/cycle-time\\/person\\/(\\w+)?$|^\\/signal\\/cycle-time\\/team\\/(\\w+)?$|^\\/signal\\/defects-density\\/team\\/(\\w+)?$|^\\/signal\\/defects-rate\\/team\\/(\\w+)?$|^\\/signal\\/delivered-vs-committed\\/team\\/(\\w+)?$|^\\/signal\\/initiative-issues\\/team\\/(\\w+)?$|^\\/signal\\/innovation-rate\\/team\\/(\\w+)?$|^\\/signal\\/issues-completed\\/team\\/(\\w+)?$|^\\/signal\\/issues-worked\\/person\\/(\\w+)?$|^\\/signal\\/on-time-delivery\\/team\\/(\\w+)?$|^\\/signal\\/rework-rate\\/person\\/(\\w+)?$|^\\/signal\\/rework-rate\\/team\\/(\\w+)?$|^\\/signal\\/scheduled-rate\\/team\\/(\\w+)?$|^\\/signal\\/sprint-health\\/team\\/(\\w+)?$|^\\/signal\\/sprint-volatility\\/team\\/(\\w+)?$|^\\/signal\\/throughput\\/team\\/(\\w+)?$|^\\/signal\\/traceability\\/person\\/(\\w+)?$|^\\/sprint\\/(\\w+)?$|^\\/team\\/(\\w+)?$|^\\/teams\\/performance$|^\\/teams\\/performance-changes$|^\\/welcome$)")
+	isValidRoute = regexp.MustCompile("(^$|^\\/$|^\\/admin$|^\\/admin\\/cost-center$|^\\/admin\\/mapping$|^\\/admin\\/people$|^\\/admin\\/roles$|^\\/commit\\/(\\w+)?$|^\\/cost-center\\/(\\w+)?$|^\\/data\\/code-scans$|^\\/data\\/commits$|^\\/data\\/issues$|^\\/data\\/locations$|^\\/data\\/people$|^\\/data\\/projects$|^\\/data\\/repositories$|^\\/data\\/sprints$|^\\/data\\/teams$|^\\/error$|^\\/file\\/(\\w+)?$|^\\/foo$|^\\/issue\\/(\\w+)?$|^\\/issues\\/forecast$|^\\/issues\\/workflow\\/(\\w+)?\\/(\\w+)?\\/(\\w+)?$|^\\/language\\/(\\w+)?$|^\\/location\\/(\\w+)?$|^\\/locations\\/performance$|^\\/people\\/performance$|^\\/people\\/performance-changes$|^\\/person\\/(\\w+)?$|^\\/project\\/(\\w+)?$|^\\/repository\\/(\\w+)?$|^\\/signal\\/backlog-change\\/team\\/(\\w+)?$|^\\/signal\\/changes-per-commit\\/person\\/(\\w+)?$|^\\/signal\\/code-health\\/team\\/(\\w+)?$|^\\/signal\\/code-ownership\\/person\\/(\\w+)?$|^\\/signal\\/commits\\/person\\/(\\w+)?$|^\\/signal\\/cost\\/team\\/(\\w+)?$|^\\/signal\\/cycle-time\\/person\\/(\\w+)?$|^\\/signal\\/cycle-time\\/team\\/(\\w+)?$|^\\/signal\\/defects-density\\/team\\/(\\w+)?$|^\\/signal\\/defects-rate\\/team\\/(\\w+)?$|^\\/signal\\/delivered-vs-committed\\/team\\/(\\w+)?$|^\\/signal\\/initiative-issues\\/team\\/(\\w+)?$|^\\/signal\\/innovation-rate\\/team\\/(\\w+)?$|^\\/signal\\/issues-completed\\/team\\/(\\w+)?$|^\\/signal\\/issues-worked\\/person\\/(\\w+)?$|^\\/signal\\/on-time-delivery\\/team\\/(\\w+)?$|^\\/signal\\/rework-rate\\/person\\/(\\w+)?$|^\\/signal\\/rework-rate\\/team\\/(\\w+)?$|^\\/signal\\/scheduled-rate\\/team\\/(\\w+)?$|^\\/signal\\/sprint-health\\/team\\/(\\w+)?$|^\\/signal\\/sprint-volatility\\/team\\/(\\w+)?$|^\\/signal\\/throughput\\/team\\/(\\w+)?$|^\\/signal\\/traceability\\/person\\/(\\w+)?$|^\\/sprint\\/(\\w+)?$|^\\/team\\/(\\w+)?$|^\\/teams\\/performance$|^\\/teams\\/performance-changes$|^\\/welcome$)")
 	routes = []*Route{
 		&Route{
 			Name:           "Admin",
@@ -84,16 +84,6 @@ func init() {
 			Name:           "CostCenter",
 			Path:	        "/cost-center/:id",
 			Title:          "Cost Center Detail",
-			Public:         false,
-			Hidden:         true,
-			Admin:          false,
-			Description:    "",
-			
-		},
-		&Route{
-			Name:           "Dashboard",
-			Path:	        "/dashboard",
-			Title:          "Dashboard",
 			Public:         false,
 			Hidden:         true,
 			Admin:          false,
@@ -361,7 +351,7 @@ func init() {
 			
 		},
 		&Route{
-			Name:           "PersonPerformanceChanges",
+			Name:           "PersonPerformanceChange",
 			Path:	        "/people/performance-changes",
 			Title:          "People - Performance Changes",
 			Public:         false,
@@ -541,7 +531,7 @@ func init() {
 			
 		},
 		&Route{
-			Name:           "TeamPerformanceChanges",
+			Name:           "TeamPerformanceChange",
 			Path:	        "/teams/performance-changes",
 			Title:          "Teams - Performance Changes",
 			Public:         false,
